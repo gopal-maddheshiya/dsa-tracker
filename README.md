@@ -6,11 +6,11 @@ A focused, personal Data Structures and Algorithms preparation tracker designed 
 
 ## Current Development Status
 
-> **Current Milestone**: Phase 1 — Project Foundation & Engineering Scaffolding  
+> **Current Milestone**: Phase 2 — Database Schema + Authentication  
 > **Status**: Completed  
-> **Next Milestone**: Phase 2 — Data Models & Authentication Foundation
+> **Next Milestone**: Phase 3 — Problem & Attempt Data Models + Core CRUD APIs
 
-In Phase 1, the core architecture, tooling, environment configurations, and baseline communication channels are established. Real models, authentication workflows (JWT/bcrypt), CRUD endpoints, data analytics, and interactive charts are deliberately deferred to their designated phases.
+In Phase 2, the User schema, bcrypt password hashing, stateless JWT authentication, protected API middleware, React AuthContext, functional Login/Signup pages, and client-side private routing guards are fully implemented.
 
 ---
 
@@ -23,12 +23,12 @@ dsa-tracker/
 ├── client/                 # Frontend Single Page Application (React + Vite)
 │   ├── public/
 │   ├── src/
-│   │   ├── api/            # Centralized Axios client & API helpers
-│   │   ├── components/     # Reusable UI layout & navigational elements
-│   │   ├── context/        # React Context stores (planned)
-│   │   ├── hooks/          # Custom utility & lifecycle hooks (planned)
-│   │   ├── pages/          # Routed page views (placeholders in Phase 1)
-│   │   ├── App.jsx         # Application routing tree
+│   │   ├── api/            # Centralized Axios client with Bearer auth interceptor
+│   │   ├── components/     # Navbar, PrivateRoute, PublicOnlyRoute
+│   │   ├── context/        # AuthContext (React context session management)
+│   │   ├── hooks/          # Custom hooks (useAuth)
+│   │   ├── pages/          # LoginPage, SignupPage, DashboardPage, etc.
+│   │   ├── App.jsx         # Application routing tree with route guards
 │   │   ├── index.css       # Tailwind CSS directives & typography rules
 │   │   └── main.jsx        # Client DOM mounting
 │   ├── index.html
@@ -39,13 +39,14 @@ dsa-tracker/
 └── server/                 # Backend REST API (Node.js + Express + Mongoose)
     ├── src/
     │   ├── config/         # Database and infrastructure connections
-    │   ├── controllers/    # Route controllers (planned)
-    │   ├── middleware/     # Error handling and upcoming auth middleware
-    │   ├── models/         # Mongoose schemas (planned)
-    │   ├── routes/         # Express API route modules
-    │   ├── utils/          # Helper functions & spaced-repetition logic (planned)
+    │   ├── controllers/    # auth.controller.js (signup, login, getMe)
+    │   ├── middleware/     # errorMiddleware.js, authMiddleware.js
+    │   ├── models/         # User.js (Mongoose schema, bcrypt comparison)
+    │   ├── routes/         # healthRoutes.js, auth.routes.js
+    │   ├── utils/          # generateToken.js
     │   ├── app.js          # Express application initialization & middleware
     │   └── server.js       # Server bootstrap and HTTP listener
+    ├── test/               # verify_phase2.js (automated auth verification)
     ├── .env.example
     └── package.json
 ```
@@ -59,19 +60,19 @@ dsa-tracker/
 - **Tooling / Bundler**: Vite
 - **Routing**: React Router DOM (v6)
 - **Styling**: Tailwind CSS
-- **HTTP Client**: Axios
+- **HTTP Client**: Axios (with Bearer token interceptor)
+- **State Management**: React Context (`AuthContext`)
 
 ### Backend
 - **Runtime**: Node.js
 - **Web Framework**: Express 4
 - **Database ODM**: Mongoose 8
+- **Authentication**: JSON Web Token (`jsonwebtoken`), `bcryptjs`
 - **Environment Management**: Dotenv
 - **Cross-Origin Handling**: CORS
 
 ### Planned Dependencies (Future Phases)
-- **Authentication**: JWT (`jsonwebtoken`), `bcryptjs`
 - **Analytics & Visualizations**: Recharts
-- **Database Engine**: MongoDB (Local or MongoDB Atlas)
 
 ---
 
@@ -87,7 +88,7 @@ cp server/.env.example server/.env
 | :--- | :--- | :--- |
 | `PORT` | Port number for Express server | `5000` |
 | `MONGO_URI` | MongoDB connection URI | `mongodb://localhost:27017/dsa_tracker` |
-| `JWT_SECRET` | Secret key for signing JSON Web Tokens | Placeholder (deferred to Phase 2) |
+| `JWT_SECRET` | Secret key for signing JSON Web Tokens | `your_secret_key_here` |
 
 ### Frontend (`client/.env`)
 Copy the template file to `.env` (optional in local dev, defaults to `http://localhost:5000/api`):
@@ -137,31 +138,30 @@ npm run dev
 ```
 The client will be available at `http://localhost:5173`.
 
+#### Run Backend Verification Tests
+```bash
+cd server
+npm test
+```
+
 ---
 
-## API Health Check Endpoint
+## API Endpoints
 
-To verify that the Express server is up and responsive:
+### Health Check
+- `GET /api/health` — Public status check
 
-```http
-GET /api/health
-Host: http://localhost:5000
-```
-
-**Expected Response (`200 OK`)**:
-```json
-{
-  "success": true,
-  "message": "DSA Tracker API is running"
-}
-```
+### Authentication
+- `POST /api/auth/signup` — Register a new account (`name`, `email`, `password`)
+- `POST /api/auth/login` — Authenticate existing account (`email`, `password`)
+- `GET /api/auth/me` — Retrieve authenticated user profile (Requires `Bearer <token>`)
 
 ---
 
 ## Planned Roadmap
 
 - [x] **Phase 1**: Architecture scaffolding, environment configs, routing shell, health checks, error middleware
-- [ ] **Phase 2**: User model, JWT authentication, protected routes, auth context
+- [x] **Phase 2**: User model, JWT authentication, protected routes, auth context
 - [ ] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs
 - [ ] **Phase 4**: Problem management UI, attempt logging interface, tags & difficulty filters
 - [ ] **Phase 5**: Spaced-repetition prioritization engine & revision queue

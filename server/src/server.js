@@ -1,14 +1,15 @@
+const path = require('path');
 const dotenv = require('dotenv');
 
-// Load environment variables before initializing app or db
-dotenv.config();
+// Explicitly load server/.env regardless of where the command was executed
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = require('./app');
 const connectDB = require('./config/db');
 
 const PORT = process.env.PORT || 5000;
 
-// Initialize database connection
+// Connect to MongoDB Atlas
 connectDB();
 
 // Start HTTP server

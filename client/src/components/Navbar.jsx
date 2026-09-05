@@ -1,7 +1,16 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const navLinkClass = ({ isActive }) =>
     `px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
       isActive
@@ -21,32 +30,51 @@ const Navbar = () => {
               </span>
             </NavLink>
 
-            <nav className="hidden md:flex space-x-2">
-              <NavLink to="/dashboard" className={navLinkClass}>
-                Dashboard
-              </NavLink>
-              <NavLink to="/problems" className={navLinkClass}>
-                Problems
-              </NavLink>
-              <NavLink to="/revision" className={navLinkClass}>
-                Revision Queue
-              </NavLink>
-            </nav>
+            {isAuthenticated && (
+              <nav className="hidden md:flex space-x-2">
+                <NavLink to="/dashboard" className={navLinkClass}>
+                  Dashboard
+                </NavLink>
+                <NavLink to="/problems" className={navLinkClass}>
+                  Problems
+                </NavLink>
+                <NavLink to="/revision" className={navLinkClass}>
+                  Revision Queue
+                </NavLink>
+              </nav>
+            )}
           </div>
 
           <div className="flex items-center space-x-3">
-            <NavLink
-              to="/login"
-              className="text-sm font-medium text-slate-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-slate-800/60 transition-colors"
-            >
-              Log in
-            </NavLink>
-            <NavLink
-              to="/signup"
-              className="text-sm font-medium text-slate-950 bg-emerald-400 hover:bg-emerald-300 px-3 py-1.5 rounded-md transition-colors font-semibold"
-            >
-              Sign up
-            </NavLink>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-xs font-medium text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded border border-slate-700 max-w-[160px] truncate">
+                  {user?.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-xs font-medium text-slate-400 hover:text-red-400 px-2.5 py-1.5 rounded-md hover:bg-slate-800 transition-colors"
+                >
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  className="text-sm font-medium text-slate-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-slate-800/60 transition-colors"
+                >
+                  Log in
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="text-sm font-medium text-slate-950 bg-emerald-400 hover:bg-emerald-300 px-3 py-1.5 rounded-md transition-colors font-semibold"
+                >
+                  Sign up
+                </NavLink>
+              </>
+            )}
           </div>
         </div>
       </div>
