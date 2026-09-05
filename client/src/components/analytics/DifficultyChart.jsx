@@ -72,13 +72,13 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
   ].filter((item) => item.value > 0);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between">
+    <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5 flex flex-col justify-between">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-200">Difficulty Distribution</h3>
-          <p className="text-xs text-slate-400">Categorization across solved and tracked problems</p>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">Difficulty Split</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Problem inventory distribution</p>
         </div>
-        <span className="text-xs font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+        <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
           {total} total
         </span>
       </div>

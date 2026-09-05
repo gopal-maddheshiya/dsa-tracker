@@ -103,45 +103,50 @@ const ProblemsPage = () => {
   return (
     <div className="space-y-6 pb-12">
       {/* Header & Primary Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 border-b border-slate-800/80 pb-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Problem Repository</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Maintain your problem bank, categorize by algorithm topic, and monitor attempt history.
+          <div className="flex items-center space-x-3">
+            <h1 className="text-xl font-semibold tracking-tight text-white">Problems</h1>
+            <span className="text-[11px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
+              {problems.length} cataloged
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 mt-1">
+            Search, filter, and review your practice problems across all topics.
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
           type="button"
-          className="inline-flex items-center justify-center px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-md transition-colors shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center justify-center px-3.5 py-1.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-semibold text-xs rounded transition-colors shadow-sm self-start sm:self-auto"
         >
           + Add Problem
         </button>
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-3 sm:p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {/* Search Input */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Search Title or Topic</label>
+            <label className="block text-[11px] font-mono text-slate-400 mb-1">Search Problem</label>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search problems..."
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-md text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
+              placeholder="Search title..."
+              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
             />
           </div>
 
           {/* Difficulty Filter */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Difficulty</label>
+            <label className="block text-[11px] font-mono text-slate-400 mb-1">Difficulty</label>
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-md text-xs text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 focus:outline-none focus:border-slate-600 transition-colors"
             >
               <option value="">All Difficulties</option>
               <option value="easy">Easy</option>
@@ -152,11 +157,11 @@ const ProblemsPage = () => {
 
           {/* Status Filter */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Latest Status</label>
+            <label className="block text-[11px] font-mono text-slate-400 mb-1">Latest Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-md text-xs text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 focus:outline-none focus:border-slate-600 transition-colors"
             >
               <option value="">All Statuses</option>
               <option value="solved">Solved</option>
@@ -168,13 +173,13 @@ const ProblemsPage = () => {
 
           {/* Topic Specific Filter */}
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Filter by Topic</label>
+            <label className="block text-[11px] font-mono text-slate-400 mb-1">Filter by Topic</label>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g. Binary Search"
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-md text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
             />
           </div>
         </div>

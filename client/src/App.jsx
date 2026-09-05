@@ -17,9 +17,9 @@ function App() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+        <div className="min-h-screen flex flex-col bg-[#0b0f19] text-slate-100 selection:bg-emerald-600 selection:text-white">
           <Navbar />
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7">
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
@@ -41,8 +41,8 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
-          <footer className="border-t border-slate-900 py-4 text-center text-xs text-slate-500">
-            DSA / Interview Prep Tracker &mdash; Engineering Practice & Spaced Repetition Engine
+          <footer className="border-t border-slate-800/60 py-4 text-center text-[11px] text-slate-500 font-mono">
+            DSA Tracker &bull; Spaced Repetition Engine
           </footer>
         </div>
       </ToastProvider>

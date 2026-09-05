@@ -55,21 +55,21 @@ const SignupPage = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10">
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 sm:p-8 shadow-sm">
-        <div className="border-b border-slate-800 pb-5 mb-6">
-          <h1 className="text-xl font-bold tracking-tight text-white">Create Developer Account</h1>
-          <p className="text-xs text-slate-400 mt-1">Start tracking problem solving velocity and interview preparedness.</p>
+      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-6 sm:p-8 shadow-sm">
+        <div className="border-b border-slate-800/80 pb-4 mb-5">
+          <h1 className="text-lg font-semibold tracking-tight text-white font-mono">Create Developer Account</h1>
+          <p className="text-xs text-slate-400 mt-1">Initialize your tracking workspace and revision telemetry.</p>
         </div>
 
         {apiError && (
-          <div className="mb-5 p-3 rounded bg-rose-950/50 border border-rose-800/80 text-xs text-rose-300">
+          <div className="mb-4 p-3 rounded bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 font-mono">
             {apiError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="name" className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="name" className="block text-[11px] font-mono text-slate-300 mb-1">
               Full Name
             </label>
             <input
@@ -79,17 +79,17 @@ const SignupPage = () => {
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
               placeholder="Ada Lovelace"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
+              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
                 errors.name
                   ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                  : 'border-slate-800 focus:border-emerald-500 focus:ring-emerald-500'
+                  : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
               }`}
             />
-            {errors.name && <p className="mt-1 text-xs text-rose-400">{errors.name}</p>}
+            {errors.name && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.name}</p>}
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="email" className="block text-[11px] font-mono text-slate-300 mb-1">
               Email address
             </label>
             <input
@@ -99,17 +99,17 @@ const SignupPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
               placeholder="ada@example.com"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
+              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
                 errors.email
                   ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                  : 'border-slate-800 focus:border-emerald-500 focus:ring-emerald-500'
+                  : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
               }`}
             />
-            {errors.email && <p className="mt-1 text-xs text-rose-400">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.email}</p>}
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="password" className="block text-[11px] font-mono text-slate-300 mb-1">
               Password
             </label>
             <input
@@ -119,20 +119,20 @@ const SignupPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
               placeholder="Minimum 6 characters"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
+              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
                 errors.password
                   ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                  : 'border-slate-800 focus:border-emerald-500 focus:ring-emerald-500'
+                  : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
               }`}
             />
-            {errors.password && <p className="mt-1 text-xs text-rose-400">{errors.password}</p>}
+            {errors.password && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.password}</p>}
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold text-xs rounded-md transition-colors shadow-sm inline-flex items-center justify-center space-x-2"
+              className="w-full py-2 px-4 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold text-xs rounded transition-colors shadow-sm inline-flex items-center justify-center space-x-2"
             >
               {isSubmitting ? (
                 <>
@@ -146,7 +146,7 @@ const SignupPage = () => {
           </div>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-400">
+        <div className="mt-5 pt-3 border-t border-slate-800/60 text-center text-xs text-slate-400">
           Already have an account?{' '}
           <Link to="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
             Log in

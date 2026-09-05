@@ -124,17 +124,17 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between">
+    <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5 flex flex-col justify-between">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-slate-200">Practice Activity Heatmap</h3>
-          <p className="text-xs text-slate-400">Daily attempt volume over the past 20 weeks</p>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">Practice Activity</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Daily attempt velocity over the past 20 weeks</p>
         </div>
-        <div className="flex items-center space-x-3 text-xs font-mono">
-          <span className="text-slate-300 bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-750">
+        <div className="flex items-center space-x-2 text-xs font-mono">
+          <span className="text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-[11px]">
             <strong className="text-white">{activeDaysCount}</strong> active days
           </span>
-          <span className="text-slate-300 bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-750">
+          <span className="text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-[11px]">
             <strong className="text-emerald-400">{totalAttemptsInPeriod}</strong> attempts
           </span>
         </div>

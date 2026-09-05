@@ -126,27 +126,33 @@ const DashboardPage = () => {
     summary.totalAttempts === 0;
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 pb-12">
       {/* 1. Header with subtle greeting and primary action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-5">
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold tracking-tight text-white">Your DSA Progress</h1>
+          <div className="flex items-center space-x-2.5">
+            <h1 className="text-xl font-semibold tracking-tight text-white">Dashboard</h1>
             {user?.name && (
-              <span className="text-xs font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
+              <span className="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
                 {user.name}
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-400 mt-1">
-            Track practice, understand weak areas, and revise at the right time.
+          <p className="text-xs text-slate-400 mt-1">
+            Practice velocity, topic struggle analysis, and spaced recall queue.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
+          <Link
+            to="/revision"
+            className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-medium bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 transition-colors"
+          >
+            Revision Queue ({revisionQueue.length})
+          </Link>
           <Link
             to="/problems"
-            className="inline-flex items-center justify-center px-3.5 py-2 rounded-md text-xs font-semibold bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-semibold bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shadow-sm"
           >
             + Add Problem
           </Link>

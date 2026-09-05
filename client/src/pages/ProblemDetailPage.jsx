@@ -136,59 +136,55 @@ const ProblemDetailPage = () => {
       </div>
 
       {/* Problem Overview Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-slate-800 pb-5">
-          <div className="space-y-2">
+      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-slate-800/80 pb-4">
+          <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+              <span className="text-[10px] font-mono uppercase text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
                 {PLATFORM_LABELS[problem.platform] || problem.platform}
               </span>
-              <span
-                className={`text-[11px] font-semibold uppercase px-2 py-0.5 rounded border capitalize ${
-                  DIFFICULTY_STYLES[problem.difficulty]
-                }`}
-              >
+              <span className={`text-[11px] font-mono capitalize font-medium ${DIFFICULTY_STYLES[problem.difficulty] || 'text-slate-400'}`}>
                 {problem.difficulty}
               </span>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-white">{problem.title}</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-white">{problem.title}</h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             <a
               href={problem.link}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white text-xs font-semibold rounded-md border border-slate-700 transition-colors"
+              className="inline-flex items-center space-x-1 px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-200 hover:text-white text-xs font-medium rounded border border-slate-800 hover:border-slate-700 transition-colors"
             >
-              <span>Solve Problem</span>
+              <span>Open on {PLATFORM_LABELS[problem.platform] || 'External'}</span>
               <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 text-xs text-slate-400">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3.5 text-xs text-slate-400">
           <div>
-            <span className="font-medium text-slate-300 block mb-1">Topics:</span>
-            <div className="flex flex-wrap gap-1.5">
+            <span className="text-[11px] font-mono text-slate-500 block mb-1">Topics:</span>
+            <div className="flex flex-wrap gap-1">
               {problem.topics && problem.topics.length > 0 ? (
                 problem.topics.map((topic) => (
                   <span
                     key={topic}
-                    className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-300 font-mono text-[11px]"
+                    className="px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono text-[10px]"
                   >
                     {topic}
                   </span>
                 ))
               ) : (
-                <span className="text-slate-600">No topics tagged</span>
+                <span className="text-slate-600 text-[11px]">—</span>
               )}
             </div>
           </div>
 
           <div className="sm:text-right">
-            <span className="font-medium text-slate-300 block mb-1">Tracking Since:</span>
+            <span className="text-[11px] font-mono text-slate-500 block mb-0.5">Tracking Since:</span>
             <span className="font-mono text-slate-400 text-[11px]">
               {new Date(problem.createdAt).toLocaleDateString(undefined, {
                 year: 'numeric',
@@ -201,11 +197,11 @@ const ProblemDetailPage = () => {
       </div>
 
       {/* Attempt History Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight">Attempt History</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <h2 className="text-sm font-semibold text-white tracking-tight uppercase font-mono">Attempt History</h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">
               {attempts.length} {attempts.length === 1 ? 'practice attempt' : 'practice attempts'} recorded
             </p>
           </div>
@@ -213,32 +209,32 @@ const ProblemDetailPage = () => {
           <button
             onClick={() => setIsAttemptModalOpen(true)}
             type="button"
-            className="inline-flex items-center space-x-1 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm"
+            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-semibold rounded transition-colors shadow-sm"
           >
             <span>+ Log Attempt</span>
           </button>
         </div>
 
         {attempts.length === 0 ? (
-          <div className="bg-slate-900 border border-dashed border-slate-800 rounded-lg p-10 text-center">
+          <div className="bg-[#0d121f] border border-dashed border-slate-800/80 rounded-lg p-8 text-center">
             <p className="text-xs text-slate-300 font-medium">
               No practice attempts logged yet.
             </p>
             <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">
               Logging practice sessions feeds the spaced-repetition engine and updates your topic weakness matrices.
             </p>
-            <div className="mt-4">
+            <div className="mt-3.5">
               <button
                 onClick={() => setIsAttemptModalOpen(true)}
                 type="button"
-                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors"
+                className="px-3 py-1.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-semibold rounded transition-colors"
               >
                 Log First Attempt
               </button>
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg divide-y divide-slate-800/50 overflow-hidden">
             {attempts.map((attempt, index) => {
               const cfg = STATUS_CONFIG[attempt.status] || {
                 label: attempt.status,
@@ -260,20 +256,20 @@ const ProblemDetailPage = () => {
               return (
                 <div
                   key={attempt.id || index}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-4 transition-colors hover:border-slate-750"
+                  className="p-3.5 transition-colors hover:bg-slate-900/50"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="flex items-center space-x-2.5">
-                      <span className={`w-2 h-2 rounded-full ${cfg.indicator}`}></span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`w-1.5 h-1.5 rounded-full ${cfg.indicator}`}></span>
                       <span
-                        className={`text-xs font-semibold px-2 py-0.5 rounded border capitalize ${cfg.style}`}
+                        className={`text-[11px] font-mono px-1.5 py-0.5 rounded border capitalize ${cfg.style}`}
                       >
                         {cfg.label}
                       </span>
 
                       {attempt.timeTakenMinutes !== null && attempt.timeTakenMinutes !== undefined && (
-                        <span className="text-[11px] font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-                          ⏱ {attempt.timeTakenMinutes} min
+                        <span className="text-[11px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">
+                          {attempt.timeTakenMinutes} min
                         </span>
                       )}
                     </div>

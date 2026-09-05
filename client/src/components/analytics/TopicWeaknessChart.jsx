@@ -50,16 +50,16 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
   const highestStruggleTopic = topics.length > 0 && topics[0].struggleRatio > 0 ? topics[0] : null;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between">
+    <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5 flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-sm font-semibold text-slate-200">Topic Weakness Ranking</h3>
-          <span className="text-[11px] uppercase tracking-wider font-mono text-slate-400 bg-slate-850 px-2 py-0.5 rounded border border-slate-750">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">Topic Struggle Ranking</h3>
+          <span className="text-[10px] uppercase tracking-wider font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
             Struggle Ratio
           </span>
         </div>
-        <p className="text-xs text-slate-400 mb-4">
-          Ranked by proportion of practice attempts resulting in struggled status.
+        <p className="text-[11px] text-slate-400 mb-4">
+          Ranked by proportion of attempts resulting in struggled status.
         </p>
 
         {displayTopics.length === 0 ? (

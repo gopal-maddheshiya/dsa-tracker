@@ -144,14 +144,14 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="problem-form-title"
     >
-      <div className="bg-slate-900 border border-slate-800 rounded-lg max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in duration-150">
-        <div className="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-5">
-          <h2 id="problem-form-title" className="text-base font-bold text-white tracking-tight">
+      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in duration-150">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-5">
+          <h2 id="problem-form-title" className="text-sm font-semibold text-white tracking-tight font-mono">
             {isEdit ? 'Edit Problem' : 'Add New Problem'}
           </h2>
           <button
@@ -166,14 +166,14 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         </div>
 
         {apiError && (
-          <div className="mb-4 p-3 rounded bg-rose-950/50 border border-rose-800 text-xs text-rose-300">
+          <div className="mb-4 p-3 rounded bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 font-mono">
             {apiError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="problem-title" className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="problem-title" className="block text-[11px] font-mono text-slate-300 mb-1">
               Problem Title *
             </label>
             <input
@@ -183,16 +183,16 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               disabled={isSubmitting}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Trapping Rain Water"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none transition-colors ${
-                errors.title ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-emerald-500'
+              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
+                errors.title ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
               }`}
             />
-            {errors.title && <p className="mt-1 text-xs text-rose-400">{errors.title}</p>}
+            {errors.title && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.title}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="problem-platform" className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="problem-platform" className="block text-[11px] font-mono text-slate-300 mb-1">
                 Platform *
               </label>
               <select
@@ -200,7 +200,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 value={platform}
                 disabled={isSubmitting}
                 onChange={(e) => setPlatform(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 focus:outline-none focus:border-slate-600 transition-colors font-mono"
               >
                 {PLATFORMS.map((p) => (
                   <option key={p.value} value={p.value}>
@@ -211,7 +211,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
             </div>
 
             <div>
-              <label htmlFor="problem-difficulty" className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="problem-difficulty" className="block text-[11px] font-mono text-slate-300 mb-1">
                 Difficulty *
               </label>
               <select
@@ -219,7 +219,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 value={difficulty}
                 disabled={isSubmitting}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 focus:outline-none focus:border-slate-600 transition-colors font-mono"
               >
                 {DIFFICULTIES.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -231,7 +231,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
           </div>
 
           <div>
-            <label htmlFor="problem-link" className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="problem-link" className="block text-[11px] font-mono text-slate-300 mb-1">
               Problem URL *
             </label>
             <input
@@ -241,15 +241,15 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               disabled={isSubmitting}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none transition-colors ${
-                errors.link ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-emerald-500'
+              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors font-mono ${
+                errors.link ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
               }`}
             />
-            {errors.link && <p className="mt-1 text-xs text-rose-400">{errors.link}</p>}
+            {errors.link && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.link}</p>}
           </div>
 
           <div>
-            <label htmlFor="topic-input" className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="topic-input" className="block text-[11px] font-mono text-slate-300 mb-1">
               Topics / Tags <span className="text-slate-500 font-normal">(Press Enter or comma to add)</span>
             </label>
             <div className="flex gap-2">
@@ -261,13 +261,13 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 onChange={(e) => setTopicInput(e.target.value)}
                 onKeyDown={handleTopicKeyDown}
                 placeholder="e.g. Dynamic Programming"
-                className="flex-1 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="flex-1 px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
               />
               <button
                 type="button"
                 onClick={handleAddTopic}
                 disabled={isSubmitting || !topicInput.trim()}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 text-xs font-medium rounded-md border border-slate-700 transition-colors"
+                className="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-50 text-slate-300 text-xs font-mono rounded transition-colors"
               >
                 Add
               </button>
@@ -278,14 +278,14 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 {topics.map((topic) => (
                   <span
                     key={topic}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300 border border-slate-700"
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-slate-950 text-slate-300 border border-slate-800/80"
                   >
                     {topic}
                     <button
                       type="button"
                       onClick={() => handleRemoveTopic(topic)}
                       disabled={isSubmitting}
-                      className="text-slate-400 hover:text-rose-400 font-bold ml-0.5"
+                      className="text-slate-500 hover:text-rose-400 font-bold ml-0.5"
                       aria-label={`Remove topic ${topic}`}
                     >
                       ×
@@ -296,19 +296,19 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
             )}
           </div>
 
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800 mt-6">
+          <div className="flex items-center justify-end space-x-2.5 pt-3.5 border-t border-slate-800/80 mt-5">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 text-xs font-medium rounded-md transition-colors"
+              className="px-3 py-1.5 border border-slate-800 bg-slate-900/60 hover:bg-slate-800 disabled:opacity-50 text-slate-300 text-xs font-mono rounded transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm inline-flex items-center space-x-1.5"
+              className="px-3.5 py-1.5 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded transition-colors shadow-sm inline-flex items-center space-x-1.5"
             >
               {isSubmitting ? (
                 <>

@@ -72,14 +72,14 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
   const totalSolvedInTrend = trendData.reduce((acc, curr) => acc + (curr.solvedCount || 0), 0);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 flex flex-col justify-between">
+    <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5 flex flex-col justify-between">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-200">Solve Velocity Trend</h3>
-          <p className="text-xs text-slate-400">Chronological history of successful solves</p>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">Solve Velocity</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">Chronological solve trajectory</p>
         </div>
-        <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded font-medium">
-          {totalSolvedInTrend} total solved
+        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-900/60 px-2 py-0.5 rounded font-medium">
+          {totalSolvedInTrend} solved
         </span>
       </div>
 
