@@ -184,7 +184,8 @@ const RevisionPage = () => {
 
           <div className="space-y-2.5">
             {queue.map((item, index) => {
-              const statusCfg = STATUS_BADGES[item.lastAttemptStatus] || STATUS_BADGES.revisit_needed;
+              const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
+              const statusCfg = STATUS_BADGES[statusKey] || STATUS_BADGES.revisit_needed;
               const diffClass = DIFFICULTY_BADGES[item.difficulty] || DIFFICULTY_BADGES.medium;
               const platformName = PLATFORM_LABELS[item.platform] || item.platform;
 

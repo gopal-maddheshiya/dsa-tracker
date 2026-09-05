@@ -79,7 +79,8 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry 
         ) : (
           <div className="space-y-2.5">
             {previewItems.map((item) => {
-              const statusCfg = STATUS_BADGES[item.lastAttemptStatus] || STATUS_BADGES.revisit_needed;
+              const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
+              const statusCfg = STATUS_BADGES[statusKey] || STATUS_BADGES.revisit_needed;
               const diffClass = DIFFICULTY_BADGES[item.difficulty] || DIFFICULTY_BADGES.medium;
 
               return (
