@@ -77,6 +77,21 @@ const Navbar = () => {
             )}
           </div>
         </div>
+
+        {/* Mobile Navigation Bar */}
+        {isAuthenticated && (
+          <nav className="flex md:hidden border-t border-slate-800 py-2 space-x-1 overflow-x-auto" aria-label="Mobile Navigation">
+            <NavLink to="/dashboard" className={navLinkClass}>
+              Dashboard
+            </NavLink>
+            <NavLink to="/problems" className={navLinkClass}>
+              Problems
+            </NavLink>
+            <NavLink to="/revision" className={navLinkClass}>
+              Revision Queue
+            </NavLink>
+          </nav>
+        )}
       </div>
     </header>
   );

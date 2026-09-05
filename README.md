@@ -6,11 +6,11 @@ A focused, personal Data Structures and Algorithms preparation tracker designed 
 
 ## Current Development Status
 
-> **Current Milestone**: Phase 4 — Analytics Backend & Spaced Repetition Engine  
+> **Current Milestone**: Phase 5 — Premium Analytics Dashboard, Heatmap & Revision UI  
 > **Status**: Completed  
-> **Next Milestone**: Phase 5 — Dashboard Analytics & Revision UI (Recharts & Heatmap)
+> **Architecture**: React + Vite (SPA) consuming MongoDB Aggregation REST endpoints
 
-In Phase 4, high-performance, native MongoDB aggregation pipelines and a deterministic spaced-repetition algorithm were implemented to calculate summary metrics, topic weakness rankings, chronological velocity trends, activity heatmaps, and revision queues directly on the database engine.
+In Phase 5, the user-facing analytics suite was completed. It features a calm, information-dense developer productivity interface built with React, Tailwind CSS, and Recharts. The frontend consumes chart-ready aggregation payloads from Express, rendering summary KPIs, difficulty distributions, chronological solve velocity trends, GitHub-inspired practice activity heatmaps, topic weakness rankings, and a full deterministic spaced-repetition revision queue.
 
 ---
 
@@ -232,21 +232,19 @@ $$\text{priorityScore} = \frac{\text{daysSinceLastAttempt}}{\text{intervalForSta
 
 ---
 
-## Planned Roadmap
+## Dashboard Architecture
+
+All analytics metrics are computed server-side via native MongoDB aggregation pipelines and served through REST endpoints (`/api/analytics/*`). The React frontend consumes these chart-ready JSON payloads directly:
+- **No Client-Side Metric Aggregation**: The frontend never pulls raw attempt documents to calculate KPIs, trends, or rankings in browser memory.
+- **Isolated Component Resilience**: Every analytics card and chart fetches independently using Promise-based state handlers. A transient failure in one endpoint gracefully falls back to a localized error card with a retry button without crashing the rest of the dashboard.
+- **Deterministic Spaced-Repetition**: The revision prioritization engine is 100% deterministic and mathematically explainable; no generative AI or black-box ML models are used.
+
+---
+
+## Completed Roadmap
 
 - [x] **Phase 1**: Architecture scaffolding, environment configs, routing shell, health checks, error middleware
 - [x] **Phase 2**: User model, JWT authentication, protected routes, auth context
 - [x] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs & UI
 - [x] **Phase 4**: Spaced-repetition prioritization engine & backend aggregation analytics
-- [ ] **Phase 5**: Frontend dashboard charts, weakness matrices, and practice heatmapsroblems/:id/attempts` — Log practice attempt (`status`, `timeTakenMinutes`, `notes`, `attemptedAt`)
-- `GET /api/problems/:id/attempts` — Get chronological attempt history for problem
-
----
-
-## Planned Roadmap
-
-- [x] **Phase 1**: Architecture scaffolding, environment configs, routing shell, health checks, error middleware
-- [x] **Phase 2**: User model, JWT authentication, protected routes, auth context
-- [x] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs & UI
-- [ ] **Phase 4**: Spaced-repetition prioritization engine & revision queue
-- [ ] **Phase 5**: Analytics, weakness matrices, and practice heatmaps
+- [x] **Phase 5**: Premium analytics dashboard, Recharts visualizations, practice heatmap, and revision queue UI
