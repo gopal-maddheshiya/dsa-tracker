@@ -57,7 +57,7 @@ const LoginPage = () => {
         </div>
 
         {apiError && (
-          <div className="mb-5 p-3 rounded bg-red-950/40 border border-red-800/80 text-xs text-red-300">
+          <div className="mb-5 p-3 rounded bg-rose-950/50 border border-rose-800/80 text-xs text-rose-300">
             {apiError}
           </div>
         )}
@@ -76,11 +76,11 @@ const LoginPage = () => {
               placeholder="engineer@example.com"
               className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
                 errors.email
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
                   : 'border-slate-800 focus:border-emerald-500 focus:ring-emerald-500'
               }`}
             />
-            {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-xs text-rose-400">{errors.email}</p>}
           </div>
 
           <div>
@@ -96,20 +96,27 @@ const LoginPage = () => {
               placeholder="••••••••"
               className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
                 errors.password
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
                   : 'border-slate-800 focus:border-emerald-500 focus:ring-emerald-500'
               }`}
             />
-            {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
+            {errors.password && <p className="mt-1 text-xs text-rose-400">{errors.password}</p>}
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2 px-4 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 disabled:cursor-not-allowed text-slate-950 font-semibold text-sm rounded-md transition-colors shadow-sm"
+              className="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold text-xs rounded-md transition-colors shadow-sm inline-flex items-center justify-center space-x-2"
             >
-              {isSubmitting ? 'Authenticating...' : 'Sign In'}
+              {isSubmitting ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  <span>Authenticating...</span>
+                </>
+              ) : (
+                <span>Sign In</span>
+              )}
             </button>
           </div>
         </form>

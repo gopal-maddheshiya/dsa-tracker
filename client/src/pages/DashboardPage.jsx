@@ -8,6 +8,7 @@ import {
   fetchHeatmapAnalytics,
   fetchRevisionQueue,
 } from '../api/analytics';
+import { getErrorMessage } from '../utils/errorHandler';
 
 import StatCard from '../components/analytics/StatCard';
 import DifficultyChart from '../components/analytics/DifficultyChart';
@@ -47,7 +48,7 @@ const DashboardPage = () => {
       const res = await fetchAnalyticsSummary();
       if (res?.success) setSummary(res.data);
     } catch (err) {
-      setSummaryError(err.response?.data?.message || 'Unable to load summary metrics');
+      setSummaryError(getErrorMessage(err, 'Unable to load summary metrics.'));
     } finally {
       setLoadingSummary(false);
     }
@@ -60,7 +61,7 @@ const DashboardPage = () => {
       const res = await fetchTopicAnalytics();
       if (res?.success) setTopics(res.data || []);
     } catch (err) {
-      setTopicsError(err.response?.data?.message || 'Unable to load topic analytics');
+      setTopicsError(getErrorMessage(err, 'Unable to load topic analytics.'));
     } finally {
       setLoadingTopics(false);
     }
@@ -73,7 +74,7 @@ const DashboardPage = () => {
       const res = await fetchTrendAnalytics();
       if (res?.success) setTrend(res.data || []);
     } catch (err) {
-      setTrendError(err.response?.data?.message || 'Unable to load trend analytics');
+      setTrendError(getErrorMessage(err, 'Unable to load trend analytics.'));
     } finally {
       setLoadingTrend(false);
     }
@@ -86,7 +87,7 @@ const DashboardPage = () => {
       const res = await fetchHeatmapAnalytics();
       if (res?.success) setHeatmap(res.data || []);
     } catch (err) {
-      setHeatmapError(err.response?.data?.message || 'Unable to load heatmap');
+      setHeatmapError(getErrorMessage(err, 'Unable to load heatmap.'));
     } finally {
       setLoadingHeatmap(false);
     }
@@ -99,7 +100,7 @@ const DashboardPage = () => {
       const res = await fetchRevisionQueue();
       if (res?.success) setRevisionQueue(res.data || []);
     } catch (err) {
-      setRevisionError(err.response?.data?.message || 'Unable to load revision queue');
+      setRevisionError(getErrorMessage(err, 'Unable to load revision queue.'));
     } finally {
       setLoadingRevision(false);
     }

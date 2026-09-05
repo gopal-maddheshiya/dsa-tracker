@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom';
 const DIFFICULTY_STYLES = {
   easy: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/80',
   medium: 'bg-amber-950/60 text-amber-400 border-amber-800/80',
-  hard: 'bg-red-950/60 text-red-400 border-red-800/80',
+  hard: 'bg-rose-950/60 text-rose-400 border-rose-800/80',
 };
 
 const STATUS_STYLES = {
-  solved: 'bg-emerald-950/40 text-emerald-400 border-emerald-800',
-  struggled: 'bg-amber-950/40 text-amber-400 border-amber-800',
-  revisit_needed: 'bg-red-950/40 text-red-400 border-red-800',
+  solved: 'bg-emerald-950/50 text-emerald-400 border-emerald-800/80',
+  struggled: 'bg-rose-950/50 text-rose-400 border-rose-800/80',
+  revisit_needed: 'bg-amber-950/50 text-amber-400 border-amber-800/80',
 };
 
 const PLATFORM_LABELS = {
@@ -31,9 +31,9 @@ const ProblemTable = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center">
-        <div className="inline-flex items-center space-x-2 text-slate-400 text-sm">
-          <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center animate-pulse">
+        <div className="inline-flex items-center space-x-2 text-slate-400 text-xs">
+          <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
           <span>Loading problem repository...</span>
         </div>
       </div>
@@ -42,9 +42,9 @@ const ProblemTable = ({
 
   if (error) {
     return (
-      <div className="bg-red-950/30 border border-red-800 rounded-lg p-6 text-center text-red-300 text-sm">
-        <p className="font-semibold">Unable to load problems</p>
-        <p className="text-xs text-red-400 mt-1">{error}</p>
+      <div className="bg-rose-950/30 border border-rose-800/80 rounded-lg p-6 text-center text-rose-300 text-xs">
+        <p className="font-semibold text-rose-200">Unable to load problems</p>
+        <p className="mt-1 text-rose-400">{error}</p>
       </div>
     );
   }
@@ -52,18 +52,18 @@ const ProblemTable = ({
   if (!problems || problems.length === 0) {
     return (
       <div className="bg-slate-900 border border-dashed border-slate-800 rounded-lg p-12 text-center">
-        <div className="w-10 h-10 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-slate-400 text-lg mb-3">
-          📋
+        <div className="w-10 h-10 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-slate-400 font-mono text-xs mb-3">
+          0
         </div>
         <h3 className="text-sm font-semibold text-slate-200">No problems found</h3>
-        <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-          No problems match your current criteria, or you haven't tracked any problems yet.
+        <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+          No problems match your search criteria, or you haven't tracked any problems yet.
         </p>
-        <div className="mt-4">
+        <div className="mt-5">
           <button
             onClick={onOpenAdd}
             type="button"
-            className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm"
+            className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm"
           >
             + Add First Problem
           </button>
@@ -92,7 +92,7 @@ const ProblemTable = ({
               const diffStyle = DIFFICULTY_STYLES[problem.difficulty] || 'bg-slate-800 text-slate-300';
               const latestStatus = problem.latestAttempt?.status;
               const statusStyle = latestStatus
-                ? STATUS_STYLES[latestStatus]
+                ? STATUS_STYLES[latestStatus] || 'bg-slate-800 text-slate-300'
                 : 'bg-slate-800/60 text-slate-400 border-slate-700';
 
               return (
@@ -112,8 +112,9 @@ const ProblemTable = ({
                         href={problem.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-slate-500 hover:text-slate-300 transition-colors text-xs"
-                        title="Open external problem link"
+                        className="text-slate-500 hover:text-slate-300 transition-colors text-xs shrink-0"
+                        title="Open problem in new tab"
+                        aria-label={`Open ${problem.title} on external platform`}
                       >
                         ↗
                       </a>
@@ -171,24 +172,24 @@ const ProblemTable = ({
                   </td>
 
                   <td className="py-3 px-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end space-x-2">
+                    <div className="flex items-center justify-end space-x-1 sm:space-x-2">
                       <Link
                         to={`/problems/${problem.id}`}
-                        className="px-2 py-1 rounded text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                        className="px-2 py-1 rounded text-xs text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                       >
                         View
                       </Link>
                       <button
                         type="button"
                         onClick={() => onEdit(problem)}
-                        className="px-2 py-1 rounded text-slate-300 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
+                        className="px-2 py-1 rounded text-xs text-slate-300 hover:text-emerald-400 hover:bg-slate-800 transition-colors"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
                         onClick={() => onDelete(problem)}
-                        className="px-2 py-1 rounded text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors"
+                        className="px-2 py-1 rounded text-xs text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
                       >
                         Delete
                       </button>

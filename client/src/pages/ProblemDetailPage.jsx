@@ -1,29 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { fetchProblemById } from '../api/problems';
+import { fetchProblemById, deleteProblem } from '../api/problems';
+import { useToast } from '../context/ToastContext';
+import { getErrorMessage } from '../utils/errorHandler';
+
 import AttemptForm from '../components/AttemptForm';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const DIFFICULTY_STYLES = {
   easy: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/80',
   medium: 'bg-amber-950/60 text-amber-400 border-amber-800/80',
-  hard: 'bg-red-950/60 text-red-400 border-red-800/80',
+  hard: 'bg-rose-950/60 text-rose-400 border-rose-800/80',
 };
 
 const STATUS_CONFIG = {
   solved: {
     label: 'Solved',
-    style: 'bg-emerald-950/40 text-emerald-400 border-emerald-800',
+    style: 'bg-emerald-950/50 text-emerald-400 border-emerald-800/80',
     indicator: 'bg-emerald-500',
   },
   struggled: {
     label: 'Struggled',
-    style: 'bg-amber-950/40 text-amber-400 border-amber-800',
-    indicator: 'bg-amber-500',
+    style: 'bg-rose-950/50 text-rose-400 border-rose-800/80',
+    indicator: 'bg-rose-500',
   },
   revisit_needed: {
     label: 'Revisit Needed',
-    style: 'bg-red-950/40 text-red-400 border-red-800',
-    indicator: 'bg-red-500',
+    style: 'bg-amber-950/50 text-amber-400 border-amber-800/80',
+    indicator: 'bg-amber-500',
   },
 };
 
@@ -38,11 +42,14 @@ const PLATFORM_LABELS = {
 const ProblemDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [problem, setProblem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isAttemptModalOpen, setIsAttemptModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadProblem = useCallback(async () => {
     setIsLoading(true);
@@ -51,22 +58,38 @@ const ProblemDetailPage = () => {
       const res = await fetchProblemById(id);
       setProblem(res.data);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Problem not found or unauthorized';
+      const msg = getErrorMessage(err, 'Problem not found or unauthorized.');
       setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, toast]);
 
   useEffect(() => {
     loadProblem();
   }, [loadProblem]);
 
+  const handleDeleteProblem = async () => {
+    if (!problem) return;
+    setIsDeleting(true);
+    try {
+      await deleteProblem(problem.id);
+      toast.success(`Problem "${problem.title}" deleted.`);
+      navigate('/problems', { replace: true });
+    } catch (err) {
+      const msg = getErrorMessage(err, 'Failed to delete problem.');
+      toast.error(msg);
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-12 text-center">
-        <div className="inline-flex items-center space-x-2 text-slate-400 text-sm">
-          <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="bg-slate-900 border border-slate-800 rounded-lg p-12 text-center animate-pulse">
+        <div className="inline-flex items-center space-x-2 text-slate-400 text-xs">
+          <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
           <span>Loading problem details...</span>
         </div>
       </div>
@@ -75,13 +98,13 @@ const ProblemDetailPage = () => {
 
   if (error || !problem) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center space-y-4">
-        <p className="text-red-400 text-sm font-semibold">{error || 'Problem not found'}</p>
+      <div className="bg-slate-900 border border-slate-800 rounded-lg p-8 text-center space-y-4 max-w-lg mx-auto">
+        <p className="text-rose-400 text-sm font-semibold">{error || 'Problem not found'}</p>
         <Link
           to="/problems"
           className="inline-block px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs transition-colors"
         >
-          ← Return to Problems
+          &larr; Return to Problems
         </Link>
       </div>
     );
@@ -90,14 +113,26 @@ const ProblemDetailPage = () => {
   const attempts = problem.attempts || [];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto pb-12">
       {/* Breadcrumb Navigation */}
-      <div className="flex items-center space-x-2 text-xs text-slate-400">
-        <Link to="/problems" className="hover:text-white transition-colors">
-          Problems
-        </Link>
-        <span>/</span>
-        <span className="text-slate-300 font-medium truncate max-w-md">{problem.title}</span>
+      <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center space-x-2">
+          <Link to="/problems" className="hover:text-white transition-colors">
+            Problems
+          </Link>
+          <span>/</span>
+          <span className="text-slate-200 font-medium truncate max-w-xs sm:max-w-md">
+            {problem.title}
+          </span>
+        </div>
+
+        <button
+          onClick={() => setIsDeleteModalOpen(true)}
+          type="button"
+          className="text-slate-400 hover:text-rose-400 text-xs transition-colors"
+        >
+          Delete Problem
+        </button>
       </div>
 
       {/* Problem Overview Card */}
@@ -120,15 +155,15 @@ const ProblemDetailPage = () => {
             <h1 className="text-2xl font-bold tracking-tight text-white">{problem.title}</h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <a
               href={problem.link}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-md border border-slate-700 transition-colors"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white text-xs font-semibold rounded-md border border-slate-700 transition-colors"
             >
               <span>Solve Problem</span>
-              <span>↗</span>
+              <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
         </div>
@@ -178,24 +213,27 @@ const ProblemDetailPage = () => {
           <button
             onClick={() => setIsAttemptModalOpen(true)}
             type="button"
-            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm"
+            className="inline-flex items-center space-x-1 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm"
           >
             <span>+ Log Attempt</span>
           </button>
         </div>
 
         {attempts.length === 0 ? (
-          <div className="bg-slate-900 border border-dashed border-slate-800 rounded-lg p-8 text-center">
-            <p className="text-xs text-slate-400">
-              No practice attempts have been logged yet for this problem.
+          <div className="bg-slate-900 border border-dashed border-slate-800 rounded-lg p-10 text-center">
+            <p className="text-xs text-slate-300 font-medium">
+              No practice attempts logged yet.
             </p>
-            <div className="mt-3">
+            <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">
+              Logging practice sessions feeds the spaced-repetition engine and updates your topic weakness matrices.
+            </p>
+            <div className="mt-4">
               <button
                 onClick={() => setIsAttemptModalOpen(true)}
                 type="button"
-                className="text-xs text-emerald-400 hover:text-emerald-300 underline font-medium"
+                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold rounded-md transition-colors"
               >
-                Log your first attempt
+                Log First Attempt
               </button>
             </div>
           </div>
@@ -222,7 +260,7 @@ const ProblemDetailPage = () => {
               return (
                 <div
                   key={attempt.id || index}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-4 transition-colors hover:border-slate-700"
+                  className="bg-slate-900 border border-slate-800 rounded-lg p-4 transition-colors hover:border-slate-750"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center space-x-2.5">
@@ -264,6 +302,15 @@ const ProblemDetailPage = () => {
         onSuccess={loadProblem}
         problemId={problem.id}
         problemTitle={problem.title}
+      />
+
+      {/* Delete Problem Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteProblem}
+        problemTitle={problem.title}
+        isDeleting={isDeleting}
       />
     </div>
   );

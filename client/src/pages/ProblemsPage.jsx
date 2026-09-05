@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchProblems, deleteProblem } from '../api/problems';
+import { useToast } from '../context/ToastContext';
+import { getErrorMessage } from '../utils/errorHandler';
+
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const ProblemsPage = () => {
+  const toast = useToast();
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,15 +37,16 @@ const ProblemsPage = () => {
       });
       setProblems(response.data || []);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to retrieve problems';
+      const msg = getErrorMessage(err, 'Failed to retrieve problems from repository.');
       setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [search, difficulty, status, topic]);
+  }, [search, difficulty, status, topic, toast]);
 
   useEffect(() => {
-    // Small debounce for search input
+    // Debounce for search and filter updates
     const timer = setTimeout(() => {
       loadProblems();
     }, 250);
@@ -67,12 +72,19 @@ const ProblemsPage = () => {
     if (!deletingProblem) return;
 
     setIsDeleting(true);
+    const targetId = deletingProblem.id;
+    const targetTitle = deletingProblem.title;
+
     try {
-      await deleteProblem(deletingProblem.id);
+      await deleteProblem(targetId);
+      // Optimistic local state update
+      setProblems((prev) => prev.filter((p) => p.id !== targetId));
       setDeletingProblem(null);
+      toast.success(`Deleted problem "${targetTitle}" and all associated attempts.`);
       loadProblems();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete problem');
+      const msg = getErrorMessage(err, 'Failed to delete problem.');
+      toast.error(msg);
     } finally {
       setIsDeleting(false);
     }
@@ -85,15 +97,16 @@ const ProblemsPage = () => {
     setTopic('');
   };
 
-  const hasActiveFilters = Boolean(search || difficulty || status || topic);
+  const activeFilterCount = [search, difficulty, status, topic].filter(Boolean).length;
+  const hasActiveFilters = activeFilterCount > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       {/* Header & Primary Action */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white">Problem Repository</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-white">Problem Repository</h1>
+          <p className="text-sm text-slate-400 mt-1">
             Maintain your problem bank, categorize by algorithm topic, and monitor attempt history.
           </p>
         </div>
@@ -101,18 +114,18 @@ const ProblemsPage = () => {
         <button
           onClick={handleOpenAdd}
           type="button"
-          className="inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-md transition-colors shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center justify-center px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-md transition-colors shadow-sm self-start sm:self-auto"
         >
-          <span>+ Add Problem</span>
+          + Add Problem
         </button>
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-lg p-3.5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
           {/* Search Input */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">Search Title or Topic</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Search Title or Topic</label>
             <input
               type="text"
               value={search}
@@ -124,7 +137,7 @@ const ProblemsPage = () => {
 
           {/* Difficulty Filter */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">Difficulty</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Difficulty</label>
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
@@ -139,7 +152,7 @@ const ProblemsPage = () => {
 
           {/* Status Filter */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">Latest Status</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Latest Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -155,7 +168,7 @@ const ProblemsPage = () => {
 
           {/* Topic Specific Filter */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">Filter by Topic</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Filter by Topic</label>
             <input
               type="text"
               value={topic}
@@ -167,12 +180,14 @@ const ProblemsPage = () => {
         </div>
 
         {hasActiveFilters && (
-          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-800/80 text-xs text-slate-400">
-            <span>Filtering active results</span>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-800 text-xs text-slate-400">
+            <span>
+              Active filters applied (<strong className="text-white font-mono">{activeFilterCount}</strong>)
+            </span>
             <button
               onClick={handleResetFilters}
               type="button"
-              className="text-emerald-400 hover:text-emerald-300 font-medium underline text-[11px]"
+              className="text-emerald-400 hover:text-emerald-300 font-medium text-xs transition-colors"
             >
               Reset Filters
             </button>

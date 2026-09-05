@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createProblem, updateProblem } from '../api/problems';
+import { useToast } from '../context/ToastContext';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const PLATFORMS = [
   { value: 'leetcode', label: 'LeetCode' },
@@ -15,7 +17,17 @@ const DIFFICULTIES = [
   { value: 'hard', label: 'Hard' },
 ];
 
+const isValidUrl = (string) => {
+  try {
+    const url = new URL(string.trim());
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (_) {
+    return false;
+  }
+};
+
 const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
+  const toast = useToast();
   const isEdit = Boolean(initialData && initialData.id);
 
   const [title, setTitle] = useState('');
@@ -34,7 +46,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
       setPlatform(initialData.platform || 'leetcode');
       setLink(initialData.link || '');
       setDifficulty(initialData.difficulty || 'easy');
-      setTopics(Array.isArray(initialData.topics) ? initialData.topics : []);
+      setTopics(Array.isArray(initialData.topics) ? [...initialData.topics] : []);
     } else {
       setTitle('');
       setPlatform('leetcode');
@@ -51,8 +63,17 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
   const handleAddTopic = () => {
     const trimmed = topicInput.trim();
-    if (trimmed && !topics.includes(trimmed)) {
+    if (!trimmed) return;
+
+    // Check case-insensitive duplicate
+    const isDuplicate = topics.some(
+      (t) => t.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (!isDuplicate) {
       setTopics([...topics, trimmed]);
+      setTopicInput('');
+    } else {
       setTopicInput('');
     }
   };
@@ -60,6 +81,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const handleTopicKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
+      e.stopPropagation();
       handleAddTopic();
     }
   };
@@ -72,7 +94,13 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
     const newErrors = {};
     if (!title.trim()) newErrors.title = 'Title is required';
     if (!platform) newErrors.platform = 'Platform is required';
-    if (!link.trim()) newErrors.link = 'Problem link is required';
+
+    if (!link.trim()) {
+      newErrors.link = 'Problem URL is required';
+    } else if (!isValidUrl(link.trim())) {
+      newErrors.link = 'Please enter a valid URL starting with http:// or https://';
+    }
+
     if (!difficulty) newErrors.difficulty = 'Difficulty is required';
 
     setErrors(newErrors);
@@ -92,71 +120,85 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         platform,
         link: link.trim(),
         difficulty,
-        topics,
+        topics: topics.map((t) => t.trim()).filter(Boolean),
       };
 
       if (isEdit) {
         await updateProblem(initialData.id, payload);
+        toast.success(`Problem "${payload.title}" updated successfully.`);
       } else {
         await createProblem(payload);
+        toast.success(`Problem "${payload.title}" added to repository.`);
       }
 
       onSuccess();
       onClose();
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to save problem. Please check your inputs.';
+      const msg = getErrorMessage(err, 'Failed to save problem. Please review your inputs.');
       setApiError(msg);
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-lg max-w-lg w-full p-6 shadow-xl relative animate-in fade-in duration-150">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
-          <h2 className="text-lg font-bold text-white tracking-tight">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="problem-form-title"
+    >
+      <div className="bg-slate-900 border border-slate-800 rounded-lg max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in duration-150">
+        <div className="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-5">
+          <h2 id="problem-form-title" className="text-base font-bold text-white tracking-tight">
             {isEdit ? 'Edit Problem' : 'Add New Problem'}
           </h2>
           <button
             onClick={onClose}
             type="button"
+            disabled={isSubmitting}
             className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors text-sm"
+            aria-label="Close dialog"
           >
             ✕
           </button>
         </div>
 
         {apiError && (
-          <div className="mb-4 p-3 rounded bg-red-950/50 border border-red-800 text-xs text-red-300">
+          <div className="mb-4 p-3 rounded bg-rose-950/50 border border-rose-800 text-xs text-rose-300">
             {apiError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="problem-title" className="block text-xs font-medium text-slate-300 mb-1">
               Problem Title *
             </label>
             <input
+              id="problem-title"
               type="text"
               value={title}
+              disabled={isSubmitting}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Trapping Rain Water"
               className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none transition-colors ${
-                errors.title ? 'border-red-500' : 'border-slate-800 focus:border-emerald-500'
+                errors.title ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-emerald-500'
               }`}
             />
-            {errors.title && <p className="mt-1 text-xs text-red-400">{errors.title}</p>}
+            {errors.title && <p className="mt-1 text-xs text-rose-400">{errors.title}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="problem-platform" className="block text-xs font-medium text-slate-300 mb-1">
                 Platform *
               </label>
               <select
+                id="problem-platform"
                 value={platform}
+                disabled={isSubmitting}
                 onChange={(e) => setPlatform(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
               >
@@ -169,11 +211,13 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="problem-difficulty" className="block text-xs font-medium text-slate-300 mb-1">
                 Difficulty *
               </label>
               <select
+                id="problem-difficulty"
                 value={difficulty}
+                disabled={isSubmitting}
                 onChange={(e) => setDifficulty(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-md text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
               >
@@ -187,29 +231,33 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="problem-link" className="block text-xs font-medium text-slate-300 mb-1">
               Problem URL *
             </label>
             <input
+              id="problem-link"
               type="url"
               value={link}
+              disabled={isSubmitting}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
               className={`w-full px-3 py-2 bg-slate-950 border rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none transition-colors ${
-                errors.link ? 'border-red-500' : 'border-slate-800 focus:border-emerald-500'
+                errors.link ? 'border-rose-500 focus:border-rose-500' : 'border-slate-800 focus:border-emerald-500'
               }`}
             />
-            {errors.link && <p className="mt-1 text-xs text-red-400">{errors.link}</p>}
+            {errors.link && <p className="mt-1 text-xs text-rose-400">{errors.link}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Topics / Tags (Press Enter to add)
+            <label htmlFor="topic-input" className="block text-xs font-medium text-slate-300 mb-1">
+              Topics / Tags <span className="text-slate-500 font-normal">(Press Enter or comma to add)</span>
             </label>
             <div className="flex gap-2">
               <input
+                id="topic-input"
                 type="text"
                 value={topicInput}
+                disabled={isSubmitting}
                 onChange={(e) => setTopicInput(e.target.value)}
                 onKeyDown={handleTopicKeyDown}
                 placeholder="e.g. Dynamic Programming"
@@ -218,7 +266,8 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               <button
                 type="button"
                 onClick={handleAddTopic}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-md border border-slate-700 transition-colors"
+                disabled={isSubmitting || !topicInput.trim()}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 text-xs font-medium rounded-md border border-slate-700 transition-colors"
               >
                 Add
               </button>
@@ -235,7 +284,9 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                     <button
                       type="button"
                       onClick={() => handleRemoveTopic(topic)}
-                      className="text-slate-400 hover:text-red-400 font-bold ml-0.5"
+                      disabled={isSubmitting}
+                      className="text-slate-400 hover:text-rose-400 font-bold ml-0.5"
+                      aria-label={`Remove topic ${topic}`}
                     >
                       ×
                     </button>
@@ -250,16 +301,23 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-md transition-colors"
+              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 text-xs font-medium rounded-md transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm"
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded-md transition-colors shadow-sm inline-flex items-center space-x-1.5"
             >
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update Problem' : 'Create Problem'}
+              {isSubmitting ? (
+                <>
+                  <span className="w-3 h-3 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <span>{isEdit ? 'Update Problem' : 'Create Problem'}</span>
+              )}
             </button>
           </div>
         </form>
