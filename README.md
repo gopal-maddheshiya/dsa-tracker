@@ -284,6 +284,31 @@ $$\text{priorityScore} = \frac{\text{daysSinceLastAttempt}}{\text{intervalForSta
 
 ---
 
+## Production Deployment Configuration
+
+### Backend (Render Web Service)
+- **Root Directory**: `server`
+- **Environment**: `Node`
+- **Build Command**: `npm install`
+- **Start Command**: `node src/server.js`
+- **Environment Variables**:
+  - `NODE_ENV`: `production`
+  - `PORT`: `10000` (assigned dynamically by Render)
+  - `MONGO_URI`: `<Atlas Connection String>`
+  - `JWT_SECRET`: `<Secure Random 64-char string>`
+  - `JWT_EXPIRES_IN`: `7d`
+  - `CLIENT_URL`: `https://your-frontend.vercel.app`
+
+### Frontend (Vercel SPA)
+- **Root Directory**: `client`
+- **Framework Preset**: `Vite`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_BASE_URL`: `https://your-backend.onrender.com/api`
+
+---
+
 ## Engineering Decisions & Future Roadmap
 
 ### What Would Be Improved Next
