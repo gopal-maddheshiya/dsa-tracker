@@ -52,8 +52,12 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || 'Login failed. Please check your credentials.';
+      let errorMessage = 'Login failed. Please check your credentials.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.request) {
+        errorMessage = 'Cannot connect to backend server. Please verify the backend is running on port 5000.';
+      }
       return { success: false, message: errorMessage };
     }
   };
@@ -70,8 +74,12 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || 'Signup failed. Please try again.';
+      let errorMessage = 'Signup failed. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.request) {
+        errorMessage = 'Cannot connect to backend server. Please verify the backend is running on port 5000.';
+      }
       return { success: false, message: errorMessage };
     }
   };
