@@ -6,11 +6,11 @@ A focused, personal Data Structures and Algorithms preparation tracker designed 
 
 ## Current Development Status
 
-> **Current Milestone**: Phase 3 — Problem + Attempt CRUD  
+> **Current Milestone**: Phase 4 — Analytics Backend & Spaced Repetition Engine  
 > **Status**: Completed  
-> **Next Milestone**: Phase 4 — Spaced Repetition Engine, Analytics & Heatmap Visualization
+> **Next Milestone**: Phase 5 — Dashboard Analytics & Revision UI (Recharts & Heatmap)
 
-In Phase 3, the complete Problem and Attempt data models, indexes, user-scoped controllers, cascade deletion, latest-attempt derived status filtering, frontend API modules, interactive problem tables, search and filters, problem detail views, and attempt logging timelines are fully implemented.
+In Phase 4, high-performance, native MongoDB aggregation pipelines and a deterministic spaced-repetition algorithm were implemented to calculate summary metrics, topic weakness rankings, chronological velocity trends, activity heatmaps, and revision queues directly on the database engine.
 
 ---
 
@@ -58,6 +58,7 @@ dsa-tracker/
     │   ├── config/
     │   │   └── db.js                  # MongoDB Atlas / local connection
     │   ├── controllers/
+    │   │   ├── analytics.controller.js# Native MongoDB aggregation analytics
     │   │   ├── attempt.controller.js  # Attempt creation & history
     │   │   ├── auth.controller.js     # User registration & login
     │   │   └── problem.controller.js  # Problem CRUD with status derivation
@@ -69,6 +70,7 @@ dsa-tracker/
     │   │   ├── Problem.js             # Problem schema with userId index
     │   │   └── User.js                # User schema with bcrypt comparison
     │   ├── routes/
+    │   │   ├── analytics.routes.js    # Protected analytics endpoints
     │   │   ├── attempt.routes.js      # Attempt nested sub-routes
     │   │   ├── auth.routes.js         # Authentication routes
     │   │   ├── healthRoutes.js        # Health check endpoint
@@ -79,7 +81,8 @@ dsa-tracker/
     │   └── server.js       # Server bootstrap & listener
     ├── test/
     │   ├── verify_phase2.js # Automated authentication test suite
-    │   └── verify_phase3.js # Automated Problem/Attempt security test suite
+    │   ├── verify_phase3.js # Automated Problem/Attempt security test suite
+    │   └── verify_phase4.js # Automated Analytics & Revision engine test suite
     ├── .env.example
     └── package.json
 ```
@@ -99,7 +102,7 @@ dsa-tracker/
 ### Backend
 - **Runtime**: Node.js
 - **Web Framework**: Express 4
-- **Database ODM**: Mongoose 8
+- **Database ODM**: Mongoose 8 (MongoDB Aggregation Pipelines)
 - **Authentication**: JSON Web Token (`jsonwebtoken`), `bcryptjs`
 - **Environment Management**: Dotenv
 - **Cross-Origin Handling**: CORS
@@ -173,6 +176,7 @@ The client will be available at `http://localhost:5173`.
 cd server
 npm test
 ```
+Executes all automated suites (Phase 2 Auth, Phase 3 CRUD, Phase 4 Analytics & Revision).
 
 ---
 
@@ -195,6 +199,46 @@ npm test
 
 ### Attempts (All Require Authentication)
 - `POST /api/problems/:id/attempts` — Log practice attempt (`status`, `timeTakenMinutes`, `notes`, `attemptedAt`)
+- `GET /api/problems/:id/attempts` — Get chronological attempt history for problem
+
+### Analytics & Spaced Repetition (All Require Authentication)
+- `GET /api/analytics/summary` — Total problems, attempts, unique solved problems, total solved attempts, difficulty breakdown
+- `GET /api/analytics/topics` — Topic performance ranking, struggle ratios, sorted descending by weakness
+- `GET /api/analytics/trend` — Chronological daily velocity trend of solved problems
+- `GET /api/analytics/heatmap` — Calendar day activity heatmap covering all attempt logs
+- `GET /api/analytics/revision-queue` — Spaced repetition priority queue scored via `(daysSinceLastAttempt / interval) + struggleWeight`
+
+---
+
+## Spaced Repetition Logic
+
+The revision queue prioritizes problems requiring reinforcement using deterministic spacing:
+
+$$\text{priorityScore} = \frac{\text{daysSinceLastAttempt}}{\text{intervalForStatus}} + \text{struggleWeight}$$
+
+- **Target Status Intervals**:
+  - `solved`: 14 days
+  - `revisit_needed`: 5 days
+  - `struggled`: 2 days
+- **Struggle Weights**:
+  - `struggled`: +2.0
+  - `revisit_needed`: +1.0
+  - `solved`: +0.0
+- **Safety Constraints**:
+  - Excludes problems with 0 attempts.
+  - Resolves latest attempt by highest `attemptedAt` timestamp (not insertion ID).
+  - Clamps future `attemptedAt` timestamps to 0 elapsed days.
+  - Limits output to top 20 urgent items.
+
+---
+
+## Planned Roadmap
+
+- [x] **Phase 1**: Architecture scaffolding, environment configs, routing shell, health checks, error middleware
+- [x] **Phase 2**: User model, JWT authentication, protected routes, auth context
+- [x] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs & UI
+- [x] **Phase 4**: Spaced-repetition prioritization engine & backend aggregation analytics
+- [ ] **Phase 5**: Frontend dashboard charts, weakness matrices, and practice heatmapsroblems/:id/attempts` — Log practice attempt (`status`, `timeTakenMinutes`, `notes`, `attemptedAt`)
 - `GET /api/problems/:id/attempts` — Get chronological attempt history for problem
 
 ---
