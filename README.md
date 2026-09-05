@@ -6,11 +6,11 @@ A focused, personal Data Structures and Algorithms preparation tracker designed 
 
 ## Current Development Status
 
-> **Current Milestone**: Phase 2 — Database Schema + Authentication  
+> **Current Milestone**: Phase 3 — Problem + Attempt CRUD  
 > **Status**: Completed  
-> **Next Milestone**: Phase 3 — Problem & Attempt Data Models + Core CRUD APIs
+> **Next Milestone**: Phase 4 — Spaced Repetition Engine, Analytics & Heatmap Visualization
 
-In Phase 2, the User schema, bcrypt password hashing, stateless JWT authentication, protected API middleware, React AuthContext, functional Login/Signup pages, and client-side private routing guards are fully implemented.
+In Phase 3, the complete Problem and Attempt data models, indexes, user-scoped controllers, cascade deletion, latest-attempt derived status filtering, frontend API modules, interactive problem tables, search and filters, problem detail views, and attempt logging timelines are fully implemented.
 
 ---
 
@@ -23,14 +23,31 @@ dsa-tracker/
 ├── client/                 # Frontend Single Page Application (React + Vite)
 │   ├── public/
 │   ├── src/
-│   │   ├── api/            # Centralized Axios client with Bearer auth interceptor
-│   │   ├── components/     # Navbar, PrivateRoute, PublicOnlyRoute
-│   │   ├── context/        # AuthContext (React context session management)
-│   │   ├── hooks/          # Custom hooks (useAuth)
-│   │   ├── pages/          # LoginPage, SignupPage, DashboardPage, etc.
-│   │   ├── App.jsx         # Application routing tree with route guards
-│   │   ├── index.css       # Tailwind CSS directives & typography rules
-│   │   └── main.jsx        # Client DOM mounting
+│   │   ├── api/
+│   │   │   ├── axios.js    # Axios client with Bearer auth interceptor
+│   │   │   ├── problems.js # Problem CRUD API client
+│   │   │   └── attempts.js # Attempt logging API client
+│   │   ├── components/
+│   │   │   ├── AttemptForm.jsx        # Log practice attempt modal
+│   │   │   ├── DeleteConfirmModal.jsx # Destructive delete confirmation
+│   │   │   ├── Navbar.jsx             # Navigation bar with auth state
+│   │   │   ├── PrivateRoute.jsx       # Route authentication guard
+│   │   │   ├── ProblemForm.jsx        # Add/edit problem modal with tag input
+│   │   │   ├── ProblemTable.jsx       # High-density problems table
+│   │   │   └── PublicOnlyRoute.jsx    # Guest-only route wrapper
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx        # Authentication session provider
+│   │   ├── pages/
+│   │   │   ├── DashboardPage.jsx      # Overview (Phase 4 analytics target)
+│   │   │   ├── LoginPage.jsx          # User sign-in
+│   │   │   ├── NotFoundPage.jsx       # 404 handler
+│   │   │   ├── ProblemDetailPage.jsx  # Problem metadata & attempt history
+│   │   │   ├── ProblemsPage.jsx       # Problem repository with filters/search
+│   │   │   ├── RevisionPage.jsx       # Spaced repetition queue (Phase 4)
+│   │   │   └── SignupPage.jsx         # User registration
+│   │   ├── App.jsx         # Application routing tree
+│   │   ├── index.css       # Tailwind CSS typography & styles
+│   │   └── main.jsx        # Application bootstrap
 │   ├── index.html
 │   ├── package.json
 │   ├── postcss.config.js
@@ -38,15 +55,31 @@ dsa-tracker/
 │   └── vite.config.js
 └── server/                 # Backend REST API (Node.js + Express + Mongoose)
     ├── src/
-    │   ├── config/         # Database and infrastructure connections
-    │   ├── controllers/    # auth.controller.js (signup, login, getMe)
-    │   ├── middleware/     # errorMiddleware.js, authMiddleware.js
-    │   ├── models/         # User.js (Mongoose schema, bcrypt comparison)
-    │   ├── routes/         # healthRoutes.js, auth.routes.js
-    │   ├── utils/          # generateToken.js
-    │   ├── app.js          # Express application initialization & middleware
-    │   └── server.js       # Server bootstrap and HTTP listener
-    ├── test/               # verify_phase2.js (automated auth verification)
+    │   ├── config/
+    │   │   └── db.js                  # MongoDB Atlas / local connection
+    │   ├── controllers/
+    │   │   ├── attempt.controller.js  # Attempt creation & history
+    │   │   ├── auth.controller.js     # User registration & login
+    │   │   └── problem.controller.js  # Problem CRUD with status derivation
+    │   ├── middleware/
+    │   │   ├── authMiddleware.js      # JWT verification & req.user attachment
+    │   │   └── errorMiddleware.js     # JSON error handler & 404 middleware
+    │   ├── models/
+    │   │   ├── Attempt.js             # Attempt schema with compound index
+    │   │   ├── Problem.js             # Problem schema with userId index
+    │   │   └── User.js                # User schema with bcrypt comparison
+    │   ├── routes/
+    │   │   ├── attempt.routes.js      # Attempt nested sub-routes
+    │   │   ├── auth.routes.js         # Authentication routes
+    │   │   ├── healthRoutes.js        # Health check endpoint
+    │   │   └── problem.routes.js      # Problem routes
+    │   ├── utils/
+    │   │   └── generateToken.js       # JWT generation utility
+    │   ├── app.js          # Express app configuration & route mounting
+    │   └── server.js       # Server bootstrap & listener
+    ├── test/
+    │   ├── verify_phase2.js # Automated authentication test suite
+    │   └── verify_phase3.js # Automated Problem/Attempt security test suite
     ├── .env.example
     └── package.json
 ```
@@ -71,9 +104,6 @@ dsa-tracker/
 - **Environment Management**: Dotenv
 - **Cross-Origin Handling**: CORS
 
-### Planned Dependencies (Future Phases)
-- **Analytics & Visualizations**: Recharts
-
 ---
 
 ## Environment Configuration
@@ -87,7 +117,7 @@ cp server/.env.example server/.env
 | Variable | Description | Default / Example |
 | :--- | :--- | :--- |
 | `PORT` | Port number for Express server | `5000` |
-| `MONGO_URI` | MongoDB connection URI | `mongodb://localhost:27017/dsa_tracker` |
+| `MONGO_URI` | MongoDB connection URI | `mongodb+srv://...` or `mongodb://localhost:27017/dsa_tracker` |
 | `JWT_SECRET` | Secret key for signing JSON Web Tokens | `your_secret_key_here` |
 
 ### Frontend (`client/.env`)
@@ -156,13 +186,23 @@ npm test
 - `POST /api/auth/login` — Authenticate existing account (`email`, `password`)
 - `GET /api/auth/me` — Retrieve authenticated user profile (Requires `Bearer <token>`)
 
+### Problems (All Require Authentication)
+- `GET /api/problems` — List problems for authenticated user (Supports `?topic=`, `?difficulty=`, `?status=`, `?search=`)
+- `POST /api/problems` — Create new problem (`title`, `platform`, `link`, `topics`, `difficulty`)
+- `GET /api/problems/:id` — Get problem details with attempt history
+- `PUT /api/problems/:id` — Update problem fields
+- `DELETE /api/problems/:id` — Delete problem and cascade delete all related attempts
+
+### Attempts (All Require Authentication)
+- `POST /api/problems/:id/attempts` — Log practice attempt (`status`, `timeTakenMinutes`, `notes`, `attemptedAt`)
+- `GET /api/problems/:id/attempts` — Get chronological attempt history for problem
+
 ---
 
 ## Planned Roadmap
 
 - [x] **Phase 1**: Architecture scaffolding, environment configs, routing shell, health checks, error middleware
 - [x] **Phase 2**: User model, JWT authentication, protected routes, auth context
-- [ ] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs
-- [ ] **Phase 4**: Problem management UI, attempt logging interface, tags & difficulty filters
-- [ ] **Phase 5**: Spaced-repetition prioritization engine & revision queue
-- [ ] **Phase 6**: Analytics, weakness matrices, and practice heatmaps
+- [x] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs & UI
+- [ ] **Phase 4**: Spaced-repetition prioritization engine & revision queue
+- [ ] **Phase 5**: Analytics, weakness matrices, and practice heatmaps
