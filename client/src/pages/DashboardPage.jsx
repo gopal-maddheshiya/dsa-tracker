@@ -141,7 +141,7 @@ const DashboardPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#2E2A27]">
               <StatCell label="Cataloged" value={summary?.totalProblems ?? 0} sub="problems" />
               <StatCell label="Practice Sessions" value={summary?.totalAttempts ?? 0} sub="logged" />
-              <StatCell label="Problems Solved" value={summary?.solvedProblems ?? 0} sub={`${solvedPct}%`} color="text-[#F97316]" />
+              <StatCell label="Problems Solved" value={summary?.solvedProblems ?? 0} sub={`${solvedPct}%`} color="text-emerald-400" />
               <StatCell label="Solve Rate" value={`${solveRate}%`} sub={`${summary?.solvedAttempts ?? 0} solved`} color="text-[#F97316]" />
             </div>
           </div>

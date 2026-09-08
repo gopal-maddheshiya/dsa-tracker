@@ -2,14 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const DIFFICULTY_STYLES = {
-  easy: 'text-[#F97316]',
+  easy: 'text-emerald-400',
   medium: 'text-amber-400',
-  hard: 'text-rose-400',
+  hard: 'text-red-400',
 };
 
 const STATUS_CONFIG = {
-  solved: { label: 'Solved', text: 'text-[#F97316]', dot: 'bg-[#F97316]' },
-  struggled: { label: 'Struggled', text: 'text-rose-400', dot: 'bg-rose-400' },
+  solved: { label: 'Solved', text: 'text-emerald-400', dot: 'bg-emerald-400' },
+  struggled: { label: 'Struggled', text: 'text-red-400', dot: 'bg-red-400' },
   revisit_needed: { label: 'Revisit', text: 'text-amber-400', dot: 'bg-amber-400' },
 };
 
@@ -132,7 +132,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd 
                     <div className="flex items-center justify-end gap-3 text-xs">
                       <Link to={`/problems/${problem.id}`} className="text-[#78716C] hover:text-[#F5F5F4] transition-colors">Open</Link>
                       <button type="button" onClick={() => onEdit(problem)} className="text-[#78716C] hover:text-[#A8A29E] transition-colors">Edit</button>
-                      <button type="button" onClick={() => onDelete(problem)} className="text-[#78716C] hover:text-rose-400 transition-colors">Delete</button>
+                      <button type="button" onClick={() => onDelete(problem)} className="text-[#78716C] hover:text-red-400 transition-colors">Delete</button>
                     </div>
                   </td>
                 </tr>

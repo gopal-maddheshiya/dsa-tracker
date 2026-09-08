@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -27,7 +27,7 @@
   html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--canvas);
     /* Faint Charcoal Grey lines (#262320) */
     background-image:
@@ -38,17 +38,17 @@
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.011em;
+    letter-spacing: -0.015em;
     line-height: 1.6;
   }
 
   code, kbd, samp, pre, .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    letter-spacing: 0;
+    letter-spacing: -0.01em;
   }
 
   /* Refined warm scrollbar */
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     background: #2E2A27;
@@ -65,10 +65,10 @@
 @layer components {
   /* === PANEL / CARD === */
   .panel {
-    @apply border border-[#2E2A27] bg-[#1C1A18] rounded-xl;
+    @apply border border-[#2E2A27] bg-[#1C1A18] rounded-2xl shadow-xl shadow-black/40;
   }
   .panel-sm {
-    @apply border border-[#2E2A27] bg-[#1C1A18] rounded-lg;
+    @apply border border-[#2E2A27] bg-[#1C1A18] rounded-xl shadow-md;
   }
 
   /* === GLOW === */
@@ -78,55 +78,55 @@
 
   /* === INPUTS === */
   .input-base {
-    @apply w-full px-3 py-2 bg-[#141312] border border-[#2E2A27] rounded-lg text-sm text-[#F5F5F4] placeholder-[#78716C];
+    @apply w-full px-3.5 py-2.5 bg-[#141312] border border-[#2E2A27] rounded-xl text-sm text-[#F5F5F4] placeholder-[#78716C];
     @apply focus:outline-none focus:border-[#F97316]/70 focus:ring-1 focus:ring-[#F97316]/20 transition-all duration-200;
   }
   .input-error {
-    @apply border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20;
+    @apply border-red-500/60 focus:border-red-500 focus:ring-red-500/20;
   }
 
   /* === BUTTONS === */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm;
     @apply bg-[#F97316] hover:bg-[#FB923C] text-white;
     @apply transition-all duration-200 active:scale-[0.98];
-    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(251,146,60,0.15);
   }
   .btn-primary:hover {
-    box-shadow: 0 2px 14px rgba(249,115,22,0.35), 0 0 0 1px rgba(251,146,60,0.3);
+    box-shadow: 0 4px 16px rgba(249,115,22,0.35), 0 0 0 1px rgba(251,146,60,0.4);
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium;
     @apply text-[#A8A29E] hover:text-[#F5F5F4] bg-[#1C1A18] hover:bg-[#211F1D] border border-[#2E2A27] hover:border-[#3E3834];
     @apply transition-all duration-150;
   }
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium;
-    @apply text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/40;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium;
+    @apply text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40;
     @apply transition-all duration-150;
   }
 
   /* === BADGE === */
   .badge {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-medium;
     @apply bg-[#211F1D] border border-[#2E2A27] text-[#A8A29E];
   }
 
   /* === NAV === */
   .nav-active {
-    @apply text-[#F97316] bg-[#F97316]/10;
+    @apply text-[#F97316] bg-[#F97316]/10 border border-[#F97316]/20;
   }
   .nav-item {
-    @apply rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150;
+    @apply rounded-xl px-3.5 py-1.5 text-sm font-medium transition-all duration-150;
     @apply text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-[#211F1D];
   }
 
   /* === STAT === */
   .stat-label {
-    @apply text-[10px] font-medium uppercase tracking-widest text-[#78716C] font-mono;
+    @apply text-[11px] font-semibold uppercase tracking-wider text-[#78716C] font-mono;
   }
   .stat-value {
-    @apply text-xl font-bold font-mono text-[#F5F5F4] leading-none;
+    @apply text-2xl font-bold font-mono text-[#F5F5F4] tracking-tight leading-none;
   }
 
   /* === TABLE === */
@@ -135,21 +135,21 @@
     @apply border-b border-[#2E2A27] bg-[#141312];
   }
   .data-table thead th {
-    @apply py-3 px-4 text-left text-[10px] font-semibold uppercase tracking-widest text-[#78716C];
+    @apply py-3.5 px-4 text-left text-[11px] font-semibold uppercase tracking-wider text-[#78716C] font-mono;
   }
   .data-table tbody tr {
     @apply border-b border-[#2E2A27]/60 hover:bg-[#211F1D] transition-colors duration-150;
   }
-  .data-table tbody td { @apply py-3 px-4; }
+  .data-table tbody td { @apply py-3.5 px-4; }
 
   /* === SECTION LABEL === */
   .section-label {
-    @apply text-[10px] font-semibold uppercase tracking-widest text-[#78716C];
+    @apply text-[11px] font-semibold uppercase tracking-wider text-[#78716C] font-mono;
   }
 
   /* === PROGRESS BAR === */
   .progress-bar {
-    @apply h-1 w-full bg-[#141312] rounded-full overflow-hidden border border-[#2E2A27];
+    @apply h-1.5 w-full bg-[#141312] rounded-full overflow-hidden border border-[#2E2A27];
   }
   .progress-fill {
     @apply h-full rounded-full transition-all duration-500;

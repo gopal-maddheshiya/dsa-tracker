@@ -4,8 +4,8 @@ import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 
 const STATUS_OPTIONS = [
-  { value: 'solved', label: 'Solved', dot: 'bg-[#F97316]', active: 'border-[#F97316]/60 text-[#F97316] bg-[#F97316]/10' },
-  { value: 'struggled', label: 'Struggled', dot: 'bg-rose-400', active: 'border-rose-500/60 text-rose-400 bg-rose-500/10' },
+  { value: 'solved', label: 'Solved', dot: 'bg-emerald-400', active: 'border-emerald-500/60 text-emerald-400 bg-emerald-500/10' },
+  { value: 'struggled', label: 'Struggled', dot: 'bg-red-400', active: 'border-red-500/60 text-red-400 bg-red-500/10' },
   { value: 'revisit_needed', label: 'Revisit', dot: 'bg-amber-400', active: 'border-amber-500/60 text-amber-400 bg-amber-500/10' },
 ];
 

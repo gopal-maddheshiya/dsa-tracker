@@ -2,9 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const STATUS_CONFIG = {
-  struggled: { label: 'Struggled', text: 'text-rose-400', dot: 'bg-rose-400' },
+  struggled: { label: 'Struggled', text: 'text-red-400', dot: 'bg-red-400' },
   revisit_needed: { label: 'Revisit', text: 'text-amber-400', dot: 'bg-amber-400' },
-  solved: { label: 'Solved', text: 'text-[#F97316]', dot: 'bg-[#F97316]' },
+  solved: { label: 'Solved', text: 'text-emerald-400', dot: 'bg-emerald-400' },
 };
 
 const DIFFICULTY_LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };

@@ -12,9 +12,9 @@ const PLATFORMS = [
 ];
 
 const DIFFICULTIES = [
-  { value: 'easy', label: 'Easy', color: 'text-orange-400' },
+  { value: 'easy', label: 'Easy', color: 'text-emerald-400' },
   { value: 'medium', label: 'Medium', color: 'text-amber-400' },
-  { value: 'hard', label: 'Hard', color: 'text-rose-400' },
+  { value: 'hard', label: 'Hard', color: 'text-red-400' },
 ];
 
 const isValidUrl = (string) => {

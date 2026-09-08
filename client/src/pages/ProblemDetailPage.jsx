@@ -7,11 +7,11 @@ import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const DIFFICULTY_STYLES = {
-  easy: 'text-[#F97316]', medium: 'text-amber-400', hard: 'text-rose-400',
+  easy: 'text-emerald-400', medium: 'text-amber-400', hard: 'text-red-400',
 };
 const STATUS_CONFIG = {
-  solved: { label: 'Solved', dot: 'bg-[#F97316]', text: 'text-[#F97316]' },
-  struggled: { label: 'Struggled', dot: 'bg-rose-400', text: 'text-rose-400' },
+  solved: { label: 'Solved', dot: 'bg-emerald-400', text: 'text-emerald-400' },
+  struggled: { label: 'Struggled', dot: 'bg-red-400', text: 'text-red-400' },
   revisit_needed: { label: 'Revisit', dot: 'bg-amber-400', text: 'text-amber-400' },
 };
 const PLATFORM_LABELS = {
