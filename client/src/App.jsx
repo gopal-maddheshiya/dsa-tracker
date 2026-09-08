@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProblemsPage from './pages/ProblemsPage';
 import ProblemDetailPage from './pages/ProblemDetailPage';
 import RevisionPage from './pages/RevisionPage';
+import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -33,6 +34,7 @@ function App() {
               <Route path="/problems"     element={<ProblemsPage />} />
               <Route path="/problems/:id" element={<ProblemDetailPage />} />
               <Route path="/revision"     element={<RevisionPage />} />
+              <Route path="/profile"      element={<ProfilePage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />

@@ -319,10 +319,130 @@ const getRevisionQueue = async (req, res, next) => {
   }
 };
 
+/**
+ * @route   GET /api/analytics/profile
+ * @desc    Full profile stats: streak, milestones, best day, totals
+ * @access  Private
+ */
+const getProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // ── All attempt dates (chronological) ─────────────────────────
+    const allAttempts = await Attempt.find({ userId }, 'attemptedAt status').sort({ attemptedAt: 1 });
+
+    // ── Unique active days ─────────────────────────────────────────
+    const daySet = new Set();
+    const dayCountMap = {};
+    for (const a of allAttempts) {
+      const d = a.attemptedAt.toISOString().slice(0, 10);
+      daySet.add(d);
+      dayCountMap[d] = (dayCountMap[d] || 0) + 1;
+    }
+    const sortedDays = [...daySet].sort();
+
+    // ── Streak computation ─────────────────────────────────────────
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+    for (let i = 0; i < sortedDays.length; i++) {
+      if (i === 0) {
+        tempStreak = 1;
+      } else {
+        const prev = new Date(sortedDays[i - 1]);
+        const curr = new Date(sortedDays[i]);
+        const diffDays = Math.round((curr - prev) / 86400000);
+        if (diffDays === 1) {
+          tempStreak++;
+        } else {
+          tempStreak = 1;
+        }
+      }
+      if (tempStreak > longestStreak) longestStreak = tempStreak;
+    }
+
+    // Current streak: count consecutive days ending today or yesterday
+    const lastDay = sortedDays[sortedDays.length - 1];
+    if (lastDay === todayStr || lastDay === yesterdayStr) {
+      currentStreak = 1;
+      for (let i = sortedDays.length - 2; i >= 0; i--) {
+        const next = new Date(sortedDays[i + 1]);
+        const curr = new Date(sortedDays[i]);
+        const diffDays = Math.round((next - curr) / 86400000);
+        if (diffDays === 1) { currentStreak++; } else { break; }
+      }
+    }
+
+    // ── Best day (most attempts in one day) ────────────────────────
+    let bestDay = null;
+    let bestDayCount = 0;
+    for (const [d, c] of Object.entries(dayCountMap)) {
+      if (c > bestDayCount) { bestDayCount = c; bestDay = d; }
+    }
+
+    // ── Solved problems by difficulty ──────────────────────────────
+    const solvedByDiff = await Attempt.aggregate([
+      { $match: { userId, status: 'solved' } },
+      { $group: { _id: '$problemId' } },
+      {
+        $lookup: {
+          from: 'problems', localField: '_id',
+          foreignField: '_id', as: 'p',
+        },
+      },
+      { $unwind: '$p' },
+      { $group: { _id: '$p.difficulty', count: { $sum: 1 } } },
+    ]);
+    const diffSolved = { easy: 0, medium: 0, hard: 0 };
+    solvedByDiff.forEach(d => { if (diffSolved[d._id] !== undefined) diffSolved[d._id] = d.count; });
+
+    // ── Totals ─────────────────────────────────────────────────────
+    const totalProblems = await Problem.countDocuments({ userId });
+    const totalAttempts = allAttempts.length;
+    const totalSolved = diffSolved.easy + diffSolved.medium + diffSolved.hard;
+    const activeDays = daySet.size;
+
+    // ── Milestones / Badges ────────────────────────────────────────
+    const badges = [];
+    if (totalSolved >= 1)   badges.push({ id: 'first_step',   icon: '🌱', label: 'First Step',     desc: 'Solved your first problem' });
+    if (totalSolved >= 10)  badges.push({ id: 'getting_warm', icon: '🔥', label: 'Getting Warm',   desc: '10 problems solved' });
+    if (totalSolved >= 50)  badges.push({ id: 'half_century', icon: '⚡', label: 'Half Century',   desc: '50 problems solved' });
+    if (totalSolved >= 100) badges.push({ id: 'century',      icon: '💯', label: 'Century',        desc: '100 problems solved' });
+    if (totalSolved >= 250) badges.push({ id: 'elite',        icon: '🏆', label: 'Elite Coder',    desc: '250 problems solved' });
+    if (diffSolved.hard >= 1)  badges.push({ id: 'hard_first', icon: '🧠', label: 'Deep Thinker',  desc: 'First Hard solved' });
+    if (diffSolved.hard >= 10) badges.push({ id: 'hard_ten',  icon: '💎', label: 'Diamond Mind',   desc: '10 Hard problems solved' });
+    if (currentStreak >= 7)  badges.push({ id: 'streak_7',   icon: '📅', label: 'On a Roll',      desc: '7-day streak' });
+    if (currentStreak >= 30) badges.push({ id: 'streak_30',  icon: '🎯', label: 'Consistent',     desc: '30-day streak' });
+    if (activeDays >= 1)    badges.push({ id: 'day_one',     icon: '🚀', label: 'Day One',         desc: 'First practice session' });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalProblems,
+        totalAttempts,
+        totalSolved,
+        activeDays,
+        currentStreak,
+        longestStreak,
+        bestDay,
+        bestDayCount,
+        solvedByDifficulty: diffSolved,
+        badges,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getSummary,
   getTopics,
   getTrend,
   getHeatmap,
   getRevisionQueue,
+  getProfile,
 };

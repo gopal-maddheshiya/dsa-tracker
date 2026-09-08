@@ -44,3 +44,12 @@ export const fetchRevisionQueue = async () => {
   const response = await api.get('/analytics/revision-queue');
   return response.data;
 };
+
+/**
+ * Fetch full profile: streak, badges, best day, difficulty breakdown.
+ * @returns {Promise<Object>} API response data object
+ */
+export const fetchProfileAnalytics = async () => {
+  const response = await api.get('/analytics/profile');
+  return response.data;
+};

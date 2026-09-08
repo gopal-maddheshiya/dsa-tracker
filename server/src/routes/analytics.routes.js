@@ -6,6 +6,7 @@ const {
   getTrend,
   getHeatmap,
   getRevisionQueue,
+  getProfile,
 } = require('../controllers/analytics.controller');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -17,5 +18,6 @@ router.get('/topics', getTopics);
 router.get('/trend', getTrend);
 router.get('/heatmap', getHeatmap);
 router.get('/revision-queue', getRevisionQueue);
+router.get('/profile', getProfile);
 
 module.exports = router;
