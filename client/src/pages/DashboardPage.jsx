@@ -10,17 +10,25 @@ import {
 } from '../api/analytics';
 import { getErrorMessage } from '../utils/errorHandler';
 
-import StatCard from '../components/analytics/StatCard';
 import DifficultyChart from '../components/analytics/DifficultyChart';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import RevisionPreview from '../components/analytics/RevisionPreview';
 
+const StatCell = ({ label, value, sub, color = 'text-[#F5F5F4]' }) => (
+  <div className="flex flex-col gap-1 py-4 px-5">
+    <span className="stat-label">{label}</span>
+    <div className="flex items-baseline gap-1.5">
+      <span className={`stat-value ${color}`}>{value}</span>
+      {sub && <span className="text-[11px] font-mono text-[#78716C]">{sub}</span>}
+    </div>
+  </div>
+);
+
 const DashboardPage = () => {
   const { user } = useAuth();
 
-  // Individual endpoint states for resilient failure isolation
   const [summary, setSummary] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState(null);
@@ -42,229 +50,111 @@ const DashboardPage = () => {
   const [revisionError, setRevisionError] = useState(null);
 
   const loadSummary = useCallback(async () => {
-    setLoadingSummary(true);
-    setSummaryError(null);
-    try {
-      const res = await fetchAnalyticsSummary();
-      if (res?.success) setSummary(res.data);
-    } catch (err) {
-      setSummaryError(getErrorMessage(err, 'Unable to load summary metrics.'));
-    } finally {
-      setLoadingSummary(false);
-    }
+    setLoadingSummary(true); setSummaryError(null);
+    try { const res = await fetchAnalyticsSummary(); if (res?.success) setSummary(res.data); }
+    catch (err) { setSummaryError(getErrorMessage(err, 'Unable to load summary.')); }
+    finally { setLoadingSummary(false); }
   }, []);
 
   const loadTopics = useCallback(async () => {
-    setLoadingTopics(true);
-    setTopicsError(null);
-    try {
-      const res = await fetchTopicAnalytics();
-      if (res?.success) setTopics(res.data || []);
-    } catch (err) {
-      setTopicsError(getErrorMessage(err, 'Unable to load topic analytics.'));
-    } finally {
-      setLoadingTopics(false);
-    }
+    setLoadingTopics(true); setTopicsError(null);
+    try { const res = await fetchTopicAnalytics(); if (res?.success) setTopics(res.data || []); }
+    catch (err) { setTopicsError(getErrorMessage(err, 'Unable to load topics.')); }
+    finally { setLoadingTopics(false); }
   }, []);
 
   const loadTrend = useCallback(async () => {
-    setLoadingTrend(true);
-    setTrendError(null);
-    try {
-      const res = await fetchTrendAnalytics();
-      if (res?.success) setTrend(res.data || []);
-    } catch (err) {
-      setTrendError(getErrorMessage(err, 'Unable to load trend analytics.'));
-    } finally {
-      setLoadingTrend(false);
-    }
+    setLoadingTrend(true); setTrendError(null);
+    try { const res = await fetchTrendAnalytics(); if (res?.success) setTrend(res.data || []); }
+    catch (err) { setTrendError(getErrorMessage(err, 'Unable to load trend.')); }
+    finally { setLoadingTrend(false); }
   }, []);
 
   const loadHeatmap = useCallback(async () => {
-    setLoadingHeatmap(true);
-    setHeatmapError(null);
-    try {
-      const res = await fetchHeatmapAnalytics();
-      if (res?.success) setHeatmap(res.data || []);
-    } catch (err) {
-      setHeatmapError(getErrorMessage(err, 'Unable to load heatmap.'));
-    } finally {
-      setLoadingHeatmap(false);
-    }
+    setLoadingHeatmap(true); setHeatmapError(null);
+    try { const res = await fetchHeatmapAnalytics(); if (res?.success) setHeatmap(res.data || []); }
+    catch (err) { setHeatmapError(getErrorMessage(err, 'Unable to load heatmap.')); }
+    finally { setLoadingHeatmap(false); }
   }, []);
 
   const loadRevision = useCallback(async () => {
-    setLoadingRevision(true);
-    setRevisionError(null);
-    try {
-      const res = await fetchRevisionQueue();
-      if (res?.success) setRevisionQueue(res.data || []);
-    } catch (err) {
-      setRevisionError(getErrorMessage(err, 'Unable to load revision queue.'));
-    } finally {
-      setLoadingRevision(false);
-    }
+    setLoadingRevision(true); setRevisionError(null);
+    try { const res = await fetchRevisionQueue(); if (res?.success) setRevisionQueue(res.data || []); }
+    catch (err) { setRevisionError(getErrorMessage(err, 'Unable to load revision queue.')); }
+    finally { setLoadingRevision(false); }
   }, []);
 
-  const loadAll = useCallback(() => {
-    loadSummary();
-    loadTopics();
-    loadTrend();
-    loadHeatmap();
-    loadRevision();
+  useEffect(() => {
+    loadSummary(); loadTopics(); loadTrend(); loadHeatmap(); loadRevision();
   }, [loadSummary, loadTopics, loadTrend, loadHeatmap, loadRevision]);
 
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
-
-  // Derive empty state indicator from loaded summary
-  const hasZeroData =
-    !loadingSummary &&
-    summary &&
-    summary.totalProblems === 0 &&
-    summary.totalAttempts === 0;
+  const hasZeroData = !loadingSummary && summary && summary.totalProblems === 0 && summary.totalAttempts === 0;
+  const solveRate = summary?.totalAttempts > 0
+    ? Math.round((summary.solvedAttempts / summary.totalAttempts) * 100) : 0;
+  const solvedPct = summary?.totalProblems > 0
+    ? Math.round((summary.solvedProblems / summary.totalProblems) * 100) : 0;
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* 1. Header with subtle greeting and primary action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-5">
+    <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-fade-up">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2.5">
-            <h1 className="text-xl font-semibold tracking-tight text-white">Dashboard</h1>
-            {user?.name && (
-              <span className="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                {user.name}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Practice velocity, topic struggle analysis, and spaced recall queue.
+          <h1 className="text-2xl font-bold tracking-tight text-[#F5F5F4]">Progress Overview</h1>
+          <p className="text-sm text-[#A8A29E] mt-1">
+            {summary
+              ? `${summary.totalProblems} problems · ${summary.totalAttempts} sessions logged`
+              : 'Velocity trends, topic weakness analysis, and spaced recall queue.'}
           </p>
         </div>
-
-        <div className="flex items-center space-x-2.5">
-          <Link
-            to="/revision"
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-medium bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 transition-colors"
-          >
-            Revision Queue ({revisionQueue.length})
-          </Link>
-          <Link
-            to="/problems"
-            className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-semibold bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shadow-sm"
-          >
+        <div className="flex items-center gap-2.5">
+          {revisionQueue.length > 0 && (
+            <Link to="/revision"
+              className="inline-flex items-center gap-1.5 btn-ghost text-amber-400 border-amber-500/20 hover:bg-amber-500/5 hover:border-amber-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 dot-pulse" />
+              {revisionQueue.length} due
+            </Link>
+          )}
+          <Link to="/problems" className="btn-primary text-xs px-3 py-1.5">
             + Add Problem
           </Link>
         </div>
       </div>
 
-      {/* 2. Global Zero State (when user has 0 problems and 0 attempts) */}
+      {/* Zero state */}
       {hasZeroData ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 sm:p-12 text-center max-w-2xl mx-auto">
-          <div className="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4 text-emerald-400 text-lg font-bold">
-            0
+        <div className="panel border-dashed p-14 text-center">
+          <div className="w-12 h-12 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20 flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">📊</span>
           </div>
-          <h2 className="text-lg font-semibold text-white">Your analytics will appear here</h2>
-          <p className="text-sm text-slate-400 mt-2 max-w-md mx-auto leading-relaxed">
-            Add your practice problems and log attempts to automatically generate difficulty distributions, solve velocity trends, topic weakness matrices, and spaced repetition schedules.
+          <h2 className="text-base font-semibold text-[#F5F5F4]">Nothing to show yet</h2>
+          <p className="text-sm text-[#A8A29E] mt-2 max-w-sm mx-auto leading-relaxed">
+            Add your first problem and log practice sessions to unlock analytics.
           </p>
-          <div className="mt-6">
-            <Link
-              to="/problems"
-              className="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-md bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors"
-            >
-              Add your first problem &rarr;
-            </Link>
-          </div>
+          <Link to="/problems" className="btn-primary inline-flex mt-5 text-sm">
+            Add your first problem
+          </Link>
         </div>
       ) : (
         <>
-          {/* 3. Summary KPI Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <StatCard
-              title="Total Problems"
-              value={summary?.totalProblems}
-              subtitle="Cataloged in repository"
-              isLoading={loadingSummary}
-              valueColor="text-white"
-            />
-            <StatCard
-              title="Total Attempts"
-              value={summary?.totalAttempts}
-              subtitle="Logged practice sessions"
-              isLoading={loadingSummary}
-              valueColor="text-slate-200"
-            />
-            <StatCard
-              title="Solved Problems"
-              value={summary?.solvedProblems}
-              subtitle={
-                summary?.totalProblems > 0
-                  ? `${Math.round((summary.solvedProblems / summary.totalProblems) * 100)}% of tracked problems`
-                  : 'Unique problems solved'
-              }
-              isLoading={loadingSummary}
-              valueColor="text-emerald-400"
-            />
-            <StatCard
-              title="Solved Attempts"
-              value={summary?.solvedAttempts}
-              subtitle={
-                summary?.totalAttempts > 0
-                  ? `${Math.round((summary.solvedAttempts / summary.totalAttempts) * 100)}% solve success rate`
-                  : 'Total successful attempts'
-              }
-              isLoading={loadingSummary}
-              valueColor="text-emerald-400"
-            />
-          </div>
-
-          {/* 4. First Analytics Grid: Difficulty Distribution & Heatmap */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <DifficultyChart
-                breakdown={summary?.difficultyBreakdown}
-                isLoading={loadingSummary}
-                error={summaryError}
-                onRetry={loadSummary}
-              />
-            </div>
-            <div className="lg:col-span-2">
-              <PracticeHeatmap
-                heatmapData={heatmap}
-                isLoading={loadingHeatmap}
-                error={heatmapError}
-                onRetry={loadHeatmap}
-              />
+          {/* KPI Strip */}
+          <div className="panel overflow-hidden">
+            <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#2E2A27]">
+              <StatCell label="Cataloged" value={summary?.totalProblems ?? 0} sub="problems" />
+              <StatCell label="Practice Sessions" value={summary?.totalAttempts ?? 0} sub="logged" />
+              <StatCell label="Problems Solved" value={summary?.solvedProblems ?? 0} sub={`${solvedPct}%`} color="text-[#F97316]" />
+              <StatCell label="Solve Rate" value={`${solveRate}%`} sub={`${summary?.solvedAttempts ?? 0} solved`} color="text-[#F97316]" />
             </div>
           </div>
 
-          {/* 5. Second Analytics Grid: Solve Trend & Topic Weakness */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SolveTrendChart
-              trendData={trend}
-              isLoading={loadingTrend}
-              error={trendError}
-              onRetry={loadTrend}
-            />
-            <TopicWeaknessChart
-              topics={topics}
-              isLoading={loadingTopics}
-              error={topicsError}
-              onRetry={loadTopics}
-            />
+          <SolveTrendChart trendData={trend} isLoading={loadingTrend} error={trendError} onRetry={loadTrend} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <TopicWeaknessChart topics={topics} isLoading={loadingTopics} error={topicsError} onRetry={loadTopics} />
+            <DifficultyChart breakdown={summary?.difficultyBreakdown} isLoading={loadingSummary} error={summaryError} onRetry={loadSummary} />
           </div>
 
-          {/* 6. Spaced Repetition Queue Preview */}
-          <div>
-            <RevisionPreview
-              queue={revisionQueue}
-              isLoading={loadingRevision}
-              error={revisionError}
-              onRetry={loadRevision}
-            />
-          </div>
+          <PracticeHeatmap heatmapData={heatmap} isLoading={loadingHeatmap} error={heatmapError} onRetry={loadHeatmap} />
+          <RevisionPreview queue={revisionQueue} isLoading={loadingRevision} error={revisionError} onRetry={loadRevision} />
         </>
       )}
     </div>

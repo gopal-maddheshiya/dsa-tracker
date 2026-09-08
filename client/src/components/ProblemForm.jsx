@@ -12,9 +12,9 @@ const PLATFORMS = [
 ];
 
 const DIFFICULTIES = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
+  { value: 'easy', label: 'Easy', color: 'text-orange-400' },
+  { value: 'medium', label: 'Medium', color: 'text-amber-400' },
+  { value: 'hard', label: 'Hard', color: 'text-rose-400' },
 ];
 
 const isValidUrl = (string) => {
@@ -48,11 +48,8 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
       setDifficulty(initialData.difficulty || 'easy');
       setTopics(Array.isArray(initialData.topics) ? [...initialData.topics] : []);
     } else {
-      setTitle('');
-      setPlatform('leetcode');
-      setLink('');
-      setDifficulty('easy');
-      setTopics([]);
+      setTitle(''); setPlatform('leetcode'); setLink('');
+      setDifficulty('easy'); setTopics([]);
     }
     setTopicInput('');
     setErrors({});
@@ -64,18 +61,10 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const handleAddTopic = () => {
     const trimmed = topicInput.trim();
     if (!trimmed) return;
-
-    // Check case-insensitive duplicate
-    const isDuplicate = topics.some(
-      (t) => t.toLowerCase() === trimmed.toLowerCase()
-    );
-
-    if (!isDuplicate) {
+    if (!topics.some((t) => t.toLowerCase() === trimmed.toLowerCase())) {
       setTopics([...topics, trimmed]);
-      setTopicInput('');
-    } else {
-      setTopicInput('');
     }
+    setTopicInput('');
   };
 
   const handleTopicKeyDown = (e) => {
@@ -94,15 +83,12 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
     const newErrors = {};
     if (!title.trim()) newErrors.title = 'Title is required';
     if (!platform) newErrors.platform = 'Platform is required';
-
     if (!link.trim()) {
       newErrors.link = 'Problem URL is required';
     } else if (!isValidUrl(link.trim())) {
-      newErrors.link = 'Please enter a valid URL starting with http:// or https://';
+      newErrors.link = 'Enter a valid URL (http:// or https://)';
     }
-
     if (!difficulty) newErrors.difficulty = 'Difficulty is required';
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -110,9 +96,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
-
     if (!validate()) return;
-
     setIsSubmitting(true);
     try {
       const payload = {
@@ -122,19 +106,17 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         difficulty,
         topics: topics.map((t) => t.trim()).filter(Boolean),
       };
-
       if (isEdit) {
         await updateProblem(initialData.id, payload);
-        toast.success(`Problem "${payload.title}" updated successfully.`);
+        toast.success(`"${payload.title}" updated.`);
       } else {
         await createProblem(payload);
-        toast.success(`Problem "${payload.title}" added to repository.`);
+        toast.success(`"${payload.title}" added.`);
       }
-
       onSuccess();
       onClose();
     } catch (err) {
-      const msg = getErrorMessage(err, 'Failed to save problem. Please review your inputs.');
+      const msg = getErrorMessage(err, 'Failed to save problem.');
       setApiError(msg);
       toast.error(msg);
     } finally {
@@ -144,36 +126,39 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="problem-form-title"
     >
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in duration-150">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-5">
-          <h2 id="problem-form-title" className="text-sm font-semibold text-white tracking-tight font-mono">
+      <div className="panel max-w-lg w-full p-6 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-start justify-between pb-4 border-b border-[#2E2A27] mb-5">
+          <h2 id="problem-form-title" className="text-base font-semibold text-[#F5F5F4]">
             {isEdit ? 'Edit Problem' : 'Add New Problem'}
           </h2>
           <button
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors text-sm"
-            aria-label="Close dialog"
+            className="text-[#78716C] hover:text-[#F5F5F4] transition-colors p-1 -m-1"
+            aria-label="Close"
           >
             ✕
           </button>
         </div>
 
         {apiError && (
-          <div className="mb-4 p-3 rounded bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 font-mono">
-            {apiError}
+          <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0" />
+            <p className="text-xs text-rose-300">{apiError}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Title */}
           <div>
-            <label htmlFor="problem-title" className="block text-[11px] font-mono text-slate-300 mb-1">
+            <label htmlFor="problem-title" className="block section-label mb-1.5">
               Problem Title *
             </label>
             <input
@@ -183,16 +168,15 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               disabled={isSubmitting}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Trapping Rain Water"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
-                errors.title ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
-              }`}
+              className={`input-base ${errors.title ? 'input-error' : ''}`}
             />
-            {errors.title && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.title}</p>}
+            {errors.title && <p className="mt-1.5 text-xs text-rose-400">{errors.title}</p>}
           </div>
 
+          {/* Platform + Difficulty */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="problem-platform" className="block text-[11px] font-mono text-slate-300 mb-1">
+              <label htmlFor="problem-platform" className="block section-label mb-1.5">
                 Platform *
               </label>
               <select
@@ -200,18 +184,15 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 value={platform}
                 disabled={isSubmitting}
                 onChange={(e) => setPlatform(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 focus:outline-none focus:border-slate-600 transition-colors font-mono"
+                className="input-base"
               >
                 {PLATFORMS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
+                  <option key={p.value} value={p.value}>{p.label}</option>
                 ))}
               </select>
             </div>
-
             <div>
-              <label htmlFor="problem-difficulty" className="block text-[11px] font-mono text-slate-300 mb-1">
+              <label htmlFor="problem-difficulty" className="block section-label mb-1.5">
                 Difficulty *
               </label>
               <select
@@ -219,19 +200,18 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 value={difficulty}
                 disabled={isSubmitting}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 focus:outline-none focus:border-slate-600 transition-colors font-mono"
+                className="input-base"
               >
                 {DIFFICULTIES.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
+                  <option key={d.value} value={d.value}>{d.label}</option>
                 ))}
               </select>
             </div>
           </div>
 
+          {/* URL */}
           <div>
-            <label htmlFor="problem-link" className="block text-[11px] font-mono text-slate-300 mb-1">
+            <label htmlFor="problem-link" className="block section-label mb-1.5">
               Problem URL *
             </label>
             <input
@@ -241,16 +221,18 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               disabled={isSubmitting}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://leetcode.com/problems/..."
-              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors font-mono ${
-                errors.link ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
-              }`}
+              className={`input-base ${errors.link ? 'input-error' : ''}`}
             />
-            {errors.link && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.link}</p>}
+            {errors.link && <p className="mt-1.5 text-xs text-rose-400">{errors.link}</p>}
           </div>
 
+          {/* Topics */}
           <div>
-            <label htmlFor="topic-input" className="block text-[11px] font-mono text-slate-300 mb-1">
-              Topics / Tags <span className="text-slate-500 font-normal">(Press Enter or comma to add)</span>
+            <label htmlFor="topic-input" className="block section-label mb-1.5">
+              Topics
+              <span className="text-zinc-500 font-normal ml-1 normal-case tracking-normal">
+                (Enter or comma to add)
+              </span>
             </label>
             <div className="flex gap-2">
               <input
@@ -261,32 +243,32 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 onChange={(e) => setTopicInput(e.target.value)}
                 onKeyDown={handleTopicKeyDown}
                 placeholder="e.g. Dynamic Programming"
-                className="flex-1 px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
+                className="input-base flex-1"
               />
               <button
                 type="button"
                 onClick={handleAddTopic}
                 disabled={isSubmitting || !topicInput.trim()}
-                className="px-3 py-1.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-50 text-slate-300 text-xs font-mono rounded transition-colors"
+                className="btn-ghost disabled:opacity-50"
               >
                 Add
               </button>
             </div>
 
             {topics.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
+              <div className="flex flex-wrap gap-1.5 mt-2">
                 {topics.map((topic) => (
                   <span
                     key={topic}
-                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-slate-950 text-slate-300 border border-slate-800/80"
+                    className="badge"
                   >
-                    {topic}
+                    <span>{topic}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveTopic(topic)}
                       disabled={isSubmitting}
-                      className="text-slate-500 hover:text-rose-400 font-bold ml-0.5"
-                      aria-label={`Remove topic ${topic}`}
+                      className="text-zinc-500 hover:text-rose-400 font-bold transition-colors ml-0.5"
+                      aria-label={`Remove ${topic}`}
                     >
                       ×
                     </button>
@@ -296,27 +278,28 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
             )}
           </div>
 
-          <div className="flex items-center justify-end space-x-2.5 pt-3.5 border-t border-slate-800/80 mt-5">
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#2E2A27]">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-3 py-1.5 border border-slate-800 bg-slate-900/60 hover:bg-slate-800 disabled:opacity-50 text-slate-300 text-xs font-mono rounded transition-colors"
+              className="btn-ghost"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-3.5 py-1.5 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded transition-colors shadow-sm inline-flex items-center space-x-1.5"
+              className="btn-primary disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
-                  <span className="w-3 h-3 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
                   <span>Saving...</span>
                 </>
               ) : (
-                <span>{isEdit ? 'Update Problem' : 'Create Problem'}</span>
+                isEdit ? 'Update Problem' : 'Create Problem'
               )}
             </button>
           </div>

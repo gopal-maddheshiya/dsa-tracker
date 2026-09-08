@@ -1,21 +1,14 @@
 import React from 'react';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
   if (parts.length === 3) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[parseInt(parts[1], 10) - 1] || parts[1];
-    return `${month} ${parseInt(parts[2], 10)}`;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[parseInt(parts[1], 10) - 1]} ${parseInt(parts[2], 10)}`;
   }
   return dateStr;
 };
@@ -23,12 +16,12 @@ const formatDate = (dateStr) => {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 border border-slate-700 rounded-md p-2.5 shadow-xl text-xs font-mono">
-        <div className="text-slate-400 mb-1">{formatDate(label)}</div>
-        <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-          <span className="font-sans text-slate-200">Solved:</span>
-          <span className="text-white font-bold">{payload[0].value}</span>
+      <div className="bg-[#1C1A18] border border-[#2E2A27] rounded-lg p-2.5 shadow-xl text-xs">
+        <div className="text-[#78716C] text-[10px] mb-1 font-mono">{formatDate(label)}</div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#F97316] inline-block" />
+          <span className="text-[#A8A29E]">Solved:</span>
+          <span className="text-[#F5F5F4] font-mono font-bold">{payload[0].value}</span>
         </div>
       </div>
     );
@@ -39,92 +32,70 @@ const CustomTooltip = ({ active, payload, label }) => {
 const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRetry }) => {
   if (isLoading) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 animate-pulse">
+      <div className="panel p-5 animate-pulse">
         <div className="flex justify-between mb-4">
-          <div className="h-4 w-32 bg-slate-800 rounded"></div>
-          <div className="h-4 w-20 bg-slate-800 rounded"></div>
+          <div><div className="h-4 w-28 shimmer rounded-md mb-2" /><div className="h-3 w-44 shimmer rounded-md" /></div>
+          <div className="h-6 w-20 shimmer rounded-full" />
         </div>
-        <div className="h-48 bg-slate-800/40 rounded"></div>
+        <div className="h-44 shimmer rounded-lg" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-5">
-        <h3 className="text-sm font-semibold text-slate-200">Solve Velocity Trend</h3>
-        <div className="h-48 flex flex-col items-center justify-center text-center p-4">
-          <p className="text-xs text-rose-400 mb-2">Unable to load trend data.</p>
-          {onRetry && (
-            <button
-              onClick={onRetry}
-              type="button"
-              className="text-xs font-medium text-slate-300 hover:text-white px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 transition-colors"
-            >
-              Retry
-            </button>
-          )}
+      <div className="panel p-5">
+        <h3 className="text-sm font-semibold text-[#F5F5F4] mb-3">Solve Velocity</h3>
+        <div className="h-44 flex flex-col items-center justify-center text-center">
+          <p className="text-xs text-rose-400 mb-3">Unable to load trend data.</p>
+          {onRetry && <button onClick={onRetry} type="button" className="btn-ghost">Retry</button>}
         </div>
       </div>
     );
   }
 
-  const totalSolvedInTrend = trendData.reduce((acc, curr) => acc + (curr.solvedCount || 0), 0);
+  const normalizedData = trendData.map((item) => ({
+    date: item.date,
+    solved: Number(item.solved !== undefined ? item.solved : (item.solvedCount ?? 0)),
+  }));
+  const totalSolvedInTrend = normalizedData.reduce((acc, curr) => acc + curr.solved, 0);
 
   return (
-    <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5 flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-3">
+    <div className="panel p-5">
+      <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">Solve Velocity</h3>
-          <p className="text-[11px] text-slate-400 mt-0.5">Chronological solve trajectory</p>
+          <h3 className="text-sm font-semibold text-[#F5F5F4]">Solve Velocity</h3>
+          <p className="text-xs text-[#78716C] mt-0.5">Chronological solve trajectory</p>
         </div>
-        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-900/60 px-2 py-0.5 rounded font-medium">
-          {totalSolvedInTrend} solved
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="section-label">Period total</span>
+          <span className="text-sm font-bold font-mono text-[#F97316]">{totalSolvedInTrend}</span>
+        </div>
       </div>
 
-      {trendData.length === 0 ? (
-        <div className="h-48 flex flex-col items-center justify-center text-center border border-dashed border-slate-800/80 rounded-md p-4">
-          <p className="text-xs text-slate-400 font-medium">No solved attempts logged yet.</p>
-          <p className="text-[11px] text-slate-400 mt-1">
-            Your daily solve count will plot chronologically as problems are solved.
-          </p>
+      {normalizedData.length === 0 ? (
+        <div className="h-44 flex flex-col items-center justify-center text-center border border-dashed border-[#2E2A27] rounded-xl">
+          <p className="text-xs text-[#78716C]">No solved attempts logged yet.</p>
         </div>
       ) : (
-        <div className="h-48 w-full pt-2">
+        <div className="h-48 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+            <AreaChart data={normalizedData} margin={{ top: 8, right: 8, left: -28, bottom: 0 }}>
               <defs>
-                <linearGradient id="colorSolved" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                <linearGradient id="solveGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#F97316" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-              <XAxis
-                dataKey="date"
-                stroke="#64748b"
-                fontSize={11}
-                tickLine={false}
-                tickFormatter={formatDate}
-                dy={6}
-              />
-              <YAxis
-                stroke="#64748b"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                allowDecimals={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#262320" vertical={false} />
+              <XAxis dataKey="date" stroke="#2E2A27" fontSize={10} tickLine={false} axisLine={false}
+                tickFormatter={formatDate} dy={6} tick={{ fill: '#78716C' }} />
+              <YAxis stroke="#2E2A27" fontSize={10} tickLine={false} axisLine={false}
+                allowDecimals={false} tick={{ fill: '#78716C' }} />
               <Tooltip content={<CustomTooltip />} />
-              <Area
-                type="monotone"
-                dataKey="solvedCount"
-                stroke="#10b981"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#colorSolved)"
-              />
+              <Area type="monotone" dataKey="solved" stroke="#F97316" strokeWidth={2}
+                fillOpacity={1} fill="url(#solveGrad)" dot={false}
+                activeDot={{ r: 4, fill: '#FB923C', stroke: '#1C1A18', strokeWidth: 2 }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

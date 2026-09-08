@@ -2,28 +2,35 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const STATUS_CONFIG = {
-  struggled: { label: 'Struggled', badge: 'text-rose-400 bg-rose-950/40 border-rose-900/60', dot: 'bg-rose-500' },
-  revisit_needed: { label: 'Revisit', badge: 'text-amber-400 bg-amber-950/40 border-amber-900/60', dot: 'bg-amber-500' },
-  solved: { label: 'Solved', badge: 'text-emerald-400 bg-emerald-950/40 border-emerald-900/60', dot: 'bg-emerald-500' },
+  struggled: { label: 'Struggled', text: 'text-rose-400', dot: 'bg-rose-400' },
+  revisit_needed: { label: 'Revisit', text: 'text-amber-400', dot: 'bg-amber-400' },
+  solved: { label: 'Solved', text: 'text-[#F97316]', dot: 'bg-[#F97316]' },
 };
 
-const DIFFICULTY_COLOR = {
-  easy: 'text-emerald-400',
-  medium: 'text-amber-400',
-  hard: 'text-rose-400',
+const DIFFICULTY_LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+const PLATFORM_LABELS = {
+  leetcode: 'LeetCode', gfg: 'GFG', codechef: 'CodeChef',
+  hackerrank: 'HackerRank', other: 'External',
 };
 
 const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry }) => {
   if (isLoading) {
     return (
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-4 animate-pulse">
-        <div className="flex justify-between mb-4">
-          <div className="h-4 w-36 bg-slate-800 rounded"></div>
-          <div className="h-4 w-20 bg-slate-800 rounded"></div>
+      <div className="panel animate-pulse">
+        <div className="flex justify-between items-center px-5 py-4 border-b border-[#2E2A27]">
+          <div className="h-4 w-36 shimmer rounded-md" />
+          <div className="h-4 w-16 shimmer rounded-md" />
         </div>
-        <div className="space-y-2.5">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-10 bg-slate-800/40 rounded"></div>
+        <div className="divide-y divide-[#2E2A27]/60">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="px-5 py-3.5 flex items-center gap-3">
+              <div className="h-3 w-6 shimmer rounded" />
+              <div className="flex-1">
+                <div className="h-3.5 w-48 shimmer rounded-md mb-1.5" />
+                <div className="h-2.5 w-32 shimmer rounded-md" />
+              </div>
+              <div className="h-3 w-10 shimmer rounded" />
+            </div>
           ))}
         </div>
       </div>
@@ -32,19 +39,11 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry 
 
   if (error) {
     return (
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-5">
-        <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider font-mono">Revision Queue</h3>
-        <div className="h-36 flex flex-col items-center justify-center text-center p-4">
-          <p className="text-xs text-rose-400 mb-2">Unable to load revision recommendations.</p>
-          {onRetry && (
-            <button
-              onClick={onRetry}
-              type="button"
-              className="text-xs font-medium text-slate-300 hover:text-white px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 transition-colors"
-            >
-              Retry
-            </button>
-          )}
+      <div className="panel p-5">
+        <h3 className="text-sm font-semibold text-[#F5F5F4] mb-3">Revision Queue</h3>
+        <div className="h-28 flex flex-col items-center justify-center text-center">
+          <p className="text-xs text-rose-400 mb-2">Unable to load revision queue.</p>
+          {onRetry && <button onClick={onRetry} type="button" className="btn-ghost">Retry</button>}
         </div>
       </div>
     );
@@ -53,90 +52,63 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry 
   const previewItems = queue.slice(0, 5);
 
   return (
-    <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-4 flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800/70">
-          <div>
-            <div className="flex items-center space-x-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">
-                Priority Revision
-              </h3>
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-1.5 py-0.2 rounded">
-                {queue.length} due
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Ranked recall based on elapsed days & struggle weight.
-            </p>
-          </div>
-
-          <Link
-            to="/revision"
-            className="text-xs font-medium text-slate-300 hover:text-white transition-colors inline-flex items-center space-x-1"
-          >
-            <span>Open queue</span>
-            <span aria-hidden="true">&rarr;</span>
-          </Link>
+    <div className="panel overflow-hidden">
+      <div className="px-5 py-4 border-b border-[#2E2A27] bg-[#141312] flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <h3 className="text-sm font-semibold text-[#F5F5F4]">Revision Queue</h3>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            {queue.length} due
+          </span>
         </div>
-
-        {previewItems.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-xs text-slate-400">No revision items due right now.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-800/40 mt-1">
-            {previewItems.map((item, idx) => {
-              const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
-              const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
-              const diffColor = DIFFICULTY_COLOR[item.difficulty] || 'text-slate-400';
-
-              return (
-                <Link
-                  key={item.problemId}
-                  to={`/problems/${item.problemId}`}
-                  className="py-2.5 px-1.5 flex items-center justify-between gap-3 hover:bg-slate-900/50 rounded transition-colors group text-xs"
-                >
-                  <div className="flex items-center space-x-2.5 min-w-0 flex-1">
-                    <span className="font-mono text-slate-500 text-[11px] shrink-0">#{idx + 1}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-slate-200 font-medium group-hover:text-white truncate">
-                        {item.title}
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center space-x-2">
-                        <span className={`capitalize ${diffColor}`}>{item.difficulty}</span>
-                        <span>&bull;</span>
-                        <span>{item.daysSinceLastAttempt}d elapsed</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 shrink-0">
-                    <span
-                      className={`inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-mono border ${statusCfg.badge}`}
-                    >
-                      <span className={`w-1 h-1 rounded-full ${statusCfg.dot}`}></span>
-                      <span>{statusCfg.label}</span>
-                    </span>
-
-                    <div className="text-right font-mono min-w-[36px]">
-                      <span className="text-xs font-semibold text-white">{item.priorityScore.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        <Link to="/revision" className="text-xs text-[#78716C] hover:text-[#F5F5F4] transition-colors">
+          View all →
+        </Link>
       </div>
 
-      {previewItems.length > 0 && (
-        <div className="pt-2.5 mt-2 border-t border-slate-800/60 text-right">
-          <Link
-            to="/revision"
-            className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center space-x-1"
-          >
-            <span>View all {queue.length} problems in queue &rarr;</span>
-          </Link>
+      {previewItems.length === 0 ? (
+        <div className="py-10 text-center">
+          <div className="w-8 h-8 rounded-lg bg-[#F97316]/10 border border-[#F97316]/20 flex items-center justify-center mx-auto mb-3">
+            <span className="text-[#F97316] text-sm">✓</span>
+          </div>
+          <p className="text-sm font-medium text-[#A8A29E]">Queue is clear</p>
+          <p className="text-xs text-[#78716C] mt-1">No revision items due right now.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-[#2E2A27]/60">
+          {previewItems.map((item, idx) => {
+            const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
+            const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
+            const diffLabel = DIFFICULTY_LABELS[item.difficulty] || item.difficulty;
+            const platformLabel = PLATFORM_LABELS[item.platform] || item.platform;
+            const topicStr = item.topics?.length > 0 ? item.topics.slice(0, 2).join(' · ') : '';
+            const metaLine = [topicStr, `${diffLabel} · ${platformLabel}`].filter(Boolean).join('  —  ');
+
+            return (
+              <Link key={item.problemId} to={`/problems/${item.problemId}`}
+                className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-[#211F1D] transition-colors group">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <span className="font-mono text-[10px] text-[#78716C] shrink-0 w-4">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm text-[#F5F5F4] font-medium group-hover:text-white truncate transition-colors">
+                      {item.title}
+                    </div>
+                    {metaLine && <div className="text-[11px] text-[#78716C] mt-0.5 truncate">{metaLine}</div>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                    <span className={`text-xs ${statusCfg.text}`}>{statusCfg.label}</span>
+                  </div>
+                  <div className="text-xs font-mono font-semibold text-[#A8A29E] min-w-[36px] text-right">
+                    {item.priorityScore.toFixed(2)}
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -144,4 +116,3 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry 
 };
 
 export default RevisionPreview;
-

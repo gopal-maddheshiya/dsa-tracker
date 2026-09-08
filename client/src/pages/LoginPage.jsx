@@ -12,21 +12,13 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
   const from = location.state?.from?.pathname || '/dashboard';
 
   const validate = () => {
     const newErrors = {};
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!password) {
-      newErrors.password = 'Password is required';
-    }
-
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) newErrors.email = 'Enter a valid email';
+    if (!password) newErrors.password = 'Password is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -34,116 +26,98 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
-
     if (!validate()) return;
-
     setIsSubmitting(true);
     const result = await login(email.trim(), password);
     setIsSubmitting(false);
-
-    if (result.success) {
-      navigate(from, { replace: true });
-    } else {
-      setApiError(result.message);
-    }
+    if (result.success) navigate(from, { replace: true });
+    else setApiError(result.message);
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-6 sm:p-8 shadow-sm">
-        <div className="border-b border-slate-800/80 pb-4 mb-5">
-          <h1 className="text-lg font-semibold tracking-tight text-white font-mono">Sign in to DSA Tracker</h1>
-          <p className="text-xs text-slate-400 mt-1">Enter your credentials to access your preparation repository.</p>
+    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 animate-fade-up">
+      <div className="w-full max-w-[440px]">
+        {/* Brand mark */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20">
+            <span className="w-3 h-3 rounded-full bg-[#F97316] dot-pulse" />
+          </div>
+          <div>
+            <div className="font-bold text-[#F5F5F4] text-lg tracking-tight leading-none">
+              DSA<span className="text-[#F97316]">Tracker</span>
+            </div>
+            <div className="text-xs text-[#78716C] mt-0.5">Spaced repetition for engineers</div>
+          </div>
         </div>
 
-        {apiError && (
-          <div className="mb-4 p-3 rounded bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 font-mono">
-            {apiError}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div>
-            <label htmlFor="email" className="block text-[11px] font-mono text-slate-300 mb-1">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
-              placeholder="demo@dsa-tracker.local"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
-                errors.email
-                  ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                  : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
-              }`}
-            />
-            {errors.email && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.email}</p>}
+        <div className="panel p-7">
+          <div className="mb-6">
+            <h1 className="text-xl font-bold text-[#F5F5F4] tracking-tight">Welcome back</h1>
+            <p className="text-sm text-[#A8A29E] mt-1">
+              Sign in to access your problem repository and analytics.
+            </p>
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-[11px] font-mono text-slate-300 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-              placeholder="••••••••"
-              className={`w-full px-3 py-2 bg-slate-950 border rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 transition-colors ${
-                errors.password
-                  ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
-                  : 'border-slate-800/80 focus:border-slate-600 focus:ring-slate-600'
-              }`}
-            />
-            {errors.password && <p className="mt-1 text-xs text-rose-400 font-mono">{errors.password}</p>}
-          </div>
+          {apiError && (
+            <div className="mb-4 flex items-start gap-2.5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0" />
+              <p className="text-xs text-rose-300">{apiError}</p>
+            </div>
+          )}
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-2 px-4 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-semibold text-xs rounded transition-colors shadow-sm inline-flex items-center justify-center space-x-2"
-            >
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <div>
+              <label htmlFor="email" className="block section-label mb-1.5">Email address</label>
+              <input
+                id="email" type="email" value={email} disabled={isSubmitting}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className={`input-base ${errors.email ? 'input-error' : ''}`}
+              />
+              {errors.email && <p className="mt-1.5 text-xs text-rose-400">{errors.email}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block section-label mb-1.5">Password</label>
+              <input
+                id="password" type="password" value={password} disabled={isSubmitting}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className={`input-base ${errors.password ? 'input-error' : ''}`}
+              />
+              {errors.password && <p className="mt-1.5 text-xs text-rose-400">{errors.password}</p>}
+            </div>
+
+            <button type="submit" disabled={isSubmitting}
+              className="btn-primary w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
               {isSubmitting ? (
                 <>
-                  <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>Signing in...</span>
                 </>
-              ) : (
-                <span>Sign in</span>
-              )}
+              ) : 'Sign in'}
             </button>
-          </div>
-        </form>
+          </form>
 
-        {/* Demo Credentials Helper */}
-        <div className="mt-4 p-2.5 rounded bg-slate-950/70 border border-slate-800/60 text-[11px] font-mono text-slate-400">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-300 font-medium">Demo Account:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('demo@dsa-tracker.local');
-                setPassword('DemoPassword123!');
-              }}
-              className="text-emerald-400 hover:underline text-[10px]"
-            >
-              Fill Demo Login
-            </button>
+          {/* Demo helper */}
+          <div className="mt-5 p-3 rounded-lg bg-[#141312] border border-[#2E2A27]">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] text-[#78716C]">Demo credentials</span>
+              <button type="button"
+                onClick={() => { setEmail('demo@dsa-tracker.local'); setPassword('DemoPassword123!'); }}
+                className="text-[11px] font-semibold text-[#F97316] hover:text-[#FB923C] transition-colors">
+                Fill automatically
+              </button>
+            </div>
+            <p className="font-mono text-[11px] text-[#A8A29E] truncate">demo@dsa-tracker.local</p>
           </div>
-          <div className="text-[10px] text-slate-500 mt-0.5 truncate">demo@dsa-tracker.local</div>
-        </div>
 
-        <div className="mt-5 pt-3 border-t border-slate-800/60 text-center text-xs text-slate-400">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-emerald-400 hover:text-emerald-300 font-medium">
-            Create account
-          </Link>
+          <div className="mt-5 pt-4 border-t border-[#2E2A27] text-center text-xs text-[#78716C]">
+            No account yet?{' '}
+            <Link to="/signup" className="text-[#F97316] hover:text-[#FB923C] font-semibold transition-colors">
+              Create one for free →
+            </Link>
+          </div>
         </div>
       </div>
     </div>

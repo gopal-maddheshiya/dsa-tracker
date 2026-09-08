@@ -4,9 +4,9 @@ import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 
 const STATUS_OPTIONS = [
-  { value: 'solved', label: 'Solved', color: 'text-emerald-400 border-emerald-800 bg-emerald-950/40' },
-  { value: 'struggled', label: 'Struggled', color: 'text-rose-400 border-rose-800 bg-rose-950/40' },
-  { value: 'revisit_needed', label: 'Revisit Needed', color: 'text-amber-400 border-amber-800 bg-amber-950/40' },
+  { value: 'solved', label: 'Solved', dot: 'bg-[#F97316]', active: 'border-[#F97316]/60 text-[#F97316] bg-[#F97316]/10' },
+  { value: 'struggled', label: 'Struggled', dot: 'bg-rose-400', active: 'border-rose-500/60 text-rose-400 bg-rose-500/10' },
+  { value: 'revisit_needed', label: 'Revisit', dot: 'bg-amber-400', active: 'border-amber-500/60 text-amber-400 bg-amber-500/10' },
 ];
 
 const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) => {
@@ -14,13 +14,10 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
   const [status, setStatus] = useState('solved');
   const [timeTakenMinutes, setTimeTakenMinutes] = useState('');
   const [notes, setNotes] = useState('');
-
-  // Format current date-time for datetime-local input
   const [attemptedAt, setAttemptedAt] = useState(() => {
     const now = new Date();
     return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   });
-
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,12 +26,7 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
-
-    if (timeTakenMinutes !== '' && Number(timeTakenMinutes) < 0) {
-      setApiError('Time taken cannot be negative.');
-      return;
-    }
-
+    if (timeTakenMinutes !== '' && Number(timeTakenMinutes) < 0) { setApiError('Time taken cannot be negative.'); return; }
     setIsSubmitting(true);
     try {
       await createAttempt(problemId, {
@@ -43,72 +35,45 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
         notes: notes.trim(),
         attemptedAt: attemptedAt ? new Date(attemptedAt).toISOString() : new Date().toISOString(),
       });
-
-      toast.success(`Practice attempt logged as "${status.replace('_', ' ')}".`);
-      onSuccess();
-      onClose();
+      toast.success(`Attempt logged as "${STATUS_OPTIONS.find(o => o.value === status)?.label}".`);
+      onSuccess(); onClose();
     } catch (err) {
-      const msg = getErrorMessage(err, 'Failed to log attempt. Please try again.');
-      setApiError(msg);
-      toast.error(msg);
-    } finally {
-      setIsSubmitting(false);
-    }
+      const msg = getErrorMessage(err, 'Failed to log attempt.');
+      setApiError(msg); toast.error(msg);
+    } finally { setIsSubmitting(false); }
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="attempt-form-title"
-    >
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg max-w-md w-full p-6 shadow-2xl relative animate-in fade-in duration-150">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-4">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+      role="dialog" aria-modal="true" aria-labelledby="attempt-form-title">
+      <div className="panel max-w-md w-full p-6 shadow-2xl">
+        <div className="flex items-start justify-between pb-4 border-b border-[#2E2A27] mb-5">
           <div>
-            <h2 id="attempt-form-title" className="text-sm font-semibold text-white tracking-tight font-mono">
-              Log Practice Attempt
-            </h2>
-            {problemTitle && (
-              <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">{problemTitle}</p>
-            )}
+            <h2 id="attempt-form-title" className="text-base font-semibold text-[#F5F5F4]">Log Practice Attempt</h2>
+            {problemTitle && <p className="text-xs text-[#78716C] mt-0.5 truncate max-w-xs">{problemTitle}</p>}
           </div>
-          <button
-            onClick={onClose}
-            type="button"
-            disabled={isSubmitting}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors text-sm"
-            aria-label="Close dialog"
-          >
-            ✕
-          </button>
+          <button onClick={onClose} type="button" disabled={isSubmitting}
+            className="text-[#78716C] hover:text-[#F5F5F4] transition-colors p-1 -m-1" aria-label="Close">✕</button>
         </div>
 
         {apiError && (
-          <div className="mb-4 p-3 rounded bg-rose-950/40 border border-rose-900/60 text-xs text-rose-300 font-mono">
-            {apiError}
+          <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0" />
+            <p className="text-xs text-rose-300">{apiError}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[11px] font-mono text-slate-300 mb-1.5">
-              Outcome Status *
-            </label>
+            <label className="block section-label mb-2">Outcome Status *</label>
             <div className="grid grid-cols-3 gap-2">
               {STATUS_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  disabled={isSubmitting}
-                  onClick={() => setStatus(opt.value)}
-                  className={`py-1.5 px-2 text-xs font-mono rounded border text-center transition-all ${
-                    status === opt.value
-                      ? `${opt.color} ring-1 ring-emerald-500`
-                      : 'border-slate-800/80 bg-slate-950 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {opt.label}
+                <button key={opt.value} type="button" disabled={isSubmitting} onClick={() => setStatus(opt.value)}
+                  className={`py-2 px-2.5 text-xs rounded-lg border flex items-center justify-center gap-1.5 font-medium transition-all ${
+                    status === opt.value ? opt.active : 'border-[#2E2A27] bg-[#141312] text-[#78716C] hover:text-[#A8A29E] hover:border-[#3E3834]'
+                  }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${opt.dot} shrink-0`} />
+                  <span>{opt.label}</span>
                 </button>
               ))}
             </div>
@@ -116,74 +81,36 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="time-taken" className="block text-[11px] font-mono text-slate-300 mb-1">
-                Time Taken (minutes)
-              </label>
-              <input
-                id="time-taken"
-                type="number"
-                min="0"
-                step="1"
-                value={timeTakenMinutes}
-                disabled={isSubmitting}
-                onChange={(e) => setTimeTakenMinutes(e.target.value)}
-                placeholder="e.g. 25"
-                className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors font-mono"
-              />
+              <label htmlFor="time-taken" className="block section-label mb-1.5">Time Taken (min)</label>
+              <input id="time-taken" type="number" min="0" step="1" value={timeTakenMinutes}
+                disabled={isSubmitting} onChange={(e) => setTimeTakenMinutes(e.target.value)}
+                placeholder="e.g. 25" className="input-base font-mono" />
             </div>
-
             <div>
-              <label htmlFor="attempt-date" className="block text-[11px] font-mono text-slate-300 mb-1">
-                Attempt Date & Time *
-              </label>
-              <input
-                id="attempt-date"
-                type="datetime-local"
-                value={attemptedAt}
-                disabled={isSubmitting}
-                onChange={(e) => setAttemptedAt(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 focus:outline-none focus:border-slate-600 transition-colors font-mono"
-              />
+              <label htmlFor="attempt-date" className="block section-label mb-1.5">Date & Time *</label>
+              <input id="attempt-date" type="datetime-local" value={attemptedAt}
+                disabled={isSubmitting} onChange={(e) => setAttemptedAt(e.target.value)}
+                className="input-base font-mono text-[11px]" />
             </div>
           </div>
 
           <div>
-            <label htmlFor="attempt-notes" className="block text-[11px] font-mono text-slate-300 mb-1">
-              Notes & Key Learnings
-            </label>
-            <textarea
-              id="attempt-notes"
-              rows="3"
-              value={notes}
-              disabled={isSubmitting}
+            <label htmlFor="attempt-notes" className="block section-label mb-1.5">Notes & Key Learnings</label>
+            <textarea id="attempt-notes" rows="3" value={notes} disabled={isSubmitting}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="What approach did you try? Where did you get stuck?"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
-            />
+              className="input-base resize-none" />
           </div>
 
-          <div className="flex items-center justify-end space-x-2.5 pt-3.5 border-t border-slate-800/80 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="px-3 py-1.5 border border-slate-800 bg-slate-900/60 hover:bg-slate-800 disabled:opacity-50 text-slate-300 text-xs font-mono rounded transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-3.5 py-1.5 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 text-slate-950 text-xs font-semibold rounded transition-colors shadow-sm inline-flex items-center space-x-1.5"
-            >
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#2E2A27]">
+            <button type="button" onClick={onClose} disabled={isSubmitting} className="btn-ghost">Cancel</button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary disabled:opacity-50">
               {isSubmitting ? (
                 <>
-                  <span className="w-3 h-3 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>Saving...</span>
                 </>
-              ) : (
-                <span>Save Attempt</span>
-              )}
+              ) : 'Save Attempt'}
             </button>
           </div>
         </form>

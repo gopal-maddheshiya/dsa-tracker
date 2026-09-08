@@ -1,39 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --canvas: #121110;
+    --canvas-elevated: #141312;
+    --surface-1: #1C1A18;
+    --surface-2: #211F1D;
+    --surface-3: #262320;
+    --border-subtle: #262320;
+    --border-default: #2E2A27;
+    --border-emphasis: #3E3834;
+    --accent: #F97316;
+    --accent-hover: #FB923C;
+    --accent-dim: #EA580C;
+    --text-primary: #F5F5F4;
+    --text-secondary: #A8A29E;
+    --text-muted: #78716C;
+    --status-online: #22C55E;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #0b0f19;
-    color: #e2e8f0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--canvas);
+    /* Faint Charcoal Grey lines (#262320) */
+    background-image:
+      linear-gradient(#262320 1px, transparent 1px),
+      linear-gradient(90deg, #262320 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-attachment: fixed;
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
+    line-height: 1.6;
   }
 
-  code, kbd, samp, pre {
+  code, kbd, samp, pre, .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0;
   }
 
-  /* Custom subtle scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #0b0f19;
-  }
+  /* Refined warm scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #1e293b;
-    border-radius: 3px;
+    background: #2E2A27;
+    border-radius: 99px;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
-  }
+  ::-webkit-scrollbar-thumb:hover { background: #3E3834; }
 
   ::selection {
-    background-color: #059669;
-    color: #ffffff;
+    background-color: rgba(249, 115, 22, 0.35);
+    color: #F5F5F4;
   }
 }
 
+@layer components {
+  /* === PANEL / CARD === */
+  .panel {
+    @apply border border-[#2E2A27] bg-[#1C1A18] rounded-xl;
+  }
+  .panel-sm {
+    @apply border border-[#2E2A27] bg-[#1C1A18] rounded-lg;
+  }
+
+  /* === GLOW === */
+  .glow-orange {
+    box-shadow: 0 0 0 1px rgba(249,115,22,0.25), 0 0 24px rgba(249,115,22,0.1);
+  }
+
+  /* === INPUTS === */
+  .input-base {
+    @apply w-full px-3 py-2 bg-[#141312] border border-[#2E2A27] rounded-lg text-sm text-[#F5F5F4] placeholder-[#78716C];
+    @apply focus:outline-none focus:border-[#F97316]/70 focus:ring-1 focus:ring-[#F97316]/20 transition-all duration-200;
+  }
+  .input-error {
+    @apply border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20;
+  }
+
+  /* === BUTTONS === */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm;
+    @apply bg-[#F97316] hover:bg-[#FB923C] text-white;
+    @apply transition-all duration-200 active:scale-[0.98];
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 2px 14px rgba(249,115,22,0.35), 0 0 0 1px rgba(251,146,60,0.3);
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium;
+    @apply text-[#A8A29E] hover:text-[#F5F5F4] bg-[#1C1A18] hover:bg-[#211F1D] border border-[#2E2A27] hover:border-[#3E3834];
+    @apply transition-all duration-150;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium;
+    @apply text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/40;
+    @apply transition-all duration-150;
+  }
+
+  /* === BADGE === */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium;
+    @apply bg-[#211F1D] border border-[#2E2A27] text-[#A8A29E];
+  }
+
+  /* === NAV === */
+  .nav-active {
+    @apply text-[#F97316] bg-[#F97316]/10;
+  }
+  .nav-item {
+    @apply rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150;
+    @apply text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-[#211F1D];
+  }
+
+  /* === STAT === */
+  .stat-label {
+    @apply text-[10px] font-medium uppercase tracking-widest text-[#78716C] font-mono;
+  }
+  .stat-value {
+    @apply text-xl font-bold font-mono text-[#F5F5F4] leading-none;
+  }
+
+  /* === TABLE === */
+  .data-table { @apply w-full text-sm border-collapse; }
+  .data-table thead tr {
+    @apply border-b border-[#2E2A27] bg-[#141312];
+  }
+  .data-table thead th {
+    @apply py-3 px-4 text-left text-[10px] font-semibold uppercase tracking-widest text-[#78716C];
+  }
+  .data-table tbody tr {
+    @apply border-b border-[#2E2A27]/60 hover:bg-[#211F1D] transition-colors duration-150;
+  }
+  .data-table tbody td { @apply py-3 px-4; }
+
+  /* === SECTION LABEL === */
+  .section-label {
+    @apply text-[10px] font-semibold uppercase tracking-widest text-[#78716C];
+  }
+
+  /* === PROGRESS BAR === */
+  .progress-bar {
+    @apply h-1 w-full bg-[#141312] rounded-full overflow-hidden border border-[#2E2A27];
+  }
+  .progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+  }
+}
+
+@layer utilities {
+  /* Fade in up */
+  .animate-fade-up {
+    animation: fadeUp 0.35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Shimmer skeleton */
+  .shimmer {
+    background: linear-gradient(90deg, #1C1A18 25%, #262320 50%, #1C1A18 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Dot pulse */
+  .dot-pulse {
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Gradient text (orange like portfolio) */
+  .text-gradient {
+    background: linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FED7AA 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}

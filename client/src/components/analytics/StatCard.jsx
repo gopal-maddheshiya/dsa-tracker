@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * Compact, information-dense KPI statistic card.
- * Designed with restrained borders and subtle contrast.
+ * Styled to match exact charcoal/warm black palette tokens.
  */
 const StatCard = ({
   title,
@@ -11,33 +11,33 @@ const StatCard = ({
   badge,
   icon: Icon,
   isLoading = false,
-  valueColor = 'text-white',
+  valueColor = 'text-[#F5F5F4]',
 }) => {
   if (isLoading) {
     return (
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-4 flex flex-col justify-between animate-pulse">
+      <div className="panel p-4 flex flex-col justify-between animate-pulse">
         <div className="flex items-center justify-between mb-3">
-          <div className="h-3 w-20 bg-slate-800 rounded"></div>
-          <div className="h-4 w-4 bg-slate-800 rounded"></div>
+          <div className="h-3 w-20 bg-[#262320] rounded"></div>
+          <div className="h-4 w-4 bg-[#262320] rounded"></div>
         </div>
-        <div className="h-7 w-16 bg-slate-800 rounded mb-2"></div>
-        <div className="h-3 w-28 bg-slate-800/60 rounded"></div>
+        <div className="h-7 w-16 bg-[#262320] rounded mb-2"></div>
+        <div className="h-3 w-28 bg-[#262320]/60 rounded"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#0d121f] border border-slate-800/80 hover:border-slate-700/80 transition-colors rounded-lg p-4 flex flex-col justify-between">
+    <div className="panel p-4 flex flex-col justify-between hover:border-[#3E3834] transition-colors">
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+        <span className="text-[11px] font-mono uppercase tracking-wider text-[#A8A29E]">
           {title}
         </span>
         {badge ? (
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300">
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#141312] border border-[#2E2A27] text-[#F97316]">
             {badge}
           </span>
         ) : Icon ? (
-          <span className="text-slate-400" aria-hidden="true">
+          <span className="text-[#A8A29E]" aria-hidden="true">
             <Icon className="w-3.5 h-3.5" />
           </span>
         ) : null}
@@ -50,7 +50,7 @@ const StatCard = ({
       </div>
 
       {subtitle && (
-        <p className="text-[11px] text-slate-500 font-mono mt-0.5 truncate">
+        <p className="text-[11px] text-[#78716C] font-mono mt-0.5 truncate">
           {subtitle}
         </p>
       )}

@@ -6,17 +6,13 @@ export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
   const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const addToast = useCallback((message, type = 'info') => {
     const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setToasts((prev) => [...prev, { id, message, type }]);
-
-    // Auto dismiss after 4 seconds
-    setTimeout(() => {
-      removeToast(id);
-    }, 4000);
+    setTimeout(() => removeToast(id), 4500);
   }, [removeToast]);
 
   const toast = {
@@ -28,38 +24,35 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={toast}>
       {children}
-      {/* Toast Notification Container */}
+
+      {/* Toast Container */}
       <div
         aria-live="polite"
-        className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-sm w-full pointer-events-none"
+        className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"
       >
         {toasts.map(({ id, message, type }) => {
-          let badgeColor = 'bg-sky-500';
-          let borderColor = 'border-slate-700';
-
-          if (type === 'success') {
-            badgeColor = 'bg-emerald-500';
-            borderColor = 'border-emerald-600/60';
-          } else if (type === 'error') {
-            badgeColor = 'bg-rose-500';
-            borderColor = 'border-rose-600/60';
-          }
+          const config =
+            type === 'success'
+              ? { dot: 'bg-[#F97316]', border: 'border-[#F97316]/30', bg: 'bg-[#F97316]/10' }
+              : type === 'error'
+              ? { dot: 'bg-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' }
+              : { dot: 'bg-[#A8A29E]', border: 'border-[#2E2A27]', bg: 'bg-[#141312]' };
 
           return (
             <div
               key={id}
               role={type === 'error' ? 'alert' : 'status'}
-              className={`pointer-events-auto bg-slate-900/95 border ${borderColor} rounded-lg p-3.5 shadow-2xl flex items-start space-x-3 backdrop-blur-sm transition-all duration-200 animate-in fade-in slide-in-from-bottom-2`}
+              className={`pointer-events-auto bg-[#1C1A18] border ${config.border} ${config.bg} rounded-xl p-3.5 shadow-2xl shadow-black/80 flex items-start gap-2.5 backdrop-blur-md`}
             >
-              <span className={`w-2 h-2 rounded-full ${badgeColor} mt-1.5 shrink-0`} />
-              <div className="flex-1 text-xs text-slate-200 leading-relaxed font-medium">
+              <span className={`w-1.5 h-1.5 rounded-full ${config.dot} mt-1.5 shrink-0`} />
+              <div className="flex-1 text-xs text-[#F5F5F4] leading-relaxed">
                 {message}
               </div>
               <button
                 type="button"
                 onClick={() => removeToast(id)}
-                className="text-slate-400 hover:text-white p-0.5 rounded transition-colors text-xs ml-2"
-                aria-label="Dismiss notification"
+                className="text-[#78716C] hover:text-[#F5F5F4] transition-colors text-xs p-0.5 ml-1"
+                aria-label="Dismiss"
               >
                 ✕
               </button>
@@ -73,8 +66,6 @@ export const ToastProvider = ({ children }) => {
 
 export const useToast = () => {
   const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
+  if (!context) throw new Error('useToast must be used within a ToastProvider');
   return context;
 };

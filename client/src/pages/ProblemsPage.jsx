@@ -13,13 +13,11 @@ const ProblemsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filter states
   const [search, setSearch] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [status, setStatus] = useState('');
   const [topic, setTopic] = useState('');
 
-  // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProblem, setEditingProblem] = useState(null);
   const [deletingProblem, setDeletingProblem] = useState(null);
@@ -37,7 +35,7 @@ const ProblemsPage = () => {
       });
       setProblems(response.data || []);
     } catch (err) {
-      const msg = getErrorMessage(err, 'Failed to retrieve problems from repository.');
+      const msg = getErrorMessage(err, 'Failed to load problems.');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -46,107 +44,87 @@ const ProblemsPage = () => {
   }, [search, difficulty, status, topic, toast]);
 
   useEffect(() => {
-    // Debounce for search and filter updates
-    const timer = setTimeout(() => {
-      loadProblems();
-    }, 250);
-
+    const timer = setTimeout(() => { loadProblems(); }, 250);
     return () => clearTimeout(timer);
   }, [loadProblems]);
 
-  const handleOpenAdd = () => {
-    setEditingProblem(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (problem) => {
-    setEditingProblem(problem);
-    setIsFormOpen(true);
-  };
-
-  const handleDeletePrompt = (problem) => {
-    setDeletingProblem(problem);
-  };
+  const handleOpenAdd = () => { setEditingProblem(null); setIsFormOpen(true); };
+  const handleEdit = (problem) => { setEditingProblem(problem); setIsFormOpen(true); };
+  const handleDeletePrompt = (problem) => { setDeletingProblem(problem); };
 
   const handleConfirmDelete = async () => {
     if (!deletingProblem) return;
-
     setIsDeleting(true);
-    const targetId = deletingProblem.id;
-    const targetTitle = deletingProblem.title;
-
     try {
-      await deleteProblem(targetId);
-      // Optimistic local state update
-      setProblems((prev) => prev.filter((p) => p.id !== targetId));
+      await deleteProblem(deletingProblem.id);
+      setProblems(prev => prev.filter(p => p.id !== deletingProblem.id));
       setDeletingProblem(null);
-      toast.success(`Deleted problem "${targetTitle}" and all associated attempts.`);
+      toast.success(`Deleted "${deletingProblem.title}".`);
       loadProblems();
     } catch (err) {
-      const msg = getErrorMessage(err, 'Failed to delete problem.');
-      toast.error(msg);
+      toast.error(getErrorMessage(err, 'Failed to delete problem.'));
     } finally {
       setIsDeleting(false);
     }
   };
 
   const handleResetFilters = () => {
-    setSearch('');
-    setDifficulty('');
-    setStatus('');
-    setTopic('');
+    setSearch(''); setDifficulty(''); setStatus(''); setTopic('');
   };
 
   const activeFilterCount = [search, difficulty, status, topic].filter(Boolean).length;
-  const hasActiveFilters = activeFilterCount > 0;
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header & Primary Action */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 border-b border-slate-800/80 pb-5">
+    <div className="space-y-5 max-w-5xl mx-auto pb-12 animate-fade-up">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="text-xl font-semibold tracking-tight text-white">Problems</h1>
-            <span className="text-[11px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
-              {problems.length} cataloged
-            </span>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-bold tracking-tight text-[#F5F5F4]">Problems</h1>
+            <span className="text-sm font-mono text-[#78716C]">({problems.length})</span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Search, filter, and review your practice problems across all topics.
+          <p className="text-sm text-[#A8A29E] mt-0.5">
+            Your repository across all topics, platforms, and difficulty tiers.
           </p>
         </div>
-
         <button
           onClick={handleOpenAdd}
           type="button"
-          className="inline-flex items-center justify-center px-3.5 py-1.5 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-semibold text-xs rounded transition-colors shadow-sm self-start sm:self-auto"
+          className="btn-primary text-sm self-start sm:self-auto"
         >
           + Add Problem
         </button>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="bg-[#0d121f] border border-slate-800/80 rounded-lg p-3 sm:p-4">
+      {/* ── Filter Toolbar ── */}
+      <div className="panel p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          {/* Search Input */}
           <div>
-            <label className="block text-[11px] font-mono text-slate-400 mb-1">Search Problem</label>
+            <label className="block section-label mb-1.5">Search title</label>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search title..."
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
+              placeholder="e.g. Two Sum"
+              className="input-base"
             />
           </div>
-
-          {/* Difficulty Filter */}
           <div>
-            <label className="block text-[11px] font-mono text-slate-400 mb-1">Difficulty</label>
+            <label className="block section-label mb-1.5">Topic</label>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g. Dynamic Programming"
+              className="input-base"
+            />
+          </div>
+          <div>
+            <label className="block section-label mb-1.5">Difficulty</label>
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 focus:outline-none focus:border-slate-600 transition-colors"
+              className="input-base"
             >
               <option value="">All Difficulties</option>
               <option value="easy">Easy</option>
@@ -154,14 +132,12 @@ const ProblemsPage = () => {
               <option value="hard">Hard</option>
             </select>
           </div>
-
-          {/* Status Filter */}
           <div>
-            <label className="block text-[11px] font-mono text-slate-400 mb-1">Latest Status</label>
+            <label className="block section-label mb-1.5">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 focus:outline-none focus:border-slate-600 transition-colors"
+              className="input-base"
             >
               <option value="">All Statuses</option>
               <option value="solved">Solved</option>
@@ -170,37 +146,23 @@ const ProblemsPage = () => {
               <option value="unattempted">Unattempted</option>
             </select>
           </div>
-
-          {/* Topic Specific Filter */}
-          <div>
-            <label className="block text-[11px] font-mono text-slate-400 mb-1">Filter by Topic</label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. Binary Search"
-              className="w-full px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-slate-600 transition-colors"
-            />
-          </div>
         </div>
 
-        {hasActiveFilters && (
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-800 text-xs text-slate-400">
-            <span>
-              Active filters applied (<strong className="text-white font-mono">{activeFilterCount}</strong>)
-            </span>
+        {activeFilterCount > 0 && (
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#2E2A27] text-xs">
+            <span className="text-[#78716C]">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
             <button
               onClick={handleResetFilters}
               type="button"
-              className="text-emerald-400 hover:text-emerald-300 font-medium text-xs transition-colors"
+              className="text-[#F97316] hover:text-[#FB923C] transition-colors font-medium"
             >
-              Reset Filters
+              Clear all
             </button>
           </div>
         )}
       </div>
 
-      {/* Main Table */}
+      {/* ── Table ── */}
       <ProblemTable
         problems={problems}
         isLoading={isLoading}
@@ -210,7 +172,6 @@ const ProblemsPage = () => {
         onOpenAdd={handleOpenAdd}
       />
 
-      {/* Add / Edit Form Modal */}
       <ProblemForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
@@ -218,7 +179,6 @@ const ProblemsPage = () => {
         initialData={editingProblem}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={Boolean(deletingProblem)}
         onClose={() => setDeletingProblem(null)}

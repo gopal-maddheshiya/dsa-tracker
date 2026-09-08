@@ -9,8 +9,8 @@ const PrivateRoute = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="flex items-center space-x-3 text-slate-400 text-sm">
-          <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex items-center space-x-3 text-zinc-400 text-sm">
+          <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
           <span>Verifying session...</span>
         </div>
       </div>
