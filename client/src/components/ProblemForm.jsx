@@ -222,16 +222,15 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
       aria-labelledby="problem-form-title"
     >
       <div
-        className="panel max-w-lg w-full p-6 sm:p-7 shadow-2xl border-[#262320] animate-scale-in"
-        style={{ background: 'linear-gradient(165deg, #1C1A18, #181614)' }}
+        className="panel max-w-lg w-full p-6 sm:p-7 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
       >
         {/* Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-[#262320] mb-5">
+        <div className="flex items-start justify-between pb-4 border-b border-white/[0.08] mb-5">
           <div>
-            <h2 id="problem-form-title" className="text-base font-bold text-[#F5F5F4] tracking-tight">
+            <h2 id="problem-form-title" className="text-base font-bold text-[#F3F4F6] tracking-tight">
               {isEdit ? 'Edit Problem' : 'Catalog New Problem'}
             </h2>
-            <p className="text-xs text-[#6B6560] mt-0.5">
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
               {isEdit ? 'Update metadata and problem topics' : 'Paste problem link to auto-detect title and platform'}
             </p>
           </div>
@@ -239,7 +238,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-[#6B6560] hover:text-[#F5F5F4] transition-colors p-1.5 -m-1 rounded-lg hover:bg-[#211F1D]"
+            className="text-[#9CA3AF] hover:text-[#F3F4F6] transition-colors p-1.5 -m-1 rounded-lg hover:bg-white/[0.06]"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -248,7 +247,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
         {apiError && (
           <div className="mb-4 flex items-start gap-2 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0" />
             <p className="text-xs text-rose-300">{apiError}</p>
           </div>
         )}
@@ -349,7 +348,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
           <div>
             <label htmlFor="topic-input" className="block section-label mb-1.5">
               Topics
-              <span className="text-[#6B6560] font-normal ml-1 normal-case tracking-normal">
+              <span className="text-[#9CA3AF] font-normal ml-1 normal-case tracking-normal">
                 (Enter or comma to add)
               </span>
             </label>
@@ -379,14 +378,14 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                 {topics.map((topic) => (
                   <span
                     key={topic}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-lg bg-[#141312] border border-[#262320] text-[#A8A29E]"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-lg bg-[#0E1015] border border-white/[0.08] text-[#9CA3AF]"
                   >
                     <span>#{topic}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveTopic(topic)}
                       disabled={isSubmitting}
-                      className="text-[#6B6560] hover:text-rose-400 transition-colors ml-0.5"
+                      className="text-[#9CA3AF] hover:text-rose-400 transition-colors ml-0.5"
                       aria-label={`Remove ${topic}`}
                     >
                       ×
@@ -398,7 +397,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#262320]">
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-white/[0.08]">
             <button
               type="button"
               onClick={onClose}

@@ -64,13 +64,13 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
   if (isLoading) {
     return (
-      <div className="panel overflow-hidden animate-pulse border-[#262320]">
-        <div className="flex gap-4 px-6 py-3.5 bg-[#141312] border-b border-[#262320]">
+      <div className="panel overflow-hidden animate-pulse border-white/[0.08]">
+        <div className="flex gap-4 px-6 py-3.5 bg-[#0F1114] border-b border-white/[0.08]">
           {[40, 200, 140, 80, 80, 80, 60, 100].map((w, i) => (
             <div key={i} className="h-3 shimmer rounded-md" style={{ width: w }} />
           ))}
         </div>
-        <div className="divide-y divide-[#262320]">
+        <div className="divide-y divide-white/[0.05]">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex gap-4 px-6 py-4 items-center">
               <div className="h-3.5 w-8 shimmer rounded-md" />
@@ -97,12 +97,12 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
   if (!problems || problems.length === 0) {
     return (
-      <div className="panel border-dashed p-14 text-center border-[#262320]">
-        <div className="w-12 h-12 rounded-2xl bg-[#1C1A18] border border-[#262320] flex items-center justify-center mx-auto mb-4">
-          <FolderOpen className="w-6 h-6 text-[#6B6560]" />
+      <div className="panel border-dashed p-14 text-center border-white/[0.1] bg-[#121418]">
+        <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto mb-4">
+          <FolderOpen className="w-6 h-6 text-[#9CA3AF]" />
         </div>
-        <h3 className="text-base font-bold text-[#F5F5F4] tracking-tight">No problems found</h3>
-        <p className="text-xs text-[#6B6560] mt-1 max-w-xs mx-auto leading-relaxed">
+        <h3 className="text-base font-bold text-[#F3F4F6] tracking-tight">No problems found</h3>
+        <p className="text-xs text-[#9CA3AF] mt-1 max-w-xs mx-auto leading-relaxed">
           No problems match your search or filters. Catalog your first problem to get started.
         </p>
         <button onClick={onOpenAdd} type="button" className="btn-primary text-xs mt-5">
@@ -118,7 +118,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
   };
 
   return (
-    <div className="panel overflow-hidden border-[#262320]">
+    <div className="panel overflow-hidden border-white/[0.08]">
       <div className="overflow-x-auto">
         <table className="data-table">
           <thead>
@@ -161,9 +161,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               const platformCfg = PLATFORM_CONFIG[problem.platform] || PLATFORM_CONFIG.other;
 
               return (
-                <tr key={problem.id} className="hover:bg-[#1E1C1A] transition-colors duration-150 group">
+                <tr key={problem.id} className="hover:bg-[#171A20] transition-colors duration-150 group">
                   {/* # Index Column */}
-                  <td className="text-center font-mono text-[11px] text-[#6B6560]">
+                  <td className="text-center font-mono text-[11px] text-[#6B7280]">
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
 
@@ -172,7 +172,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/problems/${problem.id}`}
-                        className="font-semibold text-[#F5F5F4] group-hover:text-[#FB923C] transition-colors truncate max-w-[280px] text-[13px]"
+                        className="font-semibold text-[#F3F4F6] group-hover:text-[#FB923C] transition-colors truncate max-w-[280px] text-[13px]"
                       >
                         {problem.title}
                       </Link>
@@ -182,7 +182,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           target="_blank"
                           rel="noreferrer"
                           title="Open original problem in new tab"
-                          className="text-[#6B6560] hover:text-[#A8A29E] transition-colors shrink-0 text-xs opacity-60 group-hover:opacity-100"
+                          className="text-[#6B7280] hover:text-[#9CA3AF] transition-colors shrink-0 text-xs opacity-60 group-hover:opacity-100"
                         >
                           ↗
                         </a>
@@ -197,14 +197,14 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         {problem.topics.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#141312] border border-[#262320] text-[#A8A29E]"
+                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07] text-[#9CA3AF]"
                           >
                             {t}
                           </span>
                         ))}
                         {problem.topics.length > 2 && (
                           <span
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#141312] border border-[#262320] text-[#6B6560]"
+                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07] text-[#6B7280]"
                             title={problem.topics.slice(2).join(', ')}
                           >
                             +{problem.topics.length - 2}
@@ -212,7 +212,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         )}
                       </div>
                     ) : (
-                      <span className="text-xs text-[#3E3834] font-mono">—</span>
+                      <span className="text-xs text-[#6B7280] font-mono">—</span>
                     )}
                   </td>
 
@@ -238,13 +238,13 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         </span>
                       </div>
                     ) : (
-                      <span className="text-xs text-[#6B6560] font-mono">Unattempted</span>
+                      <span className="text-xs text-[#6B7280] font-mono">Unattempted</span>
                     )}
                   </td>
 
                   {/* Session Count */}
                   <td className="text-center">
-                    <span className="font-mono text-xs font-semibold text-[#A8A29E] px-2 py-0.5 rounded-md bg-[#141312] border border-[#262320]">
+                    <span className="font-mono text-xs font-semibold text-[#9CA3AF] px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07]">
                       {problem.attemptCount || 0}
                     </span>
                   </td>

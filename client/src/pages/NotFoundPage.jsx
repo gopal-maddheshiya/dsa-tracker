@@ -12,8 +12,8 @@ const NotFoundPage = () => {
           <span className="relative font-mono text-8xl font-bold text-gradient block">404</span>
         </div>
 
-        <h1 className="text-xl font-bold text-[#F5F5F4] tracking-tight mb-2">Page not found</h1>
-        <p className="text-sm text-[#6B6560] leading-relaxed mb-8 max-w-xs mx-auto">
+        <h1 className="text-xl font-bold text-[#F3F4F6] tracking-tight mb-2">Page not found</h1>
+        <p className="text-sm text-[#9CA3AF] leading-relaxed mb-8 max-w-xs mx-auto">
           The route you're looking for doesn't exist or has been moved to another location.
         </p>
 

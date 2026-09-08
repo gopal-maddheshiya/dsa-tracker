@@ -74,23 +74,22 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
       aria-labelledby="attempt-form-title"
     >
       <div
-        className="panel max-w-md w-full p-6 shadow-2xl border-[#262320] animate-scale-in"
-        style={{ background: 'linear-gradient(165deg, #1C1A18, #181614)' }}
+        className="panel max-w-md w-full p-6 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
       >
-        <div className="flex items-start justify-between pb-4 border-b border-[#262320] mb-5">
+        <div className="flex items-start justify-between pb-4 border-b border-white/[0.08] mb-5">
           <div>
-            <h2 id="attempt-form-title" className="text-base font-bold text-[#F5F5F4] tracking-tight">
+            <h2 id="attempt-form-title" className="text-base font-bold text-[#F3F4F6] tracking-tight">
               Log Practice Attempt
             </h2>
             {problemTitle && (
-              <p className="text-xs text-[#6B6560] mt-0.5 truncate max-w-xs">{problemTitle}</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5 truncate max-w-xs">{problemTitle}</p>
             )}
           </div>
           <button
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-[#6B6560] hover:text-[#F5F5F4] transition-colors p-1.5 -m-1 rounded-lg hover:bg-[#211F1D]"
+            className="text-[#9CA3AF] hover:text-[#F3F4F6] transition-colors p-1.5 -m-1 rounded-lg hover:bg-white/[0.06]"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -117,7 +116,7 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
                   className={`py-2 px-2.5 text-xs rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all ${
                     status === opt.value
                       ? opt.active
-                      : 'border-[#262320] bg-[#141312] text-[#6B6560] hover:text-[#A8A29E] hover:border-[#3E3834]'
+                      : 'border-white/[0.08] bg-[#0E1015] text-[#9CA3AF] hover:text-[#F3F4F6] hover:border-white/[0.2]'
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${opt.dot} shrink-0`} />
@@ -174,7 +173,7 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#262320]">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/[0.08]">
             <button
               type="button"
               onClick={onClose}

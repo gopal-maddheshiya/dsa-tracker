@@ -102,37 +102,37 @@ const DashboardPage = () => {
     <div className="space-y-6 pb-12">
       {/* Hero greeting */}
       <div
-        className="panel p-6 flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden"
+        className="panel p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden"
         style={{
-          background: 'radial-gradient(ellipse 60% 80% at 85% 20%, rgba(249,115,22,0.12), transparent 70%), linear-gradient(180deg, #181614 0%, #131211 100%)',
+          background: 'radial-gradient(ellipse 65% 75% at 85% 20%, rgba(249,115,22,0.12), transparent 70%), linear-gradient(180deg, #14171C 0%, #101216 100%)',
         }}
       >
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-mono uppercase tracking-widest text-[#F97316] mb-1 font-semibold">Welcome back</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F4] flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F3F4F6] flex items-center gap-2">
               {greeting}, {firstName}
               <Sparkles className="w-5 h-5 text-amber-400 shrink-0 inline-block" />
             </h1>
             <span
-              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono border"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold font-mono border"
               style={{
                 color: rank.color,
                 borderColor: `${rank.color}33`,
-                background: `${rank.color}11`,
+                background: `${rank.color}14`,
               }}
             >
-              {rank.Icon && <rank.Icon className="w-3 h-3" />}
+              {rank.Icon && <rank.Icon className="w-3.5 h-3.5" />}
               {rank.label}
             </span>
           </div>
-          <p className="text-xs text-[#6B6560] mt-1.5 font-mono">
+          <p className="text-xs text-[#9CA3AF] mt-2 font-mono flex flex-wrap items-center gap-1.5">
             {summary
               ? `${summary.totalProblems} cataloged · ${summary.totalAttempts} sessions · ${summary.solvedProblems ?? 0} solved`
               : 'Loading your progress…'}
-            {memberSince && <span className="text-[#4A4540]"> · Since {memberSince}</span>}
+            {memberSince && <span className="text-[#6B7280]"> · Since {memberSince}</span>}
           </p>
-          <div className="flex flex-wrap items-center gap-2 mt-3.5">
+          <div className="flex flex-wrap items-center gap-2 mt-4">
             {revisionQueue.length > 0 && (
               <Link to="/revision">
                 <Badge variant="amber" dot size="sm">{revisionQueue.length} revision due</Badge>
@@ -140,32 +140,32 @@ const DashboardPage = () => {
             )}
             {summary?.solvedProblems > 0 && (
               <Badge variant="emerald" size="sm">
-                <Trophy className="w-3 h-3 inline mr-1" />
+                <Trophy className="w-3 h-3 inline mr-1 text-emerald-400" />
                 {summary.solvedProblems} solved
               </Badge>
             )}
           </div>
         </div>
         {/* Solve rate ring */}
-        <div className="flex items-center gap-4 sm:gap-6">
+        <div className="flex items-center gap-4 sm:gap-6 bg-[#0D0F13]/80 p-3.5 rounded-2xl border border-white/[0.06]">
           <div className="text-center">
             <ProgressRing
               value={solvedPct}
-              size={72}
+              size={68}
               stroke={5}
               color="#10B981"
               label={
                 <div className="text-center">
-                  <span className="text-sm font-bold font-mono text-emerald-400">{solvedPct}%</span>
+                  <span className="text-xs font-bold font-mono text-emerald-400">{solvedPct}%</span>
                 </div>
               }
             />
-            <p className="text-[10px] font-mono text-[#6B6560] mt-1.5 tracking-wide">solved</p>
+            <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solved</p>
           </div>
           <div className="text-center">
             <ProgressRing
               value={solveRate}
-              size={72}
+              size={68}
               stroke={5}
               color="#F97316"
               label={
@@ -174,11 +174,11 @@ const DashboardPage = () => {
                 </div>
               }
             />
-            <p className="text-[10px] font-mono text-[#6B6560] mt-1.5 tracking-wide">solve rate</p>
+            <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solve rate</p>
           </div>
         </div>
         {/* Add problem CTA */}
-        <Link to="/problems" className="btn-primary shrink-0 text-sm shadow-lg shadow-[#F97316]/20">
+        <Link to="/problems" className="btn-primary shrink-0 text-xs sm:text-sm">
           + Add Problem
         </Link>
       </div>
@@ -186,11 +186,11 @@ const DashboardPage = () => {
       {/* Zero state */}
       {hasZeroData ? (
         <div className="panel border-dashed p-14 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20 flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/20 flex items-center justify-center mx-auto mb-4">
             <BarChart3 className="w-6 h-6 text-[#F97316]" />
           </div>
-          <h2 className="text-base font-semibold text-[#F5F5F4]">Nothing to show yet</h2>
-          <p className="text-sm text-[#A8A29E] mt-2 max-w-sm mx-auto leading-relaxed">
+          <h2 className="text-base font-semibold text-[#F3F4F6]">Nothing to show yet</h2>
+          <p className="text-sm text-[#9CA3AF] mt-2 max-w-sm mx-auto leading-relaxed">
             Add your first problem and log practice sessions to unlock analytics.
           </p>
           <Link to="/problems" className="btn-primary inline-flex mt-5 text-sm">

@@ -13,21 +13,20 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
       aria-describedby="delete-modal-desc"
     >
       <div
-        className="panel max-w-sm w-full p-6 shadow-2xl border-[#262320] animate-scale-in"
-        style={{ background: 'linear-gradient(165deg, #1C1A18, #181614)' }}
+        className="panel max-w-sm w-full p-6 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
       >
         {/* Icon + Title */}
         <div className="flex items-start gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-5 h-5 text-rose-400" />
           </div>
           <div>
-            <h3 id="delete-modal-title" className="text-sm font-bold text-[#F5F5F4]">
+            <h3 id="delete-modal-title" className="text-sm font-bold text-[#F3F4F6]">
               Delete Problem?
             </h3>
-            <p id="delete-modal-desc" className="text-xs text-[#A8A29E] mt-0.5 leading-relaxed">
+            <p id="delete-modal-desc" className="text-xs text-[#9CA3AF] mt-0.5 leading-relaxed">
               You are about to permanently delete{' '}
-              <span className="font-semibold text-[#F5F5F4]">"{problemTitle}"</span>.
+              <span className="font-semibold text-[#F3F4F6]">"{problemTitle}"</span>.
             </p>
           </div>
         </div>

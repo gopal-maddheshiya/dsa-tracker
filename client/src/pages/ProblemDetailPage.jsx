@@ -7,7 +7,7 @@ import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Clock, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
 
 const DIFFICULTY_CONFIG = {
   easy:   { variant: 'easy',   label: 'Easy' },
@@ -16,9 +16,9 @@ const DIFFICULTY_CONFIG = {
 };
 
 const STATUS_CONFIG = {
-  solved:         { label: 'Solved',         dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  struggled:      { label: 'Struggled',      dot: 'bg-rose-400',    text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/20' },
-  revisit_needed: { label: 'Revisit Needed', dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
+  solved:         { label: 'Solved',         dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25' },
+  struggled:      { label: 'Struggled',      dot: 'bg-rose-400',    text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25' },
+  revisit_needed: { label: 'Revisit Needed', dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25' },
 };
 
 const PLATFORM_LABELS = {
@@ -99,8 +99,8 @@ const ProblemDetailPage = () => {
         <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400">
           <AlertTriangle className="w-6 h-6 text-rose-400" />
         </div>
-        <h3 className="text-base font-bold text-[#F5F5F4] mb-1">Problem Not Found</h3>
-        <p className="text-xs text-[#A8A29E] mb-6">{error || 'This problem might have been removed or does not exist.'}</p>
+        <h3 className="text-base font-bold text-[#F3F4F6] mb-1">Problem Not Found</h3>
+        <p className="text-xs text-[#9CA3AF] mb-6">{error || 'This problem might have been removed or does not exist.'}</p>
         <Link to="/problems" className="btn-primary text-xs">
           ← Return to Problems
         </Link>
@@ -122,43 +122,44 @@ const ProblemDetailPage = () => {
     <div className="space-y-6 max-w-4xl mx-auto pb-16 animate-fade-up">
       {/* Top Breadcrumb & Action Row */}
       <div className="flex items-center justify-between gap-4">
-        <nav className="flex items-center gap-2 text-xs text-[#6B6560]">
-          <Link to="/problems" className="hover:text-[#F5F5F4] transition-colors flex items-center gap-1">
+        <nav className="flex items-center gap-2 text-xs text-[#9CA3AF]">
+          <Link to="/problems" className="hover:text-[#F3F4F6] transition-colors flex items-center gap-1">
             <span>Problems</span>
           </Link>
-          <span className="text-[#3E3834]">/</span>
-          <span className="text-[#A8A29E] font-medium truncate max-w-[260px] sm:max-w-md">{problem.title}</span>
+          <span className="text-white/20">/</span>
+          <span className="text-[#F3F4F6] font-medium truncate max-w-[260px] sm:max-w-md">{problem.title}</span>
         </nav>
         <button
           onClick={() => setIsDeleteModalOpen(true)}
           type="button"
-          className="px-3 py-1.5 rounded-xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/15 text-rose-400 hover:text-rose-300 text-xs font-semibold transition-all duration-150"
+          className="px-3 py-1.5 rounded-xl border border-rose-500/25 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold transition-all duration-150 flex items-center gap-1.5"
         >
-          Delete
+          <Trash2 className="w-3.5 h-3.5" />
+          <span>Delete</span>
         </button>
       </div>
 
       {/* Main Problem Card */}
-      <div className="panel p-6 sm:p-7 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #1C1A18, #181614)' }}>
+      <div className="panel p-6 sm:p-7 relative overflow-hidden bg-[#131519]">
         {/* Glow accent in top right */}
-        <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#F97316]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#F97316]/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6 relative">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant={diffCfg.variant}>{diffCfg.label}</Badge>
-              <span className="text-[11px] font-mono text-[#A8A29E] px-2 py-0.5 rounded-lg bg-[#141312] border border-[#262320]">
+              <span className="text-[11px] font-mono text-[#9CA3AF] px-2 py-0.5 rounded-lg bg-[#0E1015] border border-white/[0.08]">
                 {platformName}
               </span>
               {latestCfg && (
-                <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-lg border ${latestCfg.bg} ${latestCfg.text}`}>
+                <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-lg border ${latestCfg.bg} ${latestCfg.text}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${latestCfg.dot}`} />
                   {latestCfg.label}
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F4] leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F3F4F6] leading-tight">
               {problem.title}
             </h1>
 
@@ -167,7 +168,7 @@ const ProblemDetailPage = () => {
                 {problem.topics.map((t) => (
                   <span
                     key={t}
-                    className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#141312] border border-[#262320] text-[#A8A29E] hover:border-[#3E3834] transition-colors"
+                    className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0E1015] border border-white/[0.08] text-[#9CA3AF] hover:border-white/[0.2] hover:text-[#F3F4F6] transition-colors"
                   >
                     #{t}
                   </span>
@@ -180,37 +181,37 @@ const ProblemDetailPage = () => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="btn-ghost shrink-0 self-start sm:self-auto flex items-center gap-2 group"
+            className="btn-ghost shrink-0 self-start sm:self-auto flex items-center gap-2 group text-xs"
           >
             <span>Open Problem</span>
-            <span className="text-xs group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
+            <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-[#262320]">
-          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Total Sessions</span>
-            <span className="text-lg font-bold font-mono text-[#F5F5F4] mt-0.5 block">{attempts.length}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-white/[0.08]">
+          <div className="p-3 rounded-xl bg-[#0E1015] border border-white/[0.08]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] block font-medium">Total Sessions</span>
+            <span className="text-lg font-bold font-mono text-[#F3F4F6] mt-0.5 block">{attempts.length}</span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Best Time</span>
+          <div className="p-3 rounded-xl bg-[#0E1015] border border-white/[0.08]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] block font-medium">Best Time</span>
             <span className="text-lg font-bold font-mono text-emerald-400 mt-0.5 block">
               {bestTime != null ? `${bestTime}m` : '—'}
             </span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Average Time</span>
-            <span className="text-lg font-bold font-mono text-[#F5F5F4] mt-0.5 block">
+          <div className="p-3 rounded-xl bg-[#0E1015] border border-white/[0.08]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] block font-medium">Average Time</span>
+            <span className="text-lg font-bold font-mono text-[#F3F4F6] mt-0.5 block">
               {avgTime != null ? `${avgTime}m` : '—'}
             </span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Date Added</span>
-            <span className="text-xs font-mono text-[#A8A29E] mt-1.5 block">
+          <div className="p-3 rounded-xl bg-[#0E1015] border border-white/[0.08]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] block font-medium">Date Added</span>
+            <span className="text-xs font-mono text-[#9CA3AF] mt-1.5 block">
               {new Date(problem.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
@@ -221,28 +222,28 @@ const ProblemDetailPage = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-[#F5F5F4] tracking-tight">Practice History</h2>
-            <p className="text-xs text-[#6B6560] mt-0.5">
+            <h2 className="text-base font-bold text-[#F3F4F6] tracking-tight">Practice History</h2>
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
               {attempts.length} {attempts.length === 1 ? 'attempt' : 'attempts'} recorded
             </p>
           </div>
           <button
             onClick={() => setIsAttemptModalOpen(true)}
             type="button"
-            className="btn-primary text-xs flex items-center gap-1.5 shadow-lg shadow-[#F97316]/10"
+            className="btn-primary text-xs flex items-center gap-1.5 shadow-lg shadow-[#F97316]/15"
           >
-            <span>+</span>
+            <Plus className="w-3.5 h-3.5" />
             <span>Log Attempt</span>
           </button>
         </div>
 
         {attempts.length === 0 ? (
-          <div className="panel border-dashed p-12 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#1C1A18] border border-[#262320] flex items-center justify-center mx-auto mb-4">
-              <span className="text-xl">⏱️</span>
+          <div className="panel border-dashed p-12 text-center bg-[#131519]">
+            <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-5 h-5 text-[#9CA3AF]" />
             </div>
-            <h3 className="text-sm font-semibold text-[#F5F5F4]">No attempts logged yet</h3>
-            <p className="text-xs text-[#6B6560] mt-1.5 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-sm font-semibold text-[#F3F4F6]">No attempts logged yet</h3>
+            <p className="text-xs text-[#9CA3AF] mt-1.5 max-w-sm mx-auto leading-relaxed">
               Log your practice attempts to start tracking your time, struggle status, and spaced repetition revisions.
             </p>
             <button
@@ -256,7 +257,7 @@ const ProblemDetailPage = () => {
         ) : (
           <div className="space-y-3">
             {attempts.map((attempt, index) => {
-              const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-[#A8A29E]', dot: 'bg-[#A8A29E]', bg: 'bg-[#211F1D] border-[#262320]' };
+              const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-[#9CA3AF]', dot: 'bg-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]' };
               const attemptDate = new Date(attempt.attemptedAt).toLocaleDateString('en-IN', {
                 month: 'short',
                 day: 'numeric',
@@ -271,8 +272,8 @@ const ProblemDetailPage = () => {
               return (
                 <div
                   key={attempt.id || index}
-                  className={`panel p-4.5 transition-all duration-200 hover:border-[#3E3834] ${
-                    isLatest ? 'border-[#F97316]/30 bg-gradient-to-r from-[#1C1A18] to-[#1E1B18]' : ''
+                  className={`panel p-4.5 transition-all duration-200 hover:border-white/[0.18] ${
+                    isLatest ? 'border-[#F97316]/30 bg-gradient-to-r from-[#171A21] to-[#131519]' : 'bg-[#131519]'
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -283,25 +284,26 @@ const ProblemDetailPage = () => {
                       </div>
 
                       {isLatest && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/25 text-[#F97316]">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316]">
                           Latest Attempt
                         </span>
                       )}
 
                       {attempt.timeTakenMinutes != null && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#A8A29E] px-2 py-0.5 rounded-md bg-[#141312] border border-[#262320]">
-                          ⏱ {attempt.timeTakenMinutes}m
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#9CA3AF] px-2 py-0.5 rounded-md bg-[#0E1015] border border-white/[0.08]">
+                          <Clock className="w-3 h-3 text-[#9CA3AF]" />
+                          <span>{attempt.timeTakenMinutes}m</span>
                         </span>
                       )}
                     </div>
 
-                    <div className="font-mono text-xs text-[#6B6560]">
+                    <div className="font-mono text-xs text-[#9CA3AF]">
                       {attemptDate} · {attemptTime}
                     </div>
                   </div>
 
                   {attempt.notes && (
-                    <div className="mt-3 p-3.5 rounded-xl bg-[#141312] border border-[#262320] text-xs text-[#A8A29E] leading-relaxed">
+                    <div className="mt-3 p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] text-xs text-[#D1D5DB] leading-relaxed">
                       {attempt.notes}
                     </div>
                   )}

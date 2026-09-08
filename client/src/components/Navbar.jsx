@@ -82,7 +82,7 @@ const Navbar = () => {
 
         {/* Mobile nav */}
         {isAuthenticated && (
-          <nav className="flex md:hidden border-t border-[#262320] py-1.5 gap-1 overflow-x-auto">
+          <nav className="flex md:hidden border-t border-white/[0.08] py-1.5 gap-1 overflow-x-auto">
             {[
               { to: '/dashboard', label: 'Dashboard' },
               { to: '/problems', label: 'Problems' },
@@ -94,15 +94,7 @@ const Navbar = () => {
                 to={to}
                 className={({ isActive }) =>
                   `flex-shrink-0 rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
-                    isActive ? 'text-[#F97316] bg-[#F97316]/10' : 'text-[#6B6560] hover:text-[#A8A29E]'
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        )}
+                    isActive ? 'text-[#F97316] bg-[#F97316]/10' : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
                   }`
                 }
               >

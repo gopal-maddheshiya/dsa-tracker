@@ -39,14 +39,12 @@ const SignupPage = () => {
   return (
     <div className="min-h-screen flex">
       {/* ── Left: Branding Panel ──────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden items-center justify-center"
-        style={{ background: 'linear-gradient(160deg, #1C1A18 0%, #111110 40%, #0D0C0B 100%)' }}>
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden items-center justify-center bg-gradient-to-br from-[#13161C] via-[#0D0E12] to-[#08090B] border-r border-white/[0.08]">
         {/* Decorative grid */}
         <div className="absolute inset-0"
           style={{
-            backgroundImage: 'linear-gradient(#262320 1px, transparent 1px), linear-gradient(90deg, #262320 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
-            opacity: 0.3,
           }}
         />
         {/* Glow orbs */}
@@ -58,20 +56,19 @@ const SignupPage = () => {
         <div className="relative z-10 px-12 max-w-lg">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-10">
-            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#F97316]/15 border border-[#F97316]/25"
-              style={{ boxShadow: '0 0 30px rgba(249,115,22,0.15)' }}>
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#F97316]/15 border border-[#F97316]/30 shadow-[0_0_25px_rgba(249,115,22,0.15)]">
               <span className="w-3.5 h-3.5 rounded-full bg-[#F97316] dot-pulse" />
             </div>
-            <div className="font-bold text-xl text-[#F5F5F4] tracking-tight">
+            <div className="font-bold text-xl text-[#F3F4F6] tracking-tight">
               DSA<span className="text-[#F97316]">Tracker</span>
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-[#F5F5F4] tracking-tight leading-tight mb-4">
+          <h2 className="text-3xl font-bold text-[#F3F4F6] tracking-tight leading-tight mb-4">
             Your coding journey<br />
             <span className="text-gradient">starts here.</span>
           </h2>
-          <p className="text-sm text-[#6B6560] leading-relaxed mb-8">
+          <p className="text-sm text-[#9CA3AF] leading-relaxed mb-8">
             Join a smarter way to practice — catalog problems, track attempts, and let spaced repetition supercharge your retention.
           </p>
 
@@ -84,7 +81,7 @@ const SignupPage = () => {
             ].map(s => {
               const IconComp = s.icon;
               return (
-                <div key={s.label} className="p-3 rounded-xl bg-[#1C1A18] border border-[#262320] text-center flex flex-col items-center">
+                <div key={s.label} className="p-3 rounded-xl bg-[#131519] border border-white/[0.08] text-center flex flex-col items-center">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 border"
                     style={{
@@ -95,8 +92,8 @@ const SignupPage = () => {
                   >
                     <IconComp className="w-4 h-4" />
                   </div>
-                  <p className="text-[10px] font-semibold text-[#F5F5F4]">{s.label}</p>
-                  <p className="text-[9px] font-mono text-[#6B6560]">{s.desc}</p>
+                  <p className="text-[10px] font-semibold text-[#F3F4F6]">{s.label}</p>
+                  <p className="text-[9px] font-mono text-[#9CA3AF]">{s.desc}</p>
                 </div>
               );
             })}
@@ -109,24 +106,24 @@ const SignupPage = () => {
         <div className="w-full max-w-[420px]">
           {/* Mobile brand */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#F97316]/10 border border-[#F97316]/20">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#F97316]/15 border border-[#F97316]/30">
               <span className="w-3 h-3 rounded-full bg-[#F97316] dot-pulse" />
             </div>
-            <div className="font-bold text-[#F5F5F4] text-lg tracking-tight">
+            <div className="font-bold text-[#F3F4F6] text-lg tracking-tight">
               DSA<span className="text-[#F97316]">Tracker</span>
             </div>
           </div>
 
-          <div className="panel p-7" style={{ background: 'linear-gradient(160deg, #1C1A18, #191715)' }}>
+          <div className="panel p-7 bg-[#131519] border border-white/[0.08]">
             <div className="mb-6">
-              <h1 className="text-xl font-bold text-[#F5F5F4] tracking-tight">Create your account</h1>
-              <p className="text-sm text-[#6B6560] mt-1">
+              <h1 className="text-xl font-bold text-[#F3F4F6] tracking-tight">Create your account</h1>
+              <p className="text-sm text-[#9CA3AF] mt-1">
                 Start cataloging problems and tracking your retention.
               </p>
             </div>
 
             {apiError && (
-              <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
+              <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/25">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
                 <p className="text-xs text-rose-300">{apiError}</p>
               </div>
@@ -151,7 +148,7 @@ const SignupPage = () => {
 
               <div>
                 <label htmlFor="password" className="block section-label mb-1.5">
-                  Password <span className="text-[#3E3834] font-normal normal-case tracking-normal">(min. 6 chars)</span>
+                  Password <span className="text-[#9CA3AF] font-normal normal-case tracking-normal">(min. 6 chars)</span>
                 </label>
                 <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
                   disabled={isSubmitting} placeholder="••••••••"
@@ -170,7 +167,7 @@ const SignupPage = () => {
               </button>
             </form>
 
-            <div className="mt-5 pt-4 border-t border-[#262320] text-center text-xs text-[#6B6560]">
+            <div className="mt-5 pt-4 border-t border-white/[0.08] text-center text-xs text-[#9CA3AF]">
               Already have an account?{' '}
               <Link to="/login" className="text-[#F97316] hover:text-[#FB923C] font-semibold transition-colors">
                 Sign in →

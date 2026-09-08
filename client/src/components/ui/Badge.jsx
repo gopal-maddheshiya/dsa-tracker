@@ -1,17 +1,17 @@
 import React from 'react';
 
 const variantMap = {
-  default:  'bg-[#211F1D] border-[#262320] text-[#A8A29E]',
-  accent:   'bg-[#F97316]/10 border-[#F97316]/25 text-[#F97316]',
-  easy:     'bg-emerald-500/10 border-emerald-500/25 text-emerald-400',
-  medium:   'bg-amber-500/10 border-amber-500/25 text-amber-400',
-  hard:     'bg-rose-500/10 border-rose-500/25 text-rose-400',
-  emerald:  'bg-emerald-500/10 border-emerald-500/25 text-emerald-400',
-  amber:    'bg-amber-500/10 border-amber-500/25 text-amber-400',
-  red:      'bg-rose-500/10 border-rose-500/25 text-rose-400',
-  sapphire: 'bg-indigo-500/10 border-indigo-500/25 text-indigo-400',
-  gold:     'bg-amber-400/10 border-amber-400/25 text-amber-300',
-  online:   'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+  default:  'bg-[#14171B] border-white/[0.09] text-[#9CA3AF]',
+  accent:   'bg-[#F97316]/12 border-[#F97316]/30 text-[#F97316]',
+  easy:     'bg-emerald-500/12 border-emerald-500/30 text-emerald-400',
+  medium:   'bg-amber-500/12 border-amber-500/30 text-amber-400',
+  hard:     'bg-rose-500/12 border-rose-500/30 text-rose-400',
+  emerald:  'bg-emerald-500/12 border-emerald-500/30 text-emerald-400',
+  amber:    'bg-amber-500/12 border-amber-500/30 text-amber-400',
+  red:      'bg-rose-500/12 border-rose-500/30 text-rose-400',
+  sapphire: 'bg-indigo-500/12 border-indigo-500/30 text-indigo-400',
+  gold:     'bg-amber-400/12 border-amber-400/30 text-amber-300',
+  online:   'bg-emerald-500/12 border-emerald-500/25 text-emerald-400',
 };
 
 const sizeMap = {
