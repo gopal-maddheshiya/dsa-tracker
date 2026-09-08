@@ -15,6 +15,9 @@ import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import RevisionPreview from '../components/analytics/RevisionPreview';
+import PageHeader from '../components/layout/PageHeader';
+import ProgressRing from '../components/ui/ProgressRing';
+import Badge from '../components/ui/Badge';
 
 const StatCell = ({ label, value, sub, color = 'text-[#F5F5F4]' }) => (
   <div className="flex flex-col gap-1 py-4 px-5">
@@ -94,30 +97,72 @@ const DashboardPage = () => {
   const solvedPct = summary?.totalProblems > 0
     ? Math.round((summary.solvedProblems / summary.totalProblems) * 100) : 0;
 
+  // Greeting based on time of day
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = user?.name?.split(' ')[0] || 'Coder';
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-fade-up">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#F5F5F4]">Progress Overview</h1>
-          <p className="text-sm text-[#A8A29E] mt-1">
+    <div className="space-y-6 pb-12">
+      {/* Hero greeting */}
+      <div className="panel p-5 flex flex-col sm:flex-row sm:items-center gap-5"
+        style={{ background: 'linear-gradient(135deg, #1C1A18 0%, #191715 60%, #1a1714 100%)' }}>
+        <div className="flex-1">
+          <p className="text-[11px] font-mono uppercase tracking-widest text-[#F97316] mb-1">Welcome back</p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#F5F5F4]">
+            {greeting}, {firstName} 👋
+          </h1>
+          <p className="text-xs text-[#6B6560] mt-1.5 font-mono">
             {summary
-              ? `${summary.totalProblems} problems · ${summary.totalAttempts} sessions logged`
-              : 'Velocity trends, topic weakness analysis, and spaced recall queue.'}
+              ? `${summary.totalProblems} cataloged · ${summary.totalAttempts} sessions logged · ${summary.solvedProblems ?? 0} solved`
+              : 'Loading your progress…'}
           </p>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            {revisionQueue.length > 0 && (
+              <Link to="/revision">
+                <Badge variant="amber" dot size="sm">{revisionQueue.length} revision due</Badge>
+              </Link>
+            )}
+            {summary?.solvedProblems > 0 && (
+              <Badge variant="emerald" size="sm">🏆 {summary.solvedProblems} solved</Badge>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2.5">
-          {revisionQueue.length > 0 && (
-            <Link to="/revision"
-              className="inline-flex items-center gap-1.5 btn-ghost text-amber-400 border-amber-500/20 hover:bg-amber-500/5 hover:border-amber-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 dot-pulse" />
-              {revisionQueue.length} due
-            </Link>
-          )}
-          <Link to="/problems" className="btn-primary text-xs px-3 py-1.5">
-            + Add Problem
-          </Link>
+        {/* Solve rate ring */}
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="text-center">
+            <ProgressRing
+              value={solvedPct}
+              size={72}
+              stroke={5}
+              color="#10B981"
+              label={
+                <div className="text-center">
+                  <span className="text-sm font-bold font-mono text-emerald-400">{solvedPct}%</span>
+                </div>
+              }
+            />
+            <p className="text-[10px] font-mono text-[#3E3834] mt-1.5 tracking-wide">solved</p>
+          </div>
+          <div className="text-center">
+            <ProgressRing
+              value={solveRate}
+              size={72}
+              stroke={5}
+              color="#F97316"
+              label={
+                <div className="text-center">
+                  <span className="text-sm font-bold font-mono text-[#F97316]">{solveRate}%</span>
+                </div>
+              }
+            />
+            <p className="text-[10px] font-mono text-[#3E3834] mt-1.5 tracking-wide">rate</p>
+          </div>
         </div>
+        {/* Add problem CTA */}
+        <Link to="/problems" className="btn-primary shrink-0 text-sm">
+          + Add Problem
+        </Link>
       </div>
 
       {/* Zero state */}

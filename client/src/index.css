@@ -112,13 +112,21 @@
     @apply bg-[#211F1D] border border-[#2E2A27] text-[#A8A29E];
   }
 
-  /* === NAV === */
+  /* === NAV (sidebar) === */
   .nav-active {
     @apply text-[#F97316] bg-[#F97316]/10 border border-[#F97316]/20;
   }
   .nav-item {
-    @apply rounded-xl px-3.5 py-1.5 text-sm font-medium transition-all duration-150;
-    @apply text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-[#211F1D];
+    @apply rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150;
+    @apply text-[#6B6560] hover:text-[#A8A29E] hover:bg-[#211F1D] border border-transparent;
+  }
+
+  /* === SHADOW TOKENS === */
+  .shadow-orange {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(251,146,60,0.15);
+  }
+  .shadow-orange:hover {
+    box-shadow: 0 4px 16px rgba(249,115,22,0.35), 0 0 0 1px rgba(251,146,60,0.4);
   }
 
   /* === STAT === */
@@ -186,7 +194,25 @@
     50%      { opacity: 0.5; transform: scale(0.8); }
   }
 
-  /* Gradient text (orange like portfolio) */
+  /* Page slide transition */
+  .animate-page-in {
+    animation: pageIn 0.25s ease both;
+  }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Count-up number pulse */
+  .animate-count {
+    animation: countPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes countPop {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* Gradient text */
   .text-gradient {
     background: linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FED7AA 100%);
     -webkit-background-clip: text;
