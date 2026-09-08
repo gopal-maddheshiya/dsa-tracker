@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { X } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
@@ -36,7 +37,7 @@ export const ToastProvider = ({ children }) => {
               ? { dot: 'bg-[#F97316]', border: 'border-[#F97316]/30', bg: 'bg-[#F97316]/10' }
               : type === 'error'
               ? { dot: 'bg-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' }
-              : { dot: 'bg-[#A8A29E]', border: 'border-[#2E2A27]', bg: 'bg-[#141312]' };
+              : { dot: 'bg-[#A8A29E]', border: 'border-[#262320]', bg: 'bg-[#141312]' };
 
           return (
             <div
@@ -54,7 +55,7 @@ export const ToastProvider = ({ children }) => {
                 className="text-[#78716C] hover:text-[#F5F5F4] transition-colors text-xs p-0.5 ml-1"
                 aria-label="Dismiss"
               >
-                ✕
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           );

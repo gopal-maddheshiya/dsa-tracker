@@ -33,7 +33,7 @@ const StatCard = ({
           {title}
         </span>
         {badge ? (
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#141312] border border-[#2E2A27] text-[#F97316]">
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#141312] border border-[#262320] text-[#F97316]">
             {badge}
           </span>
         ) : Icon ? (
@@ -50,7 +50,7 @@ const StatCard = ({
       </div>
 
       {subtitle && (
-        <p className="text-[11px] text-[#78716C] font-mono mt-0.5 truncate">
+        <p className="text-[11px] text-[#6B6560] font-mono mt-0.5 truncate">
           {subtitle}
         </p>
       )}

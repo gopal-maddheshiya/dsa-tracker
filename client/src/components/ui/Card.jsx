@@ -11,7 +11,7 @@ const Card = ({ className = '', hover = false, glow = false, padding = 'p-5', ch
   return (
     <div
       className={`
-        border border-[#2E2A27] bg-[#1C1A18] rounded-2xl shadow-xl shadow-black/40
+        border border-[#262320] bg-[#1C1A18] rounded-2xl shadow-xl shadow-black/40
         ${hover ? 'transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3E3834] hover:shadow-2xl hover:shadow-black/60' : ''}
         ${glow ? 'hover:shadow-[0_0_0_1px_rgba(249,115,22,0.15),0_8px_32px_rgba(0,0,0,0.6)]' : ''}
         ${padding}

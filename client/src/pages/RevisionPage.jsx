@@ -2,17 +2,48 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchRevisionQueue } from '../api/analytics';
 import { getErrorMessage } from '../utils/errorHandler';
+import Badge from '../components/ui/Badge';
+import { CheckCircle2 } from 'lucide-react';
 
 const STATUS_CONFIG = {
-  struggled: { label: 'Struggled', dot: 'bg-red-400', text: 'text-red-400', cycle: '2d cycle', intervalDays: 2 },
-  revisit_needed: { label: 'Revisit', dot: 'bg-amber-400', text: 'text-amber-400', cycle: '5d cycle', intervalDays: 5 },
-  solved: { label: 'Solved', dot: 'bg-emerald-400', text: 'text-emerald-400', cycle: '14d cycle', intervalDays: 14 },
+  struggled: {
+    label: 'Struggled',
+    dot: 'bg-rose-400',
+    text: 'text-rose-400',
+    badgeVariant: 'hard',
+    cycle: '2d cycle',
+    intervalDays: 2,
+  },
+  revisit_needed: {
+    label: 'Revisit',
+    dot: 'bg-amber-400',
+    text: 'text-amber-400',
+    badgeVariant: 'medium',
+    cycle: '5d cycle',
+    intervalDays: 5,
+  },
+  solved: {
+    label: 'Solved',
+    dot: 'bg-emerald-400',
+    text: 'text-emerald-400',
+    badgeVariant: 'easy',
+    cycle: '14d cycle',
+    intervalDays: 14,
+  },
 };
 
-const DIFFICULTY_LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+const DIFFICULTY_CONFIG = {
+  easy:   { variant: 'easy',   label: 'Easy' },
+  medium: { variant: 'medium', label: 'Medium' },
+  hard:   { variant: 'hard',   label: 'Hard' },
+};
+
 const PLATFORM_LABELS = {
-  leetcode: 'LeetCode', gfg: 'GFG', codechef: 'CodeChef',
-  hackerrank: 'HackerRank', other: 'External',
+  leetcode: 'LeetCode',
+  gfg: 'GFG',
+  codechef: 'CodeChef',
+  hackerrank: 'HackerRank',
+  other: 'External',
 };
 
 const RevisionPage = () => {
@@ -22,16 +53,21 @@ const RevisionPage = () => {
   const [showFormula, setShowFormula] = useState(false);
 
   const loadQueue = useCallback(async () => {
-    setIsLoading(true); setError(null);
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await fetchRevisionQueue();
       if (res?.success) setQueue(res.data || []);
     } catch (err) {
       setError(getErrorMessage(err, 'Unable to load revision queue.'));
-    } finally { setIsLoading(false); }
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  useEffect(() => { loadQueue(); }, [loadQueue]);
+  useEffect(() => {
+    loadQueue();
+  }, [loadQueue]);
 
   const summaryMetrics = useMemo(() => {
     let struggled = 0, revisit = 0, solved = 0;
@@ -45,202 +81,278 @@ const RevisionPage = () => {
   }, [queue]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-fade-up">
+    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-fade-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-[#F5F5F4]">Revision Queue</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F4]">
+              Revision Queue
+            </h1>
             {!isLoading && queue.length > 0 && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-amber-500/10 border border-amber-500/20 text-amber-400">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316]">
                 {queue.length} due
               </span>
             )}
           </div>
-          <p className="text-sm text-[#A8A29E] mt-1">Problems ranked by spaced repetition priority score.</p>
+          <p className="text-sm text-[#A8A29E] mt-1">
+            Prioritized by spaced repetition forgetting curves and struggle frequency.
+          </p>
         </div>
-        <button type="button" onClick={() => setShowFormula(!showFormula)}
-          className="btn-ghost self-start sm:self-auto text-xs flex items-center gap-1.5">
+
+        <button
+          type="button"
+          onClick={() => setShowFormula(!showFormula)}
+          className="btn-ghost self-start sm:self-auto text-xs flex items-center gap-2"
+        >
           <span>How scoring works</span>
-          <span className="text-[#78716C] text-[9px]">{showFormula ? '▲' : '▼'}</span>
+          <span className="text-[#6B6560] text-[10px]">{showFormula ? '▲' : '▼'}</span>
         </button>
       </div>
 
-      {/* Formula */}
+      {/* Formula Explainer */}
       {showFormula && (
-        <div className="panel p-6 space-y-4">
+        <div className="panel p-6 space-y-4 border-[#3E3834] animate-fade-up">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#F5F5F4]">Scoring Formula</h3>
-            <span className="section-label">Deterministic Spaced Repetition</span>
+            <h3 className="text-sm font-bold text-[#F5F5F4] tracking-tight">Deterministic Spaced Repetition</h3>
+            <span className="text-[10px] font-mono text-[#F97316] uppercase tracking-wider">Ebbinghaus Curve</span>
           </div>
-          <div className="p-3.5 rounded-xl bg-[#141312] border border-[#2E2A27] font-mono text-sm text-[#F97316] overflow-x-auto">
+
+          <div className="p-3.5 rounded-xl bg-[#141312] border border-[#262320] font-mono text-xs sm:text-sm text-[#F97316] overflow-x-auto shadow-inner">
             priorityScore = (daysSinceLastAttempt / intervalForStatus) + struggleWeight
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            {[
-              { title: 'Recall Intervals', rows: [['Struggled','2 days','text-red-400'],['Revisit Needed','5 days','text-amber-400'],['Solved','14 days','text-emerald-400']] },
-              { title: 'Struggle Weights', rows: [['Struggled','+2.0','text-red-400'],['Revisit Needed','+1.0','text-amber-400'],['Solved','+0.0','text-[#78716C]']] },
-            ].map(({ title, rows }) => (
-              <div key={title} className="p-3.5 rounded-xl bg-[#141312] border border-[#2E2A27]">
-                <span className="section-label block mb-2.5">{title}</span>
-                <div className="space-y-2 text-[#A8A29E]">
-                  {rows.map(([label, value, color]) => (
-                    <div key={label} className="flex justify-between">
-                      <span>{label}</span>
-                      <span className={`font-mono font-medium ${color}`}>{value}</span>
-                    </div>
-                  ))}
+            <div className="p-3.5 rounded-xl bg-[#141312] border border-[#262320]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block mb-2.5">
+                Target Recall Intervals
+              </span>
+              <div className="space-y-2 text-[#A8A29E]">
+                <div className="flex justify-between">
+                  <span>Struggled</span>
+                  <span className="font-mono font-semibold text-rose-400">2 days</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Revisit Needed</span>
+                  <span className="font-mono font-semibold text-amber-400">5 days</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Solved</span>
+                  <span className="font-mono font-semibold text-emerald-400">14 days</span>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#141312] border border-[#262320]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block mb-2.5">
+                Struggle Weights Added
+              </span>
+              <div className="space-y-2 text-[#A8A29E]">
+                <div className="flex justify-between">
+                  <span>Struggled</span>
+                  <span className="font-mono font-semibold text-rose-400">+2.00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Revisit Needed</span>
+                  <span className="font-mono font-semibold text-amber-400">+1.00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Solved Overdue</span>
+                  <span className="font-mono font-semibold text-[#6B6560]">+0.00</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Summary strip */}
+      {/* Summary KPI Strip */}
       {!isLoading && !error && queue.length > 0 && (
-        <div className="panel px-5 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-mono font-bold text-[#F5F5F4] text-base">{summaryMetrics.total}</span>
-            <span className="text-[#78716C] font-medium">items due</span>
+        <div className="panel p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <span className="font-mono font-bold text-[#F5F5F4] text-lg">{summaryMetrics.total}</span>
+            <span className="text-xs text-[#6B6560]">items due for revision</span>
           </div>
-          <span className="text-[#2E2A27]">|</span>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_8px_rgba(239,68,68,0.4)]" />
-            <span className="font-mono font-bold text-red-400">{summaryMetrics.struggled}</span>
-            <span className="text-[#78716C]">Struggled</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
-            <span className="font-mono font-bold text-amber-400">{summaryMetrics.revisit}</span>
-            <span className="text-[#78716C]">Revisit</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-            <span className="font-mono font-bold text-emerald-400">{summaryMetrics.solved}</span>
-            <span className="text-[#78716C]">Solved Overdue</span>
+
+          <div className="flex items-center gap-4 text-xs font-mono">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400">
+              <span className="w-2 h-2 rounded-full bg-rose-400" />
+              <span>{summaryMetrics.struggled} Struggled</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span>{summaryMetrics.revisit} Revisit</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span>{summaryMetrics.solved} Solved</span>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Loading */}
+      {/* Loading Skeleton */}
       {isLoading && (
-        <div className="panel animate-pulse">
-          <div className="flex justify-between px-6 py-4 border-b border-[#2E2A27]">
-            <div className="h-4 w-36 shimmer rounded-md" />
-            <div className="h-4 w-20 shimmer rounded-md" />
+        <div className="panel animate-pulse p-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="h-4 w-40 shimmer rounded-md" />
+            <div className="h-4 w-24 shimmer rounded-md" />
           </div>
-          <div className="divide-y divide-[#2E2A27]/60">
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="px-6 py-4 flex items-center gap-4">
-                <div className="h-3 w-6 shimmer rounded" />
-                <div className="flex-1">
-                  <div className="h-4 w-56 shimmer rounded-md mb-1.5" />
-                  <div className="h-2.5 w-36 shimmer rounded-md" />
-                </div>
-                <div className="h-3 w-14 shimmer rounded" />
-                <div className="h-3 w-14 shimmer rounded" />
-              </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-14 shimmer rounded-xl" />
             ))}
           </div>
         </div>
       )}
 
-      {/* Error */}
+      {/* Error state */}
       {error && !isLoading && (
-        <div className="panel p-8 text-center">
-          <p className="text-xs text-red-400 mb-3">{error}</p>
-          <button onClick={loadQueue} type="button" className="btn-ghost">Retry</button>
+        <div className="panel p-8 text-center border-rose-500/20">
+          <p className="text-xs text-rose-400 mb-3">{error}</p>
+          <button onClick={loadQueue} type="button" className="btn-ghost text-xs">
+            Retry
+          </button>
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty queue */}
       {!isLoading && !error && queue.length === 0 && (
         <div className="panel border-dashed p-14 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-            <span className="text-emerald-400 text-xl font-bold">✓</span>
+          <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4 text-emerald-400">
+            <CheckCircle2 className="w-7 h-7" />
           </div>
-          <h2 className="text-base font-semibold text-[#F5F5F4]">Queue is clear</h2>
-          <p className="text-xs text-[#78716C] mt-1.5 max-w-sm mx-auto leading-relaxed">
-            No problems due for revision right now. Keep practicing and they'll appear based on your logged outcomes.
+          <h2 className="text-base font-bold text-[#F5F5F4] tracking-tight">Queue is completely clear!</h2>
+          <p className="text-xs text-[#6B6560] mt-1.5 max-w-sm mx-auto leading-relaxed">
+            All your cataloged problems are up to date with spaced repetition schedule. Practice more problems to populate your queue.
           </p>
-          <Link to="/problems" className="inline-flex btn-ghost mt-5 text-xs">Browse Problems →</Link>
+          <Link to="/problems" className="inline-flex btn-primary mt-5 text-xs">
+            Browse Problems →
+          </Link>
         </div>
       )}
 
-      {/* Queue list */}
+      {/* Queue items */}
       {!isLoading && !error && queue.length > 0 && (
         <div className="panel overflow-hidden">
-          <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3.5 bg-[#141312] border-b border-[#2E2A27]">
-            {['#','Problem','Status','Last Seen','Score','Action'].map((h, i) => (
-              <div key={h}
-                className={`section-label ${i === 0 ? 'col-span-1' : i === 1 ? 'col-span-5' : i === 2 ? 'col-span-2' : i === 3 ? 'col-span-2' : i === 4 ? 'col-span-1 text-right' : 'col-span-1 text-right'}`}>
-                {h}
-              </div>
-            ))}
+          {/* Desktop Table Header */}
+          <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3.5 bg-[#141312] border-b border-[#262320]">
+            <div className="col-span-1 section-label">#</div>
+            <div className="col-span-5 section-label">Problem & Topics</div>
+            <div className="col-span-2 section-label">Status</div>
+            <div className="col-span-2 section-label">Last Practiced</div>
+            <div className="col-span-1 section-label text-right">Score</div>
+            <div className="col-span-1 section-label text-right">Action</div>
           </div>
 
-          <div className="divide-y divide-[#2E2A27]/60">
+          <div className="divide-y divide-[#262320]">
             {queue.map((item, index) => {
               const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
               const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
-              const diffLabel = DIFFICULTY_LABELS[item.difficulty] || item.difficulty;
+              const diffCfg = DIFFICULTY_CONFIG[item.difficulty] || { variant: 'default', label: item.difficulty };
               const platformLabel = PLATFORM_LABELS[item.platform] || item.platform;
               const rankStr = String(index + 1).padStart(2, '0');
               const daysStr = item.daysSinceLastAttempt === 0 ? 'Today' : `${item.daysSinceLastAttempt}d ago`;
-              const topicStr = item.topics?.length > 0 ? item.topics.join(' · ') : '';
-              const metaLine = [topicStr, `${diffLabel} · ${platformLabel}`].filter(Boolean).join('  —  ');
 
               return (
-                <div key={item.problemId} className="px-6 py-4 hover:bg-[#211F1D] transition-colors">
-                  {/* Desktop */}
+                <div
+                  key={item.problemId}
+                  className="px-6 py-4 hover:bg-[#1E1C1A] transition-colors duration-150"
+                >
+                  {/* Desktop view */}
                   <div className="hidden md:grid grid-cols-12 gap-4 items-center">
-                    <div className="col-span-1 font-mono text-[11px] text-[#78716C]">{rankStr}</div>
-                    <div className="col-span-5 min-w-0 pr-2">
-                      <Link to={`/problems/${item.problemId}`}
-                        className="text-sm font-semibold text-[#F5F5F4] hover:text-[#FB923C] hover:underline truncate block transition-colors" title={item.title}>
+                    <div className="col-span-1 font-mono text-xs font-semibold text-[#6B6560]">
+                      {rankStr}
+                    </div>
+
+                    <div className="col-span-5 min-w-0 pr-3">
+                      <Link
+                        to={`/problems/${item.problemId}`}
+                        className="text-sm font-semibold text-[#F5F5F4] hover:text-[#FB923C] transition-colors truncate block"
+                        title={item.title}
+                      >
                         {item.title}
                       </Link>
-                      {metaLine && <div className="text-xs text-[#78716C] mt-0.5 truncate">{metaLine}</div>}
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant={diffCfg.variant}>{diffCfg.label}</Badge>
+                        <span className="text-[10px] font-mono text-[#6B6560] px-1.5 py-0.2 rounded bg-[#141312] border border-[#262320]">
+                          {platformLabel}
+                        </span>
+                        {item.topics?.length > 0 && (
+                          <span className="text-[10px] text-[#6B6560] font-mono truncate">
+                            {item.topics.slice(0, 2).join(', ')}
+                            {item.topics.length > 2 && ` +${item.topics.length - 2}`}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="col-span-2 flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                      <span className={`text-xs font-medium ${statusCfg.text}`}>{statusCfg.label}</span>
-                    </div>
+
                     <div className="col-span-2">
-                      <span className="font-mono text-xs text-[#A8A29E] font-medium">{daysStr}</span>
-                      <span className="text-[10px] text-[#78716C] block mt-0.5">{statusCfg.cycle}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${statusCfg.dot}`} />
+                        <span className={`text-xs font-semibold ${statusCfg.text}`}>
+                          {statusCfg.label}
+                        </span>
+                      </div>
                     </div>
-                    <div className="col-span-1 text-right">
-                      <span className="font-mono text-xs font-bold text-[#F5F5F4]">{item.priorityScore.toFixed(2)}</span>
+
+                    <div className="col-span-2">
+                      <span className="font-mono text-xs text-[#A8A29E] font-medium block">
+                        {daysStr}
+                      </span>
+                      <span className="text-[10px] font-mono text-[#6B6560] block">
+                        {statusCfg.cycle}
+                      </span>
                     </div>
+
                     <div className="col-span-1 text-right">
-                      <Link to={`/problems/${item.problemId}`} className="text-xs text-[#78716C] hover:text-[#F5F5F4] transition-colors">
-                        Review →
+                      <span className="font-mono text-xs font-bold text-[#F97316]">
+                        {item.priorityScore.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <div className="col-span-1 text-right">
+                      <Link
+                        to={`/problems/${item.problemId}`}
+                        className="btn-ghost text-xs py-1 px-2.5"
+                      >
+                        Review
                       </Link>
                     </div>
                   </div>
 
-                  {/* Mobile */}
-                  <div className="block md:hidden space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="font-mono text-[11px] text-[#78716C] shrink-0">{rankStr}</span>
-                        <Link to={`/problems/${item.problemId}`} className="text-sm font-semibold text-[#F5F5F4] hover:text-[#FB923C] truncate">
+                  {/* Mobile view */}
+                  <div className="block md:hidden space-y-2.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-mono text-xs font-semibold text-[#6B6560] shrink-0">
+                          {rankStr}
+                        </span>
+                        <Link
+                          to={`/problems/${item.problemId}`}
+                          className="text-sm font-semibold text-[#F5F5F4] hover:text-[#FB923C] truncate"
+                        >
                           {item.title}
                         </Link>
                       </div>
-                      <span className="font-mono text-xs font-bold text-[#A8A29E] shrink-0">{item.priorityScore.toFixed(2)}</span>
+                      <span className="font-mono text-xs font-bold text-[#F97316] shrink-0">
+                        {item.priorityScore.toFixed(2)}
+                      </span>
                     </div>
-                    {metaLine && <div className="text-xs text-[#78716C] truncate pl-6">{metaLine}</div>}
-                    <div className="flex items-center justify-between text-xs pt-0.5 pl-6">
+
+                    <div className="flex items-center justify-between text-xs pt-1">
                       <div className="flex items-center gap-2">
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                        <Badge variant={diffCfg.variant}>{diffCfg.label}</Badge>
                         <span className={`font-medium ${statusCfg.text}`}>{statusCfg.label}</span>
-                        <span className="text-[#78716C]">·</span>
-                        <span className="font-mono text-[#A8A29E]">{daysStr}</span>
+                        <span className="text-[#3E3834]">·</span>
+                        <span className="font-mono text-[#6B6560]">{daysStr}</span>
                       </div>
-                      <Link to={`/problems/${item.problemId}`} className="text-[#78716C] hover:text-[#F5F5F4] transition-colors">Review →</Link>
+                      <Link
+                        to={`/problems/${item.problemId}`}
+                        className="text-xs text-[#F97316] hover:text-[#FB923C] font-semibold"
+                      >
+                        Review →
+                      </Link>
                     </div>
                   </div>
                 </div>

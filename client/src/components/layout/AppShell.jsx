@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { fetchProfileAnalytics } from '../../api/analytics';
 
 /* ── Icons (inline SVG keeps zero dependency) ─────────────────────── */
 const Icon = {
@@ -61,7 +62,7 @@ const NAV_LINKS = [
 ];
 
 /* ── Sidebar component ──────────────────────────────────────────────── */
-const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }) => {
+const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose, streak }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -159,15 +160,21 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }) => {
 
       {/* ── Streak strip ──────────────────────── */}
       {!collapsed && (
-        <div className="mx-2.5 mb-2 px-3 py-2.5 rounded-xl bg-[#1C1A18] border border-[#262320]">
-          <div className="flex items-center gap-2">
-            <span className="text-orange-400"><Icon.Flame /></span>
-            <div className="min-w-0">
-              <p className="text-[10px] font-mono text-[#3E3834] uppercase tracking-wider">Streak</p>
-              <p className="text-xs font-bold font-mono text-[#F5F5F4]">Keep going! 🔥</p>
+        <NavLink
+          to="/profile"
+          onClick={onMobileClose}
+          className="mx-2.5 mb-2 px-3 py-2.5 rounded-xl bg-[#1C1A18] border border-[#262320] hover:border-[#F97316]/30 transition-all block group"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="text-orange-400 group-hover:scale-110 transition-transform"><Icon.Flame /></span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-mono text-[#6B6560] uppercase tracking-wider">Practice Streak</p>
+              <p className="text-xs font-bold font-mono text-[#F5F5F4] flex items-center gap-1.5">
+                <span>{streak != null ? `${streak} day${streak !== 1 ? 's' : ''}` : 'Active'}</span>
+              </p>
             </div>
           </div>
-        </div>
+        </NavLink>
       )}
 
       {/* ── User footer ───────────────────────── */}
@@ -224,6 +231,20 @@ const AppShell = ({ children }) => {
 
   // Mobile drawer state
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [streak, setStreak] = useState(null);
+
+  // Live streak fetch on mount and route change
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchProfileAnalytics()
+        .then((res) => {
+          if (res?.data?.currentStreak !== undefined) {
+            setStreak(res.data.currentStreak);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated, location.pathname]);
 
   const toggleCollapsed = () => {
     setCollapsed(prev => {
@@ -267,6 +288,7 @@ const AppShell = ({ children }) => {
           onToggle={() => {}}
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
+          streak={streak}
         />
       </div>
 
@@ -276,6 +298,7 @@ const AppShell = ({ children }) => {
           collapsed={collapsed}
           onToggle={toggleCollapsed}
           onMobileClose={() => {}}
+          streak={streak}
         />
       </div>
 

@@ -1,50 +1,62 @@
 import React, { useMemo, useState } from 'react';
 
-const toIsoDate = (d) => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-const formatDisplayDate = (dateStr) => {
-  if (!dateStr) return '';
-  const [year, month, day] = dateStr.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
-};
-
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAY_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+const formatDisplayDate = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, onRetry }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
 
-  const { weeks, monthLabels, totalAttemptsInPeriod, activeDaysCount } = useMemo(() => {
-    const countMap = {};
-    let total = 0, active = 0;
-    heatmapData.forEach((item) => {
-      const count = Number(item.count) || 0;
-      countMap[item.date] = count;
-      total += count;
-      if (count > 0) active++;
+  const {
+    weeks,
+    monthLabels,
+    totalAttemptsInPeriod,
+    activeDaysCount,
+    weeklyTotals,
+    bestWeekIdx,
+    currentWeekTotal,
+    prevWeekTotal,
+    todayStr,
+    dayTotals,
+    maxDayTotal,
+    bestDayIdx,
+  } = useMemo(() => {
+    const map = new Map();
+    let total = 0;
+    let active = 0;
+
+    (heatmapData || []).forEach(({ date, count }) => {
+      const c = Number(count) || 0;
+      map.set(date, c);
+      total += c;
+      if (c > 0) active += 1;
     });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayIso = today.toISOString().slice(0, 10);
+
+    const WEEKS_TO_SHOW = 20;
+    const totalDays = WEEKS_TO_SHOW * 7;
     const startDate = new Date(today);
-    startDate.setDate(today.getDate() - (20 * 7 - 1));
+    startDate.setDate(today.getDate() - totalDays + 1);
     startDate.setDate(startDate.getDate() - startDate.getDay());
 
     const generatedWeeks = [];
     const months = [];
-    let lastMonth = -1;
     let currentWeek = [];
-    const iter = new Date(startDate);
+    let lastMonth = -1;
 
+    const iter = new Date(startDate);
     while (iter <= today || currentWeek.length > 0) {
-      const iso = toIsoDate(iter);
+      const iso = iter.toISOString().slice(0, 10);
       const isFuture = iter > today;
-      const count = countMap[iso] || 0;
+      const count = map.get(iso) ?? 0;
       const currentMonth = iter.getMonth();
 
       if (currentWeek.length === 0) {
@@ -59,36 +71,74 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
       }
       iter.setDate(iter.getDate() + 1);
     }
-    return { weeks: generatedWeeks, monthLabels: months, totalAttemptsInPeriod: total, activeDaysCount: active };
+
+    // Weekly totals for sparkline
+    const wTotals = generatedWeeks.map(w => w.reduce((s, c) => s + (c.count || 0), 0));
+    const bestWIdx = wTotals.reduce((best, val, i) => val > wTotals[best] ? i : best, 0);
+    const curWeek = wTotals[wTotals.length - 1] || 0;
+    const prvWeek = wTotals.length > 1 ? wTotals[wTotals.length - 2] || 0 : 0;
+
+    // Day of week totals (0 = Sun .. 6 = Sat)
+    const dTotals = [0, 0, 0, 0, 0, 0, 0];
+    generatedWeeks.forEach(w => {
+      w.forEach((cell, dayIdx) => {
+        if (cell.count && !cell.isFuture) {
+          dTotals[dayIdx] += cell.count;
+        }
+      });
+    });
+    const maxDTot = Math.max(...dTotals, 1);
+    const bDayIdx = dTotals.reduce((best, val, i) => val > dTotals[best] ? i : best, 0);
+
+    return {
+      weeks: generatedWeeks,
+      monthLabels: months,
+      totalAttemptsInPeriod: total,
+      activeDaysCount: active,
+      weeklyTotals: wTotals,
+      bestWeekIdx: bestWIdx,
+      currentWeekTotal: curWeek,
+      prevWeekTotal: prvWeek,
+      todayStr: todayIso,
+      dayTotals: dTotals,
+      maxDayTotal: maxDTot,
+      bestDayIdx: bDayIdx,
+    };
   }, [heatmapData]);
 
   const getColor = (count) => {
     if (count === null || count === undefined) return 'bg-transparent border-transparent';
-    if (count === 0) return 'bg-[#211F1D] border-[#2E2A27]';
-    if (count <= 2) return 'bg-[#F97316]/25 border-[#F97316]/40';
-    if (count <= 4) return 'bg-[#F97316]/65 border-[#F97316]/80';
-    return 'bg-[#F97316] border-[#FB923C]';
+    if (count === 0) return 'bg-[#141312] border-[#1E1C1A]';
+    if (count === 1) return 'bg-[#92400E]/60 border-[#92400E]/80';
+    if (count <= 2) return 'bg-[#B45309]/70 border-[#B45309]/90';
+    if (count <= 4) return 'bg-[#D97706]/80 border-[#D97706]';
+    if (count <= 6) return 'bg-[#F59E0B] border-[#FBBF24]';
+    return 'bg-[#FCD34D] border-[#FDE68A]';
   };
 
   if (isLoading) {
     return (
-      <div className="panel p-5 animate-pulse">
+      <div className="panel p-6 animate-pulse border-[#262320]">
         <div className="flex justify-between mb-4">
+          <div className="h-4 w-32 shimmer rounded-md" />
           <div className="h-4 w-28 shimmer rounded-md" />
-          <div className="h-4 w-24 shimmer rounded-md" />
         </div>
-        <div className="h-36 shimmer rounded-xl" />
+        <div className="h-44 shimmer rounded-xl" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="panel p-5">
-        <h3 className="text-sm font-semibold text-[#F5F5F4]">Practice Activity</h3>
+      <div className="panel p-6 border-rose-500/20">
+        <h3 className="text-sm font-bold text-[#F5F5F4]">Practice Activity</h3>
         <div className="h-36 flex flex-col items-center justify-center text-center">
           <p className="text-xs text-rose-400 mb-3">Unable to load heatmap.</p>
-          {onRetry && <button onClick={onRetry} type="button" className="btn-ghost">Retry</button>}
+          {onRetry && (
+            <button onClick={onRetry} type="button" className="btn-ghost text-xs">
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );
@@ -97,55 +147,76 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
   const consistencyPct = Math.round((activeDaysCount / 140) * 100);
   const avgPerActiveDay = activeDaysCount > 0 ? (totalAttemptsInPeriod / activeDaysCount).toFixed(1) : '—';
 
+  // Weekly trend — is this week better/worse?
+  const weekDelta = currentWeekTotal - prevWeekTotal;
+  const weekTrend = weekDelta > 0 ? '↑' : weekDelta < 0 ? '↓' : '→';
+  const weekTrendColor = weekDelta > 0 ? 'text-emerald-400' : weekDelta < 0 ? 'text-rose-400' : 'text-[#6B6560]';
+
+  // Sparkline max for scaling
+  const sparkMax = Math.max(...weeklyTotals, 1);
+
+  // Consistency grade
+  const grade = consistencyPct >= 80 ? 'A' : consistencyPct >= 60 ? 'B' : consistencyPct >= 40 ? 'C' : consistencyPct >= 20 ? 'D' : 'F';
+  const gradeColor = consistencyPct >= 60 ? '#10B981' : consistencyPct >= 40 ? '#F59E0B' : '#EF4444';
+
+  const DAY_ABBRS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
   return (
-    <div className="panel p-5">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left stats */}
-        <div className="lg:w-52 shrink-0 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#2E2A27] pb-5 lg:pb-0 lg:pr-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-[#F97316]" />
-              <h3 className="text-sm font-semibold text-[#F5F5F4]">Practice Activity</h3>
-            </div>
-            <p className="text-xs text-[#78716C] mb-5">20-week consistency history</p>
-
-            <div className="space-y-2.5">
-              {[
-                { label: 'Active Days', value: activeDaysCount, sub: `/ 140d · ${consistencyPct}%`, color: 'text-[#F5F5F4]' },
-                { label: 'Period Attempts', value: totalAttemptsInPeriod, sub: 'total', color: 'text-[#F97316]' },
-                { label: 'Avg / Active Day', value: avgPerActiveDay, sub: 'attempts', color: 'text-[#A8A29E]' },
-              ].map(({ label, value, sub, color }) => (
-                <div key={label} className="flex flex-col gap-0.5 p-2.5 rounded-lg bg-[#141312] border border-[#2E2A27]">
-                  <span className="text-[10px] font-medium uppercase tracking-widest text-[#78716C]">{label}</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className={`text-base font-bold font-mono leading-none ${color}`}>{value}</span>
-                    <span className="text-[10px] text-[#78716C] font-mono">{sub}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+    <div className="panel p-6 border-[#262320]">
+      {/* ── Top Header + Summary Badges ────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#262320]">
+        <div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
+            <h3 className="text-base font-bold text-[#F5F5F4] tracking-tight">Practice Activity</h3>
+            <span
+              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg flex items-center gap-1.5"
+              style={{
+                color: gradeColor,
+                background: `${gradeColor}15`,
+                border: `1px solid ${gradeColor}35`,
+              }}
+            >
+              Grade {grade} · {consistencyPct}% Consistent
+            </span>
           </div>
-
-          <div className="mt-4 pt-3 border-t border-[#2E2A27]">
-            {hoveredCell && hoveredCell.count !== null ? (
-              <div>
-                <div className="text-[11px] font-medium text-[#A8A29E]">{formatDisplayDate(hoveredCell.date)}</div>
-                <div className="text-sm font-mono font-bold text-[#F97316] mt-0.5">
-                  {hoveredCell.count} attempt{hoveredCell.count !== 1 ? 's' : ''}
-                </div>
-              </div>
-            ) : (
-              <p className="text-[11px] text-[#78716C]">Hover any cell for details</p>
-            )}
-          </div>
+          <p className="text-xs text-[#6B6560] mt-1 font-mono">
+            Rolling 140-day (20-week) consistency & habit tracker
+          </p>
         </div>
 
-        {/* Grid */}
-        <div className="flex-1 min-w-0 overflow-x-auto">
-          <div className="min-w-[420px]">
-            <div className="flex text-[10px] text-[#78716C] font-mono mb-1.5 pl-7">
+        {/* Top 3 Quick Stats */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <div className="px-3 py-1.5 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono text-[#6B6560] block uppercase tracking-wider">Active Days</span>
+            <span className="text-xs font-bold font-mono text-[#F5F5F4]">
+              {activeDaysCount} <span className="text-[10px] text-[#6B6560]">/ 140d</span>
+            </span>
+          </div>
+          <div className="px-3 py-1.5 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono text-[#6B6560] block uppercase tracking-wider">Total Sessions</span>
+            <span className="text-xs font-bold font-mono text-[#F97316]">
+              {totalAttemptsInPeriod} <span className="text-[10px] text-[#6B6560]">attempts</span>
+            </span>
+          </div>
+          <div className="px-3 py-1.5 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono text-[#6B6560] block uppercase tracking-wider">Daily Avg</span>
+            <span className="text-xs font-bold font-mono text-[#A8A29E]">
+              {avgPerActiveDay} <span className="text-[10px] text-[#6B6560]">/ active</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Content: Heatmap Grid + Practice Habits ─────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 pt-5">
+        {/* Left/Center: Heatmap Grid + Live Readout + Legend (span 7 or 8) */}
+        <div className="xl:col-span-8 flex flex-col justify-between overflow-x-auto">
+          <div className="min-w-[400px]">
+            {/* Month labels */}
+            <div className="flex text-[10px] text-[#6B6560] font-mono mb-1.5 pl-6">
               {weeks.map((_, wIndex) => {
-                const labelObj = monthLabels.find(m => m.weekIndex === wIndex && m.name);
+                const labelObj = monthLabels.find((m) => m.weekIndex === wIndex && m.name);
                 return (
                   <div key={wIndex} className="w-4 mr-0.5 shrink-0 overflow-visible">
                     {labelObj ? labelObj.name : ''}
@@ -154,10 +225,13 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
               })}
             </div>
 
+            {/* Matrix: Days + Cells */}
             <div className="flex items-start">
-              <div className="flex flex-col space-y-0.5 text-[9px] text-[#78716C] font-mono pr-2 select-none">
-                {['S','M','T','W','T','F','S'].map((d, i) => (
-                  <span key={i} className="h-4 leading-none flex items-center">{d}</span>
+              <div className="flex flex-col space-y-0.5 text-[9px] text-[#6B6560] font-mono pr-2 select-none">
+                {DAY_LABELS.map((d, i) => (
+                  <span key={i} className="h-4 leading-none flex items-center">
+                    {i % 2 === 0 ? d.charAt(0) : ''}
+                  </span>
                 ))}
               </div>
               <div className="flex gap-0.5">
@@ -165,13 +239,15 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                   <div key={wIndex} className="flex flex-col gap-0.5">
                     {week.map((cell) => {
                       const isHovered = hoveredCell?.date === cell.date;
+                      const isToday = cell.date === todayStr;
                       return (
                         <div
                           key={cell.date}
                           onMouseEnter={() => !cell.isFuture && setHoveredCell(cell)}
                           onMouseLeave={() => setHoveredCell(null)}
-                          className={`w-4 h-4 rounded border transition-all duration-100 cursor-default ${getColor(cell.count)} ${isHovered ? 'ring-1 ring-[#FB923C] scale-110 z-10' : ''}`}
-                          title={!cell.isFuture ? `${formatDisplayDate(cell.date)}: ${cell.count} attempt${cell.count !== 1 ? 's' : ''}` : ''}
+                          className={`w-4 h-4 rounded border transition-all duration-100 cursor-default ${getColor(cell.count)} ${
+                            isHovered ? 'ring-1 ring-[#FB923C] scale-125 z-10 shadow-lg shadow-[#F97316]/30' : ''
+                          } ${isToday && !isHovered ? 'ring-1 ring-[#F97316]/40' : ''}`}
                         />
                       );
                     })}
@@ -180,15 +256,113 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
               </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-[10px] text-[#78716C]">
-              <span className="font-mono">Rolling 140-day window</span>
-              <div className="flex items-center gap-1">
+            {/* Bottom bar directly below grid: Tightly integrated, NO empty gaps */}
+            <div className="mt-3.5 pt-3 border-t border-[#262320] flex flex-wrap items-center justify-between gap-3 text-[11px]">
+              {/* Left: Window & Today */}
+              <div className="flex items-center gap-3 font-mono text-[#6B6560]">
+                <span>140d window</span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded border ring-1 ring-[#F97316]/40 bg-[#141312] border-[#1E1C1A] inline-block" />
+                  <span>Today</span>
+                </span>
+              </div>
+
+              {/* Center: Live Hover Inspection readout */}
+              <div className="font-mono text-xs">
+                {hoveredCell && hoveredCell.count !== null ? (
+                  <span className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-[#181614] border border-[#36322E]">
+                    <span className="text-[#F97316] font-bold">
+                      {hoveredCell.count === 0 ? '0' : hoveredCell.count} attempt{hoveredCell.count !== 1 ? 's' : ''}
+                    </span>
+                    <span className="text-[#6B6560]">·</span>
+                    <span className="text-[#A8A29E]">{formatDisplayDate(hoveredCell.date)}</span>
+                  </span>
+                ) : (
+                  <span className="text-[#4A4540] flex items-center gap-1.5 text-[11px]">
+                    <span className="text-[#6B6560]">◉</span> Hover any cell for details
+                  </span>
+                )}
+              </div>
+
+              {/* Right: Legend */}
+              <div className="flex items-center gap-1.5 text-[10px] text-[#6B6560]">
                 <span>Less</span>
-                {['bg-[#211F1D] border-[#2E2A27]','bg-[#F97316]/25 border-[#F97316]/40','bg-[#F97316]/65 border-[#F97316]/80','bg-[#F97316] border-[#FB923C]'].map((cls, i) => (
+                {[
+                  'bg-[#141312] border-[#1E1C1A]',
+                  'bg-[#92400E]/60 border-[#92400E]/80',
+                  'bg-[#B45309]/70 border-[#B45309]/90',
+                  'bg-[#D97706]/80 border-[#D97706]',
+                  'bg-[#F59E0B] border-[#FBBF24]',
+                  'bg-[#FCD34D] border-[#FDE68A]',
+                ].map((cls, i) => (
                   <span key={i} className={`w-3 h-3 rounded border ${cls}`} />
                 ))}
                 <span>More</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Practice Habits & Velocity Breakdown (Fills the right space!) */}
+        <div className="xl:col-span-4 flex flex-col justify-between gap-3 border-t xl:border-t-0 xl:border-l border-[#262320] pt-4 xl:pt-0 xl:pl-6">
+          {/* Day of Week Rhythm */}
+          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560]">Day-of-Week Rhythm</span>
+              {dayTotals[bestDayIdx] > 0 && (
+                <span className="text-[10px] font-mono font-semibold text-amber-400">
+                  Peak: {DAY_ABBRS[bestDayIdx]} ({dayTotals[bestDayIdx]})
+                </span>
+              )}
+            </div>
+            <div className="flex items-end justify-between gap-1.5 h-11 pt-1">
+              {dayTotals.map((tot, idx) => {
+                const h = Math.max(4, Math.round((tot / maxDayTotal) * 32));
+                const isPeak = idx === bestDayIdx && tot > 0;
+                return (
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      className="w-full rounded-sm transition-all duration-300"
+                      style={{
+                        height: `${h}px`,
+                        background: isPeak ? '#F97316' : tot > 0 ? '#F9731666' : '#22201D',
+                      }}
+                      title={`${DAY_ABBRS[idx]}: ${tot} attempts`}
+                    />
+                    <span className={`text-[9px] font-mono ${isPeak ? 'text-[#F97316] font-bold' : 'text-[#6B6560]'}`}>
+                      {['S','M','T','W','T','F','S'][idx]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Weekly Consistency Trend Sparkline */}
+          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560]">Weekly Output</span>
+              <span className={`text-[10px] font-mono font-bold ${weekTrendColor}`}>
+                {weekTrend} {Math.abs(weekDelta)} this week
+              </span>
+            </div>
+            <div className="flex items-end gap-0.5 h-7">
+              {weeklyTotals.map((wt, i) => {
+                const h = Math.max(3, (wt / sparkMax) * 24);
+                const isCur = i === weeklyTotals.length - 1;
+                const isBest = i === bestWeekIdx && wt > 0;
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-sm transition-all duration-200"
+                    style={{
+                      height: `${h}px`,
+                      background: isCur ? '#F97316' : isBest ? '#FCD34D' : wt > 0 ? '#F9731688' : '#1C1A18',
+                    }}
+                    title={`Week ${i + 1}: ${wt} sessions`}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>

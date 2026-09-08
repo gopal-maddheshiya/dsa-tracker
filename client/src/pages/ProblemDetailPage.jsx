@@ -5,18 +5,28 @@ import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
+import { AlertTriangle } from 'lucide-react';
 
-const DIFFICULTY_STYLES = {
-  easy: 'text-emerald-400', medium: 'text-amber-400', hard: 'text-red-400',
+const DIFFICULTY_CONFIG = {
+  easy:   { variant: 'easy',   label: 'Easy' },
+  medium: { variant: 'medium', label: 'Medium' },
+  hard:   { variant: 'hard',   label: 'Hard' },
 };
+
 const STATUS_CONFIG = {
-  solved: { label: 'Solved', dot: 'bg-emerald-400', text: 'text-emerald-400' },
-  struggled: { label: 'Struggled', dot: 'bg-red-400', text: 'text-red-400' },
-  revisit_needed: { label: 'Revisit', dot: 'bg-amber-400', text: 'text-amber-400' },
+  solved:         { label: 'Solved',         dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  struggled:      { label: 'Struggled',      dot: 'bg-rose-400',    text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/20' },
+  revisit_needed: { label: 'Revisit Needed', dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
 };
+
 const PLATFORM_LABELS = {
-  leetcode: 'LeetCode', gfg: 'GeeksforGeeks', codechef: 'CodeChef',
-  hackerrank: 'HackerRank', other: 'External',
+  leetcode: 'LeetCode',
+  gfg: 'GeeksforGeeks',
+  codechef: 'CodeChef',
+  hackerrank: 'HackerRank',
+  other: 'External',
 };
 
 const ProblemDetailPage = () => {
@@ -32,17 +42,23 @@ const ProblemDetailPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const loadProblem = useCallback(async () => {
-    setIsLoading(true); setError('');
+    setIsLoading(true);
+    setError('');
     try {
       const res = await fetchProblemById(id);
       setProblem(res.data);
     } catch (err) {
       const msg = getErrorMessage(err, 'Problem not found or unauthorized.');
-      setError(msg); toast.error(msg);
-    } finally { setIsLoading(false); }
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setIsLoading(false);
+    }
   }, [id, toast]);
 
-  useEffect(() => { loadProblem(); }, [loadProblem]);
+  useEffect(() => {
+    loadProblem();
+  }, [loadProblem]);
 
   const handleDeleteProblem = async () => {
     if (!problem) return;
@@ -53,22 +69,25 @@ const ProblemDetailPage = () => {
       navigate('/problems', { replace: true });
     } catch (err) {
       toast.error(getErrorMessage(err, 'Failed to delete problem.'));
-      setIsDeleting(false); setIsDeleteModalOpen(false);
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-4 animate-pulse">
-        <div className="h-3 w-40 shimmer rounded-md" />
-        <div className="panel p-6">
-          <div className="h-6 w-72 shimmer rounded-md mb-3" />
-          <div className="h-3 w-48 shimmer rounded-md mb-5" />
-          <div className="h-8 w-32 shimmer rounded-lg" />
+      <div className="max-w-4xl mx-auto space-y-5 animate-pulse pb-12">
+        <div className="h-4 w-44 shimmer rounded-md" />
+        <div className="panel p-6 space-y-4">
+          <div className="h-7 w-72 shimmer rounded-lg" />
+          <div className="h-4 w-48 shimmer rounded-md" />
+          <div className="h-10 w-36 shimmer rounded-xl" />
         </div>
         <div className="panel p-6 space-y-3">
-          <div className="h-4 w-32 shimmer rounded-md" />
-          {[1,2,3].map(i => <div key={i} className="h-10 shimmer rounded-lg" />)}
+          <div className="h-5 w-32 shimmer rounded-md" />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-14 shimmer rounded-xl" />
+          ))}
         </div>
       </div>
     );
@@ -76,130 +95,213 @@ const ProblemDetailPage = () => {
 
   if (error || !problem) {
     return (
-      <div className="panel p-10 text-center max-w-lg mx-auto">
-        <p className="text-rose-400 text-sm font-medium">{error || 'Problem not found'}</p>
-        <Link to="/problems" className="inline-flex btn-ghost mt-4 text-xs">← Return to Problems</Link>
+      <div className="panel p-12 text-center max-w-lg mx-auto my-12 border border-rose-500/20">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400">
+          <AlertTriangle className="w-6 h-6 text-rose-400" />
+        </div>
+        <h3 className="text-base font-bold text-[#F5F5F4] mb-1">Problem Not Found</h3>
+        <p className="text-xs text-[#A8A29E] mb-6">{error || 'This problem might have been removed or does not exist.'}</p>
+        <Link to="/problems" className="btn-primary text-xs">
+          ← Return to Problems
+        </Link>
       </div>
     );
   }
 
   const attempts = problem.attempts || [];
-  const diffStyle = DIFFICULTY_STYLES[problem.difficulty] || 'text-[#A8A29E]';
+  const diffCfg = DIFFICULTY_CONFIG[problem.difficulty] || { variant: 'default', label: problem.difficulty };
   const platformName = PLATFORM_LABELS[problem.platform] || problem.platform;
-  const topicsString = problem.topics?.length > 0 ? problem.topics.join(' · ') : null;
   const latestCfg = problem.latestAttempt ? STATUS_CONFIG[problem.latestAttempt.status] : null;
 
+  // Best time computation
+  const times = attempts.map(a => a.timeTakenMinutes).filter(t => t != null && t > 0);
+  const bestTime = times.length > 0 ? Math.min(...times) : null;
+  const avgTime = times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
+
   return (
-    <div className="space-y-5 max-w-4xl mx-auto pb-12 animate-fade-up">
-      {/* Breadcrumb */}
-      <div className="flex items-center justify-between">
-        <nav className="flex items-center gap-1.5 text-xs text-[#78716C]">
-          <Link to="/problems" className="hover:text-[#F5F5F4] transition-colors">Problems</Link>
+    <div className="space-y-6 max-w-4xl mx-auto pb-16 animate-fade-up">
+      {/* Top Breadcrumb & Action Row */}
+      <div className="flex items-center justify-between gap-4">
+        <nav className="flex items-center gap-2 text-xs text-[#6B6560]">
+          <Link to="/problems" className="hover:text-[#F5F5F4] transition-colors flex items-center gap-1">
+            <span>Problems</span>
+          </Link>
           <span className="text-[#3E3834]">/</span>
-          <span className="text-[#A8A29E] truncate max-w-xs">{problem.title}</span>
+          <span className="text-[#A8A29E] font-medium truncate max-w-[260px] sm:max-w-md">{problem.title}</span>
         </nav>
-        <button onClick={() => setIsDeleteModalOpen(true)} type="button" className="btn-danger">Delete</button>
+        <button
+          onClick={() => setIsDeleteModalOpen(true)}
+          type="button"
+          className="px-3 py-1.5 rounded-xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/15 text-rose-400 hover:text-rose-300 text-xs font-semibold transition-all duration-150"
+        >
+          Delete
+        </button>
       </div>
 
-      {/* Problem Header */}
-      <div className="panel p-6">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
-          <div className="min-w-0">
-            <h1 className="text-xl font-bold tracking-tight text-[#F5F5F4] leading-tight">{problem.title}</h1>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-[#78716C]">
-              <span className={`capitalize font-bold ${diffStyle}`}>{problem.difficulty}</span>
-              <span className="text-[#3E3834]">·</span>
-              <span>{platformName}</span>
-              {topicsString && (
-                <>
-                  <span className="text-[#3E3834]">·</span>
-                  <span className="text-[#A8A29E]">{topicsString}</span>
-                </>
+      {/* Main Problem Card */}
+      <div className="panel p-6 sm:p-7 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #1C1A18, #181614)' }}>
+        {/* Glow accent in top right */}
+        <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#F97316]/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6">
+          <div className="min-w-0 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={diffCfg.variant}>{diffCfg.label}</Badge>
+              <span className="text-[11px] font-mono text-[#A8A29E] px-2 py-0.5 rounded-lg bg-[#141312] border border-[#262320]">
+                {platformName}
+              </span>
+              {latestCfg && (
+                <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-lg border ${latestCfg.bg} ${latestCfg.text}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${latestCfg.dot}`} />
+                  {latestCfg.label}
+                </span>
               )}
             </div>
+
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F4] leading-tight">
+              {problem.title}
+            </h1>
+
+            {problem.topics?.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {problem.topics.map((t) => (
+                  <span
+                    key={t}
+                    className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#141312] border border-[#262320] text-[#A8A29E] hover:border-[#3E3834] transition-colors"
+                  >
+                    #{t}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-          <a href={problem.link} target="_blank" rel="noreferrer" className="btn-ghost shrink-0 self-start">
-            Open Problem ↗
+
+          <a
+            href={problem.link}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-ghost shrink-0 self-start sm:self-auto flex items-center gap-2 group"
+          >
+            <span>Open Problem</span>
+            <span className="text-xs group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
           </a>
         </div>
 
-        <div className="pt-4 border-t border-[#2E2A27] flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-4 text-xs">
-            {latestCfg ? (
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${latestCfg.dot}`} />
-                <span className={latestCfg.text}>{latestCfg.label}</span>
-              </div>
-            ) : (
-              <span className="text-[#78716C] text-xs">Unattempted</span>
-            )}
-            <span className="text-[#3E3834]">·</span>
-            <span className="font-mono text-[#A8A29E] text-[11px]">{attempts.length} sessions</span>
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-[#262320]">
+          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Total Sessions</span>
+            <span className="text-lg font-bold font-mono text-[#F5F5F4] mt-0.5 block">{attempts.length}</span>
           </div>
-          <div className="font-mono text-[11px] text-[#78716C]">
-            Added {new Date(problem.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+
+          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Best Time</span>
+            <span className="text-lg font-bold font-mono text-emerald-400 mt-0.5 block">
+              {bestTime != null ? `${bestTime}m` : '—'}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Average Time</span>
+            <span className="text-lg font-bold font-mono text-[#F5F5F4] mt-0.5 block">
+              {avgTime != null ? `${avgTime}m` : '—'}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[#141312] border border-[#262320]">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B6560] block">Date Added</span>
+            <span className="text-xs font-mono text-[#A8A29E] mt-1.5 block">
+              {new Date(problem.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Practice History */}
-      <div className="space-y-3">
+      {/* Practice History Section */}
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-[#F5F5F4]">Practice History</h2>
-            <p className="text-xs text-[#78716C] mt-0.5">{attempts.length} {attempts.length === 1 ? 'session' : 'sessions'} recorded</p>
+            <h2 className="text-base font-bold text-[#F5F5F4] tracking-tight">Practice History</h2>
+            <p className="text-xs text-[#6B6560] mt-0.5">
+              {attempts.length} {attempts.length === 1 ? 'attempt' : 'attempts'} recorded
+            </p>
           </div>
-          <button onClick={() => setIsAttemptModalOpen(true)} type="button" className="btn-primary text-xs">
-            + Log Attempt
+          <button
+            onClick={() => setIsAttemptModalOpen(true)}
+            type="button"
+            className="btn-primary text-xs flex items-center gap-1.5 shadow-lg shadow-[#F97316]/10"
+          >
+            <span>+</span>
+            <span>Log Attempt</span>
           </button>
         </div>
 
         {attempts.length === 0 ? (
           <div className="panel border-dashed p-12 text-center">
-            <div className="w-10 h-10 rounded-xl bg-[#211F1D] border border-[#2E2A27] flex items-center justify-center mx-auto mb-4">
-              <span className="text-[#78716C] text-lg">📋</span>
+            <div className="w-12 h-12 rounded-2xl bg-[#1C1A18] border border-[#262320] flex items-center justify-center mx-auto mb-4">
+              <span className="text-xl">⏱️</span>
             </div>
-            <p className="text-sm font-semibold text-[#A8A29E]">No attempts logged yet</p>
-            <p className="text-xs text-[#78716C] mt-1.5 max-w-sm mx-auto leading-relaxed">
-              Logging sessions feeds the spaced repetition engine and powers your analytics.
+            <h3 className="text-sm font-semibold text-[#F5F5F4]">No attempts logged yet</h3>
+            <p className="text-xs text-[#6B6560] mt-1.5 max-w-sm mx-auto leading-relaxed">
+              Log your practice attempts to start tracking your time, struggle status, and spaced repetition revisions.
             </p>
-            <button onClick={() => setIsAttemptModalOpen(true)} type="button" className="btn-primary text-xs mt-5">
+            <button
+              onClick={() => setIsAttemptModalOpen(true)}
+              type="button"
+              className="btn-primary text-xs mt-5"
+            >
               Log First Attempt
             </button>
           </div>
         ) : (
-          <div className="panel overflow-hidden divide-y divide-[#2E2A27]/60">
+          <div className="space-y-3">
             {attempts.map((attempt, index) => {
-              const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-[#A8A29E]', dot: 'bg-[#A8A29E]' };
-              const attemptDate = new Date(attempt.attemptedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-              const attemptTime = new Date(attempt.attemptedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+              const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-[#A8A29E]', dot: 'bg-[#A8A29E]', bg: 'bg-[#211F1D] border-[#262320]' };
+              const attemptDate = new Date(attempt.attemptedAt).toLocaleDateString('en-IN', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              });
+              const attemptTime = new Date(attempt.attemptedAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              });
               const isLatest = index === 0;
 
               return (
-                <div key={attempt.id || index} className="p-4 hover:bg-[#211F1D] transition-colors">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div
+                  key={attempt.id || index}
+                  className={`panel p-4.5 transition-all duration-200 hover:border-[#3E3834] ${
+                    isLatest ? 'border-[#F97316]/30 bg-gradient-to-r from-[#1C1A18] to-[#1E1B18]' : ''
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
                         <span className={`text-sm font-semibold ${cfg.text}`}>{cfg.label}</span>
                       </div>
+
                       {isLatest && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/20 text-[#F97316]">
-                          Latest
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/25 text-[#F97316]">
+                          Latest Attempt
                         </span>
                       )}
+
                       {attempt.timeTakenMinutes != null && (
-                        <>
-                          <span className="text-[#3E3834]">·</span>
-                          <span className="font-mono text-xs text-[#A8A29E]">{attempt.timeTakenMinutes}m</span>
-                        </>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#A8A29E] px-2 py-0.5 rounded-md bg-[#141312] border border-[#262320]">
+                          ⏱ {attempt.timeTakenMinutes}m
+                        </span>
                       )}
                     </div>
-                    <div className="font-mono text-[11px] text-[#78716C]">{attemptDate} at {attemptTime}</div>
+
+                    <div className="font-mono text-xs text-[#6B6560]">
+                      {attemptDate} · {attemptTime}
+                    </div>
                   </div>
 
                   {attempt.notes && (
-                    <div className="mt-3 p-3 rounded-lg bg-[#141312] border border-[#2E2A27] text-xs text-[#A8A29E] leading-relaxed">
+                    <div className="mt-3 p-3.5 rounded-xl bg-[#141312] border border-[#262320] text-xs text-[#A8A29E] leading-relaxed">
                       {attempt.notes}
                     </div>
                   )}
@@ -210,10 +312,20 @@ const ProblemDetailPage = () => {
         )}
       </div>
 
-      <AttemptForm isOpen={isAttemptModalOpen} onClose={() => setIsAttemptModalOpen(false)}
-        onSuccess={loadProblem} problemId={problem.id} problemTitle={problem.title} />
-      <DeleteConfirmModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteProblem} problemTitle={problem.title} isDeleting={isDeleting} />
+      <AttemptForm
+        isOpen={isAttemptModalOpen}
+        onClose={() => setIsAttemptModalOpen(false)}
+        onSuccess={loadProblem}
+        problemId={problem.id}
+        problemTitle={problem.title}
+      />
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteProblem}
+        problemTitle={problem.title}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

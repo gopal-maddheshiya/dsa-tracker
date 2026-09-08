@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchProblems, deleteProblem } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
+import { Download, Dices, Search, Tag, X, CheckCircle2 } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
+import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 /* ── Difficulty / Status maps ─────────────────────────────────────── */
@@ -37,8 +39,8 @@ const GridIcon = () => (
 );
 
 /* ── Problem Card (card view) ─────────────────────────────────────── */
-const ProblemCard = ({ problem, onEdit, onDelete }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#A8A29E]', bg: 'bg-[#211F1D] border-[#2E2A27]' };
+const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#A8A29E]', bg: 'bg-[#211F1D] border-[#262320]' };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
   const platform = PLATFORM_LABELS[problem.platform] || problem.platform;
@@ -53,14 +55,22 @@ const ProblemCard = ({ problem, onEdit, onDelete }) => {
         >
           {problem.title}
         </Link>
-        <a href={problem.link} target="_blank" rel="noreferrer"
-          className="text-[#3E3834] hover:text-[#A8A29E] transition-colors shrink-0 text-xs mt-0.5">↗</a>
+        {problem.link && (
+          <a
+            href={problem.link}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#3E3834] hover:text-[#A8A29E] transition-colors shrink-0 text-xs mt-0.5"
+          >
+            ↗
+          </a>
+        )}
       </div>
 
       {/* Topics */}
       {problem.topics?.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {problem.topics.slice(0, 3).map(t => (
+          {problem.topics.slice(0, 3).map((t) => (
             <span key={t} className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-[#211F1D] border border-[#262320] text-[#6B6560]">
               {t}
             </span>
@@ -98,17 +108,31 @@ const ProblemCard = ({ problem, onEdit, onDelete }) => {
       </div>
 
       {/* Hover actions */}
-      <div className="flex items-center gap-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Link to={`/problems/${problem.id}`}
-          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 hover:bg-[#F97316]/20 transition-colors">
+      <div className="flex items-center gap-1.5 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {onLog && (
+          <button
+            onClick={() => onLog(problem)}
+            className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
+          >
+            + Log
+          </button>
+        )}
+        <Link
+          to={`/problems/${problem.id}`}
+          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 hover:bg-[#F97316]/20 transition-colors"
+        >
           Open
         </Link>
-        <button onClick={() => onEdit(problem)}
-          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-[#211F1D] text-[#A8A29E] border border-[#2E2A27] hover:bg-[#262320] transition-colors">
+        <button
+          onClick={() => onEdit(problem)}
+          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-[#211F1D] text-[#A8A29E] border border-[#262320] hover:bg-[#262320] transition-colors"
+        >
           Edit
         </button>
-        <button onClick={() => onDelete(problem)}
-          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors">
+        <button
+          onClick={() => onDelete(problem)}
+          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
+        >
           Delete
         </button>
       </div>
@@ -119,14 +143,38 @@ const ProblemCard = ({ problem, onEdit, onDelete }) => {
 /* ── Main Page ────────────────────────────────────────────────────── */
 const ProblemsPage = () => {
   const toast = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [search, setSearch] = useState('');
-  const [difficulty, setDifficulty] = useState('');
-  const [status, setStatus] = useState('');
-  const [topic, setTopic] = useState('');
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [difficulty, setDifficulty] = useState(() => searchParams.get('difficulty') || '');
+  const [status, setStatus] = useState(() => searchParams.get('status') || '');
+  const [topic, setTopic] = useState(() => searchParams.get('topic') || '');
+
+  // Ref for keyboard shortcut focusing
+  const searchInputRef = useRef(null);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // 10 | 25 | 50 | 'all'
+
+  // Reset page when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, difficulty, status, topic, pageSize]);
+
+  // Sync state if URL query params change
+  useEffect(() => {
+    const d = searchParams.get('difficulty');
+    const t = searchParams.get('topic');
+    const s = searchParams.get('search');
+    if (d !== null && d !== difficulty) setDifficulty(d);
+    if (t !== null && t !== topic) setTopic(t);
+    if (s !== null && s !== search) setSearch(s);
+  }, [searchParams]);
 
   const [viewMode, setViewMode] = useState(() =>
     localStorage.getItem('problems_view') || 'table'
@@ -136,6 +184,24 @@ const ProblemsPage = () => {
   const [editingProblem, setEditingProblem] = useState(null);
   const [deletingProblem, setDeletingProblem] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [loggingProblem, setLoggingProblem] = useState(null);
+
+  // Global '/' keyboard shortcut to focus search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isInputActive = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+      const isModalOpen = isFormOpen || Boolean(deletingProblem) || Boolean(loggingProblem);
+
+      if (e.key === '/' && !isInputActive && !isModalOpen) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFormOpen, deletingProblem, loggingProblem]);
 
   const loadProblems = useCallback(async () => {
     setIsLoading(true);
@@ -167,8 +233,8 @@ const ProblemsPage = () => {
     localStorage.setItem('problems_view', mode);
   };
 
-  const handleOpenAdd   = () => { setEditingProblem(null); setIsFormOpen(true); };
-  const handleEdit      = (p) => { setEditingProblem(p); setIsFormOpen(true); };
+  const handleOpenAdd = () => { setEditingProblem(null); setIsFormOpen(true); };
+  const handleEdit = (p) => { setEditingProblem(p); setIsFormOpen(true); };
   const handleDeletePrompt = (p) => { setDeletingProblem(p); };
 
   const handleConfirmDelete = async () => {
@@ -176,7 +242,7 @@ const ProblemsPage = () => {
     setIsDeleting(true);
     try {
       await deleteProblem(deletingProblem.id);
-      setProblems(prev => prev.filter(p => p.id !== deletingProblem.id));
+      setProblems((prev) => prev.filter((p) => p.id !== deletingProblem.id));
       setDeletingProblem(null);
       toast.success(`Deleted "${deletingProblem.title}".`);
       loadProblems();
@@ -187,25 +253,120 @@ const ProblemsPage = () => {
     }
   };
 
-  const handleResetFilters = () => { setSearch(''); setDifficulty(''); setStatus(''); setTopic(''); };
+  const handleResetFilters = () => {
+    setSearch('');
+    setDifficulty('');
+    setStatus('');
+    setTopic('');
+  };
+
   const activeFilterCount = [search, difficulty, status, topic].filter(Boolean).length;
+
+  // Header quick statistics
+  const stats = useMemo(() => {
+    const total = problems.length;
+    const easy = problems.filter((p) => p.difficulty === 'easy').length;
+    const medium = problems.filter((p) => p.difficulty === 'medium').length;
+    const hard = problems.filter((p) => p.difficulty === 'hard').length;
+    const solved = problems.filter((p) => p.latestAttempt?.status === 'solved').length;
+    return { total, easy, medium, hard, solved };
+  }, [problems]);
+
+  // Pagination calculations
+  const totalProblems = problems.length;
+  const totalPages = pageSize === 'all' ? 1 : Math.max(1, Math.ceil(totalProblems / pageSize));
+
+  const paginatedProblems = useMemo(() => {
+    if (pageSize === 'all') return problems;
+    const start = (currentPage - 1) * pageSize;
+    return problems.slice(start, start + pageSize);
+  }, [problems, currentPage, pageSize]);
+
+  const startIndex = (currentPage - 1) * (pageSize === 'all' ? 0 : pageSize);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(1, totalPages));
+    }
+  }, [currentPage, totalPages]);
+
+  // Pick Random Problem (LeetCode style)
+  const handlePickRandom = () => {
+    if (!problems || problems.length === 0) {
+      toast.error('No problems available to pick.');
+      return;
+    }
+    // Prioritize revisit_needed or struggled or unattempted
+    const priorityCandidates = problems.filter(
+      (p) => p.latestAttempt?.status === 'revisit_needed' || p.latestAttempt?.status === 'struggled' || !p.latestAttempt
+    );
+    const pool = priorityCandidates.length > 0 ? priorityCandidates : problems;
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+
+    toast.success(`Picked: "${picked.title}"`);
+    navigate(`/problems/${picked.id}`);
+  };
+
+  const handleExportCSV = () => {
+    if (!problems || problems.length === 0) {
+      toast.error('No problems to export.');
+      return;
+    }
+    const headers = ['Title', 'Difficulty', 'Platform', 'Topics', 'Latest Status', 'Attempt Count', 'URL', 'Added Date'];
+    const rows = problems.map((p) => [
+      `"${(p.title || '').replace(/"/g, '""')}"`,
+      p.difficulty || '',
+      p.platform || '',
+      `"${(p.topics || []).join('; ').replace(/"/g, '""')}"`,
+      p.latestAttempt?.status || 'unattempted',
+      p.attemptCount || 0,
+      `"${p.link || ''}"`,
+      p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : '',
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `dsa_problems_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${problems.length} problems to CSV.`);
+  };
 
   return (
     <div className="space-y-5 pb-12 animate-fade-up">
-
-      {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* ── Top Header & Action Controls ───────────────────────────── */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="text-xl font-bold tracking-tight text-[#F5F5F4]">Problems</h1>
-            <span className="text-xs font-mono text-[#3E3834] bg-[#1C1A18] border border-[#262320] px-2 py-0.5 rounded-lg">
-              {problems.length}
+            <span className="text-xs font-mono text-[#A8A29E] bg-[#1C1A18] border border-[#262320] px-2.5 py-0.5 rounded-lg">
+              {stats.total} total
+            </span>
+
+            {/* Quick Stat Chips */}
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              ● {stats.easy} Easy
+            </span>
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400">
+              ● {stats.medium} Med
+            </span>
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400">
+              ● {stats.hard} Hard
+            </span>
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" />
+              {stats.solved} Solved
             </span>
           </div>
-          <p className="text-xs text-[#6B6560] mt-0.5 font-mono">
-            Your repository across all topics, platforms and difficulty tiers.
+          <p className="text-xs text-[#6B6560] mt-1 font-mono">
+            Your centralized repository across topics, platforms, and difficulty tiers.
           </p>
         </div>
+
         <div className="flex items-center gap-2 shrink-0">
           {/* View toggle */}
           <div className="flex items-center gap-0.5 p-1 rounded-xl bg-[#1C1A18] border border-[#262320]">
@@ -213,97 +374,283 @@ const ProblemsPage = () => {
               onClick={() => toggleView('table')}
               className={`p-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#F97316] text-white' : 'text-[#6B6560] hover:text-[#A8A29E]'}`}
               title="Table view"
-            ><TableIcon /></button>
+            >
+              <TableIcon />
+            </button>
             <button
               onClick={() => toggleView('grid')}
               className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#F97316] text-white' : 'text-[#6B6560] hover:text-[#A8A29E]'}`}
               title="Grid view"
-            ><GridIcon /></button>
+            >
+              <GridIcon />
+            </button>
           </div>
+
+          <button
+            onClick={handleExportCSV}
+            type="button"
+            className="btn-ghost text-xs flex items-center gap-1.5"
+            title="Export problems as CSV"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+
+          {/* Pick Random Problem */}
+          <button
+            onClick={handlePickRandom}
+            type="button"
+            className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#1C1A18] border border-[#3E3834] hover:border-[#524B46] hover:bg-[#262320] text-[#F5F5F4] transition-all flex items-center gap-1.5"
+            title="Pick a random problem to practice"
+          >
+            <Dices className="w-3.5 h-3.5 text-amber-400" />
+            <span>Pick Random</span>
+          </button>
+
           <button onClick={handleOpenAdd} type="button" className="btn-primary text-xs">
             + Add Problem
           </button>
         </div>
       </div>
 
-      {/* ── Quick Filter Chips ── */}
-      <div className="flex flex-wrap items-center gap-2">
-        {['', 'easy', 'medium', 'hard'].map(d => (
-          <button key={d}
-            onClick={() => setDifficulty(d)}
-            className={`text-[11px] font-semibold px-3 py-1 rounded-xl border transition-all duration-150 ${
-              difficulty === d
-                ? d === '' ? 'bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316]'
-                  : d === 'easy' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                  : d === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                  : 'bg-red-500/10 border-red-500/30 text-red-400'
-                : 'bg-[#1C1A18] border-[#262320] text-[#6B6560] hover:text-[#A8A29E] hover:border-[#3E3834]'
-            }`}
-          >
-            {d === '' ? 'All' : d.charAt(0).toUpperCase() + d.slice(1)}
-          </button>
-        ))}
-        <div className="h-5 w-px bg-[#262320] mx-1" />
-        {['', 'solved', 'struggled', 'revisit_needed'].map(s => (
-          <button key={s}
-            onClick={() => setStatus(s)}
-            className={`text-[11px] font-semibold px-3 py-1 rounded-xl border transition-all duration-150 ${
-              status === s
-                ? s === '' ? 'bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316]'
-                  : s === 'solved' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                  : s === 'struggled' ? 'bg-red-500/10 border-red-500/30 text-red-400'
-                  : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                : 'bg-[#1C1A18] border-[#262320] text-[#6B6560] hover:text-[#A8A29E] hover:border-[#3E3834]'
-            }`}
-          >
-            {s === '' ? 'All Status' : s === 'revisit_needed' ? 'Revisit' : s.charAt(0).toUpperCase() + s.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Search + Topic row ── */}
-      <div className="panel p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block section-label mb-1.5">Search title</label>
-            <input type="text" value={search}
+      {/* ── Unified Modern Command & Filter Toolbar ────────────────── */}
+      <div className="panel p-3.5 border-[#262320] space-y-3">
+        {/* Top Row: Search Title + Topic Filter + Reset */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          {/* Search Title */}
+          <div className="md:col-span-6 relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B6560] pointer-events-none">
+              <Search className="w-3.5 h-3.5" />
+            </span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="e.g. Two Sum" className="input-base" />
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  if (search) setSearch('');
+                  else searchInputRef.current?.blur();
+                }
+              }}
+              placeholder="Search problems by title..."
+              className="input-base pl-9 pr-12 text-xs h-9 w-full bg-[#141312] border-[#262320] focus:border-[#F97316]"
+            />
+            {search ? (
+              <button
+                onClick={() => setSearch('')}
+                title="Clear search (Esc)"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B6560] hover:text-[#A8A29E]"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <kbd
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#211F1D] border border-[#332E2A] text-[#6B6560] pointer-events-none select-none"
+                title="Press / to search"
+              >
+                /
+              </kbd>
+            )}
           </div>
-          <div>
-            <label className="block section-label mb-1.5">Topic</label>
-            <input type="text" value={topic}
+
+          {/* Filter Topic */}
+          <div className="md:col-span-4 relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B6560] pointer-events-none">
+              <Tag className="w-3.5 h-3.5" />
+            </span>
+            <input
+              type="text"
+              value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. Dynamic Programming" className="input-base" />
+              placeholder="Filter by topic (e.g. Graph, DP)..."
+              className="input-base pl-9 pr-8 text-xs h-9 w-full bg-[#141312] border-[#262320] focus:border-[#F97316]"
+            />
+            {topic && (
+              <button
+                onClick={() => setTopic('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B6560] hover:text-[#A8A29E]"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Filter count & Reset button */}
+          <div className="md:col-span-2 flex justify-end">
+            {activeFilterCount > 0 ? (
+              <button
+                onClick={handleResetFilters}
+                type="button"
+                className="text-xs font-mono text-[#F97316] hover:text-[#FB923C] bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 px-3 py-1.5 rounded-lg transition-colors w-full text-center flex items-center justify-center gap-1.5"
+              >
+                <span>Reset ({activeFilterCount})</span>
+                <X className="w-3 h-3" />
+              </button>
+            ) : (
+              <span className="text-[11px] font-mono text-[#6B6560] hidden md:block text-right w-full">
+                {problems.length} matches
+              </span>
+            )}
           </div>
         </div>
-        {activeFilterCount > 0 && (
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#2E2A27] text-xs">
-            <span className="text-[#78716C]">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
-            <button onClick={handleResetFilters} type="button"
-              className="text-[#F97316] hover:text-[#FB923C] transition-colors font-medium">
-              Clear all
-            </button>
+
+        {/* Bottom Row: Difficulty & Status Quick Filter Chips */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-[#262320]">
+          {/* Difficulty Chips */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-mono uppercase text-[#6B6560] mr-1">Difficulty:</span>
+            {['', 'easy', 'medium', 'hard'].map((d) => (
+              <button
+                key={d}
+                onClick={() => setDifficulty(d)}
+                className={`text-[11px] font-mono px-2.5 py-0.5 rounded-lg border transition-all ${
+                  difficulty === d
+                    ? d === ''
+                      ? 'bg-[#F97316] text-white font-bold border-transparent shadow-sm'
+                      : d === 'easy'
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-bold'
+                      : d === 'medium'
+                      ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 font-bold'
+                      : 'bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold'
+                    : 'bg-[#141312] border-[#262320] text-[#6B6560] hover:text-[#A8A29E] hover:border-[#3E3834]'
+                }`}
+              >
+                {d === '' ? 'All' : d.charAt(0).toUpperCase() + d.slice(1)}
+              </button>
+            ))}
           </div>
-        )}
+
+          {/* Status Chips */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-mono uppercase text-[#6B6560] mr-1">Status:</span>
+            {['', 'solved', 'struggled', 'revisit_needed'].map((s) => (
+              <button
+                key={s}
+                onClick={() => setStatus(s)}
+                className={`text-[11px] font-mono px-2.5 py-0.5 rounded-lg border transition-all ${
+                  status === s
+                    ? s === ''
+                      ? 'bg-[#F97316] text-white font-bold border-transparent shadow-sm'
+                      : s === 'solved'
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-bold'
+                      : s === 'struggled'
+                      ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold'
+                      : 'bg-amber-500/20 border-amber-500/40 text-amber-300 font-bold'
+                    : 'bg-[#141312] border-[#262320] text-[#6B6560] hover:text-[#A8A29E] hover:border-[#3E3834]'
+                }`}
+              >
+                {s === '' ? 'All' : s === 'revisit_needed' ? 'Revisit' : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* ── Content: Table or Card Grid ── */}
+      {/* ── Content: Table or Card Grid ────────────────────────────── */}
       {viewMode === 'grid' && !isLoading && !error && problems.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {problems.map(p => (
-            <ProblemCard key={p.id} problem={p} onEdit={handleEdit} onDelete={handleDeletePrompt} />
+          {paginatedProblems.map((p) => (
+            <ProblemCard
+              key={p.id}
+              problem={p}
+              onEdit={handleEdit}
+              onDelete={handleDeletePrompt}
+              onLog={setLoggingProblem}
+            />
           ))}
         </div>
       ) : (
         <ProblemTable
-          problems={problems}
+          problems={paginatedProblems}
           isLoading={isLoading}
           error={error}
           onEdit={handleEdit}
           onDelete={handleDeletePrompt}
           onOpenAdd={handleOpenAdd}
+          onLog={setLoggingProblem}
+          startIndex={startIndex}
         />
+      )}
+
+      {/* ── Smart Pagination Footer ── */}
+      {!isLoading && !error && totalProblems > 0 && (
+        <div className="panel px-4 py-3 border-[#262320] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          {/* Left: Range text */}
+          <div className="font-mono text-[#8C847E]">
+            Showing{' '}
+            <strong className="text-[#F5F5F4]">
+              {pageSize === 'all' ? 1 : Math.min((currentPage - 1) * pageSize + 1, totalProblems)}
+            </strong>{' '}
+            to{' '}
+            <strong className="text-[#F5F5F4]">
+              {pageSize === 'all' ? totalProblems : Math.min(currentPage * pageSize, totalProblems)}
+            </strong>{' '}
+            of <strong className="text-[#F5F5F4]">{totalProblems}</strong> problems
+          </div>
+
+          {/* Middle: Page navigation pills */}
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-2.5 py-1 rounded-lg border border-[#262320] bg-[#141312] text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-[#211F1D] disabled:opacity-30 disabled:pointer-events-none transition-all font-mono"
+              >
+                ← Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setCurrentPage(p)}
+                  className={`w-7 h-7 rounded-lg font-mono text-xs transition-all ${
+                    currentPage === p
+                      ? 'bg-[#F97316] text-white font-bold shadow-md shadow-[#F97316]/20'
+                      : 'bg-[#141312] border border-[#262320] text-[#8C847E] hover:text-[#F5F5F4] hover:bg-[#211F1D]'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-2.5 py-1 rounded-lg border border-[#262320] bg-[#141312] text-[#A8A29E] hover:text-[#F5F5F4] hover:bg-[#211F1D] disabled:opacity-30 disabled:pointer-events-none transition-all font-mono"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+
+          {/* Right: Page Size Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-[#6B6560]">Per page:</span>
+            <div className="flex items-center p-0.5 rounded-lg bg-[#141312] border border-[#262320]">
+              {[10, 25, 50, 'all'].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-2 py-0.5 text-[11px] font-mono rounded transition-all ${
+                    pageSize === size
+                      ? 'bg-[#211F1D] text-[#F5F5F4] font-semibold border border-[#3E3834]'
+                      : 'text-[#6B6560] hover:text-[#A8A29E]'
+                  }`}
+                >
+                  {size === 'all' ? 'All' : size}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       <ProblemForm
@@ -319,6 +666,14 @@ const ProblemsPage = () => {
         onConfirm={handleConfirmDelete}
         problemTitle={deletingProblem?.title || ''}
         isDeleting={isDeleting}
+      />
+
+      <AttemptForm
+        isOpen={Boolean(loggingProblem)}
+        onClose={() => setLoggingProblem(null)}
+        onSuccess={loadProblems}
+        problemId={loggingProblem?.id}
+        problemTitle={loggingProblem?.title}
       />
     </div>
   );
