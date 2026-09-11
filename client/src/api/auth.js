@@ -35,3 +35,21 @@ export const resetPassword = async (data) => {
   const response = await api.post('/auth/reset-password', data);
   return response.data;
 };
+
+/**
+ * Fetch user target goals, target companies, and today/week live progress
+ */
+export const fetchGoals = async () => {
+  const response = await api.get('/auth/goals');
+  return response.data;
+};
+
+/**
+ * Update user practice goals and interview date
+ * @param {Object} data { dailyTarget, weeklyTarget, targetCompanies, targetInterviewDate }
+ */
+export const updateGoals = async (data) => {
+  const response = await api.put('/auth/goals', data);
+  return response.data;
+};
+

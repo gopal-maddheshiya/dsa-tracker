@@ -11,6 +11,7 @@ import { fetchProblems } from '../api/problems';
 import EditProfileModal from '../components/profile/EditProfileModal';
 import DataImportModal from '../components/profile/DataImportModal';
 import MilestoneDetailModal from '../components/profile/MilestoneDetailModal';
+import TargetGoalsCard from '../components/profile/TargetGoalsCard';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
@@ -879,6 +880,10 @@ const ProfilePage = () => {
         <StatBlock label="Sessions Logged"    value={profile?.totalAttempts ?? 0}   sub="total attempts"    icon={History}      color="#F97316" />
         <StatBlock label="Current Streak"     value={`${profile?.currentStreak ?? 0}d`} sub={`best: ${profile?.longestStreak ?? 0}d`} icon={Flame} color="#F59E0B" />
       </div>
+
+      {/* ── Target Goals & Interview Readiness ──────────────────── */}
+      <TargetGoalsCard />
+
 
       {/* ── Solve Pace & Insights ─────────────────────────────── */}
       <div className="panel p-5">

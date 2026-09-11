@@ -9,6 +9,8 @@ const {
   changePassword,
   forgotPassword,
   resetPassword,
+  getUserGoals,
+  updateUserGoals,
 } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/authMiddleware');
 const { createRateLimiter } = require('../middleware/rateLimiter');
@@ -30,5 +32,9 @@ router.post('/reset-password', authLimiter, resetPassword);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.put('/change-password', protect, changePassword);
+
+// Target goals & practice countdown routes
+router.get('/goals', protect, getUserGoals);
+router.put('/goals', protect, updateUserGoals);
 
 module.exports = router;

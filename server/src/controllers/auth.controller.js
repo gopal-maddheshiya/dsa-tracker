@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const User = require('../models/User');
+const Attempt = require('../models/Attempt');
 const generateToken = require('../utils/generateToken');
 
 // Email regex pattern for basic RFC-compliant structure validation
@@ -448,6 +449,171 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * @route   GET /api/auth/goals
+ * @desc    Get user practice goals, target companies, and today/weekly progress
+ * @access  Private
+ */
+const getUserGoals = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const goals = user.goals || {
+      dailyTarget: 2,
+      weeklyTarget: 10,
+      targetCompanies: ['Google', 'Amazon'],
+      targetInterviewDate: null,
+    };
+
+    // Calculate start of today (UTC midnight)
+    const now = new Date();
+    const startOfToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // Count attempts/solves today and in past 7 days
+    const [todayAttempts, weekAttempts] = await Promise.all([
+      Attempt.find({
+        userId: user._id,
+        attemptedAt: { $gte: startOfToday },
+      }),
+      Attempt.find({
+        userId: user._id,
+        attemptedAt: { $gte: sevenDaysAgo },
+      }),
+    ]);
+
+    // Unique problems solved today and this week
+    const todaySolvedSet = new Set();
+    todayAttempts.forEach((a) => {
+      if (a.status === 'solved' && a.problemId) {
+        todaySolvedSet.add(a.problemId.toString());
+      }
+    });
+
+    const weekSolvedSet = new Set();
+    weekAttempts.forEach((a) => {
+      if (a.status === 'solved' && a.problemId) {
+        weekSolvedSet.add(a.problemId.toString());
+      }
+    });
+
+    const todaySolved = todaySolvedSet.size || todayAttempts.length;
+    const weekSolved = weekSolvedSet.size || weekAttempts.length;
+
+    const dailyTarget = goals.dailyTarget || 2;
+    const weeklyTarget = goals.weeklyTarget || 10;
+
+    // Days until interview countdown
+    let daysUntilInterview = null;
+    let interviewUrgency = null;
+    if (goals.targetInterviewDate) {
+      const interviewDate = new Date(goals.targetInterviewDate);
+      const diffTime = interviewDate.getTime() - now.getTime();
+      daysUntilInterview = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (daysUntilInterview <= 0) {
+        interviewUrgency = 'today_or_passed';
+      } else if (daysUntilInterview <= 14) {
+        interviewUrgency = 'crunch_time';
+      } else if (daysUntilInterview <= 45) {
+        interviewUrgency = 'accelerated';
+      } else {
+        interviewUrgency = 'on_track';
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        goals,
+        progress: {
+          todaySolved,
+          dailyTarget,
+          todayTargetMet: todaySolved >= dailyTarget,
+          todayProgressPct: Math.min(100, Math.round((todaySolved / dailyTarget) * 100)),
+          weekSolved,
+          weeklyTarget,
+          weeklyTargetMet: weekSolved >= weeklyTarget,
+          weeklyProgressPct: Math.min(100, Math.round((weekSolved / weeklyTarget) * 100)),
+          daysUntilInterview,
+          interviewUrgency,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   PUT /api/auth/goals
+ * @desc    Update user target goals (daily target, weekly target, target companies, interview date)
+ * @access  Private
+ */
+const updateUserGoals = async (req, res, next) => {
+  try {
+    const { dailyTarget, weeklyTarget, targetCompanies, targetInterviewDate } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!user.goals) {
+      user.goals = {};
+    }
+
+    if (dailyTarget !== undefined) {
+      const num = Number(dailyTarget);
+      if (isNaN(num) || num < 1 || num > 50) {
+        return res.status(400).json({ success: false, message: 'Daily target must be between 1 and 50' });
+      }
+      user.goals.dailyTarget = num;
+    }
+
+    if (weeklyTarget !== undefined) {
+      const num = Number(weeklyTarget);
+      if (isNaN(num) || num < 1 || num > 200) {
+        return res.status(400).json({ success: false, message: 'Weekly target must be between 1 and 200' });
+      }
+      user.goals.weeklyTarget = num;
+    }
+
+    if (targetCompanies !== undefined) {
+      if (Array.isArray(targetCompanies)) {
+        user.goals.targetCompanies = targetCompanies
+          .map((c) => String(c).trim())
+          .filter((c) => c.length > 0)
+          .slice(0, 10);
+      }
+    }
+
+    if (targetInterviewDate !== undefined) {
+      if (!targetInterviewDate) {
+        user.goals.targetInterviewDate = null;
+      } else {
+        const parsedDate = new Date(targetInterviewDate);
+        if (isNaN(parsedDate.getTime())) {
+          return res.status(400).json({ success: false, message: 'Invalid interview date format' });
+        }
+        user.goals.targetInterviewDate = parsedDate;
+      }
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Goals updated successfully',
+      data: user.goals,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -457,4 +623,6 @@ module.exports = {
   changePassword,
   forgotPassword,
   resetPassword,
+  getUserGoals,
+  updateUserGoals,
 };

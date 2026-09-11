@@ -42,6 +42,28 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    goals: {
+      dailyTarget: {
+        type: Number,
+        default: 2,
+        min: [1, 'Daily target must be at least 1'],
+        max: [50, 'Daily target cannot exceed 50'],
+      },
+      weeklyTarget: {
+        type: Number,
+        default: 10,
+        min: [1, 'Weekly target must be at least 1'],
+        max: [200, 'Weekly target cannot exceed 200'],
+      },
+      targetCompanies: {
+        type: [String],
+        default: ['Google', 'Amazon'],
+      },
+      targetInterviewDate: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   {
     timestamps: false,
@@ -62,6 +84,12 @@ userSchema.methods.toSafeObject = function () {
     name: this.name,
     email: this.email,
     avatar: this.avatar,
+    goals: this.goals || {
+      dailyTarget: 2,
+      weeklyTarget: 10,
+      targetCompanies: ['Google', 'Amazon'],
+      targetInterviewDate: null,
+    },
     hasPassword: !!this.passwordHash,
     createdAt: this.createdAt,
   };
