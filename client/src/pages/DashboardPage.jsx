@@ -84,6 +84,14 @@ const DashboardPage = () => {
     loadSummary(); loadTopics(); loadTrend(); loadHeatmap(); loadRevision();
   }, [loadSummary, loadTopics, loadTrend, loadHeatmap, loadRevision]);
 
+  useEffect(() => {
+    const handleProblemCreated = () => {
+      loadSummary(); loadTopics(); loadTrend(); loadHeatmap(); loadRevision();
+    };
+    window.addEventListener('problem-created', handleProblemCreated);
+    return () => window.removeEventListener('problem-created', handleProblemCreated);
+  }, [loadSummary, loadTopics, loadTrend, loadHeatmap, loadRevision]);
+
   const hasZeroData = !loadingSummary && summary && summary.totalProblems === 0 && summary.totalAttempts === 0;
   const solveRate = summary?.totalAttempts > 0
     ? Math.round((summary.solvedAttempts / summary.totalAttempts) * 100) : 0;

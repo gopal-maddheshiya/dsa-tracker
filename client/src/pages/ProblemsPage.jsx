@@ -398,6 +398,14 @@ const ProblemsPage = () => {
     return () => clearTimeout(timer);
   }, [loadProblems]);
 
+  useEffect(() => {
+    const handleProblemCreated = () => {
+      loadProblems();
+    };
+    window.addEventListener('problem-created', handleProblemCreated);
+    return () => window.removeEventListener('problem-created', handleProblemCreated);
+  }, [loadProblems]);
+
   const toggleView = (mode) => {
     setViewMode(mode);
     localStorage.setItem('problems_view', mode);

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchProfileAnalytics } from '../../api/analytics';
 import InstallAppBanner from './InstallAppBanner';
+import ProblemForm from '../ProblemForm';
 import {
   LayoutDashboard,
   Code2,
@@ -13,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  Search,
+  Plus,
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -194,6 +197,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose, streak }) => 
 const AppShell = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Desktop collapse state (persisted)
   const [collapsed, setCollapsed] = useState(() => {
@@ -203,6 +207,9 @@ const AppShell = ({ children }) => {
   // Mobile drawer state
   const [mobileOpen, setMobileOpen] = useState(false);
   const [streak, setStreak] = useState(null);
+
+  // Quick Problem Creation modal state
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
   // Live streak fetch on mount and route change
   useEffect(() => {
@@ -227,6 +234,65 @@ const AppShell = ({ children }) => {
 
   // Close mobile drawer on route change
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
+  // Derive initials for avatar
+  const initials = useMemo(() => {
+    if (user?.name) {
+      return user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    }
+    return (user?.email?.[0] ?? 'U').toUpperCase();
+  }, [user]);
+
+  // Contextual breadcrumb determination
+  const breadcrumb = useMemo(() => {
+    const p = location.pathname;
+    if (p.startsWith('/dashboard')) {
+      return { section: 'Workspace', page: 'Dashboard', subpage: 'Overview' };
+    }
+    if (p === '/problems') {
+      return { section: 'Workspace', page: 'Problems', subpage: 'Catalog & Tracker' };
+    }
+    if (p.startsWith('/problems/')) {
+      return { section: 'Workspace', page: 'Problems', subpage: 'Problem Details' };
+    }
+    if (p.startsWith('/revision')) {
+      return { section: 'Workspace', page: 'Revision', subpage: 'Spaced Repetition' };
+    }
+    if (p.startsWith('/profile')) {
+      return { section: 'Account', page: 'Profile', subpage: 'Analytics & Settings' };
+    }
+    return { section: 'Workspace', page: 'App', subpage: '' };
+  }, [location.pathname]);
+
+  // Command / Search Pill click action
+  const handleSearchPillClick = () => {
+    if (location.pathname === '/problems') {
+      const searchInput = document.querySelector('input[placeholder*="Search"]');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    } else {
+      navigate('/problems');
+    }
+  };
+
+  // Global '/' keyboard shortcut to focus search or navigate to problems
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isInputActive = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+      if (e.key === '/' && !isInputActive && !isQuickAddOpen) {
+        e.preventDefault();
+        handleSearchPillClick();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [location.pathname, isQuickAddOpen]);
+
+  const handleQuickAddSuccess = () => {
+    window.dispatchEvent(new CustomEvent('problem-created'));
+  };
 
   // Public pages — no sidebar
   if (!isAuthenticated) {
@@ -276,43 +342,119 @@ const AppShell = ({ children }) => {
       {/* ── Main area ───────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-        {/* Top bar (mobile only) */}
-        <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between h-[58px] px-4 border-b border-white/[0.08] bg-[#0A0B0D]/90 backdrop-blur-xl shrink-0">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="p-2 rounded-xl text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.06] transition-all"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <NavLink to="/dashboard" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#F97316]/12 border border-[#F97316]/25 flex items-center justify-center">
-              <span className="w-2 h-2 rounded-full bg-[#F97316] dot-pulse" />
-            </div>
-            <span className="font-bold text-sm text-[#F3F4F6]">DSA<span className="text-[#F97316]">Tracker</span></span>
-          </NavLink>
-          <div className="flex items-center gap-2">
+        {/* ── Top Header Ribbon (Unified Desktop & Mobile) ─────────── */}
+        <header className="sticky top-0 z-30 flex items-center justify-between h-[60px] px-3.5 sm:px-6 border-b border-white/[0.08] bg-[#0A0B0D]/85 backdrop-blur-xl shrink-0 transition-all">
+          
+          {/* Left: Mobile hamburger & logo OR Desktop Breadcrumbs */}
+          <div className="flex items-center gap-3">
+            {/* Mobile drawer toggle */}
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="lg:hidden p-2 rounded-xl text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.06] transition-all"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Mobile logo */}
+            <NavLink to="/dashboard" className="flex items-center gap-2 lg:hidden">
+              <div className="w-7 h-7 rounded-lg bg-[#F97316]/12 border border-[#F97316]/25 flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-[#F97316] dot-pulse" />
+              </div>
+              <span className="font-bold text-sm text-[#F3F4F6]">DSA<span className="text-[#F97316]">Tracker</span></span>
+            </NavLink>
+
+            {/* Desktop Breadcrumbs */}
+            <nav aria-label="Breadcrumb" className="hidden lg:flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-[#6B7280]">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+                {breadcrumb.section}
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-[#4B5563]" />
+              <span className="text-[#9CA3AF] font-medium">
+                {breadcrumb.page}
+              </span>
+              {breadcrumb.subpage && (
+                <>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#4B5563]" />
+                  <span className="text-[#F3F4F6] font-semibold">
+                    {breadcrumb.subpage}
+                  </span>
+                </>
+              )}
+            </nav>
+          </div>
+
+          {/* Center: Command / Search Pill */}
+          <div className="flex items-center justify-center">
+            <button
+              type="button"
+              onClick={handleSearchPillClick}
+              className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#14171C]/90 hover:bg-[#1A1E24] border border-white/[0.08] hover:border-white/[0.18] text-[#9CA3AF] hover:text-[#E5E7EB] transition-all group w-52 sm:w-64 lg:w-72 shadow-sm text-xs cursor-pointer"
+              title="Search problems and topics (Press /)"
+            >
+              <Search className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#F97316] transition-colors" />
+              <span className="truncate flex-1 text-left">Search problems, tags...</span>
+              <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-[#6B7280] bg-[#0E1013] border border-white/[0.08] rounded group-hover:border-[#F97316]/30 group-hover:text-[#F97316] transition-colors">
+                /
+              </kbd>
+            </button>
+          </div>
+
+          {/* Right: Streak Badge + Quick Add Button + Profile Avatar */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Practice Streak Badge */}
             {streak != null && streak > 0 && (
               <NavLink
                 to="/profile"
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#14171C] border border-white/[0.08] text-[11px] font-mono font-bold text-[#F97316] active:scale-95 transition-transform"
-                title="Practice streak"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#14171C] border border-[#F97316]/25 hover:border-[#F97316]/50 text-xs font-mono font-bold text-[#F97316] transition-all hover:scale-105 shadow-[0_0_12px_rgba(249,115,22,0.12)]"
+                title={`${streak} day practice streak`}
               >
                 <Flame className="w-3.5 h-3.5 text-orange-400" />
                 <span>{streak}d</span>
               </NavLink>
             )}
+
+            {/* Quick Add Problem Button */}
+            <button
+              type="button"
+              onClick={() => setIsQuickAddOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#F97316] to-[#EA580C] hover:from-[#EA580C] hover:to-[#C2410C] text-white text-xs font-semibold shadow-[0_0_16px_rgba(249,115,22,0.25)] hover:shadow-[0_0_20px_rgba(249,115,22,0.4)] active:scale-95 transition-all cursor-pointer"
+              title="Create / Catalog a new problem"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span className="hidden sm:inline">New Problem</span>
+            </button>
+
+            {/* User Profile Avatar with Online indicator */}
             <NavLink
               to="/profile"
-              className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.12)] text-[11px] font-bold text-[#F97316] font-mono active:scale-95 transition-transform overflow-hidden"
-              title="My Profile"
+              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/[0.05] transition-all group"
+              title="View Profile & Settings"
             >
-              {user?.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-              ) : (
-                user?.name
-                  ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
-                  : (user?.email?.[0] ?? 'U').toUpperCase()
-              )}
+              <div className="relative">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-xl object-cover border border-white/[0.12] group-hover:border-[#F97316]/50 shadow-sm transition-colors"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/30 flex items-center justify-center text-xs font-bold text-[#F97316] font-mono group-hover:border-[#F97316]/60 transition-colors">
+                    {initials}
+                  </div>
+                )}
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#0A0B0D]" />
+              </div>
+              <div className="hidden xl:flex flex-col text-left">
+                <span className="text-xs font-semibold text-[#F3F4F6] group-hover:text-white transition-colors truncate max-w-[100px]">
+                  {user?.name || 'User'}
+                </span>
+                <span className="text-[10px] text-[#6B7280] font-mono">
+                  Pro Learner
+                </span>
+              </div>
             </NavLink>
           </div>
         </header>
@@ -332,6 +474,15 @@ const AppShell = ({ children }) => {
         </footer>
       </div>
 
+      {/* Quick Add Problem Modal */}
+      {isQuickAddOpen && (
+        <ProblemForm
+          isOpen={isQuickAddOpen}
+          onClose={() => setIsQuickAddOpen(false)}
+          onSuccess={handleQuickAddSuccess}
+        />
+      )}
+
       {/* PWA Install Prompt Banner */}
       <InstallAppBanner />
     </div>
@@ -339,3 +490,4 @@ const AppShell = ({ children }) => {
 };
 
 export default AppShell;
+
