@@ -6,10 +6,12 @@ import { getErrorMessage } from '../utils/errorHandler';
 import { getRank, fmtMonthYear } from '../utils/profileUtils';
 import ProgressRing from '../components/ui/ProgressRing';
 import Badge from '../components/ui/Badge';
+import { useToast } from '../context/ToastContext';
+import { fetchProblems } from '../api/problems';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
-  TrendingUp, BarChart3, Trophy, Layers
+  TrendingUp, BarChart3, Trophy, Layers, Download, FileJson, FileSpreadsheet, Database
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -637,6 +639,56 @@ const ProfilePage = () => {
   // Member since — use createdAt from user if available
   const memberSince = user?.createdAt ? fmtMonthYear(user.createdAt) : null;
 
+  const toast = useToast();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportData = async (format = 'json') => {
+    setIsExporting(true);
+    try {
+      const res = await fetchProblems();
+      const problems = res?.data || [];
+
+      if (!problems.length) {
+        toast?.error ? toast.error('No problems cataloged to export yet.') : alert('No problems found.');
+        return;
+      }
+
+      if (format === 'json') {
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(problems, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute('href', dataStr);
+        downloadAnchor.setAttribute('download', `dsa-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        toast?.success && toast.success(`Successfully exported ${problems.length} problems as JSON!`);
+      } else if (format === 'csv') {
+        const headers = ['Title', 'Platform', 'Difficulty', 'Topics', 'Link', 'Created At'];
+        const rows = problems.map((p) => [
+          `"${(p.title || '').replace(/"/g, '""')}"`,
+          `"${p.platform || ''}"`,
+          `"${p.difficulty || ''}"`,
+          `"${(p.topics || []).join('; ')}"`,
+          `"${p.link || ''}"`,
+          `"${p.createdAt || ''}"`,
+        ]);
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute('href', encodedUri);
+        downloadAnchor.setAttribute('download', `dsa-tracker-export-${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        toast?.success && toast.success(`Successfully exported ${problems.length} problems as CSV!`);
+      }
+    } catch (err) {
+      toast?.error ? toast.error('Failed to export problem data: ' + err.message) : alert('Export failed');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-5 pb-12 animate-pulse">
@@ -927,6 +979,49 @@ const ProfilePage = () => {
             </Link>
           </div>
         )}
+      </div>
+
+      {/* ── Data Portability & Backup ────────────────────────────── */}
+      <div className="panel p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-[#F3F4F6]">Data Portability & Backup</h2>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                OFFLINE BACKUP
+              </span>
+            </div>
+            <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">
+              Export all your cataloged problems, topics, and practice records.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={isExporting}
+              onClick={() => handleExportData('json')}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] transition-all flex items-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            >
+              <FileJson className="w-3.5 h-3.5 text-amber-400" />
+              <span>Export JSON</span>
+            </button>
+            <button
+              type="button"
+              disabled={isExporting}
+              onClick={() => handleExportData('csv')}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_2px_12px_rgba(249,115,22,0.25)] transition-all flex items-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+        <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-3 text-xs text-slate-400 font-mono">
+          <Database className="w-4 h-4 text-slate-500 shrink-0" />
+          <p className="leading-relaxed text-[11px]">
+            Your data belongs to you. Backups include full problem descriptions, difficulty ratings, tags, attempt timestamps, and review statuses.
+          </p>
+        </div>
       </div>
 
     </div>

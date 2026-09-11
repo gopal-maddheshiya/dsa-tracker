@@ -5,8 +5,12 @@ const authRoutes = require('./routes/auth.routes');
 const problemRoutes = require('./routes/problem.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const { securityHeaders } = require('./middleware/securityHeaders');
 
 const app = express();
+
+// Security HTTP headers
+app.use(securityHeaders);
 
 // Request parsing middleware
 app.use(express.json());
