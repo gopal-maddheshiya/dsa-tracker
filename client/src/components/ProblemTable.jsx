@@ -1,7 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Badge from './ui/Badge';
-import { FolderOpen } from 'lucide-react';
+import {
+  FolderOpen,
+  ExternalLink,
+  Eye,
+  Edit2,
+  Trash2,
+  Plus,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+} from 'lucide-react';
 
 const DIFFICULTY_CONFIG = {
   easy:   { variant: 'easy',   label: 'Easy',   weight: 1 },
@@ -10,17 +20,35 @@ const DIFFICULTY_CONFIG = {
 };
 
 const STATUS_CONFIG = {
-  solved:         { label: 'Solved',         text: 'text-emerald-400', dot: 'bg-emerald-400' },
-  struggled:      { label: 'Struggled',      text: 'text-rose-400',    dot: 'bg-rose-400' },
-  revisit_needed: { label: 'Revisit Needed', text: 'text-amber-400',   dot: 'bg-amber-400' },
+  solved: {
+    label: 'Solved',
+    text: 'text-emerald-400',
+    bg: 'bg-emerald-500/10 border-emerald-500/25',
+    dot: 'bg-emerald-400',
+    glow: 'shadow-[0_0_8px_rgba(16,185,129,0.15)]',
+  },
+  struggled: {
+    label: 'Struggled',
+    text: 'text-rose-400',
+    bg: 'bg-rose-500/10 border-rose-500/25',
+    dot: 'bg-rose-400',
+    glow: 'shadow-[0_0_8px_rgba(244,63,94,0.15)]',
+  },
+  revisit_needed: {
+    label: 'Revisit Needed',
+    text: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/25',
+    dot: 'bg-amber-400',
+    glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]',
+  },
 };
 
 const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LC',  style: 'text-[#F97316] bg-amber-500/10 border-amber-500/20' },
-  gfg:        { label: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
-  codechef:   { label: 'CC',  style: 'text-amber-300 bg-amber-600/10 border-amber-600/20' },
-  hackerrank: { label: 'HR',  style: 'text-emerald-300 bg-emerald-600/10 border-emerald-600/20' },
-  other:      { label: 'Ext', style: 'text-[#9CA3AF] bg-[#0E1014] border-white/[0.08]' },
+  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-amber-400 bg-amber-500/10 border-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.08)]', dot: 'bg-amber-400' },
+  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.08)]', dot: 'bg-emerald-400' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-amber-300 bg-amber-600/10 border-amber-600/25 shadow-[0_0_8px_rgba(217,119,6,0.08)]', dot: 'bg-amber-300' },
+  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-green-400 bg-green-500/10 border-green-500/25 shadow-[0_0_8px_rgba(34,197,94,0.08)]', dot: 'bg-green-400' },
+  other:      { label: 'External', short: 'Ext', style: 'text-[#9CA3AF] bg-white/[0.04] border-white/[0.08]', dot: 'bg-[#9CA3AF]' },
 };
 
 const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd, onLog, startIndex = 0 }) => {
@@ -62,23 +90,36 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
     });
   }, [problems, sortField, sortAsc]);
 
+  const renderSortIndicator = (field) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="w-3 h-3 text-[#4B5563] opacity-0 group-hover:opacity-70 transition-opacity" />;
+    }
+    return sortAsc ? (
+      <ArrowUp className="w-3 h-3 text-[#F97316]" />
+    ) : (
+      <ArrowDown className="w-3 h-3 text-[#F97316]" />
+    );
+  };
+
   if (isLoading) {
     return (
-      <div className="panel overflow-hidden animate-pulse border-white/[0.08]">
-        <div className="flex gap-4 px-6 py-3.5 bg-[#0F1114] border-b border-white/[0.08]">
-          {[40, 200, 140, 80, 80, 80, 60, 100].map((w, i) => (
+      <div className="panel overflow-hidden animate-pulse border-white/[0.08] rounded-2xl">
+        <div className="flex gap-4 px-6 py-4 bg-[#0F1114] border-b border-white/[0.08]">
+          {[40, 220, 140, 90, 80, 90, 60, 100].map((w, i) => (
             <div key={i} className="h-3 shimmer rounded-md" style={{ width: w }} />
           ))}
         </div>
-        <div className="divide-y divide-white/[0.05]">
-          {[1, 2, 3, 4, 5].map((i) => (
+        <div className="divide-y divide-white/[0.04]">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="flex gap-4 px-6 py-4 items-center">
               <div className="h-3.5 w-8 shimmer rounded-md" />
-              <div className="h-3.5 w-48 shimmer rounded-md" />
-              <div className="h-3 w-28 shimmer rounded-md" />
-              <div className="h-4 w-14 shimmer rounded-md" />
-              <div className="h-3 w-10 shimmer rounded-md" />
-              <div className="h-3 w-16 shimmer rounded-md" />
+              <div className="h-3.5 w-56 shimmer rounded-md" />
+              <div className="h-3 w-32 shimmer rounded-md" />
+              <div className="h-4 w-16 shimmer rounded-md" />
+              <div className="h-3 w-12 shimmer rounded-md" />
+              <div className="h-3 w-20 shimmer rounded-md" />
+              <div className="h-3 w-10 shimmer rounded-md mx-auto" />
+              <div className="h-4 w-20 shimmer rounded-md ml-auto" />
             </div>
           ))}
         </div>
@@ -88,7 +129,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
   if (error) {
     return (
-      <div className="panel p-8 text-center border-rose-500/20">
+      <div className="panel p-8 text-center border-rose-500/20 rounded-2xl bg-rose-500/[0.03]">
         <p className="text-sm font-semibold text-rose-300">Unable to load problems</p>
         <p className="text-xs text-rose-400 mt-1">{error}</p>
       </div>
@@ -97,8 +138,8 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
   if (!problems || problems.length === 0) {
     return (
-      <div className="panel border-dashed p-14 text-center border-white/[0.1] bg-[#121418]">
-        <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto mb-4">
+      <div className="panel border-dashed p-14 text-center border-white/[0.1] bg-[#121418] rounded-2xl">
+        <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto mb-4 shadow-sm">
           <FolderOpen className="w-6 h-6 text-[#9CA3AF]" />
         </div>
         <h3 className="text-base font-bold text-[#F3F4F6] tracking-tight">No problems found</h3>
@@ -112,48 +153,55 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
     );
   }
 
-  const renderSortIndicator = (field) => {
-    if (sortField !== field) return null;
-    return <span className="ml-1 text-[10px] text-[#F97316] font-mono">{sortAsc ? '↑' : '↓'}</span>;
-  };
-
   return (
-    <div className="panel overflow-hidden border-white/[0.08]">
+    <div className="panel overflow-hidden border-white/[0.08] rounded-2xl bg-[#0E1013]/90 shadow-xl">
       <div className="overflow-x-auto">
-        <table className="data-table min-w-[700px]">
+        <table className="data-table min-w-[760px] w-full text-left">
           <thead>
-            <tr>
-              <th className="w-12 text-center text-[#6B7280] font-mono">#</th>
+            <tr className="border-b border-white/[0.08] bg-[#14171C]/60 text-[#6B7280] text-xs font-mono tracking-wider">
+              <th className="w-12 text-center py-3.5 px-3">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
               >
-                Problem {renderSortIndicator('title')}
+                <div className="flex items-center gap-1.5">
+                  <span>Problem</span>
+                  {renderSortIndicator('title')}
+                </div>
               </th>
-              <th>Topics</th>
+              <th className="py-3.5 px-3">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
               >
-                Difficulty {renderSortIndicator('difficulty')}
+                <div className="flex items-center gap-1.5">
+                  <span>Difficulty</span>
+                  {renderSortIndicator('difficulty')}
+                </div>
               </th>
-              <th>Platform</th>
+              <th className="py-3.5 px-3">Platform</th>
               <th
                 onClick={() => handleSort('status')}
-                className="cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
               >
-                Status {renderSortIndicator('status')}
+                <div className="flex items-center gap-1.5">
+                  <span>Status</span>
+                  {renderSortIndicator('status')}
+                </div>
               </th>
               <th
                 onClick={() => handleSort('sessions')}
-                className="text-center cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
+                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
               >
-                Sessions {renderSortIndicator('sessions')}
+                <div className="flex items-center justify-center gap-1.5">
+                  <span>Sessions</span>
+                  {renderSortIndicator('sessions')}
+                </div>
               </th>
-              <th className="text-right">Actions</th>
+              <th className="text-right py-3.5 px-4">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-white/[0.04]">
             {sortedProblems.map((problem, idx) => {
               const diff = DIFFICULTY_CONFIG[problem.difficulty] || { variant: 'default', label: problem.difficulty };
               const latestStatus = problem.latestAttempt?.status;
@@ -161,18 +209,23 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               const platformCfg = PLATFORM_CONFIG[problem.platform] || PLATFORM_CONFIG.other;
 
               return (
-                <tr key={problem.id} className="hover:bg-[#171A20] transition-colors duration-150 group">
-                  {/* # Index Column */}
-                  <td className="text-center font-mono text-[11px] text-[#6B7280]">
+                <tr
+                  key={problem.id}
+                  className="hover:bg-[#14171D] transition-colors duration-150 group relative"
+                >
+                  {/* # Index Column with subtle hover accent */}
+                  <td className="text-center font-mono text-[11px] text-[#6B7280] py-3.5 px-3 relative">
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-[#F97316] opacity-0 group-hover:opacity-100 transition-opacity" />
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
 
                   {/* Problem Title & External Link */}
-                  <td>
-                    <div className="flex items-center gap-2">
+                  <td className="py-3.5 px-3">
+                    <div className="flex items-center gap-2 max-w-[300px]">
                       <Link
                         to={`/problems/${problem.id}`}
-                        className="font-semibold text-[#F3F4F6] group-hover:text-[#FB923C] transition-colors truncate max-w-[280px] text-[13px]"
+                        className="font-semibold text-[#F3F4F6] group-hover:text-[#FB923C] transition-colors truncate text-[13px] tracking-tight"
+                        title={problem.title}
                       >
                         {problem.title}
                       </Link>
@@ -182,29 +235,29 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           target="_blank"
                           rel="noreferrer"
                           title="Open original problem in new tab"
-                          className="text-[#6B7280] hover:text-[#9CA3AF] transition-colors shrink-0 text-xs opacity-60 group-hover:opacity-100"
+                          className="text-[#6B7280] hover:text-[#F97316] transition-colors shrink-0 p-1 -m-1 rounded hover:bg-white/[0.05]"
                         >
-                          ↗
+                          <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                     </div>
                   </td>
 
                   {/* Topic Pills */}
-                  <td>
+                  <td className="py-3.5 px-3">
                     {problem.topics?.length > 0 ? (
                       <div className="flex flex-wrap gap-1 max-w-[220px]">
                         {problem.topics.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07] text-[#9CA3AF]"
+                            className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#9CA3AF] group-hover:border-white/[0.14] transition-colors"
                           >
                             {t}
                           </span>
                         ))}
                         {problem.topics.length > 2 && (
                           <span
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07] text-[#6B7280]"
+                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#6B7280]"
                             title={problem.topics.slice(2).join(', ')}
                           >
                             +{problem.topics.length - 2}
@@ -216,41 +269,47 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     )}
                   </td>
 
-                  {/* Difficulty Badge */}
-                  <td>
-                    <Badge variant={diff.variant}>{diff.label}</Badge>
+                  {/* Difficulty Badge with pulsing dot */}
+                  <td className="py-3.5 px-3">
+                    <Badge variant={diff.variant} dot size="sm">
+                      {diff.label}
+                    </Badge>
                   </td>
 
                   {/* Brand Platform Badge */}
-                  <td>
-                    <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${platformCfg.style}`}>
-                      {platformCfg.label}
+                  <td className="py-3.5 px-3">
+                    <span
+                      className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platformCfg.style}`}
+                      title={platformCfg.label}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
+                      <span>{platformCfg.short}</span>
                     </span>
                   </td>
 
                   {/* Status Indicator */}
-                  <td>
+                  <td className="py-3.5 px-3">
                     {statusCfg ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${statusCfg.dot}`} />
-                        <span className={`text-xs font-semibold ${statusCfg.text}`}>
-                          {statusCfg.label}
-                        </span>
-                      </div>
+                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-lg border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.glow}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
+                        <span>{statusCfg.label}</span>
+                      </span>
                     ) : (
-                      <span className="text-xs text-[#6B7280] font-mono">Unattempted</span>
+                      <span className="inline-flex items-center text-[10px] font-mono text-[#6B7280] px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.06]">
+                        Unattempted
+                      </span>
                     )}
                   </td>
 
                   {/* Session Count */}
-                  <td className="text-center">
-                    <span className="font-mono text-xs font-semibold text-[#9CA3AF] px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07]">
+                  <td className="text-center py-3.5 px-3">
+                    <span className="inline-block font-mono text-xs font-semibold text-[#9CA3AF] px-2.5 py-0.5 rounded-lg bg-[#0D0F13] border border-white/[0.08] group-hover:border-white/[0.14] transition-colors">
                       {problem.attemptCount || 0}
                     </span>
                   </td>
 
                   {/* Enhanced Icon Actions */}
-                  <td>
+                  <td className="text-right py-3.5 px-4">
                     <div className="flex items-center justify-end gap-1.5 text-xs">
                       {/* 1-Click Quick Log Attempt */}
                       {onLog && (
@@ -258,9 +317,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           type="button"
                           onClick={() => onLog(problem)}
                           title={`Log attempt for "${problem.title}"`}
-                          className="px-2 py-1 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 hover:border-emerald-500/30 transition-all font-mono text-[11px] font-semibold flex items-center gap-1 shrink-0 mr-1"
+                          className="px-2.5 py-1 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 transition-all font-mono text-[11px] font-semibold flex items-center gap-1 shrink-0 shadow-sm active:scale-95 mr-1 cursor-pointer"
                         >
-                          <span className="text-xs leading-none font-bold">+</span>
+                          <Plus className="w-3 h-3 stroke-[2.5]" />
                           <span>Log</span>
                         </button>
                       )}
@@ -269,12 +328,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                       <Link
                         to={`/problems/${problem.id}`}
                         title="View problem details"
-                        className="p-1.5 rounded-lg text-[#6B6560] hover:text-[#F5F5F4] hover:bg-[#211F1D] border border-transparent hover:border-[#262320] transition-all"
+                        className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-transparent hover:border-white/[0.1] transition-all"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <Eye className="w-3.5 h-3.5" />
                       </Link>
 
                       {/* Edit Action */}
@@ -282,11 +338,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         type="button"
                         onClick={() => onEdit(problem)}
                         title="Edit problem details"
-                        className="p-1.5 rounded-lg text-[#6B6560] hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all"
+                        className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all cursor-pointer"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
 
                       {/* Delete Action */}
@@ -294,11 +348,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         type="button"
                         onClick={() => onDelete(problem)}
                         title="Delete problem"
-                        className="p-1.5 rounded-lg text-[#6B6560] hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all"
+                        className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>

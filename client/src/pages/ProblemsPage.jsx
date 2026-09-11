@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchProblems, deleteProblem } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
-import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen } from 'lucide-react';
+import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
@@ -12,17 +12,21 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 /* ── Difficulty / Status maps ─────────────────────────────────────── */
 const DIFF_STYLE = {
-  easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20'   },
-  hard:   { text: 'text-red-400',     bg: 'bg-red-500/10 border-red-500/20'       },
+  easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
+  medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',   dot: 'bg-amber-400' },
+  hard:   { text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25',     dot: 'bg-rose-400' },
 };
 const STATUS_CFG = {
-  solved:         { label: 'Solved',   dot: 'bg-emerald-400', text: 'text-emerald-400' },
-  struggled:      { label: 'Struggled',dot: 'bg-rose-400',    text: 'text-rose-400'    },
-  revisit_needed: { label: 'Revisit',  dot: 'bg-amber-400',   text: 'text-amber-400'   },
+  solved:         { label: 'Solved',   dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', glow: 'shadow-[0_0_8px_rgba(16,185,129,0.15)]' },
+  struggled:      { label: 'Struggled',dot: 'bg-rose-400',    text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25', glow: 'shadow-[0_0_8px_rgba(244,63,94,0.15)]' },
+  revisit_needed: { label: 'Revisit',  dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25', glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]' },
 };
 const PLATFORM_LABELS = {
-  leetcode: 'LC', gfg: 'GFG', codechef: 'CC', hackerrank: 'HR', other: 'Ext',
+  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-amber-400 bg-amber-500/10 border-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.08)]', dot: 'bg-amber-400' },
+  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.08)]', dot: 'bg-emerald-400' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-amber-300 bg-amber-600/10 border-amber-600/25 shadow-[0_0_8px_rgba(217,119,6,0.08)]', dot: 'bg-amber-300' },
+  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-green-400 bg-green-500/10 border-green-500/25 shadow-[0_0_8px_rgba(34,197,94,0.08)]', dot: 'bg-green-400' },
+  other:      { label: 'External', short: 'Ext', style: 'text-[#9CA3AF] bg-white/[0.04] border-white/[0.08]', dot: 'bg-[#9CA3AF]' },
 };
 
 /* ── View toggle icons ───────────────────────────────────────────── */
@@ -40,32 +44,34 @@ const GridIcon = () => (
 
 /* ── Mobile Problem Card (ultra polished touch card) ──────────────── */
 const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]' };
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]', dot: 'bg-zinc-400' };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
-  const platform = PLATFORM_LABELS[problem.platform] || problem.platform;
+  const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="panel p-4 bg-[#12151A] border-white/[0.08] flex flex-col gap-3 relative overflow-hidden transition-all duration-150 active:border-white/[0.2]">
+    <div className="panel p-4 bg-[#12151A] border-white/[0.08] flex flex-col gap-3 relative overflow-hidden transition-all duration-150 active:border-white/[0.2] rounded-2xl shadow-lg">
       {/* Top row: Difficulty + Platform on left, Status on right */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${diff.text} ${diff.bg}`}>
-            {problem.difficulty}
+          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg border ${diff.text} ${diff.bg}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot} animate-pulse`} />
+            <span>{problem.difficulty}</span>
           </span>
-          <span className="text-[10px] font-mono text-[#9CA3AF] px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.08]">
-            {platform}
+          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platform.style}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${platform.dot}`} />
+            <span>{platform.short}</span>
           </span>
         </div>
 
         {statusCfg ? (
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.07]">
-            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-            <span className={`text-[11px] font-medium ${statusCfg.text}`}>{statusCfg.label}</span>
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.glow}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
+            <span className="text-[11px] font-mono font-semibold">{statusCfg.label}</span>
           </div>
         ) : (
           <span className="text-[10px] font-mono text-[#6B7280] px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.07]">
-            New
+            Unattempted
           </span>
         )}
       </div>
@@ -83,7 +89,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="p-1 text-[#6B7280] hover:text-[#F3F4F6] active:text-[#FB923C] shrink-0"
+            className="p-1 text-[#6B7280] hover:text-[#F97316] active:text-[#FB923C] shrink-0"
             title="Open original problem"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -97,39 +103,47 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           {problem.topics?.slice(0, 3).map((t) => (
             <span
               key={t}
-              className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.06] text-[#9CA3AF]"
+              className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.08] text-[#9CA3AF]"
             >
               {t}
             </span>
           ))}
           {(problem.topics?.length || 0) > 3 && (
-            <span className="text-[10px] font-mono text-[#6B7280]">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.08] text-[#6B7280]">
               +{problem.topics.length - 3}
             </span>
           )}
         </div>
 
-        <span className="text-[10px] font-mono text-[#6B7280]">
+        <span className="text-[10px] font-mono text-[#9CA3AF]">
           {problem.attemptCount > 0 ? `${problem.attemptCount} attempt${problem.attemptCount > 1 ? 's' : ''}` : 'No attempts'}
         </span>
       </div>
 
       {/* Bottom actions row */}
-      <div className="flex items-center gap-2 pt-2 border-t border-white/[0.06]">
+      <div className="flex items-center gap-2 pt-2.5 border-t border-white/[0.06]">
         {onLog && (
           <button
             onClick={() => onLog(problem)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 active:bg-emerald-500/25 transition-all shadow-sm"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 active:bg-emerald-500/25 transition-all shadow-sm cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Attempt</span>
           </button>
         )}
 
+        <Link
+          to={`/problems/${problem.id}`}
+          aria-label="View problem details"
+          className="p-2 rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-[#22262E] active:text-[#F3F4F6] transition-colors"
+        >
+          <Eye className="w-3.5 h-3.5" />
+        </Link>
+
         <button
           onClick={() => onEdit(problem)}
           aria-label="Edit problem"
-          className="p-2 rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-[#22262E] active:text-[#F3F4F6] transition-colors"
+          className="p-2 rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-amber-500/10 active:text-amber-400 transition-colors cursor-pointer"
         >
           <Edit2 className="w-3.5 h-3.5" />
         </button>
@@ -137,7 +151,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <button
           onClick={() => onDelete(problem)}
           aria-label="Delete problem"
-          className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 active:bg-rose-500/25 transition-colors"
+          className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 active:bg-rose-500/25 transition-colors cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -150,7 +164,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
 const MobileProblemSkeleton = () => (
   <div className="space-y-3">
     {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="panel p-4 bg-[#12151A] border-white/[0.08] space-y-3 animate-pulse">
+      <div key={i} className="panel p-4 bg-[#12151A] border-white/[0.08] space-y-3 animate-pulse rounded-2xl">
         <div className="flex justify-between">
           <div className="h-4 w-20 shimmer rounded-md" />
           <div className="h-4 w-16 shimmer rounded-md" />
@@ -172,8 +186,8 @@ const MobileProblemSkeleton = () => (
 
 /* ── Mobile Empty State ───────────────────────────────────────────── */
 const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
-  <div className="panel p-8 text-center border-dashed border-white/[0.1] bg-[#121418] space-y-3">
-    <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto text-[#9CA3AF]">
+  <div className="panel p-8 text-center border-dashed border-white/[0.1] bg-[#121418] space-y-3 rounded-2xl">
+    <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto text-[#9CA3AF] shadow-sm">
       <FolderOpen className="w-6 h-6" />
     </div>
     <h3 className="text-sm font-bold text-[#F3F4F6]">No problems found</h3>
@@ -194,18 +208,47 @@ const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
 
 /* ── Problem Card (desktop card/grid view) ────────────────────────── */
 const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]' };
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]', dot: 'bg-zinc-400' };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
-  const platform = PLATFORM_LABELS[problem.platform] || problem.platform;
+  const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="panel p-4 flex flex-col gap-3 hover:-translate-y-0.5 hover:border-white/[0.18] hover:shadow-2xl hover:shadow-black/70 transition-all duration-200 group bg-[#131519] border-white/[0.08]">
-      {/* Top row */}
-      <div className="flex items-start justify-between gap-2">
+    <div className="panel p-4 sm:p-5 flex flex-col gap-3.5 bg-[#121418] hover:bg-[#15181E] border border-white/[0.08] hover:border-[#F97316]/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.6)] hover:-translate-y-1 transition-all duration-200 group relative rounded-2xl overflow-hidden">
+      {/* Subtle top corner ambient glow */}
+      <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#F97316]/5 group-hover:bg-[#F97316]/15 blur-2xl rounded-full pointer-events-none transition-all duration-300" />
+
+      {/* Top row: Difficulty & Platform chips */}
+      <div className="flex items-center justify-between gap-2 relative z-10">
+        <div className="flex items-center gap-1.5">
+          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg border ${diff.text} ${diff.bg}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot} animate-pulse`} />
+            <span>{problem.difficulty}</span>
+          </span>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platform.style}`} title={platform.label}>
+            <span className={`w-1.5 h-1.5 rounded-full ${platform.dot}`} />
+            <span>{platform.short}</span>
+          </span>
+        </div>
+
+        {statusCfg ? (
+          <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-lg border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.glow}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
+            <span>{statusCfg.label}</span>
+          </span>
+        ) : (
+          <span className="text-[10px] font-mono text-[#6B7280] px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.06]">
+            Unattempted
+          </span>
+        )}
+      </div>
+
+      {/* Problem Title & External Link */}
+      <div className="flex items-start justify-between gap-2 relative z-10">
         <Link
           to={`/problems/${problem.id}`}
-          className="text-sm font-semibold text-[#F3F4F6] group-hover:text-[#FB923C] transition-colors leading-snug line-clamp-2 flex-1"
+          className="text-sm font-semibold text-[#F3F4F6] group-hover:text-[#FB923C] transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
+          title={problem.title}
         >
           {problem.title}
         </Link>
@@ -214,81 +257,76 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="text-[#6B7280] hover:text-[#9CA3AF] transition-colors shrink-0 text-xs mt-0.5"
+            className="text-[#6B7280] hover:text-[#F97316] transition-colors shrink-0 p-1 -m-1 rounded hover:bg-white/[0.05]"
+            title="Open original problem in new tab"
           >
-            ↗
+            <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
           </a>
         )}
       </div>
 
       {/* Topics */}
       {problem.topics?.length > 0 && (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 relative z-10">
           {problem.topics.slice(0, 3).map((t) => (
-            <span key={t} className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07] text-[#9CA3AF]">
+            <span key={t} className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#9CA3AF] group-hover:border-white/[0.14] transition-colors">
               {t}
             </span>
           ))}
           {problem.topics.length > 3 && (
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07] text-[#6B7280]">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#6B7280]" title={problem.topics.slice(3).join(', ')}>
               +{problem.topics.length - 3}
             </span>
           )}
         </div>
       )}
 
-      {/* Footer */}
-      <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/[0.06]">
-        <div className="flex items-center gap-2">
-          {/* Difficulty badge */}
-          <span className={`text-[10px] font-semibold capitalize px-2 py-0.5 rounded-lg border ${diff.text} ${diff.bg}`}>
-            {problem.difficulty}
-          </span>
-          {/* Platform */}
-          <span className="text-[10px] font-mono text-[#9CA3AF] px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.07]">
-            {platform}
-          </span>
-        </div>
+      {/* Sessions info & action buttons */}
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/[0.06] text-xs relative z-10">
+        <span className="font-mono text-[11px] text-[#6B7280]">
+          {problem.attemptCount > 0 ? (
+            <span className="text-[#9CA3AF] font-semibold">{problem.attemptCount} attempt{problem.attemptCount > 1 ? 's' : ''}</span>
+          ) : (
+            'No attempts'
+          )}
+        </span>
 
-        {/* Status */}
-        {statusCfg ? (
-          <div className="flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-            <span className={`text-[10px] font-medium ${statusCfg.text}`}>{statusCfg.label}</span>
-          </div>
-        ) : (
-          <span className="text-[10px] text-[#6B7280] font-mono">—</span>
-        )}
-      </div>
-
-      {/* Hover actions */}
-      <div className="flex items-center gap-1.5 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        {onLog && (
-          <button
-            onClick={() => onLog(problem)}
-            className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 transition-colors"
+        <div className="flex items-center gap-1.5">
+          {onLog && (
+            <button
+              type="button"
+              onClick={() => onLog(problem)}
+              className="px-2.5 py-1 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 text-[11px] font-mono font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-sm"
+              title="Log practice attempt"
+            >
+              <Plus className="w-3 h-3 stroke-[2.5]" />
+              <span>Log</span>
+            </button>
+          )}
+          <Link
+            to={`/problems/${problem.id}`}
+            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-transparent hover:border-white/[0.1] transition-all"
+            title="View Details"
           >
-            + Log
+            <Eye className="w-3.5 h-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => onEdit(problem)}
+            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all cursor-pointer"
+            title="Edit problem"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
           </button>
-        )}
-        <Link
-          to={`/problems/${problem.id}`}
-          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/25 hover:bg-[#F97316]/20 transition-colors"
-        >
-          Open
-        </Link>
-        <button
-          onClick={() => onEdit(problem)}
-          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] hover:bg-[#20242A] transition-colors"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(problem)}
-          className="flex-1 text-center text-[10px] font-semibold py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/25 hover:bg-rose-500/20 transition-colors"
-        >
-          Delete
-        </button>
+          <button
+            type="button"
+            onClick={() => onDelete(problem)}
+            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+            title="Delete problem"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );
