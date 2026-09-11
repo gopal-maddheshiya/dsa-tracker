@@ -125,18 +125,98 @@ const login = async (req, res, next) => {
 };
 
 /**
+ * @route   POST /api/auth/google
+ * @desc    Authenticate or register user with Google OAuth ID token
+ * @access  Public
+ */
+const googleAuth = async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google credential token is required',
+      });
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID || '214396186358-rqb9it5bmsl3uedv1hn5kk5ls6jeotnk.apps.googleusercontent.com';
+    const client = new OAuth2Client(clientId);
+
+    // Verify Google ID Token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: clientId,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Google token payload',
+      });
+    }
+
+    const { sub: googleId, email, name, picture } = payload;
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if user exists by googleId or email
+    let user = await User.findOne({
+      $or: [{ googleId }, { email: normalizedEmail }],
+    });
+
+    if (user) {
+      let shouldSave = false;
+      if (!user.googleId) {
+        user.googleId = googleId;
+        shouldSave = true;
+      }
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+        shouldSave = true;
+      }
+      if (shouldSave) {
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name: name ? name.trim() : 'Google User',
+        email: normalizedEmail,
+        googleId,
+        avatar: picture || null,
+      });
+    }
+
+    // Generate internal JWT token
+    const token = generateToken(user._id);
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user: user.toSafeObject(),
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error.message);
+    return res.status(401).json({
+      success: false,
+      message: 'Google authentication failed: ' + error.message,
+    });
+  }
+};
+
+/**
  * @route   GET /api/auth/me
  * @desc    Get currently authenticated user details
  * @access  Private (Bearer token required)
  */
 const getMe = async (req, res) => {
-  // req.user is populated by protect middleware
   return res.status(200).json({
     success: true,
     user: req.user.toSafeObject ? req.user.toSafeObject() : {
       id: req.user._id.toString(),
       name: req.user.name,
       email: req.user.email,
+      avatar: req.user.avatar || null,
       createdAt: req.user.createdAt,
     },
   });
@@ -145,5 +225,6 @@ const getMe = async (req, res) => {
 module.exports = {
   signup,
   login,
+  googleAuth,
   getMe,
 };

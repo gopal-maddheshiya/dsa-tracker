@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -9,7 +10,7 @@ const LoginPage = () => {
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
@@ -32,6 +33,22 @@ const LoginPage = () => {
     setIsSubmitting(false);
     if (result.success) navigate(from, { replace: true });
     else setApiError(result.message);
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setApiError('');
+    setIsSubmitting(true);
+    const result = await googleLogin(credentialResponse.credential);
+    setIsSubmitting(false);
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
+      setApiError(result.message);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setApiError('Google sign in was cancelled or failed.');
   };
 
   return (
@@ -144,6 +161,25 @@ const LoginPage = () => {
                 ) : 'Sign in'}
               </button>
             </form>
+
+            {/* Google Sign In */}
+            <div className="mt-4 flex flex-col items-center justify-center">
+              <div className="w-full flex items-center gap-3 my-3">
+                <div className="flex-1 h-[1px] bg-white/[0.08]" />
+                <span className="text-[11px] font-mono uppercase tracking-wider text-[#6B7280]">or continue with</span>
+                <div className="flex-1 h-[1px] bg-white/[0.08]" />
+              </div>
+              <div className="w-full flex justify-center [&>div]:w-full [&>div>iframe]:mx-auto">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  theme="filled_black"
+                  shape="pill"
+                  size="large"
+                  text="continue_with"
+                />
+              </div>
+            </div>
 
             {/* Demo helper */}
             <div className="mt-5 p-3 rounded-xl bg-[#0E1015] border border-white/[0.08]">

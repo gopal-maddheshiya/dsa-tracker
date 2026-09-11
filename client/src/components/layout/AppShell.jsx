@@ -144,9 +144,13 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose, streak }) => 
         {collapsed ? (
           <>
             {/* Avatar only */}
-            <div className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.12)]">
-              <span className="text-[11px] font-bold text-[#F97316] font-mono">{initials}</span>
-            </div>
+            {user?.avatar ? (
+              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-xl object-cover border border-[#F97316]/30 shadow-[0_0_10px_rgba(249,115,22,0.12)]" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.12)]">
+                <span className="text-[11px] font-bold text-[#F97316] font-mono">{initials}</span>
+              </div>
+            )}
             <button
               onClick={handleLogout}
               className="p-2 rounded-xl text-[#6B7280] hover:text-rose-400 hover:bg-rose-500/10 transition-all"
@@ -158,9 +162,13 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose, streak }) => 
         ) : (
           <div className="flex items-center gap-2.5 p-1">
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(249,115,22,0.12)]">
-              <span className="text-[11px] font-bold text-[#F97316] font-mono">{initials}</span>
-            </div>
+            {user?.avatar ? (
+              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-xl object-cover border border-[#F97316]/30 shrink-0 shadow-[0_0_10px_rgba(249,115,22,0.12)]" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(249,115,22,0.12)]">
+                <span className="text-[11px] font-bold text-[#F97316] font-mono">{initials}</span>
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-[#F3F4F6] truncate">
                 {user?.name || 'User'}
@@ -294,12 +302,16 @@ const AppShell = ({ children }) => {
             )}
             <NavLink
               to="/profile"
-              className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.12)] text-[11px] font-bold text-[#F97316] font-mono active:scale-95 transition-transform"
+              className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.12)] text-[11px] font-bold text-[#F97316] font-mono active:scale-95 transition-transform overflow-hidden"
               title="My Profile"
             >
-              {user?.name
-                ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
-                : (user?.email?.[0] ?? 'U').toUpperCase()}
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              ) : (
+                user?.name
+                  ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+                  : (user?.email?.[0] ?? 'U').toUpperCase()
+              )}
             </NavLink>
           </div>
         </header>

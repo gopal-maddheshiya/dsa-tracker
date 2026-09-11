@@ -18,7 +18,17 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: [true, 'Password hash is required'],
+      required: false,
+    },
+    googleId: {
+      type: String,
+      default: null,
+      sparse: true,
+      index: true,
+    },
+    avatar: {
+      type: String,
+      default: null,
     },
     createdAt: {
       type: Date,
@@ -33,6 +43,7 @@ const userSchema = new mongoose.Schema(
 
 // Method to verify candidate password against hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.passwordHash) return false;
   return await bcrypt.compare(enteredPassword, this.passwordHash);
 };
 
@@ -42,6 +53,8 @@ userSchema.methods.toSafeObject = function () {
     id: this._id.toString(),
     name: this.name,
     email: this.email,
+    avatar: this.avatar,
+    hasPassword: !!this.passwordHash,
     createdAt: this.createdAt,
   };
 };
