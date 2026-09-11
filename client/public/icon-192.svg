@@ -1,17 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
   <defs>
-    <radialGradient id="pwaGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FB923C" />
-      <stop offset="100%" stop-color="#EA580C" />
-    </radialGradient>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#14171F" />
-      <stop offset="100%" stop-color="#0A0C10" />
+    <linearGradient id="primaryGrad192" x1="12" y1="12" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF7A00"/>
+      <stop offset="50%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#EA580C"/>
     </linearGradient>
+    <linearGradient id="bgGrad192" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#141822"/>
+      <stop offset="100%" stop-color="#0A0D14"/>
+    </linearGradient>
+    <radialGradient id="neonGlow192" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9E00" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F97316" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="192" height="192" rx="48" fill="url(#bgGrad)"/>
-  <rect x="3" y="3" width="186" height="186" rx="45" fill="none" stroke="#F97316" stroke-opacity="0.3" stroke-width="3"/>
-  <circle cx="96" cy="96" r="54" fill="none" stroke="#F97316" stroke-opacity="0.2" stroke-width="4"/>
-  <circle cx="96" cy="96" r="30" fill="url(#pwaGlow)"/>
-  <circle cx="96" cy="96" r="14" fill="#FFF" fill-opacity="0.35"/>
+
+  <rect width="192" height="192" rx="46" fill="url(#bgGrad192)"/>
+  <rect x="4" y="4" width="184" height="184" rx="42" stroke="url(#primaryGrad192)" stroke-width="7" stroke-opacity="0.6"/>
+
+  <circle cx="96" cy="96" r="54" fill="url(#neonGlow192)"/>
+
+  <!-- Code Bracket Left < -->
+  <path d="M64 64L34 96L64 128" stroke="url(#primaryGrad192)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Code Bracket Right > -->
+  <path d="M128 64L158 96L128 128" stroke="url(#primaryGrad192)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Lightning Bolt -->
+  <path d="M106 52L82 92H104L84 140" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

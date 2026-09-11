@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from './ui/BrandLogo';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -17,14 +18,10 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-14">
           {/* Brand */}
           <div className="flex items-center gap-6">
-            <NavLink to="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#F97316]/10 border border-[#F97316]/20">
-                <span className="w-2 h-2 rounded-full bg-[#F97316] dot-pulse" />
-              </div>
-              <span className="font-bold text-sm tracking-tight text-[#F5F5F4]">
-                DSA<span className="text-[#F97316]">Tracker</span>
-              </span>
+            <NavLink to="/dashboard" className="flex items-center">
+              <BrandLogo size="md" />
             </NavLink>
+
 
             {isAuthenticated && (
               <nav className="hidden md:flex items-center gap-1">

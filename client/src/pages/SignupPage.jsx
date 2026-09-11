@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
 import Rotating3DCube from '../components/auth/Rotating3DCube';
+import BrandLogo from '../components/ui/BrandLogo';
 import { ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 const SignupPage = () => {
@@ -141,17 +142,10 @@ const SignupPage = () => {
         {/* Top Brand Header */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/25 shadow-[0_0_20px_rgba(249,115,22,0.2)]">
-              <span className="w-2 h-2 rounded-full bg-[#F97316] dot-pulse" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg text-white tracking-tight">
-                DSA<span className="text-[#F97316]">Tracker</span>
-              </span>
-              <span className="text-[9.5px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 tracking-wider">
-                PRO PREP
-              </span>
-            </div>
+            <BrandLogo size="lg" />
+            <span className="text-[9.5px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 tracking-wider">
+              PRO PREP
+            </span>
           </div>
         </div>
 
@@ -185,14 +179,10 @@ const SignupPage = () => {
         <div className="w-full max-w-[400px] relative animate-fade-up">
 
           {/* Mobile brand (hidden on lg) */}
-          <div className="lg:hidden flex items-center justify-center gap-2.5 mb-8">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] dot-pulse" />
-            </div>
-            <div className="font-bold text-white text-xl tracking-tight">
-              DSA<span className="text-[#F97316]">Tracker</span>
-            </div>
+          <div className="lg:hidden flex items-center justify-center mb-8">
+            <BrandLogo size="lg" />
           </div>
+
 
           {/* Floating Luxury Auth Card */}
           <div className="relative p-7 sm:p-8 rounded-2xl bg-[#11141B]/95 backdrop-blur-xl border border-white/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.7),0_1px_1px_rgba(255,255,255,0.06)]">

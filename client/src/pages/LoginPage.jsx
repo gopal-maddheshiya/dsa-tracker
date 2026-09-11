@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
 import Rotating3DCube from '../components/auth/Rotating3DCube';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
+import BrandLogo from '../components/ui/BrandLogo';
 import {
   Flame,
   Sparkles,
@@ -119,17 +120,10 @@ const LoginPage = () => {
         {/* Top Brand Header */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/25 shadow-[0_0_20px_rgba(249,115,22,0.2)]">
-              <span className="w-2 h-2 rounded-full bg-[#F97316] dot-pulse" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg text-white tracking-tight">
-                DSA<span className="text-[#F97316]">Tracker</span>
-              </span>
-              <span className="text-[9.5px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 tracking-wider">
-                PRO PREP
-              </span>
-            </div>
+            <BrandLogo size="lg" />
+            <span className="text-[9.5px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 tracking-wider">
+              PRO PREP
+            </span>
           </div>
         </div>
 
@@ -163,14 +157,10 @@ const LoginPage = () => {
         <div className="w-full max-w-[400px] relative animate-fade-up">
 
           {/* Mobile brand (hidden on lg) */}
-          <div className="lg:hidden flex items-center justify-center gap-2.5 mb-8">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] dot-pulse" />
-            </div>
-            <div className="font-bold text-white text-xl tracking-tight">
-              DSA<span className="text-[#F97316]">Tracker</span>
-            </div>
+          <div className="lg:hidden flex items-center justify-center mb-8">
+            <BrandLogo size="lg" />
           </div>
+
 
           {/* Floating Luxury Auth Card */}
           <div className="relative p-7 sm:p-8 rounded-2xl bg-[#11141B]/95 backdrop-blur-xl border border-white/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.7),0_1px_1px_rgba(255,255,255,0.06)]">
@@ -288,29 +278,34 @@ const LoginPage = () => {
             </form>
 
             {/* Instant 1-Click Demo Login Card */}
-            <div className="mt-5 p-3.5 rounded-2xl bg-[#0E1015] border border-orange-500/25 shadow-[0_4px_20px_rgba(249,115,22,0.08)] flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 shadow-sm">
-                  <Zap className="w-4 h-4 fill-orange-500/30" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold text-slate-100 truncate">Demo Guest Access</span>
-                    <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold">1-Click</span>
+            <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-[#11141B] to-[#0D0F14] border border-orange-500/25 hover:border-orange-500/40 shadow-[0_4px_20px_rgba(249,115,22,0.1)] transition-all">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 shadow-xs">
+                    <Zap className="w-3.5 h-3.5 fill-orange-500/30" />
                   </div>
-                  <p className="text-[11px] font-mono text-slate-400 truncate mt-0.5">Explore with 35 preloaded problems & streaks</p>
+                  <span className="text-xs font-bold text-slate-100">Demo Guest Access</span>
                 </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/25 font-bold tracking-wider shrink-0">
+                  1-CLICK
+                </span>
               </div>
+              
+              <p className="text-[11px] font-mono text-slate-400 mb-3 leading-relaxed">
+                Explore full dashboard with 35 preloaded DSA problems & streaks.
+              </p>
+
               <button
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleInstantDemoLogin}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_2px_12px_rgba(249,115,22,0.3)] transition-all active:scale-95 cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+                className="w-full h-9 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_2px_12px_rgba(249,115,22,0.25)] transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
-                <span>Demo Sign In</span>
+                <span>Launch Instant Demo</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
+
 
             {/* Bottom Sign-Up Link */}
             <p className="mt-5 text-center text-xs text-slate-400">

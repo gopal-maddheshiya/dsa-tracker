@@ -5,6 +5,7 @@ import { fetchProfileAnalytics } from '../../api/analytics';
 import InstallAppBanner from './InstallAppBanner';
 import ProblemForm from '../ProblemForm';
 import CommandPalette from '../ui/CommandPalette';
+import BrandLogo from '../ui/BrandLogo';
 import {
   LayoutDashboard,
   Code2,
@@ -81,14 +82,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose, streak }) => 
       {/* ── Logo ──────────────────────────────── */}
       <div className="flex items-center h-[60px] px-3.5 border-b border-white/[0.08] shrink-0">
         <NavLink to="/dashboard" className="flex items-center gap-2.5 min-w-0" onClick={onMobileClose}>
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#F97316]/12 border border-[#F97316]/25 shrink-0 shadow-[0_0_12px_rgba(249,115,22,0.15)]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] dot-pulse" />
-          </div>
-          {!collapsed && (
-            <span className="font-bold text-sm tracking-tight text-[#F3F4F6] truncate">
-              DSA<span className="text-[#F97316]">Tracker</span>
-            </span>
-          )}
+          <BrandLogo size="md" showText={!collapsed} />
         </NavLink>
         {/* Desktop collapse toggle */}
         {!collapsed && (
@@ -363,11 +357,8 @@ const AppShell = ({ children }) => {
             </button>
 
             {/* Mobile logo */}
-            <NavLink to="/dashboard" className="flex items-center gap-2 lg:hidden">
-              <div className="w-7 h-7 rounded-lg bg-[#F97316]/12 border border-[#F97316]/25 flex items-center justify-center">
-                <span className="w-2 h-2 rounded-full bg-[#F97316] dot-pulse" />
-              </div>
-              <span className="font-bold text-sm text-[#F3F4F6]">DSA<span className="text-[#F97316]">Tracker</span></span>
+            <NavLink to="/dashboard" className="flex items-center lg:hidden">
+              <BrandLogo size="sm" showText={true} />
             </NavLink>
 
             {/* Desktop Breadcrumbs */}

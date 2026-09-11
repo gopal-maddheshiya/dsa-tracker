@@ -22,7 +22,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 const RouteLoader = () => (
   <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-up">
     <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(249,115,22,0.15)]">
-      <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] dot-pulse" />
+      <span className="w-4 h-4 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
     </div>
     <span className="text-[11px] font-mono text-slate-500 uppercase tracking-widest">
       Loading workspace…
