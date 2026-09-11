@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchProfileAnalytics } from '../../api/analytics';
+import InstallAppBanner from './InstallAppBanner';
 import {
   LayoutDashboard,
   Code2,
@@ -330,6 +331,9 @@ const AppShell = ({ children }) => {
           </p>
         </footer>
       </div>
+
+      {/* PWA Install Prompt Banner */}
+      <InstallAppBanner />
     </div>
   );
 };

@@ -1,0 +1,35 @@
+{
+  "name": "DSA Tracker — Technical Interview Preparation",
+  "short_name": "DSATracker",
+  "description": "Master Data Structures & Algorithms with deterministic spaced repetition, velocity tracking, and topic weakness analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0B0D",
+  "theme_color": "#0A0B0D",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "32x32",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "education",
+    "developer",
+    "productivity"
+  ]
+}

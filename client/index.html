@@ -10,11 +10,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <meta name="theme-color" content="#0A0B0D" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DSATracker" />
   </head>
   <body class="bg-[#0A0B0D] text-[#F3F4F6] antialiased min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+            console.warn('SW registration skipped:', err);
+          });
+        });
+      }
+    </script>
   </body>
 </html>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <radialGradient id="pwaGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </radialGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14171F" />
+      <stop offset="100%" stop-color="#0A0C10" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="48" fill="url(#bgGrad)"/>
+  <rect x="3" y="3" width="186" height="186" rx="45" fill="none" stroke="#F97316" stroke-opacity="0.3" stroke-width="3"/>
+  <circle cx="96" cy="96" r="54" fill="none" stroke="#F97316" stroke-opacity="0.2" stroke-width="4"/>
+  <circle cx="96" cy="96" r="30" fill="url(#pwaGlow)"/>
+  <circle cx="96" cy="96" r="14" fill="#FFF" fill-opacity="0.35"/>
+</svg>
