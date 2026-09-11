@@ -85,9 +85,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Google login handler
-  const googleLogin = async (credential) => {
+  const googleLogin = async (tokenPayload) => {
     try {
-      const response = await api.post('/auth/google', { credential });
+      const body = typeof tokenPayload === 'string'
+        ? { credential: tokenPayload }
+        : tokenPayload;
+      const response = await api.post('/auth/google', body);
       const { token: receivedToken, user: receivedUser } = response.data;
 
       localStorage.setItem('token', receivedToken);

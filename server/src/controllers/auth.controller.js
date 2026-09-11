@@ -131,33 +131,52 @@ const login = async (req, res, next) => {
  */
 const googleAuth = async (req, res, next) => {
   try {
-    const { credential } = req.body;
+    const { credential, accessToken } = req.body;
 
-    if (!credential) {
+    if (!credential && !accessToken) {
       return res.status(400).json({
         success: false,
-        message: 'Google credential token is required',
+        message: 'Google credential or access token is required',
       });
     }
 
     const clientId = process.env.GOOGLE_CLIENT_ID || '214396186358-rqb9it5bmsl3uedv1hn5kk5ls6jeotnk.apps.googleusercontent.com';
-    const client = new OAuth2Client(clientId);
+    let googleId, email, name, picture;
 
-    // Verify Google ID Token
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: clientId,
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid Google token payload',
+    if (credential) {
+      const client = new OAuth2Client(clientId);
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: clientId,
       });
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid Google token payload',
+        });
+      }
+      googleId = payload.sub;
+      email = payload.email;
+      name = payload.name;
+      picture = payload.picture;
+    } else if (accessToken) {
+      const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!userInfoRes.ok) {
+        return res.status(401).json({
+          success: false,
+          message: 'Failed to retrieve Google user profile',
+        });
+      }
+      const userInfo = await userInfoRes.json();
+      googleId = userInfo.sub;
+      email = userInfo.email;
+      name = userInfo.name;
+      picture = userInfo.picture;
     }
 
-    const { sub: googleId, email, name, picture } = payload;
     const normalizedEmail = email.trim().toLowerCase();
 
     // Check if user exists by googleId or email

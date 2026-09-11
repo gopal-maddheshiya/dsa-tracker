@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
+import GoogleButton from '../components/auth/GoogleButton';
 import { BarChart3, Flame, Trophy } from 'lucide-react';
 
 const SignupPage = () => {
@@ -191,16 +191,12 @@ const SignupPage = () => {
                 <span className="text-[11px] font-mono uppercase tracking-wider text-[#6B7280]">or sign up with</span>
                 <div className="flex-1 h-[1px] bg-white/[0.08]" />
               </div>
-              <div className="w-full flex justify-center [&>div]:w-full [&>div>iframe]:mx-auto">
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  theme="filled_black"
-                  shape="pill"
-                  size="large"
-                  text="signup_with"
-                />
-              </div>
+              <GoogleButton
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="Sign up with Google"
+                disabled={isSubmitting}
+              />
             </div>
 
             <div className="mt-5 pt-4 border-t border-white/[0.08] text-center text-xs text-[#9CA3AF]">
