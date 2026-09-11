@@ -10,11 +10,12 @@ import { useToast } from '../context/ToastContext';
 import { fetchProblems } from '../api/problems';
 import EditProfileModal from '../components/profile/EditProfileModal';
 import DataImportModal from '../components/profile/DataImportModal';
+import MilestoneDetailModal from '../components/profile/MilestoneDetailModal';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
   TrendingUp, BarChart3, Trophy, Layers, Download, FileJson, FileSpreadsheet, Database,
-  Settings, Upload
+  Settings, Upload, Lock, Sparkles
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -646,6 +647,8 @@ const ProfilePage = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [milestoneFilter, setMilestoneFilter] = useState('all'); // 'all' | 'earned'
+  const [selectedMilestone, setSelectedMilestone] = useState(null);
 
   const handleExportData = async (format = 'json') => {
     setIsExporting(true);
@@ -730,15 +733,30 @@ const ProfilePage = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 relative">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold font-mono"
-              style={{
-                background: 'linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.06))',
-                border: '2px solid rgba(249,115,22,0.35)',
-                color: '#F97316',
-                boxShadow: '0 0 24px rgba(249,115,22,0.2)',
-              }}>
-              {initials}
-            </div>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user?.name || 'User'}
+                className="w-16 h-16 rounded-2xl object-cover border-2 transition-all shadow-xl"
+                style={{
+                  borderColor: `${rank.color}66`,
+                  boxShadow: `0 0 24px ${rank.color}33`,
+                }}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold font-mono transition-all shadow-xl"
+                style={{
+                  background: `linear-gradient(135deg, ${rank.color}33, ${rank.color}0D)`,
+                  border: `2px solid ${rank.color}66`,
+                  color: rank.color,
+                  boxShadow: `0 0 24px ${rank.color}33`,
+                }}
+              >
+                {initials}
+              </div>
+            )}
             {profile?.currentStreak > 0 && (
               <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg bg-[#0D0F13] border border-white/[0.1] flex items-center justify-center shadow-md">
                 <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
@@ -796,28 +814,30 @@ const ProfilePage = () => {
 
             {/* Rank progress bar (if not max rank) */}
             {rank.next && (
-              <div className="mt-3.5 max-w-xs">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-mono text-[#9CA3AF] flex items-center gap-1">
-                    {rank.Icon && <rank.Icon className="w-2.5 h-2.5" />}
-                    {rank.label}
+              <div className="mt-3.5 max-w-sm">
+                <div className="flex items-center justify-between mb-1 text-[11px] font-mono">
+                  <span className="text-[#9CA3AF] flex items-center gap-1">
+                    {rank.Icon && <rank.Icon className="w-3 h-3 text-orange-400" />}
+                    <span className="font-semibold text-[#F3F4F6]">{rank.label}</span>
                   </span>
-                  <span className="text-[10px] font-mono text-[#9CA3AF] flex items-center gap-1">
-                    {rank.next.Icon && <rank.next.Icon className="w-2.5 h-2.5" />}
-                    {rank.next.label}
+                  <span className="text-orange-400 font-semibold flex items-center gap-1">
+                    <span>{Math.round(rank.progress)}%</span>
+                    <span className="text-[#6B7280]">to {rank.next.label}</span>
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full overflow-hidden bg-white/[0.08]">
+                <div className="h-2 rounded-full overflow-hidden bg-white/[0.08] p-0.5">
                   <div
                     className="h-full rounded-full bar-animated"
                     style={{
                       width: `${Math.min(rank.progress, 100)}%`,
-                      background: `linear-gradient(90deg, ${rank.color}99, ${rank.next.color})`,
+                      background: `linear-gradient(90deg, ${rank.color}, ${rank.next.color})`,
+                      boxShadow: `0 0 10px ${rank.color}66`,
                     }}
                   />
                 </div>
-                <p className="text-[10px] font-mono text-[#6B7280] mt-1">
-                  {profile?.totalSolved ?? 0}/{rank.next.min} solved to rank up
+                <p className="text-[10px] font-mono text-[#6B7280] mt-1 flex items-center justify-between">
+                  <span>{profile?.totalSolved ?? 0} problems solved</span>
+                  <span>Goal: {rank.next.min} solved</span>
                 </p>
               </div>
             )}
@@ -959,40 +979,116 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* ── Milestone Badges ────────────────────────────────────── */}
-      <div className="panel p-5">
-        <div className="flex items-start justify-between mb-5">
+      {/* ── Milestone Hall of Fame ─────────────────────────────── */}
+      <div className="panel p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#F3F4F6]">Milestones</h2>
-            <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Achievements unlocked</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-[#F3F4F6]">Milestone Hall of Fame</h2>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                {profile?.badges?.length ?? 0} / {ALL_MILESTONES.length} Unlocked
+              </span>
+            </div>
+            <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Click any milestone badge to inspect unlock criteria & your progress</p>
           </div>
-          <Badge variant="gold" size="xs">{profile?.badges?.length ?? 0} earned</Badge>
+
+          {/* Segmented Filter Pills */}
+          <div className="flex items-center p-1 bg-[#0E1014] border border-white/[0.08] rounded-xl text-xs shrink-0 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setMilestoneFilter('all')}
+              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                milestoneFilter === 'all'
+                  ? 'bg-white/[0.1] text-[#F3F4F6] shadow-xs'
+                  : 'text-[#9CA3AF] hover:text-[#D1D5DB]'
+              }`}
+            >
+              All ({ALL_MILESTONES.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setMilestoneFilter('earned')}
+              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                milestoneFilter === 'earned'
+                  ? 'bg-white/[0.1] text-[#F3F4F6] shadow-xs'
+                  : 'text-[#9CA3AF] hover:text-[#D1D5DB]'
+              }`}
+            >
+              Earned ({profile?.badges?.length ?? 0})
+            </button>
+          </div>
         </div>
 
-        {profile?.badges?.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {profile.badges.map((badge) => (
-                <div key={badge.id}
-                  className="badge-card flex flex-col items-center gap-3 p-4 rounded-2xl border border-white/[0.08] bg-[#0E1014] hover:border-[#F97316]/35 hover:bg-[#15181D] transition-all duration-200 text-center group">
-                  <MilestoneBadgeIcon id={badge.id} size={22} />
-                  <div>
-                    <p className="text-xs font-semibold text-[#F3F4F6]">{badge.label}</p>
-                    <p className="text-[10px] text-[#9CA3AF] font-mono mt-0.5">{badge.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <NextBadgeTeaser profile={profile} />
-          </>
-        ) : (
+        {milestoneFilter === 'earned' && (!profile?.badges || profile.badges.length === 0) ? (
           <div className="border border-dashed border-white/[0.1] rounded-2xl p-10 text-center">
             <Target className="w-8 h-8 text-[#9CA3AF] mx-auto mb-2" />
-            <p className="text-xs text-[#9CA3AF] font-mono">Start solving problems to earn badges!</p>
+            <p className="text-xs text-[#9CA3AF] font-mono">No badges earned yet. Solve your first problem to kickstart your journey!</p>
             <Link to="/problems" className="btn-primary inline-flex mt-4 text-xs">
-              + Add a Problem
+              + Catalog a Problem
             </Link>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              {(milestoneFilter === 'earned'
+                ? ALL_MILESTONES.filter(m => m.check(profile || {}))
+                : ALL_MILESTONES
+              ).map((m) => {
+                const isUnlocked = m.check ? m.check(profile || {}) : false;
+                const currentMetric = m.metric ? m.metric(profile || {}) : 0;
+                const pct = Math.min(100, Math.round((currentMetric / m.target) * 100));
+                const conf = MILESTONE_CONFIG[m.id] || { Icon: Award, color: '#F97316', bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.3)' };
+
+                return (
+                  <div
+                    key={m.id}
+                    onClick={() => setSelectedMilestone({ ...m, iconComponent: conf.Icon, ...conf })}
+                    className={`badge-card flex flex-col items-center p-3.5 rounded-2xl border transition-all duration-200 text-center cursor-pointer group select-none relative ${
+                      isUnlocked
+                        ? 'border-white/[0.1] bg-[#0E1014] hover:border-[#F97316]/50 hover:bg-[#15181E] shadow-sm hover:scale-[1.02]'
+                        : 'border-white/[0.05] bg-[#0A0C0E]/60 opacity-60 hover:opacity-90 hover:border-white/[0.15]'
+                    }`}
+                  >
+                    {/* Top Mini Lock / Check Icon */}
+                    <div className="absolute top-2 right-2">
+                      {isUnlocked ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Lock className="w-3 h-3 text-[#6B7280]" />
+                      )}
+                    </div>
+
+                    <MilestoneBadgeIcon
+                      id={m.id}
+                      size={20}
+                      className={`mb-2.5 ${!isUnlocked ? 'grayscale opacity-50' : ''}`}
+                    />
+
+                    <p className="text-xs font-semibold text-[#F3F4F6] truncate w-full">{m.label}</p>
+                    <p className="text-[10px] text-[#9CA3AF] font-mono truncate w-full mt-0.5">{m.desc}</p>
+
+                    {/* Progress indicator for locked milestones */}
+                    {!isUnlocked && (
+                      <div className="w-full mt-2.5">
+                        <div className="h-1 rounded-full overflow-hidden bg-white/[0.08]">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${pct}%`, backgroundColor: conf.color }}
+                          />
+                        </div>
+                        <span className="text-[9px] font-mono text-[#6B7280] block mt-1">
+                          {currentMetric}/{m.target} ({pct}%)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Next badge teaser */}
+            <NextBadgeTeaser profile={profile} />
+          </>
         )}
       </div>
 
@@ -1058,6 +1154,14 @@ const ProfilePage = () => {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onSuccess={load}
+      />
+
+      {/* Interactive Milestone Detail & Progress Modal */}
+      <MilestoneDetailModal
+        milestone={selectedMilestone}
+        profile={profile}
+        isOpen={Boolean(selectedMilestone)}
+        onClose={() => setSelectedMilestone(null)}
       />
 
     </div>
