@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { createProblem, updateProblem } from '../api/problems';
+import { createProblem, updateProblem, resolveProblemMetadata } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkles, X, RefreshCw } from 'lucide-react';
 
 const PLATFORMS = [
   { value: 'leetcode', label: 'LeetCode' },
   { value: 'gfg', label: 'GeeksforGeeks' },
+  { value: 'codeforces', label: 'Codeforces' },
   { value: 'codechef', label: 'CodeChef' },
   { value: 'hackerrank', label: 'HackerRank' },
+  { value: 'atcoder', label: 'AtCoder' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -95,6 +97,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   // Smart detection state tracking
   const [autoDetected, setAutoDetected] = useState({ platform: null, title: null });
   const [lastAutoTitle, setLastAutoTitle] = useState('');
+  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -118,6 +121,44 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   }, [initialData, isOpen]);
 
   if (!isOpen) return null;
+
+  // Auto-resolve problem details via backend API
+  const handleFetchMetadata = async (urlOverride) => {
+    const targetUrl = (urlOverride || link).trim();
+    if (!targetUrl || !isValidUrl(targetUrl)) {
+      setErrors((prev) => ({ ...prev, link: 'Please enter a valid URL first' }));
+      return;
+    }
+
+    setIsFetchingMetadata(true);
+    try {
+      const res = await resolveProblemMetadata(targetUrl);
+      if (res?.success && res.data) {
+        const { title: fetchedTitle, platform: fetchedPlat, difficulty: fetchedDiff, topics: fetchedTopics } = res.data;
+        if (fetchedTitle) {
+          setTitle(fetchedTitle);
+          setLastAutoTitle(fetchedTitle);
+          setErrors((prev) => ({ ...prev, title: undefined }));
+        }
+        if (fetchedPlat) {
+          setPlatform(fetchedPlat);
+          setErrors((prev) => ({ ...prev, platform: undefined }));
+        }
+        if (fetchedDiff && ['easy', 'medium', 'hard'].includes(fetchedDiff.toLowerCase())) {
+          setDifficulty(fetchedDiff.toLowerCase());
+        }
+        if (Array.isArray(fetchedTopics) && fetchedTopics.length > 0) {
+          setTopics((prev) => Array.from(new Set([...prev, ...fetchedTopics])));
+        }
+        setAutoDetected({ platform: fetchedPlat, title: fetchedTitle });
+        toast.success(`Loaded details for "${fetchedTitle || 'problem'}"`);
+      }
+    } catch (err) {
+      console.warn('Metadata fetch failed:', err);
+    } finally {
+      setIsFetchingMetadata(false);
+    }
+  };
 
   // Handle URL change with smart platform and title auto-detection
   const handleLinkChange = (newLink) => {
@@ -253,24 +294,48 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {/* 1. Problem URL (With Smart Auto-Fill on Paste) */}
+          {/* 1. Problem URL (With Auto-Fetch from LeetCode) */}
           <div>
-            <label htmlFor="problem-link" className="block section-label mb-1.5 flex items-center justify-between">
-              <span>Problem URL *</span>
-              <span className="text-[10px] font-mono text-[#F97316] font-normal lowercase flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                auto-fills title & platform
-              </span>
-            </label>
-            <input
-              id="problem-link"
-              type="url"
-              value={link}
-              disabled={isSubmitting}
-              onChange={(e) => handleLinkChange(e.target.value)}
-              placeholder="https://leetcode.com/problems/trapping-rain-water/..."
-              className={`input-base ${errors.link ? 'input-error' : ''}`}
-            />
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="problem-link" className="section-label">
+                Problem URL *
+              </label>
+              <button
+                type="button"
+                onClick={() => handleFetchMetadata()}
+                disabled={isSubmitting || isFetchingMetadata || !link.trim()}
+                className="text-[11px] font-mono text-[#F97316] hover:text-[#FB923C] disabled:opacity-40 disabled:hover:text-[#F97316] flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${isFetchingMetadata ? 'animate-spin' : ''}`} />
+                <span>{isFetchingMetadata ? 'Fetching details…' : 'Auto-Fetch Details'}</span>
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                id="problem-link"
+                type="url"
+                value={link}
+                disabled={isSubmitting}
+                onChange={(e) => handleLinkChange(e.target.value)}
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData('text');
+                  if (pasted && isValidUrl(pasted)) {
+                    handleLinkChange(pasted);
+                    handleFetchMetadata(pasted);
+                  }
+                }}
+                placeholder="https://leetcode.com/problems/two-sum/..."
+                className={`input-base pr-20 ${errors.link ? 'input-error' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => handleFetchMetadata()}
+                disabled={isSubmitting || isFetchingMetadata || !link.trim()}
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/25 text-[10px] font-mono font-bold transition-all disabled:opacity-40 cursor-pointer"
+              >
+                {isFetchingMetadata ? 'Fetching…' : 'Fetch'}
+              </button>
+            </div>
             {errors.link && <p className="mt-1.5 text-xs text-rose-400">{errors.link}</p>}
 
             {/* Smart Detection Feedback Badge */}
@@ -282,7 +347,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                   {autoDetected.platform && (
                     <strong className="capitalize text-white">{autoDetected.platform}</strong>
                   )}
-                  {autoDetected.platform && autoDetected.title && ' & '}
+                  {autoDetected.platform && autoDetected.title && ' · '}
                   {autoDetected.title && (
                     <strong className="text-white font-semibold">"{autoDetected.title}"</strong>
                   )}

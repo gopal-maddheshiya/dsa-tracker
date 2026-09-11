@@ -17,7 +17,7 @@ const problemSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Platform is required'],
       enum: {
-        values: ['leetcode', 'gfg', 'codechef', 'hackerrank', 'other'],
+        values: ['leetcode', 'gfg', 'codechef', 'hackerrank', 'codeforces', 'atcoder', 'other'],
         message: '{VALUE} is not a supported platform',
       },
       lowercase: true,

@@ -60,3 +60,12 @@ export const importProblems = async (problems) => {
   const response = await api.post('/problems/import', { problems });
   return response.data;
 };
+
+/**
+ * Auto-resolve problem details (Title, Difficulty, Topics, Platform) from URL
+ * @param {string} url - LeetCode or supported problem URL / slug
+ */
+export const resolveProblemMetadata = async (url) => {
+  const response = await api.post('/problems/resolve-metadata', { url });
+  return response.data;
+};

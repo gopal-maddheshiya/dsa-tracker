@@ -7,6 +7,7 @@ const {
   updateProblem,
   deleteProblem,
   importProblems,
+  resolveProblemMetadata,
 } = require('../controllers/problem.controller');
 const attemptRoutes = require('./attempt.routes');
 const { protect } = require('../middleware/authMiddleware');
@@ -20,6 +21,9 @@ router.use('/:id/attempts', attemptRoutes);
 router.route('/')
   .get(getProblems)
   .post(createProblem);
+
+// URL metadata resolver endpoint (must be before /:id)
+router.post('/resolve-metadata', resolveProblemMetadata);
 
 // Bulk import endpoint (must be before /:id)
 router.post('/import', importProblems);

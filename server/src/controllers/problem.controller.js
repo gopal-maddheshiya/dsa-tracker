@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
 
-const VALID_PLATFORMS = ['leetcode', 'gfg', 'codechef', 'hackerrank', 'other'];
+const VALID_PLATFORMS = ['leetcode', 'gfg', 'codechef', 'hackerrank', 'codeforces', 'atcoder', 'other'];
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 /**
@@ -453,6 +453,182 @@ const importProblems = async (req, res, next) => {
   }
 };
 
+/**
+ * Extracts a LeetCode problem slug from a URL or raw string
+ */
+const extractLeetCodeSlug = (input) => {
+  if (!input) return null;
+  const trimmed = input.trim();
+  const match = trimmed.match(/leetcode\.com\/problems\/([^/?#]+)/i);
+  if (match) return match[1].toLowerCase();
+  if (/^[a-z0-9-]+$/i.test(trimmed) && !trimmed.includes('.')) {
+    return trimmed.toLowerCase();
+  }
+  return null;
+};
+
+/**
+ * @route   POST /api/problems/resolve-metadata
+ * @desc    Auto-resolve problem metadata (title, difficulty, topics, platform) from URL
+ * @access  Private
+ */
+const resolveProblemMetadata = async (req, res, next) => {
+  try {
+    const { url } = req.body;
+    if (!url || typeof url !== 'string' || !url.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'A problem URL or slug is required.',
+      });
+    }
+
+    const trimmedUrl = url.trim();
+
+    // 1. Detect if it's a LeetCode problem
+    const leetcodeSlug = extractLeetCodeSlug(trimmedUrl);
+    if (leetcodeSlug) {
+      try {
+        const query = `query questionData($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            questionFrontendId
+            title
+            difficulty
+            topicTags {
+              name
+            }
+          }
+        }`;
+
+        const lcResponse = await fetch('https://leetcode.com/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Referer': 'https://leetcode.com',
+          },
+          body: JSON.stringify({
+            query,
+            variables: { titleSlug: leetcodeSlug },
+          }),
+        });
+
+        const lcJson = await lcResponse.json();
+        const question = lcJson?.data?.question;
+
+        if (question && question.title) {
+          return res.status(200).json({
+            success: true,
+            data: {
+              platform: 'leetcode',
+              title: `${question.questionFrontendId ? `${question.questionFrontendId}. ` : ''}${question.title}`,
+              rawTitle: question.title,
+              frontendId: question.questionFrontendId,
+              difficulty: (question.difficulty || 'Medium').toLowerCase(),
+              topics: Array.isArray(question.topicTags) ? question.topicTags.map((t) => t.name) : [],
+              link: trimmedUrl.startsWith('http') ? trimmedUrl : `https://leetcode.com/problems/${leetcodeSlug}/`,
+            },
+          });
+        }
+      } catch (lcErr) {
+        console.warn('LeetCode GraphQL fetch failed, falling back to slug parsing:', lcErr.message);
+      }
+
+      // Fallback if GraphQL was blocked or timed out
+      const formattedTitle = leetcodeSlug
+        .split('-')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          platform: 'leetcode',
+          title: formattedTitle,
+          difficulty: 'medium',
+          topics: [],
+          link: trimmedUrl.startsWith('http') ? trimmedUrl : `https://leetcode.com/problems/${leetcodeSlug}/`,
+        },
+      });
+    }
+
+    // 2. Detect GeeksforGeeks
+    if (/geeksforgeeks\.org/i.test(trimmedUrl)) {
+      const gfgMatch = trimmedUrl.match(/geeksforgeeks\.org\/problems\/([^/?#]+)/i);
+      const rawSlug = gfgMatch ? gfgMatch[1] : '';
+      const cleanSlug = rawSlug.replace(/-\d+$/, '').replace(/-/g, ' ');
+      const title = cleanSlug
+        ? cleanSlug
+            .split(' ')
+            .filter(Boolean)
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ')
+        : 'GeeksforGeeks Problem';
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          platform: 'gfg',
+          title,
+          difficulty: 'medium',
+          topics: [],
+          link: trimmedUrl,
+        },
+      });
+    }
+
+    // 3. Detect Codeforces
+    if (/codeforces\.com/i.test(trimmedUrl)) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          platform: 'codeforces',
+          title: 'Codeforces Problem',
+          difficulty: 'medium',
+          topics: [],
+          link: trimmedUrl,
+        },
+      });
+    }
+
+    // 4. Detect HackerRank
+    if (/hackerrank\.com/i.test(trimmedUrl)) {
+      const hrMatch = trimmedUrl.match(/challenges\/([^/?#]+)/i);
+      const title = hrMatch
+        ? hrMatch[1]
+            .split('-')
+            .filter(Boolean)
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ')
+        : 'HackerRank Challenge';
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          platform: 'hackerrank',
+          title,
+          difficulty: 'medium',
+          topics: [],
+          link: trimmedUrl,
+        },
+      });
+    }
+
+    // Default unknown / generic URL
+    return res.status(200).json({
+      success: true,
+      data: {
+        platform: 'other',
+        title: '',
+        difficulty: 'medium',
+        topics: [],
+        link: trimmedUrl,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getProblems,
   createProblem,
@@ -460,4 +636,5 @@ module.exports = {
   updateProblem,
   deleteProblem,
   importProblems,
+  resolveProblemMetadata,
 };
