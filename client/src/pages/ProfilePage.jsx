@@ -9,11 +9,12 @@ import Badge from '../components/ui/Badge';
 import { useToast } from '../context/ToastContext';
 import { fetchProblems } from '../api/problems';
 import EditProfileModal from '../components/profile/EditProfileModal';
+import DataImportModal from '../components/profile/DataImportModal';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
   TrendingUp, BarChart3, Trophy, Layers, Download, FileJson, FileSpreadsheet, Database,
-  Settings
+  Settings, Upload
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -644,6 +645,7 @@ const ProfilePage = () => {
   const toast = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const handleExportData = async (format = 'json') => {
     setIsExporting(true);
@@ -1008,7 +1010,15 @@ const ProfilePage = () => {
               Export all your cataloged problems, topics, and practice records.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsImportModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>Import Backup</span>
+            </button>
             <button
               type="button"
               disabled={isExporting}
@@ -1041,6 +1051,13 @@ const ProfilePage = () => {
       <EditProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
+      />
+
+      {/* Data Import & Restore Modal */}
+      <DataImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={load}
       />
 
     </div>

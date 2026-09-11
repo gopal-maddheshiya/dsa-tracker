@@ -342,10 +342,122 @@ const deleteProblem = async (req, res, next) => {
   }
 };
 
+/**
+ * @route   POST /api/problems/import
+ * @desc    Bulk import problems (and optional attempts) for authenticated user
+ * @access  Private
+ */
+const importProblems = async (req, res, next) => {
+  try {
+    const { problems } = req.body;
+
+    if (!Array.isArray(problems) || problems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Problems array is required and cannot be empty',
+      });
+    }
+
+    if (problems.length > 1000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Import limit exceeded. Maximum 1000 problems per batch.',
+      });
+    }
+
+    // Fetch existing problems for this user to detect duplicates by title or link
+    const existingProblems = await Problem.find({ userId: req.user._id });
+    const existingTitles = new Set(existingProblems.map((p) => p.title.trim().toLowerCase()));
+    const existingLinks = new Set(existingProblems.map((p) => p.link.trim().toLowerCase()));
+
+    let importedCount = 0;
+    let skippedCount = 0;
+
+    for (const item of problems) {
+      if (!item || typeof item !== 'object') {
+        skippedCount++;
+        continue;
+      }
+
+      const rawTitle = typeof item.title === 'string' ? item.title.trim() : '';
+      if (!rawTitle) {
+        skippedCount++;
+        continue;
+      }
+
+      const rawLink = typeof item.link === 'string' && item.link.trim()
+        ? item.link.trim()
+        : `https://example.com/problem/${encodeURIComponent(rawTitle.toLowerCase().replace(/\s+/g, '-'))}`;
+
+      // Duplicate check
+      if (existingTitles.has(rawTitle.toLowerCase()) || (rawLink && existingLinks.has(rawLink.toLowerCase()))) {
+        skippedCount++;
+        continue;
+      }
+
+      // Sanitize platform
+      let rawPlatform = typeof item.platform === 'string' ? item.platform.toLowerCase().trim() : 'other';
+      if (!VALID_PLATFORMS.includes(rawPlatform)) {
+        rawPlatform = 'other';
+      }
+
+      // Sanitize difficulty
+      let rawDiff = typeof item.difficulty === 'string' ? item.difficulty.toLowerCase().trim() : 'medium';
+      if (!VALID_DIFFICULTIES.includes(rawDiff)) {
+        rawDiff = 'medium';
+      }
+
+      // Sanitize topics
+      const normalizedTopicList = normalizeTopics(item.topics);
+
+      const newProblem = await Problem.create({
+        userId: req.user._id,
+        title: rawTitle,
+        platform: rawPlatform,
+        link: rawLink,
+        topics: normalizedTopicList,
+        difficulty: rawDiff,
+        solutionCode: typeof item.solutionCode === 'string' ? item.solutionCode : '',
+        solutionLanguage: typeof item.solutionLanguage === 'string' ? item.solutionLanguage.toLowerCase().trim() : 'cpp',
+        createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
+      });
+
+      existingTitles.add(rawTitle.toLowerCase());
+      existingLinks.add(rawLink.toLowerCase());
+      importedCount++;
+
+      // If item has attempts array, restore attempts as well
+      if (Array.isArray(item.attempts) && item.attempts.length > 0) {
+        for (const att of item.attempts) {
+          const status = ['solved', 'struggled', 'revisit_needed'].includes(att.status) ? att.status : 'solved';
+          await Attempt.create({
+            problemId: newProblem._id,
+            userId: req.user._id,
+            status,
+            timeTakenMinutes: typeof att.timeTakenMinutes === 'number' && att.timeTakenMinutes >= 0 ? att.timeTakenMinutes : null,
+            notes: typeof att.notes === 'string' ? att.notes.trim() : '',
+            attemptedAt: att.attemptedAt ? new Date(att.attemptedAt) : new Date(),
+          });
+        }
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: importedCount,
+      skipped: skippedCount,
+      message: `Successfully imported ${importedCount} problems (${skippedCount} duplicates skipped).`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProblems,
   createProblem,
   getProblemById,
   updateProblem,
   deleteProblem,
+  importProblems,
 };

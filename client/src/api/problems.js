@@ -51,3 +51,12 @@ export const deleteProblem = async (id) => {
   const response = await api.delete(`/problems/${id}`);
   return response.data;
 };
+
+/**
+ * Bulk import problems
+ * @param {Array} problems - Array of problem objects
+ */
+export const importProblems = async (problems) => {
+  const response = await api.post('/problems/import', { problems });
+  return response.data;
+};

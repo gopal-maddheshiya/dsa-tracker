@@ -6,6 +6,7 @@ const {
   getProblemById,
   updateProblem,
   deleteProblem,
+  importProblems,
 } = require('../controllers/problem.controller');
 const attemptRoutes = require('./attempt.routes');
 const { protect } = require('../middleware/authMiddleware');
@@ -19,6 +20,9 @@ router.use('/:id/attempts', attemptRoutes);
 router.route('/')
   .get(getProblems)
   .post(createProblem);
+
+// Bulk import endpoint (must be before /:id)
+router.post('/import', importProblems);
 
 router.route('/:id')
   .get(getProblemById)
