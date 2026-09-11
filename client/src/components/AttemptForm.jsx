@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createAttempt } from '../api/attempts';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
@@ -25,7 +25,7 @@ const STATUS_OPTIONS = [
   },
 ];
 
-const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) => {
+const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defaultTimeTaken = '' }) => {
   const toast = useToast();
   const [status, setStatus] = useState('solved');
   const [timeTakenMinutes, setTimeTakenMinutes] = useState('');
@@ -36,6 +36,17 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
   });
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (defaultTimeTaken != null && defaultTimeTaken !== '') {
+        setTimeTakenMinutes(String(defaultTimeTaken));
+      } else {
+        setTimeTakenMinutes('');
+      }
+      setApiError('');
+    }
+  }, [isOpen, defaultTimeTaken]);
 
   if (!isOpen) return null;
 

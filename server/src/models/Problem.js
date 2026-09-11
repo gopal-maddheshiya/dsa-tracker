@@ -48,6 +48,15 @@ const problemSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    solutionCode: {
+      type: String,
+      default: '',
+    },
+    solutionLanguage: {
+      type: String,
+      default: 'cpp',
+      trim: true,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

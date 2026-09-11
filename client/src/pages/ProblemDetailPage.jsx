@@ -5,6 +5,8 @@ import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import PracticeTimer from '../components/problems/PracticeTimer';
+import SolutionCodeViewer from '../components/problems/SolutionCodeViewer';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import { AlertTriangle, Clock, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
@@ -40,6 +42,7 @@ const ProblemDetailPage = () => {
   const [isAttemptModalOpen, setIsAttemptModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [timerElapsedMinutes, setTimerElapsedMinutes] = useState('');
 
   const loadProblem = useCallback(async () => {
     setIsLoading(true);
@@ -218,6 +221,20 @@ const ProblemDetailPage = () => {
         </div>
       </div>
 
+      {/* Practice Timer & Stopwatch */}
+      <PracticeTimer
+        onLogWithTime={(mins) => {
+          setTimerElapsedMinutes(mins);
+          setIsAttemptModalOpen(true);
+        }}
+      />
+
+      {/* Solution Code & Optimal Approach */}
+      <SolutionCodeViewer
+        problem={problem}
+        onProblemUpdated={(updated) => setProblem((prev) => ({ ...prev, ...updated }))}
+      />
+
       {/* Practice History Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -228,7 +245,10 @@ const ProblemDetailPage = () => {
             </p>
           </div>
           <button
-            onClick={() => setIsAttemptModalOpen(true)}
+            onClick={() => {
+              setTimerElapsedMinutes('');
+              setIsAttemptModalOpen(true);
+            }}
             type="button"
             className="btn-primary text-xs flex items-center gap-1.5 shadow-lg shadow-[#F97316]/15"
           >
@@ -316,10 +336,14 @@ const ProblemDetailPage = () => {
 
       <AttemptForm
         isOpen={isAttemptModalOpen}
-        onClose={() => setIsAttemptModalOpen(false)}
+        onClose={() => {
+          setIsAttemptModalOpen(false);
+          setTimerElapsedMinutes('');
+        }}
         onSuccess={loadProblem}
         problemId={problem.id}
         problemTitle={problem.title}
+        defaultTimeTaken={timerElapsedMinutes}
       />
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}

@@ -119,7 +119,7 @@ const getProblems = async (req, res, next) => {
  */
 const createProblem = async (req, res, next) => {
   try {
-    const { title, platform, link, topics, difficulty } = req.body;
+    const { title, platform, link, topics, difficulty, solutionCode, solutionLanguage } = req.body;
 
     // Validation: Title
     if (!title || typeof title !== 'string' || !title.trim()) {
@@ -162,6 +162,8 @@ const createProblem = async (req, res, next) => {
       link: link.trim(),
       topics: normalizedTopicList,
       difficulty: difficulty.toLowerCase().trim(),
+      solutionCode: typeof solutionCode === 'string' ? solutionCode : '',
+      solutionLanguage: typeof solutionLanguage === 'string' ? solutionLanguage.toLowerCase().trim() : 'cpp',
     });
 
     return res.status(201).json({
@@ -241,7 +243,7 @@ const updateProblem = async (req, res, next) => {
       });
     }
 
-    const { title, platform, link, topics, difficulty } = req.body;
+    const { title, platform, link, topics, difficulty, solutionCode, solutionLanguage } = req.body;
 
     if (title !== undefined) {
       if (typeof title !== 'string' || !title.trim()) {
@@ -279,6 +281,14 @@ const updateProblem = async (req, res, next) => {
         });
       }
       problem.difficulty = difficulty.toLowerCase().trim();
+    }
+
+    if (solutionCode !== undefined) {
+      problem.solutionCode = typeof solutionCode === 'string' ? solutionCode : '';
+    }
+
+    if (solutionLanguage !== undefined) {
+      problem.solutionLanguage = typeof solutionLanguage === 'string' ? solutionLanguage.toLowerCase().trim() : 'cpp';
     }
 
     await problem.save();
