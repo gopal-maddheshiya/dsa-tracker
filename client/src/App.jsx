@@ -16,6 +16,8 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 // Sleek workspace route loading skeleton
 const RouteLoader = () => (
   <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-up">
@@ -30,34 +32,36 @@ const RouteLoader = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <AppShell>
-          <Suspense fallback={<RouteLoader />}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <AppShell>
+            <Suspense fallback={<RouteLoader />}>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-              {/* Public only (redirect to dashboard if logged in) */}
-              <Route element={<PublicOnlyRoute />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-              </Route>
+                {/* Public only (redirect to dashboard if logged in) */}
+                <Route element={<PublicOnlyRoute />}>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignupPage />} />
+                </Route>
 
-              {/* Protected routes */}
-              <Route element={<PrivateRoute />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/problems" element={<ProblemsPage />} />
-                <Route path="/problems/:id" element={<ProblemDetailPage />} />
-                <Route path="/revision" element={<RevisionPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-              </Route>
+                {/* Protected routes */}
+                <Route element={<PrivateRoute />}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/problems" element={<ProblemsPage />} />
+                  <Route path="/problems/:id" element={<ProblemDetailPage />} />
+                  <Route path="/revision" element={<RevisionPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                </Route>
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
-        </AppShell>
-      </ToastProvider>
-    </AuthProvider>
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
+          </AppShell>
+        </ToastProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
