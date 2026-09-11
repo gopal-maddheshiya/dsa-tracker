@@ -629,6 +629,200 @@ const resolveProblemMetadata = async (req, res, next) => {
   }
 };
 
+/**
+ * @route   GET /api/problems/recommendations
+ * @desc    Intelligent recommendations: Spaced repetition, Weakest topic drills, and Daily Focus
+ * @access  Private
+ */
+const getProblemRecommendations = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const user = req.user;
+
+    // Fetch user problems and attempts
+    const [problems, attempts] = await Promise.all([
+      Problem.find({ userId }).lean(),
+      Attempt.find({ userId }).sort({ attemptedAt: -1 }).lean(),
+    ]);
+
+    if (!problems.length) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          dailyFocus: null,
+          spacedRepetition: [],
+          weaknessDrill: [],
+          unattemptedBacklog: [],
+          weakestTopics: [],
+          totalCataloged: 0,
+        },
+      });
+    }
+
+    // Map attempts per problem
+    const attemptsByProblem = new Map();
+    attempts.forEach((a) => {
+      const pId = a.problemId.toString();
+      if (!attemptsByProblem.has(pId)) {
+        attemptsByProblem.set(pId, []);
+      }
+      attemptsByProblem.get(pId).push(a);
+    });
+
+    // Topic struggle metrics
+    const topicStats = {};
+    problems.forEach((p) => {
+      const pAttempts = attemptsByProblem.get(p._id.toString()) || [];
+      const pTopics = p.topics || [];
+
+      pTopics.forEach((topic) => {
+        const t = topic.trim();
+        if (!t) return;
+        if (!topicStats[t]) {
+          topicStats[t] = { topic: t, totalAttempts: 0, struggledAttempts: 0, solvedCount: 0 };
+        }
+        pAttempts.forEach((att) => {
+          topicStats[t].totalAttempts++;
+          if (att.status === 'struggled') topicStats[t].struggledAttempts++;
+          if (att.status === 'solved') topicStats[t].solvedCount++;
+        });
+      });
+    });
+
+    // Rank weakest topics by struggle ratio
+    const weakestTopics = Object.values(topicStats)
+      .filter((ts) => ts.totalAttempts >= 1)
+      .map((ts) => ({
+        topic: ts.topic,
+        struggleRatio: ts.struggledAttempts / (ts.totalAttempts || 1),
+        totalAttempts: ts.totalAttempts,
+        struggledAttempts: ts.struggledAttempts,
+      }))
+      .sort((a, b) => b.struggleRatio - a.struggleRatio || b.totalAttempts - a.totalAttempts);
+
+    const primaryWeakTopic = weakestTopics[0]?.topic?.toLowerCase() || null;
+
+    const now = Date.now();
+    const REVISION_INTERVALS = { solved: 14, revisit_needed: 5, struggled: 2 };
+    const STRUGGLE_WEIGHTS = { solved: 0, revisit_needed: 1, struggled: 2.5 };
+
+    const spacedList = [];
+    const weaknessList = [];
+    const unattemptedList = [];
+
+    problems.forEach((prob) => {
+      const pId = prob._id.toString();
+      const pAttempts = attemptsByProblem.get(pId) || [];
+      const latestAttempt = pAttempts[0] || null;
+
+      const probSummary = {
+        id: pId,
+        title: prob.title,
+        platform: prob.platform,
+        difficulty: prob.difficulty,
+        topics: prob.topics || [],
+        link: prob.link,
+        latestStatus: latestAttempt ? latestAttempt.status : 'unattempted',
+        lastAttemptedAt: latestAttempt ? latestAttempt.attemptedAt : null,
+      };
+
+      if (!latestAttempt) {
+        unattemptedList.push(probSummary);
+      } else {
+        const daysElapsed = Math.max(0, (now - new Date(latestAttempt.attemptedAt).getTime()) / (1000 * 60 * 60 * 24));
+        const interval = REVISION_INTERVALS[latestAttempt.status] || 14;
+        const weight = STRUGGLE_WEIGHTS[latestAttempt.status] || 0;
+        const urgencyScore = (daysElapsed / interval) + weight;
+
+        const withScore = {
+          ...probSummary,
+          daysSinceLastAttempt: Math.round(daysElapsed),
+          urgencyScore: Number(urgencyScore.toFixed(2)),
+        };
+
+        if (latestAttempt.status !== 'solved' || urgencyScore >= 1.0) {
+          spacedList.push(withScore);
+        }
+
+        // If in weakest topic and either struggled or revisit_needed
+        if (
+          primaryWeakTopic &&
+          prob.topics.some((t) => t.toLowerCase().includes(primaryWeakTopic)) &&
+          latestAttempt.status !== 'solved'
+        ) {
+          weaknessList.push(withScore);
+        }
+      }
+    });
+
+    // Also if weakness list is short, add unattempted problems that match weakest topic
+    if (primaryWeakTopic && weaknessList.length < 3) {
+      unattemptedList.forEach((prob) => {
+        if (prob.topics.some((t) => t.toLowerCase().includes(primaryWeakTopic))) {
+          if (!weaknessList.some((w) => w.id === prob.id)) {
+            weaknessList.push(prob);
+          }
+        }
+      });
+    }
+
+    // Sort spaced repetition by highest urgency
+    spacedList.sort((a, b) => b.urgencyScore - a.urgencyScore);
+
+    // Determine Daily Focus (The single highest priority problem for today)
+    let dailyFocus = null;
+    if (spacedList.length > 0 && spacedList[0].urgencyScore >= 1.2) {
+      const top = spacedList[0];
+      dailyFocus = {
+        ...top,
+        badge: 'Critical Revision',
+        rationale: `You ${top.latestStatus === 'struggled' ? 'struggled with' : 'flagged'} this problem ${top.daysSinceLastAttempt} days ago. Strengthen this pattern before it fades.`,
+      };
+    } else if (weaknessList.length > 0) {
+      const top = weaknessList[0];
+      dailyFocus = {
+        ...top,
+        badge: 'Weak Spot Drill',
+        rationale: `Topic drill: "${primaryWeakTopic}" is currently your highest struggle area (${Math.round((weakestTopics[0]?.struggleRatio || 0) * 100)}% struggle rate). Tackle this to boost confidence.`,
+      };
+    } else if (unattemptedList.length > 0) {
+      // Pick a medium if available, else first unattempted
+      const chosen = unattemptedList.find((p) => p.difficulty === 'medium') || unattemptedList[0];
+      dailyFocus = {
+        ...chosen,
+        badge: 'New Frontier',
+        rationale: `Fresh cataloged challenge to keep your daily solving momentum active!`,
+      };
+    } else if (problems.length > 0) {
+      const chosen = problems[0];
+      dailyFocus = {
+        id: chosen._id.toString(),
+        title: chosen.title,
+        platform: chosen.platform,
+        difficulty: chosen.difficulty,
+        topics: chosen.topics || [],
+        link: chosen.link,
+        badge: 'Daily Warmup',
+        rationale: 'Review and refine your optimal solution to keep your problem-solving reflex sharp.',
+      };
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        dailyFocus,
+        spacedRepetition: spacedList.slice(0, 5),
+        weaknessDrill: weaknessList.slice(0, 5),
+        unattemptedBacklog: unattemptedList.slice(0, 5),
+        weakestTopics: weakestTopics.slice(0, 3),
+        totalCataloged: problems.length,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getProblems,
   createProblem,
@@ -637,4 +831,6 @@ module.exports = {
   deleteProblem,
   importProblems,
   resolveProblemMetadata,
+  getProblemRecommendations,
 };
+

@@ -17,6 +17,7 @@ import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import RevisionPreview from '../components/analytics/RevisionPreview';
+import IntelligentRecommender from '../components/dashboard/IntelligentRecommender';
 import ProgressRing from '../components/ui/ProgressRing';
 import Badge from '../components/ui/Badge';
 import { Trophy, BarChart3, Sparkles, Code2, CheckCircle2, Zap, Flame } from 'lucide-react';
@@ -256,8 +257,12 @@ const DashboardPage = () => {
       ) : (
         <div className="space-y-6 stagger-children">
 
+          {/* Row 0: Adaptive Next Up Problem Recommendation Spotlight */}
+          <IntelligentRecommender />
+
           {/* Row 1: Solve Velocity Trend (Full Width) */}
           <SolveTrendChart trendData={trend} isLoading={loadingTrend} error={trendError} onRetry={loadTrend} />
+
 
           {/* Row 2: Practice Consistency & Rhythm (Full Width) */}
           <PracticeHeatmap heatmapData={heatmap} isLoading={loadingHeatmap} error={heatmapError} onRetry={loadHeatmap} />

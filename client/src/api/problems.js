@@ -69,3 +69,12 @@ export const resolveProblemMetadata = async (url) => {
   const response = await api.post('/problems/resolve-metadata', { url });
   return response.data;
 };
+
+/**
+ * Fetch intelligent problem recommendations (Daily focus, Spaced repetition, Weakest topic drills)
+ */
+export const fetchProblemRecommendations = async () => {
+  const response = await api.get('/problems/recommendations');
+  return response.data;
+};
+

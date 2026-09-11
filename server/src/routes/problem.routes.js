@@ -8,6 +8,7 @@ const {
   deleteProblem,
   importProblems,
   resolveProblemMetadata,
+  getProblemRecommendations,
 } = require('../controllers/problem.controller');
 const attemptRoutes = require('./attempt.routes');
 const { protect } = require('../middleware/authMiddleware');
@@ -22,11 +23,15 @@ router.route('/')
   .get(getProblems)
   .post(createProblem);
 
+// Intelligent problem recommendations endpoint (must be before /:id)
+router.get('/recommendations', getProblemRecommendations);
+
 // URL metadata resolver endpoint (must be before /:id)
 router.post('/resolve-metadata', resolveProblemMetadata);
 
 // Bulk import endpoint (must be before /:id)
 router.post('/import', importProblems);
+
 
 router.route('/:id')
   .get(getProblemById)
