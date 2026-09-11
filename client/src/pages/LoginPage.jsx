@@ -64,6 +64,20 @@ const LoginPage = () => {
     setApiError('Google sign in was cancelled or failed.');
   };
 
+  const handleInstantDemoLogin = async () => {
+    setApiError('');
+    setEmail('demo@dsa-tracker.local');
+    setPassword('DemoPassword123!');
+    setIsSubmitting(true);
+    const result = await login('demo@dsa-tracker.local', 'DemoPassword123!');
+    setIsSubmitting(false);
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
+      setApiError(result.message);
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-[#090B0E] relative overflow-hidden selection:bg-orange-500/30 selection:text-orange-200">
       {/* Ambient background glows for deep optical depth */}
@@ -273,29 +287,28 @@ const LoginPage = () => {
               </button>
             </form>
 
-            {/* Clean 1-Click Demo Credentials Card */}
-            <div className="mt-5 p-3 rounded-xl bg-white/[0.02] border border-dashed border-white/[0.09] flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
-                  <Zap className="w-3.5 h-3.5" />
+            {/* Instant 1-Click Demo Login Card */}
+            <div className="mt-5 p-3.5 rounded-2xl bg-[#0E1015] border border-orange-500/25 shadow-[0_4px_20px_rgba(249,115,22,0.08)] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 shadow-sm">
+                  <Zap className="w-4 h-4 fill-orange-500/30" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-semibold text-slate-200">Demo Account</span>
-                    <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-white/[0.06] text-slate-400">test</span>
+                    <span className="text-xs font-semibold text-slate-100 truncate">Demo Guest Access</span>
+                    <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold">1-Click</span>
                   </div>
-                  <p className="text-[11px] font-mono text-slate-400">demo@dsa-tracker.local</p>
+                  <p className="text-[11px] font-mono text-slate-400 truncate mt-0.5">Explore with 35 preloaded problems & streaks</p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setEmail('demo@dsa-tracker.local');
-                  setPassword('DemoPassword123!');
-                }}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-orange-400 hover:text-white bg-orange-500/10 hover:bg-orange-500 border border-orange-500/25 hover:border-transparent transition-all active:scale-95 cursor-pointer shadow-xs"
+                disabled={isSubmitting}
+                onClick={handleInstantDemoLogin}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_2px_12px_rgba(249,115,22,0.3)] transition-all active:scale-95 cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1.5"
               >
-                Auto-fill
+                <span>Demo Sign In</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
 

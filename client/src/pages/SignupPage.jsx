@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
 import Rotating3DCube from '../components/auth/Rotating3DCube';
-import { ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 const SignupPage = () => {
   const [name, setName] = useState('');
@@ -13,6 +13,51 @@ const SignupPage = () => {
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Real-time password strength evaluation
+  const passwordEvaluation = useMemo(() => {
+    if (!password) return { score: 0, label: '', color: 'bg-zinc-700', textColor: 'text-zinc-500', checks: { length: false, number: false, special: false } };
+    const hasLength = password.length >= 6;
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+
+    let score = 0;
+    if (hasLength) score += 1;
+    if (hasNumber) score += 1;
+    if (hasSpecial) score += 1;
+    if (hasUpper && password.length >= 8) score += 1;
+
+    let label = 'Weak';
+    let color = 'bg-rose-500';
+    let textColor = 'text-rose-400';
+
+    if (score === 2) {
+      label = 'Fair';
+      color = 'bg-amber-500';
+      textColor = 'text-amber-400';
+    } else if (score === 3) {
+      label = 'Good';
+      color = 'bg-sky-500';
+      textColor = 'text-sky-400';
+    } else if (score >= 4) {
+      label = 'Strong';
+      color = 'bg-emerald-500';
+      textColor = 'text-emerald-400';
+    }
+
+    return {
+      score,
+      label,
+      color,
+      textColor,
+      checks: {
+        length: hasLength,
+        number: hasNumber,
+        special: hasSpecial
+      }
+    };
+  }, [password]);
 
   const { signup, googleLogin } = useAuth();
   const navigate = useNavigate();
@@ -254,6 +299,45 @@ const SignupPage = () => {
                   </button>
                 </div>
                 {errors.password && <p className="mt-1.5 text-xs text-rose-400">{errors.password}</p>}
+
+                {/* Real-time Password Strength Meter */}
+                {password && (
+                  <div className="mt-2.5 space-y-1.5 animate-fadeIn">
+                    <div className="flex items-center justify-between text-[11px] font-mono">
+                      <span className="text-slate-400">Password Strength:</span>
+                      <span className={`font-bold ${passwordEvaluation.textColor}`}>
+                        {passwordEvaluation.label}
+                      </span>
+                    </div>
+
+                    {/* 4-Segment Progress Bar */}
+                    <div className="grid grid-cols-4 gap-1.5 h-1.5">
+                      {[1, 2, 3, 4].map((step) => (
+                        <div
+                          key={step}
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            step <= passwordEvaluation.score
+                              ? passwordEvaluation.color
+                              : 'bg-white/[0.08]'
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Requirement checklist badges */}
+                    <div className="flex items-center gap-2 pt-1 text-[10px] font-mono">
+                      <span className={`flex items-center gap-1 transition-colors ${passwordEvaluation.checks.length ? 'text-emerald-400 font-semibold' : 'text-slate-500'}`}>
+                        <CheckCircle2 className="w-3 h-3" /> 6+ chars
+                      </span>
+                      <span className={`flex items-center gap-1 transition-colors ${passwordEvaluation.checks.number ? 'text-emerald-400 font-semibold' : 'text-slate-500'}`}>
+                        <CheckCircle2 className="w-3 h-3" /> Number
+                      </span>
+                      <span className={`flex items-center gap-1 transition-colors ${passwordEvaluation.checks.special ? 'text-emerald-400 font-semibold' : 'text-slate-500'}`}>
+                        <CheckCircle2 className="w-3 h-3" /> Symbol
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Submit Button */}
