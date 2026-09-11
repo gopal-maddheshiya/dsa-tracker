@@ -11,6 +11,7 @@ import {
 import { getErrorMessage } from '../utils/errorHandler';
 import { getRank, fmtMonthYear } from '../utils/profileUtils';
 
+import StatCard from '../components/analytics/StatCard';
 import DifficultyChart from '../components/analytics/DifficultyChart';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
@@ -18,7 +19,7 @@ import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import RevisionPreview from '../components/analytics/RevisionPreview';
 import ProgressRing from '../components/ui/ProgressRing';
 import Badge from '../components/ui/Badge';
-import { Trophy, BarChart3, Sparkles } from 'lucide-react';
+import { Trophy, BarChart3, Sparkles, Code2, CheckCircle2, Zap, Flame } from 'lucide-react';
 
 
 
@@ -193,6 +194,49 @@ const DashboardPage = () => {
         <Link to="/problems" className="btn-primary text-xs sm:text-sm w-full sm:w-auto self-start">
           + Add Problem
         </Link>
+      </div>
+
+      {/* KPI Metric Stat Cards Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        <StatCard
+          title="Cataloged"
+          value={summary?.totalProblems || 0}
+          subtitle="Problems in repository"
+          icon={Code2}
+          isLoading={loadingSummary}
+          badge={`${summary?.difficultyBreakdown?.find((d) => d.difficulty === 'hard')?.count || 0} Hard`}
+          glowColor="rgba(249,115,22,0.14)"
+        />
+        <StatCard
+          title="Solved"
+          value={summary?.solvedProblems || 0}
+          subtitle={`${solvedPct}% solve progress`}
+          icon={CheckCircle2}
+          valueColor="text-emerald-400"
+          isLoading={loadingSummary}
+          badge="Verified"
+          glowColor="rgba(16,185,129,0.14)"
+        />
+        <StatCard
+          title="Practice Sessions"
+          value={summary?.totalAttempts || 0}
+          subtitle={`${summary?.solvedAttempts || 0} successful`}
+          icon={Zap}
+          valueColor="text-amber-400"
+          isLoading={loadingSummary}
+          badge={`${solveRate}% accuracy`}
+          glowColor="rgba(245,158,11,0.14)"
+        />
+        <StatCard
+          title="Practice Streak"
+          value={`${summary?.currentStreak || 0} Days`}
+          subtitle={`Best: ${summary?.longestStreak || summary?.currentStreak || 0} days`}
+          icon={Flame}
+          valueColor="text-[#F97316]"
+          isLoading={loadingSummary}
+          badge={summary?.currentStreak > 0 ? '🔥 On Fire' : 'Ready'}
+          glowColor="rgba(249,115,22,0.2)"
+        />
       </div>
 
       {/* Zero state */}

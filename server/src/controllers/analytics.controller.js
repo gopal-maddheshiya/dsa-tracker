@@ -59,6 +59,51 @@ const getSummary = async (req, res, next) => {
       { difficulty: 'hard', count: diffMap.hard },
     ];
 
+    // Calculate practice streaks
+    const allAttemptDates = await Attempt.find({ userId }).select('createdAt').lean();
+    const daySet = new Set();
+    allAttemptDates.forEach((a) => {
+      if (a.createdAt) daySet.add(new Date(a.createdAt).toISOString().slice(0, 10));
+    });
+    const sortedDays = [...daySet].sort();
+
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+    for (let i = 0; i < sortedDays.length; i++) {
+      if (i === 0) {
+        tempStreak = 1;
+      } else {
+        const prev = new Date(sortedDays[i - 1]);
+        const curr = new Date(sortedDays[i]);
+        const diffDays = Math.round((curr - prev) / 86400000);
+        if (diffDays === 1) {
+          tempStreak++;
+        } else {
+          tempStreak = 1;
+        }
+      }
+      if (tempStreak > longestStreak) longestStreak = tempStreak;
+    }
+
+    const lastDay = sortedDays[sortedDays.length - 1];
+    if (lastDay === todayStr || lastDay === yesterdayStr) {
+      currentStreak = 1;
+      for (let i = sortedDays.length - 2; i >= 0; i--) {
+        const next = new Date(sortedDays[i + 1]);
+        const curr = new Date(sortedDays[i]);
+        const diffDays = Math.round((next - curr) / 86400000);
+        if (diffDays === 1) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+    }
+
     return res.status(200).json({
       success: true,
       data: {
@@ -67,6 +112,8 @@ const getSummary = async (req, res, next) => {
         solvedProblems,
         solvedAttempts,
         difficultyBreakdown,
+        currentStreak,
+        longestStreak,
       },
     });
   } catch (error) {
