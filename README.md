@@ -4,11 +4,22 @@ A focused, personal Data Structures and Algorithms preparation tracker designed 
 
 ---
 
+## Live Production Deployment
+
+- 🌐 **Live Application**: [https://dsa-tracker-xi-weld.vercel.app](https://dsa-tracker-xi-weld.vercel.app)
+- ⚙️ **Production API (Render)**: [https://dsa-tracker-api-57bl.onrender.com/api/health](https://dsa-tracker-api-57bl.onrender.com/api/health)
+- 🔑 **Instant Demo Credentials**:
+  - **Email**: `demo@dsa-tracker.local`
+  - **Password**: `DemoPassword123!`
+  *(Or register a private account on the signup page)*
+
+---
+
 ## Current Development Status
 
-> **Current Milestone**: Phase 7 — Demo Data, Final QA & Production Readiness  
-> **Status**: Completed & Verified (Production Candidate)  
-> **Architecture**: React 18 + Vite (SPA) consuming MongoDB Aggregation REST endpoints via Express 4
+> **Current Milestone**: Phase 8 — Live Production Deployment (Render + Vercel + MongoDB Atlas)  
+> **Status**: Completed, Verified & Live in Production  
+> **Architecture**: React 18 + Vite (SPA on Vercel) consuming MongoDB Aggregation REST endpoints via Express 4 (on Render)
 
 The application is feature-complete, hardened against regressions, and verified across all user flows: JWT authentication, Problem CRUD, multi-attempt practice logging, native MongoDB analytics aggregation, calendar heatmaps, solve velocity charts, and a deterministic spaced-repetition revision queue.
 
@@ -328,3 +339,4 @@ $$\text{priorityScore} = \frac{\text{daysSinceLastAttempt}}{\text{intervalForSta
 - [x] **Phase 5**: Premium analytics dashboard, Recharts visualizations, practice heatmap, and revision queue UI
 - [x] **Phase 6**: Product polish, UX hardening, lightweight toast feedback, responsive quality
 - [x] **Phase 7**: Demo dataset, security secret audit, documentation case study, production readiness
+- [x] **Phase 8**: Live production deployment to Render & Vercel, CORS security hardening, SPA routing, end-to-end live QA
