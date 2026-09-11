@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { fetchProfileAnalytics } from '../../api/analytics';
 import InstallAppBanner from './InstallAppBanner';
 import ProblemForm from '../ProblemForm';
+import CommandPalette from '../ui/CommandPalette';
 import {
   LayoutDashboard,
   Code2,
@@ -211,6 +212,9 @@ const AppShell = ({ children }) => {
   // Quick Problem Creation modal state
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
+  // Command Palette spotlight modal state
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
   // Live streak fetch on mount and route change
   useEffect(() => {
     if (isAuthenticated) {
@@ -266,29 +270,31 @@ const AppShell = ({ children }) => {
 
   // Command / Search Pill click action
   const handleSearchPillClick = () => {
-    if (location.pathname === '/problems') {
-      const searchInput = document.querySelector('input[placeholder*="Search"]');
-      if (searchInput) {
-        searchInput.focus();
-        searchInput.select();
-      }
-    } else {
-      navigate('/problems');
-    }
+    setIsCommandPaletteOpen(true);
   };
 
-  // Global '/' keyboard shortcut to focus search or navigate to problems
+  // Global keyboard shortcuts: Cmd+K / Ctrl+K and '/' to trigger Command Palette
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Don't trigger if user is actively typing in an input
       const isInputActive = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
-      if (e.key === '/' && !isInputActive && !isQuickAddOpen) {
+      
+      // Cmd+K or Ctrl+K (always works, even to toggle)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        handleSearchPillClick();
+        setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      // '/' trigger when not in an input and no modal is open
+      if (e.key === '/' && !isInputActive && !isQuickAddOpen && !isCommandPaletteOpen) {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [location.pathname, isQuickAddOpen]);
+  }, [isQuickAddOpen, isCommandPaletteOpen]);
 
   const handleQuickAddSuccess = () => {
     window.dispatchEvent(new CustomEvent('problem-created'));
@@ -390,19 +396,34 @@ const AppShell = ({ children }) => {
             <button
               type="button"
               onClick={handleSearchPillClick}
-              className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#14171C]/90 hover:bg-[#1A1E24] border border-white/[0.08] hover:border-white/[0.18] text-[#9CA3AF] hover:text-[#E5E7EB] transition-all group w-52 sm:w-64 lg:w-72 shadow-sm text-xs cursor-pointer"
-              title="Search problems and topics (Press /)"
+              className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#14171C]/90 hover:bg-[#1A1E24] border border-white/[0.08] hover:border-[#F97316]/35 text-[#9CA3AF] hover:text-[#E5E7EB] transition-all group w-52 sm:w-64 lg:w-72 shadow-sm text-xs cursor-pointer"
+              title="Search problems and topics (Press / or Ctrl+K)"
             >
               <Search className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#F97316] transition-colors" />
               <span className="truncate flex-1 text-left">Search problems, tags...</span>
-              <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-[#6B7280] bg-[#0E1013] border border-white/[0.08] rounded group-hover:border-[#F97316]/30 group-hover:text-[#F97316] transition-colors">
-                /
-              </kbd>
+              <div className="flex items-center gap-1">
+                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-[#6B7280] bg-[#0E1013] border border-white/[0.08] rounded group-hover:border-[#F97316]/30 group-hover:text-[#F97316] transition-colors">
+                  Ctrl K
+                </kbd>
+                <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-[#6B7280] bg-[#0E1013] border border-white/[0.08] rounded group-hover:border-[#F97316]/30 group-hover:text-[#F97316] transition-colors">
+                  /
+                </kbd>
+              </div>
             </button>
           </div>
 
           {/* Right: Streak Badge + Quick Add Button + Profile Avatar */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Mobile search trigger button */}
+            <button
+              type="button"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="md:hidden p-2 rounded-xl text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.06] transition-all"
+              aria-label="Search problems and actions"
+              title="Search problems"
+            >
+              <Search className="w-4 h-4 text-[#F97316]" />
+            </button>
             {/* Practice Streak Badge */}
             {streak != null && streak > 0 && (
               <NavLink
@@ -482,6 +503,13 @@ const AppShell = ({ children }) => {
           onSuccess={handleQuickAddSuccess}
         />
       )}
+
+      {/* Universal Command Palette Spotlight */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+      />
 
       {/* PWA Install Prompt Banner */}
       <InstallAppBanner />
