@@ -8,10 +8,12 @@ import ProgressRing from '../components/ui/ProgressRing';
 import Badge from '../components/ui/Badge';
 import { useToast } from '../context/ToastContext';
 import { fetchProblems } from '../api/problems';
+import EditProfileModal from '../components/profile/EditProfileModal';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
-  TrendingUp, BarChart3, Trophy, Layers, Download, FileJson, FileSpreadsheet, Database
+  TrendingUp, BarChart3, Trophy, Layers, Download, FileJson, FileSpreadsheet, Database,
+  Settings
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -641,6 +643,7 @@ const ProfilePage = () => {
 
   const toast = useToast();
   const [isExporting, setIsExporting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleExportData = async (format = 'json') => {
     setIsExporting(true);
@@ -817,6 +820,16 @@ const ProfilePage = () => {
               </div>
             )}
           </div>
+
+          {/* Edit Profile & Security Action */}
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(true)}
+            className="self-start sm:self-center shrink-0 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] hover:border-orange-500/40 text-xs font-semibold text-slate-200 hover:text-orange-400 transition-all flex items-center gap-2 active:scale-95 shadow-xs cursor-pointer"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Account Settings</span>
+          </button>
 
           {/* Progress rings */}
           <div className="flex items-center gap-5 shrink-0 bg-[#0D0F13]/80 p-3 rounded-2xl border border-white/[0.06]">
@@ -1023,6 +1036,12 @@ const ProfilePage = () => {
           </p>
         </div>
       </div>
+
+      {/* Edit Profile & Security Modal */}
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      />
 
     </div>
   );

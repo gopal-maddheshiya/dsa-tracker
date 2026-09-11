@@ -30,6 +30,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpire: {
+      type: Date,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -59,12 +67,14 @@ userSchema.methods.toSafeObject = function () {
   };
 };
 
-// Ensure JSON serialization omits passwordHash
+// Ensure JSON serialization omits passwordHash and reset tokens
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();
     delete ret._id;
     delete ret.passwordHash;
+    delete ret.resetPasswordToken;
+    delete ret.resetPasswordExpire;
     delete ret.__v;
     return ret;
   },

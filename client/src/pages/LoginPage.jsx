@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
 import Rotating3DCube from '../components/auth/Rotating3DCube';
+import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 import {
   Flame,
   Sparkles,
@@ -17,6 +18,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -219,9 +221,13 @@ const LoginPage = () => {
                   <label htmlFor="password" className="text-xs font-semibold text-slate-300">
                     Password
                   </label>
-                  <span className="text-xs text-orange-400 hover:text-orange-300 cursor-pointer transition-colors font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs text-orange-400 hover:text-orange-300 transition-colors font-medium cursor-pointer"
+                  >
                     Forgot password?
-                  </span>
+                  </button>
                 </div>
                 <div className="relative">
                   <input
@@ -309,6 +315,13 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+        initialEmail={email}
+      />
     </div>
   );
 };

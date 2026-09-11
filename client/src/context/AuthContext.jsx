@@ -116,6 +116,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Update local user state
+  const updateUser = (updatedUserData) => {
+    setUser((prev) => (prev ? { ...prev, ...updatedUserData } : updatedUserData));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -127,6 +132,7 @@ export const AuthProvider = ({ children }) => {
         signup,
         googleLogin,
         logout,
+        updateUser,
       }}
     >
       {children}

@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login, googleAuth, getMe } = require('../controllers/auth.controller');
+const {
+  signup,
+  login,
+  googleAuth,
+  getMe,
+  updateProfile,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+} = require('../controllers/auth.controller');
 const { protect } = require('../middleware/authMiddleware');
 const { createRateLimiter } = require('../middleware/rateLimiter');
 
@@ -14,6 +23,12 @@ const authLimiter = createRateLimiter({
 router.post('/signup', authLimiter, signup);
 router.post('/login', authLimiter, login);
 router.post('/google', authLimiter, googleAuth);
+router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/reset-password', authLimiter, resetPassword);
+
+// Protected routes
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+router.put('/change-password', protect, changePassword);
 
 module.exports = router;

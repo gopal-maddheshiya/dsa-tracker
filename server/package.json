@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node test/verify_phase2.js && node test/verify_phase3.js && node test/verify_phase4.js",
+    "test": "node test/verify_phase2.js && node test/verify_phase3.js && node test/verify_phase4.js && node test/verify_account_management.js",
     "seed:demo": "node scripts/seedDemoData.js"
   },
   "keywords": [

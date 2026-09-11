@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
@@ -241,9 +242,219 @@ const getMe = async (req, res) => {
   });
 };
 
+/**
+ * @route   PUT /api/auth/profile
+ * @desc    Update user profile details (e.g. name)
+ * @access  Private
+ */
+const updateProfile = async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name is required',
+      });
+    }
+
+    const trimmed = name.trim();
+    if (trimmed.length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name cannot exceed 50 characters',
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    user.name = trimmed;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: user.toSafeObject(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update profile: ' + error.message,
+    });
+  }
+};
+
+/**
+ * @route   PUT /api/auth/change-password
+ * @desc    Change authenticated user password
+ * @access  Private
+ */
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long',
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // If user has a passwordHash, verify the current password first
+    if (user.passwordHash) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Current password is required',
+        });
+      }
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: 'Incorrect current password',
+        });
+      }
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password changed successfully',
+      user: user.toSafeObject(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to change password: ' + error.message,
+    });
+  }
+};
+
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Generate password reset code
+ * @access  Public
+ */
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address',
+      });
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
+      // Return success to prevent email enumeration
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a reset code has been sent.',
+      });
+    }
+
+    // Generate 6-digit numeric reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedCode = crypto.createHash('sha256').update(resetCode).digest('hex');
+
+    user.resetPasswordToken = hashedCode;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset code generated. It will expire in 15 minutes.',
+      resetCode, // Provided for easy local verification without external SMTP
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to process forgot password request: ' + error.message,
+    });
+  }
+};
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Reset password using verification code
+ * @access  Public
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { email, resetCode, newPassword } = req.body;
+
+    if (!email || !resetCode || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, reset code, and new password are required',
+      });
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters long',
+      });
+    }
+
+    const hashedCode = crypto.createHash('sha256').update(String(resetCode).trim()).digest('hex');
+
+    const user = await User.findOne({
+      email: email.trim().toLowerCase(),
+      resetPasswordToken: hashedCode,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset code. Please request a new code.',
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpire = null;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You can now log in with your new password.',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to reset password: ' + error.message,
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
   googleAuth,
   getMe,
+  updateProfile,
+  changePassword,
+  forgotPassword,
+  resetPassword,
 };
