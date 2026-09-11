@@ -20,7 +20,7 @@ const PLATFORM_CONFIG = {
   gfg:        { label: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
   codechef:   { label: 'CC',  style: 'text-amber-300 bg-amber-600/10 border-amber-600/20' },
   hackerrank: { label: 'HR',  style: 'text-emerald-300 bg-emerald-600/10 border-emerald-600/20' },
-  other:      { label: 'Ext', style: 'text-[#A8A29E] bg-[#141312] border-[#262320]' },
+  other:      { label: 'Ext', style: 'text-[#9CA3AF] bg-[#0E1014] border-white/[0.08]' },
 };
 
 const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd, onLog, startIndex = 0 }) => {
@@ -120,33 +120,33 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
   return (
     <div className="panel overflow-hidden border-white/[0.08]">
       <div className="overflow-x-auto">
-        <table className="data-table">
+        <table className="data-table min-w-[700px]">
           <thead>
             <tr>
-              <th className="w-12 text-center text-[#6B6560] font-mono">#</th>
+              <th className="w-12 text-center text-[#6B7280] font-mono">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="cursor-pointer select-none hover:text-[#F5F5F4] transition-colors"
+                className="cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
               >
                 Problem {renderSortIndicator('title')}
               </th>
               <th>Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="cursor-pointer select-none hover:text-[#F5F5F4] transition-colors"
+                className="cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
               >
                 Difficulty {renderSortIndicator('difficulty')}
               </th>
               <th>Platform</th>
               <th
                 onClick={() => handleSort('status')}
-                className="cursor-pointer select-none hover:text-[#F5F5F4] transition-colors"
+                className="cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
               >
                 Status {renderSortIndicator('status')}
               </th>
               <th
                 onClick={() => handleSort('sessions')}
-                className="text-center cursor-pointer select-none hover:text-[#F5F5F4] transition-colors"
+                className="text-center cursor-pointer select-none hover:text-[#F3F4F6] transition-colors"
               >
                 Sessions {renderSortIndicator('sessions')}
               </th>

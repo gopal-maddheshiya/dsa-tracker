@@ -102,83 +102,87 @@ const DashboardPage = () => {
     <div className="space-y-6 pb-12">
       {/* Hero greeting */}
       <div
-        className="panel p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center gap-6 relative overflow-hidden"
+        className="panel p-5 sm:p-7 flex flex-col gap-5 relative overflow-hidden"
         style={{
           background: 'radial-gradient(ellipse 65% 75% at 85% 20%, rgba(249,115,22,0.12), transparent 70%), linear-gradient(180deg, #14171C 0%, #101216 100%)',
         }}
       >
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-mono uppercase tracking-widest text-[#F97316] mb-1 font-semibold">Welcome back</p>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F3F4F6] flex items-center gap-2">
-              {greeting}, {firstName}
-              <Sparkles className="w-5 h-5 text-amber-400 shrink-0 inline-block" />
-            </h1>
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold font-mono border"
-              style={{
-                color: rank.color,
-                borderColor: `${rank.color}33`,
-                background: `${rank.color}14`,
-              }}
-            >
-              {rank.Icon && <rank.Icon className="w-3.5 h-3.5" />}
-              {rank.label}
-            </span>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5 relative">
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-mono uppercase tracking-widest text-[#F97316] mb-1 font-semibold">Welcome back</p>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-[#F3F4F6] flex items-center gap-2">
+                {greeting}, {firstName}
+                <Sparkles className="w-5 h-5 text-amber-400 shrink-0 inline-block" />
+              </h1>
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold font-mono border"
+                style={{
+                  color: rank.color,
+                  borderColor: `${rank.color}33`,
+                  background: `${rank.color}14`,
+                }}
+              >
+                {rank.Icon && <rank.Icon className="w-3.5 h-3.5" />}
+                {rank.label}
+              </span>
+            </div>
+            <p className="text-xs text-[#9CA3AF] mt-2 font-mono flex flex-wrap items-center gap-1.5">
+              {summary
+                ? `${summary.totalProblems} cataloged · ${summary.totalAttempts} sessions · ${summary.solvedProblems ?? 0} solved`
+                : 'Loading your progress…'}
+              {memberSince && <span className="text-[#6B7280]"> · Since {memberSince}</span>}
+            </p>
+            <div className="flex flex-wrap items-center gap-2 mt-4">
+              {revisionQueue.length > 0 && (
+                <Link to="/revision">
+                  <Badge variant="amber" dot size="sm">{revisionQueue.length} revision due</Badge>
+                </Link>
+              )}
+              {summary?.solvedProblems > 0 && (
+                <Badge variant="emerald" size="sm">
+                  <Trophy className="w-3 h-3 inline mr-1 text-emerald-400" />
+                  {summary.solvedProblems} solved
+                </Badge>
+              )}
+            </div>
           </div>
-          <p className="text-xs text-[#9CA3AF] mt-2 font-mono flex flex-wrap items-center gap-1.5">
-            {summary
-              ? `${summary.totalProblems} cataloged · ${summary.totalAttempts} sessions · ${summary.solvedProblems ?? 0} solved`
-              : 'Loading your progress…'}
-            {memberSince && <span className="text-[#6B7280]"> · Since {memberSince}</span>}
-          </p>
-          <div className="flex flex-wrap items-center gap-2 mt-4">
-            {revisionQueue.length > 0 && (
-              <Link to="/revision">
-                <Badge variant="amber" dot size="sm">{revisionQueue.length} revision due</Badge>
-              </Link>
-            )}
-            {summary?.solvedProblems > 0 && (
-              <Badge variant="emerald" size="sm">
-                <Trophy className="w-3 h-3 inline mr-1 text-emerald-400" />
-                {summary.solvedProblems} solved
-              </Badge>
-            )}
+
+          {/* Solve rate rings */}
+          <div className="flex items-center gap-4 sm:gap-6 bg-[#0D0F13]/80 p-3.5 rounded-2xl border border-white/[0.06] shrink-0 self-start sm:self-center">
+            <div className="text-center">
+              <ProgressRing
+                value={solvedPct}
+                size={60}
+                stroke={5}
+                color="#10B981"
+                label={
+                  <div className="text-center">
+                    <span className="text-xs font-bold font-mono text-emerald-400">{solvedPct}%</span>
+                  </div>
+                }
+              />
+              <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solved</p>
+            </div>
+            <div className="text-center">
+              <ProgressRing
+                value={solveRate}
+                size={60}
+                stroke={5}
+                color="#F97316"
+                label={
+                  <div className="text-center">
+                    <span className="text-sm font-bold font-mono text-[#F97316]">{solveRate}%</span>
+                  </div>
+                }
+              />
+              <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solve rate</p>
+            </div>
           </div>
         </div>
-        {/* Solve rate ring */}
-        <div className="flex items-center gap-4 sm:gap-6 bg-[#0D0F13]/80 p-3.5 rounded-2xl border border-white/[0.06]">
-          <div className="text-center">
-            <ProgressRing
-              value={solvedPct}
-              size={68}
-              stroke={5}
-              color="#10B981"
-              label={
-                <div className="text-center">
-                  <span className="text-xs font-bold font-mono text-emerald-400">{solvedPct}%</span>
-                </div>
-              }
-            />
-            <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solved</p>
-          </div>
-          <div className="text-center">
-            <ProgressRing
-              value={solveRate}
-              size={68}
-              stroke={5}
-              color="#F97316"
-              label={
-                <div className="text-center">
-                  <span className="text-sm font-bold font-mono text-[#F97316]">{solveRate}%</span>
-                </div>
-              }
-            />
-            <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solve rate</p>
-          </div>
-        </div>
+
         {/* Add problem CTA */}
-        <Link to="/problems" className="btn-primary shrink-0 text-xs sm:text-sm">
+        <Link to="/problems" className="btn-primary text-xs sm:text-sm w-full sm:w-auto self-start">
           + Add Problem
         </Link>
       </div>

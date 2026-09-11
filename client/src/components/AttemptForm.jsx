@@ -68,13 +68,13 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle }) =>
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="attempt-form-title"
     >
       <div
-        className="panel max-w-md w-full p-6 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
+        className="panel max-w-md w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
       >
         <div className="flex items-start justify-between pb-4 border-b border-white/[0.08] mb-5">
           <div>

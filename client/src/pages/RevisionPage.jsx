@@ -174,7 +174,7 @@ const RevisionPage = () => {
             <span className="text-xs text-[#9CA3AF]">items due for revision</span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-mono">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-400">
               <span className="w-2 h-2 rounded-full bg-rose-400" />
               <span>{summaryMetrics.struggled} Struggled</span>

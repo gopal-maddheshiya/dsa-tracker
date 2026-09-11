@@ -183,7 +183,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose, streak }) => 
 
 /* ── AppShell — top-level layout wrapper ─────────────────────────── */
 const AppShell = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
   // Desktop collapse state (persisted)
@@ -281,7 +281,27 @@ const AppShell = ({ children }) => {
             </div>
             <span className="font-bold text-sm text-[#F3F4F6]">DSA<span className="text-[#F97316]">Tracker</span></span>
           </NavLink>
-          <div className="w-9" /> {/* spacer */}
+          <div className="flex items-center gap-2">
+            {streak != null && streak > 0 && (
+              <NavLink
+                to="/profile"
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#14171C] border border-white/[0.08] text-[11px] font-mono font-bold text-[#F97316] active:scale-95 transition-transform"
+                title="Practice streak"
+              >
+                <Flame className="w-3.5 h-3.5 text-orange-400" />
+                <span>{streak}d</span>
+              </NavLink>
+            )}
+            <NavLink
+              to="/profile"
+              className="w-8 h-8 rounded-xl bg-[#F97316]/15 border border-[#F97316]/25 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.12)] text-[11px] font-bold text-[#F97316] font-mono active:scale-95 transition-transform"
+              title="My Profile"
+            >
+              {user?.name
+                ? user.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+                : (user?.email?.[0] ?? 'U').toUpperCase()}
+            </NavLink>
+          </div>
         </header>
 
         {/* Page content */}
@@ -292,7 +312,7 @@ const AppShell = ({ children }) => {
         </main>
 
         {/* Footer */}
-        <footer className="shrink-0 border-t border-white/[0.06] py-3 text-center bg-[#0A0B0D]/50">
+        <footer className="shrink-0 border-t border-white/[0.06] py-3 text-center bg-[#0A0B0D]/50 pb-safe">
           <p className="text-[11px] text-[#6B7280] font-mono tracking-wide">
             DSA Tracker · Spaced Repetition Engine · v1.2
           </p>

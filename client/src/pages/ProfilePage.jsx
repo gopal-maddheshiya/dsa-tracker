@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchProfileAnalytics, fetchHeatmapAnalytics } from '../api/analytics';
@@ -8,7 +8,8 @@ import ProgressRing from '../components/ui/ProgressRing';
 import Badge from '../components/ui/Badge';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
-  PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen
+  PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
+  TrendingUp, BarChart3, Trophy, Layers
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -86,18 +87,6 @@ if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
     }
     .badge-card:hover::before { transform: translateX(100%); transition: transform 0.6s ease; }
     .heatmap-cell { position: relative; }
-    .heatmap-cell .heatmap-tip {
-      display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-      background: #14171C; border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; padding: 4px 8px;
-      white-space: nowrap; z-index: 50; pointer-events: none;
-      font-size: 10px; font-family: monospace; color: #F3F4F6;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    }
-    .heatmap-cell .heatmap-tip::after {
-      content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-      border: 4px solid transparent; border-top-color: rgba(255,255,255,0.14);
-    }
-    .heatmap-cell:hover .heatmap-tip { display: block; }
   `;
   document.head.appendChild(style);
 }
@@ -105,8 +94,12 @@ if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
 /* ── Yearly Heatmap ───────────────────────────────────────────────── */
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-const YearlyHeatmap = ({ heatmapData = [] }) => {
+const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 }) => {
+  const containerRef = useRef(null);
+  const [hoveredCell, setHoveredCell] = useState(null);
+
   const today = new Date();
   const yearAgo = new Date(today);
   yearAgo.setFullYear(today.getFullYear() - 1);
@@ -116,21 +109,39 @@ const YearlyHeatmap = ({ heatmapData = [] }) => {
   const countMap = {};
   let totalSessions = 0;
   const monthCounts = {};
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+
   heatmapData.forEach(({ date, count }) => {
-    countMap[date] = count;
-    totalSessions += count;
+    const c = Number(count) || 0;
+    countMap[date] = c;
+    totalSessions += c;
     const m = date.slice(0, 7); // YYYY-MM
-    monthCounts[m] = (monthCounts[m] || 0) + count;
+    monthCounts[m] = (monthCounts[m] || 0) + c;
+    if (c > 0) {
+      const dt = new Date(date + 'T00:00:00');
+      dayCounts[dt.getDay()] += c;
+    }
   });
 
   // Summary stats
   const activeDaysCount = heatmapData.filter(h => h.count > 0).length;
+  const consistencyRate = Math.round((activeDaysCount / 365) * 100);
   const weeksCount = Math.max(1, Math.ceil(365 / 7));
   const avgPerWeek = (totalSessions / weeksCount).toFixed(1);
+
   const busiestMonth = Object.entries(monthCounts).sort((a, b) => b[1] - a[1])[0];
   const busiestMonthLabel = busiestMonth
     ? (() => { const [y, m] = busiestMonth[0].split('-'); return `${MONTHS[parseInt(m, 10) - 1]} ${y}`; })()
     : '—';
+  const busiestMonthCount = busiestMonth ? busiestMonth[1] : 0;
+
+  // Best day of week
+  let bestDayIdx = 0;
+  for (let i = 1; i < 7; i++) {
+    if (dayCounts[i] > dayCounts[bestDayIdx]) bestDayIdx = i;
+  }
+  const bestDayName = dayCounts[bestDayIdx] > 0 ? DAYS_FULL[bestDayIdx] : '—';
+  const bestDaySessions = dayCounts[bestDayIdx];
 
   // Build weeks array (Sun–Sat columns)
   const weeks = [];
@@ -173,84 +184,208 @@ const YearlyHeatmap = ({ heatmapData = [] }) => {
   });
 
   return (
-    <div className="overflow-x-auto">
-      <div style={{ minWidth: 680 }}>
-        {/* Month labels */}
-        <div className="flex mb-1 ml-8" style={{ gap: 2 }}>
-          {weeks.map((_, wi) => {
-            const lbl = monthLabels.find(m => m.week === wi);
-            return (
-              <div key={wi} style={{ width: 11, flexShrink: 0 }}>
-                {lbl && <span className="text-[9px] text-[#6B6560] font-mono">{lbl.month}</span>}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="flex" style={{ gap: 2 }}>
-          {/* Day labels */}
-          <div className="flex flex-col mr-1" style={{ gap: 2, paddingTop: 0 }}>
-            {DAYS.map((d, i) => (
-              <div key={d} style={{ height: 11, display: 'flex', alignItems: 'center' }}>
-                {i % 2 === 1 && (
-                  <span className="text-[8px] text-[#6B6560] font-mono w-6 text-right">{d}</span>
-                )}
-                {i % 2 === 0 && <span className="w-6" />}
-              </div>
-            ))}
+    <div className="space-y-4">
+      {/* ── Scrollable Heatmap Board ──────────────────────────── */}
+      <div className="overflow-x-auto relative rounded-xl bg-[#0B0C0E]/50 border border-white/[0.05] p-3 sm:p-4">
+        <div ref={containerRef} className="relative select-none" style={{ minWidth: 780 }}>
+          {/* Month labels */}
+          <div className="flex mb-1.5 ml-8" style={{ gap: 2.5 }}>
+            {weeks.map((_, wi) => {
+              const lbl = monthLabels.find(m => m.week === wi);
+              return (
+                <div key={wi} style={{ width: 12.5, flexShrink: 0 }}>
+                  {lbl && <span className="text-[10px] text-[#9CA3AF] font-mono font-medium">{lbl.month}</span>}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Cells */}
-          {weeks.map((week, wi) => (
-            <div key={wi} className="flex flex-col" style={{ gap: 2 }}>
-              {week.map((cell, di) => (
-                <div
-                  key={di}
-                  className="heatmap-cell"
-                  style={{
-                    width: 11, height: 11, borderRadius: 2,
-                    background: getColor(cell.count),
-                    border: cell.count !== null ? '1px solid rgba(0,0,0,0.2)' : 'none',
-                    cursor: cell.count !== null ? 'pointer' : 'default',
-                    transition: 'transform 0.1s',
-                  }}
-                  onMouseEnter={e => { if (cell.count !== null) e.currentTarget.style.transform = 'scale(1.4)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                >
-                  {cell.count !== null && (
-                    <div className="heatmap-tip">
-                      <span style={{ color: cell.count > 0 ? '#F59E0B' : '#6B6560' }}>{cell.count}</span>
-                      <span style={{ color: '#6B6560' }}> session{cell.count !== 1 ? 's' : ''} · </span>
-                      <span style={{ color: '#A8A29E' }}>{cell.date}</span>
-                    </div>
+          <div className="flex" style={{ gap: 2.5 }}>
+            {/* Day labels */}
+            <div className="flex flex-col mr-1.5" style={{ gap: 2.5, paddingTop: 0 }}>
+              {DAYS.map((d, i) => (
+                <div key={d} style={{ height: 12.5, display: 'flex', alignItems: 'center' }}>
+                  {i % 2 === 1 && (
+                    <span className="text-[8px] text-[#9CA3AF] font-mono w-6 text-right font-medium">{d}</span>
                   )}
+                  {i % 2 === 0 && <span className="w-6" />}
                 </div>
               ))}
             </div>
-          ))}
+
+            {/* Cells */}
+            {weeks.map((week, wi) => (
+              <div key={wi} className="flex flex-col" style={{ gap: 2.5 }}>
+                {week.map((cell, di) => (
+                  <div
+                    key={di}
+                    className="heatmap-cell"
+                    style={{
+                      width: 12.5,
+                      height: 12.5,
+                      borderRadius: 2.5,
+                      background: getColor(cell.count),
+                      border: cell.count !== null ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                      cursor: cell.count !== null ? 'pointer' : 'default',
+                      transition: 'transform 0.12s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (cell.count !== null && containerRef.current) {
+                        e.currentTarget.style.transform = 'scale(1.4)';
+                        e.currentTarget.style.zIndex = '10';
+                        const containerRect = containerRef.current.getBoundingClientRect();
+                        const cellRect = e.currentTarget.getBoundingClientRect();
+                        setHoveredCell({
+                          count: cell.count,
+                          date: cell.date,
+                          x: cellRect.left - containerRect.left + cellRect.width / 2,
+                          y: cellRect.top - containerRect.top,
+                        });
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.zIndex = '1';
+                      setHoveredCell(null);
+                    }}
+                    onClick={(e) => {
+                      if (cell.count !== null && containerRef.current) {
+                        const containerRect = containerRef.current.getBoundingClientRect();
+                        const cellRect = e.currentTarget.getBoundingClientRect();
+                        setHoveredCell((prev) =>
+                          prev?.date === cell.date
+                            ? null
+                            : {
+                                count: cell.count,
+                                date: cell.date,
+                                x: cellRect.left - containerRect.left + cellRect.width / 2,
+                                y: cellRect.top - containerRect.top,
+                              }
+                        );
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Floating Single Tooltip: Always on top, no z-index fighting or column clipping */}
+          {hoveredCell && (() => {
+            const isFlipped = hoveredCell.y < 35;
+            const clampedX = Math.max(75, Math.min(hoveredCell.x, 780 - 75));
+            const arrowOffset = hoveredCell.x - clampedX;
+
+            return (
+              <div
+                className="pointer-events-none absolute z-50 px-2.5 py-1.5 rounded-xl text-[11px] font-mono shadow-2xl transition-all duration-75"
+                style={{
+                  left: clampedX,
+                  top: isFlipped ? hoveredCell.y + 20 : hoveredCell.y - 36,
+                  transform: 'translateX(-50%)',
+                  backgroundColor: '#161920',
+                  border: '1px solid rgba(255, 255, 255, 0.18)',
+                  boxShadow: '0 10px 28px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(249, 115, 22, 0.25)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className={`font-bold ${hoveredCell.count > 0 ? 'text-[#F97316]' : 'text-[#9CA3AF]'}`}>
+                    {hoveredCell.count} {hoveredCell.count === 1 ? 'session' : 'sessions'}
+                  </span>
+                  <span className="text-white/25">·</span>
+                  <span className="text-[#F3F4F6] font-medium">
+                    {hoveredCell.date}
+                  </span>
+                </div>
+
+                {/* Downward/Upward Triangle Arrow */}
+                <div
+                  className="absolute w-0 h-0"
+                  style={{
+                    left: `calc(50% + ${arrowOffset}px)`,
+                    transform: 'translateX(-50%)',
+                    ...(isFlipped
+                      ? {
+                          bottom: '100%',
+                          borderLeft: '5px solid transparent',
+                          borderRight: '5px solid transparent',
+                          borderBottom: '5px solid #161920',
+                        }
+                      : {
+                          top: '100%',
+                          borderLeft: '5px solid transparent',
+                          borderRight: '5px solid transparent',
+                          borderTop: '5px solid #161920',
+                        }),
+                  }}
+                />
+              </div>
+            );
+          })()}
+
+          {/* Legend Strip */}
+          <div className="flex flex-wrap items-center justify-between mt-3.5 pt-2.5 border-t border-white/[0.05] sm:ml-8 ml-1 gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-[#9CA3AF] font-mono">Less</span>
+              {['rgba(255,255,255,0.04)','#9A3412','#C2410C','#EA580C','#F97316','#FDBA74'].map(c => (
+                <div key={c} style={{ width: 12, height: 12, borderRadius: 2.5, background: c, border: '1px solid rgba(255,255,255,0.08)' }} />
+              ))}
+              <span className="text-[10px] text-[#9CA3AF] font-mono">More</span>
+            </div>
+            <span className="text-[10px] font-mono text-[#6B7280]">
+              Tap or hover any square to view date & practice sessions
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Integrated Heatmap Analytics Bar ─────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+            <Calendar className="w-3 h-3 text-[#9CA3AF]" />
+            Active Days
+          </span>
+          <div className="my-1">
+            <span className="text-xl font-bold font-mono text-[#F3F4F6]">{activeDaysCount}</span>
+            <span className="text-xs font-mono text-[#6B7280]"> / 365d</span>
+          </div>
+          <span className="text-[10px] font-mono text-[#9CA3AF]">{consistencyRate}% annual habit</span>
         </div>
 
-        {/* Legend + Summary stats */}
-        <div className="flex flex-wrap items-center justify-between mt-3 ml-8 gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] text-[#6B6560] font-mono">Less</span>
-            {['#1C1A18','#92400E','#B45309','#D97706','#F59E0B','#FCD34D'].map(c => (
-              <div key={c} style={{ width: 11, height: 11, borderRadius: 2, background: c, border: '1px solid rgba(0,0,0,0.2)' }} />
-            ))}
-            <span className="text-[9px] text-[#6B6560] font-mono">More</span>
+        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+            <Zap className="w-3 h-3 text-amber-400" />
+            Practice Pace
+          </span>
+          <div className="my-1">
+            <span className="text-xl font-bold font-mono text-[#F3F4F6]">{avgPerWeek}</span>
+            <span className="text-xs font-mono text-[#6B7280]"> sess/wk</span>
           </div>
+          <span className="text-[10px] font-mono text-[#9CA3AF]">{totalSessions} sessions logged</span>
+        </div>
 
-          <div className="flex items-center gap-4">
-            <span className="text-[9px] font-mono text-[#6B6560]">
-              <span className="text-[#A8A29E]">{totalSessions}</span> sessions
-            </span>
-            <span className="text-[9px] font-mono text-[#6B6560]">
-              <span className="text-[#A8A29E]">{avgPerWeek}</span>/week avg
-            </span>
-            <span className="text-[9px] font-mono text-[#6B6560]">
-              busiest: <span className="text-[#A8A29E]">{busiestMonthLabel}</span>
-            </span>
+        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+            <Target className="w-3 h-3 text-emerald-400" />
+            Prime Practice Day
+          </span>
+          <div className="my-1">
+            <span className="text-xl font-bold font-mono text-emerald-400 truncate block">{bestDayName}</span>
           </div>
+          <span className="text-[10px] font-mono text-[#9CA3AF]">{bestDaySessions} sessions logged</span>
+        </div>
+
+        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
+            <Flame className="w-3 h-3 text-[#F97316]" />
+            Peak Month
+          </span>
+          <div className="my-1">
+            <span className="text-xl font-bold font-mono text-[#F97316] truncate block">{busiestMonthLabel}</span>
+          </div>
+          <span className="text-[10px] font-mono text-[#9CA3AF]">{busiestMonthCount} peak sessions</span>
         </div>
       </div>
     </div>
@@ -326,6 +461,138 @@ const NextBadgeTeaser = ({ profile }) => {
           </div>
           <p className="text-[10px] font-mono text-[#6B7280] mt-1">{nextMilestone.desc}</p>
         </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Difficulty Distribution ─────────────────────────────────────── */
+const DifficultyDistribution = ({ profile }) => {
+  const easy = profile?.solvedByDifficulty?.easy ?? 0;
+  const med  = profile?.solvedByDifficulty?.medium ?? 0;
+  const hard = profile?.solvedByDifficulty?.hard ?? 0;
+  const total = easy + med + hard || 1;
+
+  const bars = [
+    { label: 'Easy',   count: easy, pct: Math.round((easy / total) * 100), color: '#10B981', gradient: 'linear-gradient(90deg, #059669, #10B981, #34D399)' },
+    { label: 'Medium', count: med,  pct: Math.round((med  / total) * 100), color: '#F59E0B', gradient: 'linear-gradient(90deg, #D97706, #F59E0B, #FBBF24)' },
+    { label: 'Hard',   count: hard, pct: Math.round((hard / total) * 100), color: '#F43F5E', gradient: 'linear-gradient(90deg, #E11D48, #F43F5E, #FB7185)' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {bars.map((b) => (
+        <div key={b.label}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: b.color, boxShadow: `0 0 6px ${b.color}66` }} />
+              <span className="text-xs font-semibold text-[#F3F4F6]">{b.label}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold font-mono" style={{ color: b.color }}>{b.count}</span>
+              <span className="text-[10px] font-mono text-[#6B7280]">{b.pct}%</span>
+            </div>
+          </div>
+          <div className="h-2.5 rounded-full overflow-hidden bg-white/[0.06]">
+            <div
+              className="h-full rounded-full bar-animated"
+              style={{
+                width: `${b.pct}%`,
+                background: b.gradient,
+                boxShadow: `0 0 10px ${b.color}33`,
+              }}
+            />
+          </div>
+        </div>
+      ))}
+
+      {/* Ratio summary strip */}
+      <div className="flex items-center gap-2 mt-2 pt-3 border-t border-white/[0.06]">
+        <div className="flex-1 h-1.5 rounded-full overflow-hidden flex">
+          {easy > 0 && <div className="h-full" style={{ width: `${(easy / total) * 100}%`, background: '#10B981' }} />}
+          {med  > 0 && <div className="h-full" style={{ width: `${(med  / total) * 100}%`, background: '#F59E0B' }} />}
+          {hard > 0 && <div className="h-full" style={{ width: `${(hard / total) * 100}%`, background: '#F43F5E' }} />}
+        </div>
+        <span className="text-[10px] font-mono text-[#6B7280] shrink-0">{total} solved</span>
+      </div>
+    </div>
+  );
+};
+
+/* ── Weekly Momentum ─────────────────────────────────────────────── */
+const WeeklyMomentum = ({ heatmapData = [] }) => {
+  // Compute last 8 weeks of sessions
+  const today = new Date();
+  const weeks = useMemo(() => {
+    const result = [];
+    for (let w = 7; w >= 0; w--) {
+      const weekEnd = new Date(today);
+      weekEnd.setDate(today.getDate() - w * 7);
+      const weekStart = new Date(weekEnd);
+      weekStart.setDate(weekEnd.getDate() - 6);
+
+      const startStr = weekStart.toISOString().slice(0, 10);
+      const endStr   = weekEnd.toISOString().slice(0, 10);
+
+      let count = 0;
+      heatmapData.forEach(({ date, count: c }) => {
+        if (date >= startStr && date <= endStr) count += Number(c) || 0;
+      });
+
+      // Week label like "Aug 25"
+      const label = weekStart.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      result.push({ label, count, startStr, endStr });
+    }
+    return result;
+  }, [heatmapData]);
+
+  const maxCount = Math.max(1, ...weeks.map(w => w.count));
+
+  // Trend arrow
+  const lastWeek = weeks[weeks.length - 1]?.count ?? 0;
+  const prevWeek = weeks[weeks.length - 2]?.count ?? 0;
+  const trend = lastWeek > prevWeek ? 'up' : lastWeek < prevWeek ? 'down' : 'flat';
+  const trendColor = trend === 'up' ? '#10B981' : trend === 'down' ? '#F43F5E' : '#9CA3AF';
+  const trendLabel = trend === 'up' ? `+${lastWeek - prevWeek} vs last week` : trend === 'down' ? `${lastWeek - prevWeek} vs last week` : 'Same as last week';
+
+  return (
+    <div>
+      {/* Trend indicator */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${trendColor}18`, border: `1px solid ${trendColor}33` }}>
+          <TrendingUp className="w-3.5 h-3.5" style={{ color: trendColor, transform: trend === 'down' ? 'rotate(180deg)' : 'none' }} />
+        </div>
+        <span className="text-xs font-mono" style={{ color: trendColor }}>{trendLabel}</span>
+      </div>
+
+      {/* Bar chart */}
+      <div className="flex items-end gap-2" style={{ height: 100 }}>
+        {weeks.map((w, i) => {
+          const barH = Math.max(4, (w.count / maxCount) * 88);
+          const isLatest = i === weeks.length - 1;
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group cursor-default">
+              <span className="text-[9px] font-mono text-[#6B7280] opacity-0 group-hover:opacity-100 transition-opacity">
+                {w.count}
+              </span>
+              <div
+                className="w-full rounded-md bar-animated transition-all duration-200 group-hover:scale-x-110"
+                style={{
+                  height: barH,
+                  background: isLatest
+                    ? 'linear-gradient(180deg, #F97316, #EA580C)'
+                    : 'linear-gradient(180deg, rgba(249,115,22,0.35), rgba(249,115,22,0.15))',
+                  border: isLatest ? '1px solid rgba(249,115,22,0.5)' : '1px solid rgba(249,115,22,0.1)',
+                  boxShadow: isLatest ? '0 0 12px rgba(249,115,22,0.3)' : 'none',
+                  minWidth: 12,
+                }}
+              />
+              <span className="text-[8px] font-mono text-[#6B7280] truncate w-full text-center">
+                {w.label.split(' ')[0]}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -594,6 +861,35 @@ const ProfilePage = () => {
           <Badge variant="default" size="xs">{heatmap.length} active days</Badge>
         </div>
         <YearlyHeatmap heatmapData={heatmap} />
+      </div>
+
+      {/* ── Difficulty Distribution + Weekly Momentum ────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="panel p-5">
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-semibold text-[#F3F4F6]">Difficulty Distribution</h2>
+              <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Your solve breakdown by difficulty</p>
+            </div>
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20">
+              <Layers className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+          </div>
+          <DifficultyDistribution profile={profile} />
+        </div>
+
+        <div className="panel p-5">
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-semibold text-[#F3F4F6]">Weekly Momentum</h2>
+              <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Sessions per week · last 8 weeks</p>
+            </div>
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center bg-[#F97316]/10 border border-[#F97316]/20">
+              <BarChart3 className="w-3.5 h-3.5 text-[#F97316]" />
+            </div>
+          </div>
+          <WeeklyMomentum heatmapData={heatmap} />
+        </div>
       </div>
 
       {/* ── Milestone Badges ────────────────────────────────────── */}
