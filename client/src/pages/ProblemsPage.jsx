@@ -3,12 +3,14 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchProblems, deleteProblem } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
-import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye } from 'lucide-react';
+import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
 import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import Reveal from '../components/common/Reveal';
+import TiltCard from '../components/common/TiltCard';
 
 /* ── Difficulty / Status maps ─────────────────────────────────────── */
 const DIFF_STYLE = {
@@ -80,7 +82,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       <div className="flex items-start justify-between gap-2">
         <Link
           to={`/problems/${problem.id}`}
-          className="text-sm font-semibold text-[#F3F4F6] leading-snug line-clamp-2 active:text-[#FB923C] transition-colors"
+          className="text-sm font-semibold text-[#F3F4F6] leading-snug line-clamp-2 active:text-[#E07A38] transition-colors"
         >
           {problem.title}
         </Link>
@@ -89,7 +91,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="p-1 text-[#6B7280] hover:text-[#F97316] active:text-[#FB923C] shrink-0"
+            className="p-1 text-[#6B7280] hover:text-[#E07A38] active:text-[#E07A38] shrink-0"
             title="Open original problem"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -125,7 +127,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         {onLog && (
           <button
             onClick={() => onLog(problem)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 active:bg-emerald-500/25 transition-all shadow-sm cursor-pointer"
+            className="flex-1 h-9 flex items-center justify-center gap-1.5 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 active:bg-emerald-500/25 transition-all shadow-sm cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Attempt</span>
@@ -135,7 +137,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <Link
           to={`/problems/${problem.id}`}
           aria-label="View problem details"
-          className="p-2 rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-[#22262E] active:text-[#F3F4F6] transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-[#22262E] active:text-[#F3F4F6] transition-colors"
         >
           <Eye className="w-3.5 h-3.5" />
         </Link>
@@ -143,7 +145,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <button
           onClick={() => onEdit(problem)}
           aria-label="Edit problem"
-          className="p-2 rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-amber-500/10 active:text-amber-400 transition-colors cursor-pointer"
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-amber-500/10 active:text-amber-400 transition-colors cursor-pointer"
         >
           <Edit2 className="w-3.5 h-3.5" />
         </button>
@@ -151,7 +153,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <button
           onClick={() => onDelete(problem)}
           aria-label="Delete problem"
-          className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 active:bg-rose-500/25 transition-colors cursor-pointer"
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 active:bg-rose-500/25 transition-colors cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -214,9 +216,9 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
   const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="panel p-4 sm:p-5 flex flex-col gap-3.5 bg-[#121418] hover:bg-[#15181E] border border-white/[0.08] hover:border-[#F97316]/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.6)] hover:-translate-y-1 transition-all duration-200 group relative rounded-2xl overflow-hidden">
+    <div className="panel p-4 sm:p-5 flex flex-col gap-3.5 bg-[#121418] hover:bg-[#15181E] border border-white/[0.08] hover:border-[#E07A38]/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.6)] hover:-translate-y-1 transition-all duration-200 group relative rounded-2xl overflow-hidden">
       {/* Subtle top corner ambient glow */}
-      <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#F97316]/5 group-hover:bg-[#F97316]/15 blur-2xl rounded-full pointer-events-none transition-all duration-300" />
+      <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#E07A38]/5 group-hover:bg-[#E07A38]/15 blur-2xl rounded-full pointer-events-none transition-all duration-300" />
 
       {/* Top row: Difficulty & Platform chips */}
       <div className="flex items-center justify-between gap-2 relative z-10">
@@ -247,7 +249,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       <div className="flex items-start justify-between gap-2 relative z-10">
         <Link
           to={`/problems/${problem.id}`}
-          className="text-sm font-semibold text-[#F3F4F6] group-hover:text-[#FB923C] transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
+          className="text-sm font-semibold text-[#F3F4F6] group-hover:text-[#E07A38] transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
           title={problem.title}
         >
           {problem.title}
@@ -257,7 +259,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="text-[#6B7280] hover:text-[#F97316] transition-colors shrink-0 p-1 -m-1 rounded hover:bg-white/[0.05]"
+            className="text-[#6B7280] hover:text-[#E07A38] transition-colors shrink-0 p-1 -m-1 rounded hover:bg-white/[0.05]"
             title="Open original problem in new tab"
           >
             <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -296,7 +298,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             <button
               type="button"
               onClick={() => onLog(problem)}
-              className="px-2.5 py-1 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 text-[11px] font-mono font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="h-8 px-2.5 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 text-[11px] font-mono font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-sm"
               title="Log practice attempt"
             >
               <Plus className="w-3 h-3 stroke-[2.5]" />
@@ -305,7 +307,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           )}
           <Link
             to={`/problems/${problem.id}`}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-transparent hover:border-white/[0.1] transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-white/[0.08] bg-[#0E1014] transition-all"
             title="View Details"
           >
             <Eye className="w-3.5 h-3.5" />
@@ -313,7 +315,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           <button
             type="button"
             onClick={() => onEdit(problem)}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-amber-400 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-amber-400 hover:bg-amber-500/10 border border-white/[0.08] bg-[#0E1014] hover:border-amber-500/25 transition-all cursor-pointer"
             title="Edit problem"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -321,7 +323,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           <button
             type="button"
             onClick={() => onDelete(problem)}
-            className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-rose-400 hover:bg-rose-500/10 border border-white/[0.08] bg-[#0E1014] hover:border-rose-500/25 transition-all cursor-pointer"
             title="Delete problem"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -349,6 +351,10 @@ const useIsMobile = (breakpoint = 640) => {
 
 /* ── Main Page ────────────────────────────────────────────────────── */
 const ProblemsPage = () => {
+  useEffect(() => {
+    document.title = 'Problems · DSA Tracker';
+  }, []);
+
   const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -382,6 +388,11 @@ const ProblemsPage = () => {
     if (d !== null && d !== difficulty) setDifficulty(d);
     if (t !== null && t !== topic) setTopic(t);
     if (s !== null && s !== search) setSearch(s);
+
+    if (searchParams.get('new') === '1' || searchParams.get('add') === 'true' || searchParams.get('add') === '1') {
+      setEditingProblem(null);
+      setIsFormOpen(true);
+    }
   }, [searchParams]);
 
   const [viewMode, setViewMode] = useState(() =>
@@ -451,6 +462,7 @@ const ProblemsPage = () => {
 
   const handleOpenAdd = () => { setEditingProblem(null); setIsFormOpen(true); };
   const handleEdit = (p) => { setEditingProblem(p); setIsFormOpen(true); };
+  const handleCloseForm = useCallback(() => { setIsFormOpen(false); }, []);
   const handleDeletePrompt = (p) => { setDeletingProblem(p); };
 
   const handleConfirmDelete = async () => {
@@ -553,213 +565,224 @@ const ProblemsPage = () => {
   };
 
   return (
-    <div className="space-y-5 pb-12 animate-fade-up">
+    <div className="space-y-5 pb-24 sm:pb-12 animate-fade-up">
       {/* ── Top Header & Action Controls ───────────────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-[#F3F4F6]">Problems</h1>
-            <span className="text-xs font-mono text-[#9CA3AF] bg-[#14171C] border border-white/[0.08] px-2.5 py-0.5 rounded-lg">
-              {stats.total} total
-            </span>
+      <Reveal delay={0} y={14}>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-xl font-bold tracking-tight text-[#F3F4F6]">Problems</h1>
+              <span className="text-xs font-mono text-[#9CA3AF] bg-[#14171C] border border-white/[0.08] px-2.5 py-0.5 rounded-lg">
+                {stats.total} total
+              </span>
 
-            {/* Quick Stat Chips — hidden on mobile to avoid overflow */}
-            <span className="hidden sm:inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
-              ● {stats.easy} Easy
-            </span>
-            <span className="hidden sm:inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-400">
-              ● {stats.medium} Med
-            </span>
-            <span className="hidden sm:inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/25 text-rose-400">
-              ● {stats.hard} Hard
-            </span>
-            <span className="hidden sm:inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              {stats.solved} Solved
-            </span>
-          </div>
-          <p className="text-xs text-[#9CA3AF] mt-1 font-mono">
-            Your centralized repository across topics, platforms, and difficulty tiers.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {/* View toggle (desktop only) */}
-          <div className="hidden sm:flex items-center gap-0.5 p-1 rounded-xl bg-[#14171C] border border-white/[0.08]">
-            <button
-              onClick={() => toggleView('table')}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#F97316] text-white shadow-sm' : 'text-[#6B7280] hover:text-[#F3F4F6]'}`}
-              title="Table view"
-            >
-              <TableIcon />
-            </button>
-            <button
-              onClick={() => toggleView('grid')}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#F97316] text-white shadow-sm' : 'text-[#6B7280] hover:text-[#F3F4F6]'}`}
-              title="Grid view"
-            >
-              <GridIcon />
-            </button>
+              {/* Quick Stat Chips — scrollable on mobile, inline on desktop */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
+                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 shrink-0">
+                  ● {stats.easy} Easy
+                </span>
+                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0">
+                  ● {stats.medium} Med
+                </span>
+                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/25 text-rose-400 shrink-0">
+                  ● {stats.hard} Hard
+                </span>
+                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 items-center gap-1 shrink-0">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  {stats.solved} Solved
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-[#9CA3AF] mt-1 font-mono">
+              Your centralized repository across topics, platforms, and difficulty tiers.
+            </p>
           </div>
 
-          <button
-            onClick={handleExportCSV}
-            type="button"
-            className="hidden sm:flex btn-ghost text-xs items-center gap-1.5"
-            title="Export problems as CSV"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* View toggle (desktop only) */}
+            <div className="hidden sm:flex items-center gap-0.5 p-1 rounded-xl bg-[#14171C] border border-white/[0.08] h-10">
+              <button
+                onClick={() => toggleView('table')}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-primary text-primary-foreground font-bold shadow-sm' : 'text-[#6B7280] hover:text-[#F3F4F6]'}`}
+                title="Table view"
+              >
+                <TableIcon />
+              </button>
+              <button
+                onClick={() => toggleView('grid')}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary text-primary-foreground font-bold shadow-sm' : 'text-[#6B7280] hover:text-[#F3F4F6]'}`}
+                title="Grid view"
+              >
+                <GridIcon />
+              </button>
+            </div>
 
-          {/* Pick Random Problem */}
-          <button
-            onClick={handlePickRandom}
-            type="button"
-            className="px-3 py-2 rounded-xl text-xs font-semibold bg-[#14171C] border border-white/[0.12] hover:border-white/[0.22] hover:bg-[#1B1F25] text-[#F3F4F6] transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
-            title="Pick a random problem to practice"
-          >
-            <Dices className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">Pick Random</span>
-          </button>
+            <button
+              onClick={handleExportCSV}
+              type="button"
+              className="hidden sm:inline-flex btn-secondary text-xs items-center gap-1.5"
+              title="Export problems as CSV"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export</span>
+            </button>
 
-          <button
-            onClick={handleOpenAdd}
-            type="button"
-            className="btn-primary text-xs flex items-center gap-1 px-3.5 py-2 active:scale-95"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add</span>
-          </button>
+            {/* Pick Random Problem */}
+            <button
+              onClick={handlePickRandom}
+              type="button"
+              className="btn-secondary text-xs items-center gap-1.5"
+              title="Pick a random problem to practice"
+            >
+              <Dices className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Pick Random</span>
+            </button>
+
+            <button
+              onClick={handleOpenAdd}
+              type="button"
+              className="btn-primary text-xs flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Problem</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </Reveal>
 
       {/* ── Unified Modern Command & Filter Toolbar ────────────────── */}
-      <div className="panel p-3.5 sm:p-4 border-white/[0.08] bg-[#121418] space-y-3">
-        {/* Top Row: Search Title + Topic Filter + Reset */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3 items-center">
-          {/* Search Title */}
-          <div className="md:col-span-6 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none">
-              <Search className="w-3.5 h-3.5" />
-            </span>
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                  if (search) setSearch('');
-                  else searchInputRef.current?.blur();
-                }
-              }}
-              placeholder="Search problems by title..."
-              className="input-base pl-9 pr-8 text-xs h-9 w-full bg-[#0D0F13] border-white/[0.09] focus:border-[#F97316]"
-            />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                title="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#F3F4F6]"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Filter Topic */}
-          <div className="md:col-span-4 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none">
-              <Tag className="w-3.5 h-3.5" />
-            </span>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="Filter by topic (e.g. Graph, DP)..."
-              className="input-base pl-9 pr-8 text-xs h-9 w-full bg-[#0D0F13] border-white/[0.09] focus:border-[#F97316]"
-            />
-            {topic && (
-              <button
-                onClick={() => setTopic('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#F3F4F6]"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Filter count & Reset button */}
-          <div className="md:col-span-2 flex justify-end">
-            {activeFilterCount > 0 ? (
-              <button
-                onClick={handleResetFilters}
-                type="button"
-                className="text-xs font-mono text-[#F97316] hover:text-[#FB923C] bg-amber-500/10 border border-amber-500/25 hover:bg-amber-500/20 px-3 py-1.5 rounded-lg transition-colors w-full text-center flex items-center justify-center gap-1.5"
-              >
-                <span>Reset ({activeFilterCount})</span>
-                <X className="w-3 h-3" />
-              </button>
-            ) : (
-              <span className="text-[11px] font-mono text-[#6B7280] hidden md:block text-right w-full">
-                {problems.length} matches
+      <Reveal delay={50} y={12}>
+        <div className="panel p-3.5 sm:p-4 border-white/[0.08] bg-[#121418] space-y-3 rounded-2xl shadow-md">
+          {/* Top Row: Search Title + Topic Filter + Reset */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3 items-center">
+            {/* Search Title */}
+            <div className="md:col-span-6 relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                <Search className="w-4 h-4" />
               </span>
-            )}
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search problems by title, keywords... (Press / to focus)"
+                className="input pl-9.5 pr-8 py-2 text-xs sm:text-sm w-full bg-[#0D0F13] border-white/[0.08] rounded-xl focus:border-[#E07A38]/50 focus:ring-1 focus:ring-[#E07A38]/50"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 p-0.5"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Topic Filter Dropdown */}
+            <div className="md:col-span-4 relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                <Tag className="w-3.5 h-3.5" />
+              </span>
+              <select
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                className="input pl-9 pr-8 py-2 text-xs sm:text-sm w-full bg-[#0D0F13] border-white/[0.08] rounded-xl text-slate-300 focus:border-[#E07A38]/50 focus:ring-1 focus:ring-[#E07A38]/50 appearance-none cursor-pointer"
+              >
+                <option value="">All Topics ({allTopics.length})</option>
+                {allTopics.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-xs">
+                ▼
+              </span>
+            </div>
+
+            {/* Quick Reset / Filter count Indicator */}
+            <div className="md:col-span-2 flex items-center justify-end gap-2">
+              {activeFilterCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="btn-ghost text-xs text-amber-400 hover:text-amber-300 border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 py-1.5 px-2.5 rounded-xl flex items-center gap-1.5 w-full justify-center sm:w-auto transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                  <span>Reset ({activeFilterCount})</span>
+                </button>
+              ) : (
+                <span className="text-[11px] font-mono text-slate-500 hidden md:inline">
+                  No active filters
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom Row: Difficulty & Status Quick Filter Chips */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2.5 border-t border-white/[0.04]">
+            {/* Difficulty Segmented Control */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              <span className="text-[11px] font-medium text-slate-400 shrink-0 flex items-center gap-1">
+                <SlidersHorizontal className="w-3 h-3 text-slate-500" />
+                <span>Difficulty:</span>
+              </span>
+              <div className="flex items-center p-0.5 rounded-lg bg-[#0B0D11] border border-white/[0.07] shrink-0">
+                {[
+                  { value: '', label: 'All', active: 'bg-white/[0.12] text-white font-semibold border-white/[0.2] shadow-xs' },
+                  { value: 'easy', label: 'Easy', active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/35 font-semibold shadow-xs' },
+                  { value: 'medium', label: 'Medium', active: 'bg-amber-500/15 text-amber-400 border-amber-500/35 font-semibold shadow-xs' },
+                  { value: 'hard', label: 'Hard', active: 'bg-rose-500/15 text-rose-400 border-rose-500/35 font-semibold shadow-xs' },
+                ].map((d) => (
+                  <button
+                    key={d.value}
+                    type="button"
+                    onClick={() => setDifficulty(d.value)}
+                    className={`text-[11px] font-mono px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                      difficulty === d.value
+                        ? d.active
+                        : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Status Segmented Control */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+              <span className="text-[11px] font-medium text-slate-400 shrink-0 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-slate-500" />
+                <span>Status:</span>
+              </span>
+              <div className="flex items-center p-0.5 rounded-lg bg-[#0B0D11] border border-white/[0.07] shrink-0">
+                {[
+                  { value: '', label: 'All', active: 'bg-white/[0.12] text-white font-semibold border-white/[0.2] shadow-xs' },
+                  { value: 'solved', label: 'Solved', active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/35 font-semibold shadow-xs' },
+                  { value: 'struggled', label: 'Struggled', active: 'bg-rose-500/15 text-rose-400 border-rose-500/35 font-semibold shadow-xs' },
+                  { value: 'revisit_needed', label: 'Revisit', active: 'bg-amber-500/15 text-amber-400 border-amber-500/35 font-semibold shadow-xs' },
+                ].map((s) => (
+                  <button
+                    key={s.value}
+                    type="button"
+                    onClick={() => setStatus(s.value)}
+                    className={`text-[11px] font-mono px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                      status === s.value
+                        ? s.active
+                        : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Bottom Row: Difficulty & Status Quick Filter Chips */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2.5 border-t border-white/[0.06]">
-          {/* Difficulty Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            <span className="text-[10px] font-mono uppercase text-[#6B7280] mr-1 shrink-0">Diff:</span>
-            {['', 'easy', 'medium', 'hard'].map((d) => (
-              <button
-                key={d}
-                onClick={() => setDifficulty(d)}
-                className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border shrink-0 transition-all ${
-                  difficulty === d
-                    ? d === ''
-                      ? 'bg-[#F97316] text-white font-bold border-transparent shadow-sm'
-                      : d === 'easy'
-                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-bold'
-                      : d === 'medium'
-                      ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 font-bold'
-                      : 'bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold'
-                    : 'bg-[#0E1014] border-white/[0.08] text-[#9CA3AF] hover:text-[#F3F4F6] hover:border-white/[0.18]'
-                }`}
-              >
-                {d === '' ? 'All' : d.charAt(0).toUpperCase() + d.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {/* Status Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            <span className="text-[10px] font-mono uppercase text-[#6B7280] mr-1 shrink-0">Status:</span>
-            {['', 'solved', 'struggled', 'revisit_needed'].map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatus(s)}
-                className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border shrink-0 transition-all ${
-                  status === s
-                    ? s === ''
-                      ? 'bg-[#F97316] text-white font-bold border-transparent shadow-sm'
-                      : s === 'solved'
-                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-bold'
-                      : s === 'struggled'
-                      ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 font-bold'
-                      : 'bg-amber-500/20 border-amber-500/40 text-amber-300 font-bold'
-                    : 'bg-[#0E1014] border-white/[0.08] text-[#9CA3AF] hover:text-[#F3F4F6] hover:border-white/[0.18]'
-                }`}
-              >
-                {s === '' ? 'All' : s === 'revisit_needed' ? 'Revisit' : s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      </Reveal>
 
       {/* ── Content: Mobile Cards / Desktop Table or Grid ──────────── */}
       {isMobile ? (
@@ -779,27 +802,31 @@ const ProblemsPage = () => {
           />
         ) : (
           <div className="space-y-3">
-            {paginatedProblems.map((p) => (
-              <MobileProblemCard
-                key={p.id}
-                problem={p}
-                onEdit={handleEdit}
-                onDelete={handleDeletePrompt}
-                onLog={setLoggingProblem}
-              />
+            {paginatedProblems.map((p, idx) => (
+              <Reveal key={p.id} delay={Math.min(idx * 25, 180)} y={10}>
+                <MobileProblemCard
+                  problem={p}
+                  onEdit={handleEdit}
+                  onDelete={handleDeletePrompt}
+                  onLog={setLoggingProblem}
+                />
+              </Reveal>
             ))}
           </div>
         )
       ) : viewMode === 'grid' && !isLoading && !error && problems.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {paginatedProblems.map((p) => (
-            <ProblemCard
-              key={p.id}
-              problem={p}
-              onEdit={handleEdit}
-              onDelete={handleDeletePrompt}
-              onLog={setLoggingProblem}
-            />
+          {paginatedProblems.map((p, idx) => (
+            <Reveal key={p.id} delay={Math.min(idx * 30, 200)} y={12} className="h-full">
+              <TiltCard maxTilt={5} className="h-full">
+                <ProblemCard
+                  problem={p}
+                  onEdit={handleEdit}
+                  onDelete={handleDeletePrompt}
+                  onLog={setLoggingProblem}
+                />
+              </TiltCard>
+            </Reveal>
           ))}
         </div>
       ) : (
@@ -815,72 +842,26 @@ const ProblemsPage = () => {
         />
       )}
 
-      {/* ── Smart Pagination Footer ── */}
+      {/* ── Smart Responsive Pagination Footer ── */}
       {!isLoading && !error && totalProblems > 0 && (
-        <div className="panel px-4 py-3 border-white/[0.08] bg-[#121418] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          {/* Left: Range text */}
-          <div className="font-mono text-[#9CA3AF] text-center sm:text-left">
-            Showing{' '}
-            <strong className="text-[#F3F4F6]">
-              {pageSize === 'all' ? 1 : Math.min((currentPage - 1) * pageSize + 1, totalProblems)}
-            </strong>{' '}
-            to{' '}
-            <strong className="text-[#F3F4F6]">
-              {pageSize === 'all' ? totalProblems : Math.min(currentPage * pageSize, totalProblems)}
-            </strong>{' '}
-            of <strong className="text-[#F3F4F6]">{totalProblems}</strong>
-          </div>
-
-          {/* Middle: Page navigation pills */}
-          {totalPages > 1 && (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-[#0E1014] text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#181B20] disabled:opacity-30 disabled:pointer-events-none transition-all font-mono text-xs active:bg-[#1C2026]"
-              >
-                ← Prev
-              </button>
-
-              {/* Mobile: compact "Page X / Y" */}
-              <div className="sm:hidden px-3 py-1 font-mono text-xs text-[#F3F4F6] bg-[#0E1014] border border-white/[0.08] rounded-lg">
-                {currentPage} / {totalPages}
-              </div>
-
-              {/* Desktop: all page number buttons */}
-              <div className="hidden sm:flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setCurrentPage(p)}
-                    className={`w-7 h-7 rounded-lg font-mono text-xs transition-all ${
-                      currentPage === p
-                        ? 'bg-[#F97316] text-white font-bold shadow-md shadow-[#F97316]/25'
-                        : 'bg-[#0E1014] border border-white/[0.08] text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#181B20]'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="px-2.5 py-1.5 rounded-lg border border-white/[0.08] bg-[#0E1014] text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#181B20] disabled:opacity-30 disabled:pointer-events-none transition-all font-mono text-xs active:bg-[#1C2026]"
-              >
-                Next →
-              </button>
+        <div className="panel p-3 sm:px-4 sm:py-3 border-white/[0.08] bg-[#121418] rounded-2xl shadow-md space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4 overflow-hidden">
+          {/* Mobile Top Row / Desktop Left: Range Info & Mobile Page Size */}
+          <div className="flex items-center justify-between sm:justify-start gap-3">
+            <div className="font-mono text-slate-400 text-xs flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shrink-0" />
+              <span className="text-slate-400">
+                <span className="hidden sm:inline">Showing </span>
+                <strong className="text-slate-100 font-semibold">
+                  {pageSize === 'all' ? 1 : Math.min((currentPage - 1) * pageSize + 1, totalProblems)}–{pageSize === 'all' ? totalProblems : Math.min(currentPage * pageSize, totalProblems)}
+                </strong>
+                <span className="text-slate-500"> of </span>
+                <strong className="text-slate-200 font-semibold">{totalProblems}</strong>
+                <span className="hidden md:inline text-slate-400"> problems</span>
+              </span>
             </div>
-          )}
 
-          {/* Right: Page Size Selector */}
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-[#6B7280]">Per page:</span>
-            <div className="flex items-center p-0.5 rounded-lg bg-[#0E1014] border border-white/[0.08]">
+            {/* Mobile-only compact Page Size selector */}
+            <div className="sm:hidden flex items-center p-0.5 rounded-lg bg-[#0B0D11] border border-white/[0.08] shrink-0">
               {[10, 25, 50, 'all'].map((size) => (
                 <button
                   key={size}
@@ -889,10 +870,86 @@ const ProblemsPage = () => {
                     setPageSize(size);
                     setCurrentPage(1);
                   }}
-                  className={`px-2 py-0.5 text-[11px] font-mono rounded transition-all ${
+                  className={`h-6 px-2 flex items-center justify-center text-[10px] font-mono rounded-md transition-all cursor-pointer ${
                     pageSize === size
-                      ? 'bg-[#1C2026] text-[#F3F4F6] font-semibold border border-white/[0.12]'
-                      : 'text-[#6B7280] hover:text-[#9CA3AF]'
+                      ? 'bg-[#1C2026] text-white font-bold border border-white/[0.12] shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {size === 'all' ? 'All' : size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Controls: Mobile Thumb-Friendly Action Bar / Desktop Center */}
+          {totalPages > 1 && (
+            <div className="grid grid-cols-[1fr_auto_1fr] sm:flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="h-9 sm:h-8 px-3 rounded-xl sm:rounded-lg border border-white/[0.08] bg-[#0E1014] text-slate-300 hover:text-white hover:bg-[#181B20] disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-xs text-xs font-semibold"
+                title="Previous Page"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prev</span>
+              </button>
+
+              {/* Desktop: Numeric Page Pills */}
+              <div className="hidden md:flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setCurrentPage(p)}
+                    className={`w-7 h-7 rounded-lg font-mono text-xs flex items-center justify-center transition-all cursor-pointer ${
+                      currentPage === p
+                        ? 'bg-primary text-primary-foreground font-bold shadow-sm'
+                        : 'bg-[#0E1014] border border-white/[0.08] text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#181B20]'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              {/* Mobile / Tablet: Prominent Page Counter */}
+              <div className="md:hidden px-3.5 h-9 sm:h-8 flex items-center justify-center font-mono text-xs font-bold text-slate-200 bg-[#0E1014] border border-white/[0.08] rounded-xl sm:rounded-lg min-w-[70px] shadow-xs">
+                <span className="text-white">{currentPage}</span>
+                <span className="text-slate-500 mx-1.5 font-normal">of</span>
+                <span className="text-slate-400">{totalPages}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="h-9 sm:h-8 px-3 rounded-xl sm:rounded-lg border border-white/[0.08] bg-[#0E1014] text-slate-300 hover:text-white hover:bg-[#181B20] disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-xs text-xs font-semibold"
+                title="Next Page"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* Desktop Right: Per page selector */}
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider hidden lg:inline">Per page:</span>
+            <div className="h-8 flex items-center p-0.5 rounded-lg bg-[#0E1014] border border-white/[0.08]">
+              {[10, 25, 50, 'all'].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                  className={`h-7 px-2 sm:px-2.5 flex items-center justify-center text-[10px] sm:text-[11px] font-mono rounded-md transition-all cursor-pointer ${
+                    pageSize === size
+                      ? 'bg-[#1C2026] text-white font-bold border border-white/[0.12] shadow-xs'
+                      : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {size === 'all' ? 'All' : size}
@@ -905,7 +962,7 @@ const ProblemsPage = () => {
 
       <ProblemForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={handleCloseForm}
         onSuccess={loadProblems}
         initialData={editingProblem}
       />

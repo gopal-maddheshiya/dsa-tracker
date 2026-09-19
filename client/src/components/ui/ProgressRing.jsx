@@ -12,7 +12,7 @@ const ProgressRing = ({
   value = 0,
   size = 64,
   stroke = 5,
-  color = '#F97316',
+  color = '#E07A38',
   label,
   className = '',
 }) => {

@@ -18,6 +18,8 @@ const {
 const {
   createAttempt,
   getAttemptsForProblem,
+  updateAttempt,
+  deleteAttempt,
 } = require('../src/controllers/attempt.controller');
 const { protect } = require('../src/middleware/authMiddleware');
 
@@ -253,6 +255,63 @@ async function runTests() {
     results.push({
       test: '16. Negative timeTakenMinutes is rejected with 400',
       passed: negTimeRes.statusCode === 400,
+    });
+
+    // TEST 17: Special regex characters in search and topic query do not crash (escaped safely)
+    const specialReq = { user: userA, query: { search: 'C++ (Easy) [Array]*?+', topic: 'Graph (DFS) [v1]' } };
+    const specialRes = mockResponse();
+    await getProblems(specialReq, specialRes, (err) => { throw err; });
+    results.push({
+      test: '17. Safe regex search: special chars (brackets, plus, parens) handled gracefully without 500',
+      passed: specialRes.statusCode === 200 && Array.isArray(specialRes.body.data),
+    });
+
+    // TEST 18: User A updates an existing attempt
+    const updateAttemptReq = {
+      user: userA,
+      params: { id: problemA.id, attemptId: attempt1.id },
+      body: { status: 'solved', timeTakenMinutes: 20, notes: 'Updated notes - solved faster' },
+    };
+    const updateAttemptRes = mockResponse();
+    await updateAttempt(updateAttemptReq, updateAttemptRes, (err) => { throw err; });
+    results.push({
+      test: '18. User can update an existing attempt',
+      passed: updateAttemptRes.statusCode === 200 && updateAttemptRes.body.data.status === 'solved' && updateAttemptRes.body.data.timeTakenMinutes === 20,
+    });
+
+    // TEST 19: Cross-user isolation: User B CANNOT update or delete User A's attempt
+    const crossUpdateAttReq = {
+      user: userB,
+      params: { id: problemA.id, attemptId: attempt1.id },
+      body: { status: 'struggled' },
+    };
+    const crossUpdateAttRes = mockResponse();
+    await updateAttempt(crossUpdateAttReq, crossUpdateAttRes, (err) => { throw err; });
+
+    const crossDeleteAttReq = {
+      user: userB,
+      params: { id: problemA.id, attemptId: attempt1.id },
+    };
+    const crossDeleteAttRes = mockResponse();
+    await deleteAttempt(crossDeleteAttReq, crossDeleteAttRes, (err) => { throw err; });
+
+    results.push({
+      test: "19. Cross-user isolation: User B cannot update or delete User A's attempt (404)",
+      passed: crossUpdateAttRes.statusCode === 404 && crossDeleteAttRes.statusCode === 404,
+    });
+
+    // TEST 20: User A deletes an individual attempt
+    const deleteAttemptReq = {
+      user: userA,
+      params: { id: problemA.id, attemptId: attempt1.id },
+    };
+    const deleteAttemptRes = mockResponse();
+    await deleteAttempt(deleteAttemptReq, deleteAttemptRes, (err) => { throw err; });
+    const deletedAttemptDoc = await Attempt.findById(attempt1.id);
+    const survivorAttemptDoc = await Attempt.findById(attempt2.id);
+    results.push({
+      test: '20. User can delete an individual attempt without affecting other attempts',
+      passed: deleteAttemptRes.statusCode === 200 && deletedAttemptDoc === null && survivorAttemptDoc !== null,
     });
 
     // TEST 6 & 13: User A deletes problem and CASCADE deletes all its attempts

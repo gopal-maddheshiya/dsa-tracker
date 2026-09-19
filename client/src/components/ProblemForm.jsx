@@ -1,8 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { createProblem, updateProblem, resolveProblemMetadata } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
-import { Sparkles, X, RefreshCw } from 'lucide-react';
+import {
+  Sparkles,
+  X,
+  Link2,
+  Plus,
+  Hash,
+  ChevronDown,
+  Check,
+  AlertCircle,
+  PlusCircle,
+  Edit3,
+} from 'lucide-react';
 
 const PLATFORMS = [
   { value: 'leetcode', label: 'LeetCode' },
@@ -15,9 +27,28 @@ const PLATFORMS = [
 ];
 
 const DIFFICULTIES = [
-  { value: 'easy', label: 'Easy', color: 'text-emerald-400' },
-  { value: 'medium', label: 'Medium', color: 'text-amber-400' },
-  { value: 'hard', label: 'Hard', color: 'text-rose-400' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+];
+
+const POPULAR_TOPICS = [
+  'Array',
+  'String',
+  'Hash Table',
+  'Two Pointers',
+  'Binary Search',
+  'Dynamic Programming',
+  'Tree',
+  'Graph',
+  'Greedy',
+  'Stack',
+  'Heap',
+  'Recursion',
+  'Backtracking',
+  'Sliding Window',
+  'Bit Manipulation',
+  'Math',
 ];
 
 const isValidUrl = (string) => {
@@ -99,6 +130,33 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const [lastAutoTitle, setLastAutoTitle] = useState('');
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
+  // Stable reference to onClose callback to prevent effect tear-down cycles
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // Handle ESC key and prevent body scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onCloseRef.current?.();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen, isSubmitting]);
+
+  // Sync state on open or initialData change
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || '');
@@ -189,6 +247,15 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
     }
   };
 
+  const handleToggleTopic = (topicName) => {
+    const exists = topics.some((t) => t.toLowerCase() === topicName.toLowerCase());
+    if (exists) {
+      setTopics(topics.filter((t) => t.toLowerCase() !== topicName.toLowerCase()));
+    } else {
+      setTopics([...topics, topicName]);
+    }
+  };
+
   const handleAddTopic = () => {
     const trimmed = topicInput.trim();
     if (!trimmed) return;
@@ -255,243 +322,370 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6 flex items-center justify-center animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="problem-form-title"
     >
+      {/* Clickable Backdrop Overlay (Uses onMouseDown to avoid swallowing trigger click events) */}
       <div
-        className="panel max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-7 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
+        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget && !isSubmitting) {
+            onClose();
+          }
+        }}
+      />
+
+      {/* Modal Dialog Card */}
+      <div
+        data-lenis-prevent
+        className="panel relative w-full max-w-lg sm:max-w-xl max-h-[90vh] flex flex-col bg-[#131519] border border-white/[0.1] shadow-2xl shadow-black/90 rounded-2xl overflow-hidden my-auto animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-white/[0.08] mb-5">
-          <div>
-            <h2 id="problem-form-title" className="text-base font-bold text-[#F3F4F6] tracking-tight">
-              {isEdit ? 'Edit Problem' : 'Catalog New Problem'}
-            </h2>
-            <p className="text-xs text-[#9CA3AF] mt-0.5">
-              {isEdit ? 'Update metadata and problem topics' : 'Paste problem link to auto-detect title and platform'}
-            </p>
+        {/* Fixed Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/[0.08] bg-[#16191F] shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#E07A38]/15 border border-[#E07A38]/30 flex items-center justify-center text-[#E07A38] shrink-0">
+              {isEdit ? <Edit3 className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
+            </div>
+            <div>
+              <h2 id="problem-form-title" className="text-sm sm:text-base font-bold text-[#F3F4F6] tracking-tight">
+                {isEdit ? 'Edit Problem' : 'Catalog New Problem'}
+              </h2>
+              <p className="text-[11px] text-[#9CA3AF] mt-0.5">
+                {isEdit ? 'Update problem classification and metadata' : 'Paste problem link or enter details manually'}
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-[#9CA3AF] hover:text-[#F3F4F6] transition-colors p-1.5 -m-1 rounded-lg hover:bg-white/[0.06]"
+            className="text-[#9CA3AF] hover:text-[#F3F4F6] transition-all p-2 rounded-xl hover:bg-white/[0.08] active:scale-95 cursor-pointer disabled:opacity-40"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {apiError && (
-          <div className="mb-4 flex items-start gap-2 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0" />
-            <p className="text-xs text-rose-300">{apiError}</p>
-          </div>
-        )}
+        {/* Scrollable Form Body with min-h-0 so flexbox allows internal scrolling */}
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1 overflow-hidden" noValidate>
+          <div className="flex-1 overflow-y-auto min-h-0 px-5 sm:px-6 py-5 space-y-4.5 overscroll-contain">
+            {/* API Error Alert */}
+            {apiError && (
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-xs text-rose-300">
+                <AlertCircle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+                <p className="flex-1">{apiError}</p>
+                <button
+                  type="button"
+                  onClick={() => setApiError('')}
+                  className="text-rose-400 hover:text-rose-200 cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
 
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {/* 1. Problem URL (With Auto-Fetch from LeetCode) */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="problem-link" className="section-label">
-                Problem URL *
+            {/* 1. Problem URL + Auto-Fetch */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="problem-link" className="section-label flex items-center gap-1.5">
+                  <Link2 className="w-3.5 h-3.5 text-[#E07A38]" />
+                  Problem URL <span className="text-rose-400">*</span>
+                </label>
+                {link && (
+                  <button
+                    type="button"
+                    onClick={() => handleLinkChange('')}
+                    className="text-[10px] font-mono text-[#9CA3AF] hover:text-white transition-colors cursor-pointer"
+                  >
+                    Clear URL
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <input
+                    id="problem-link"
+                    type="url"
+                    value={link}
+                    disabled={isSubmitting}
+                    onChange={(e) => handleLinkChange(e.target.value)}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData('text');
+                      if (pasted && isValidUrl(pasted)) {
+                        handleLinkChange(pasted);
+                        handleFetchMetadata(pasted);
+                      }
+                    }}
+                    placeholder="https://leetcode.com/problems/..."
+                    className={`input-base text-xs sm:text-sm ${errors.link ? 'input-error' : ''}`}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleFetchMetadata()}
+                  disabled={isSubmitting || isFetchingMetadata || !link.trim()}
+                  title="Auto-fetch problem title, platform, difficulty, and topics"
+                  className="btn-primary text-xs !px-3 sm:!px-4 shrink-0 flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Sparkles className={`w-3.5 h-3.5 ${isFetchingMetadata ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">{isFetchingMetadata ? 'Fetching…' : 'Auto-Fetch'}</span>
+                  <span className="sm:hidden">{isFetchingMetadata ? '…' : 'Fetch'}</span>
+                </button>
+              </div>
+              {errors.link && <p className="mt-1.5 text-xs text-rose-400">{errors.link}</p>}
+
+              {/* Smart Detection Feedback Badge */}
+              {(autoDetected.platform || autoDetected.title) && (
+                <div className="flex items-center justify-between gap-2 mt-2 px-3 py-2 rounded-xl bg-[#E07A38]/10 border border-[#E07A38]/20 text-[#E07A38] text-xs font-mono">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Sparkles className="w-3.5 h-3.5 text-[#E07A38] shrink-0" />
+                    <span className="truncate">
+                      Auto-detected:{' '}
+                      {autoDetected.platform && <strong className="text-white capitalize">{autoDetected.platform}</strong>}
+                      {autoDetected.platform && autoDetected.title && ' · '}
+                      {autoDetected.title && <strong className="text-white font-medium">"{autoDetected.title}"</strong>}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    <span>Detected</span>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Problem Title */}
+            <div>
+              <label htmlFor="problem-title" className="block section-label mb-1.5">
+                Problem Title <span className="text-rose-400">*</span>
               </label>
-              <button
-                type="button"
-                onClick={() => handleFetchMetadata()}
-                disabled={isSubmitting || isFetchingMetadata || !link.trim()}
-                className="text-[11px] font-mono text-[#F97316] hover:text-[#FB923C] disabled:opacity-40 disabled:hover:text-[#F97316] flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Sparkles className={`w-3.5 h-3.5 ${isFetchingMetadata ? 'animate-spin' : ''}`} />
-                <span>{isFetchingMetadata ? 'Fetching details…' : 'Auto-Fetch Details'}</span>
-              </button>
-            </div>
-            <div className="relative">
               <input
-                id="problem-link"
-                type="url"
-                value={link}
+                id="problem-title"
+                type="text"
+                value={title}
                 disabled={isSubmitting}
-                onChange={(e) => handleLinkChange(e.target.value)}
-                onPaste={(e) => {
-                  const pasted = e.clipboardData.getData('text');
-                  if (pasted && isValidUrl(pasted)) {
-                    handleLinkChange(pasted);
-                    handleFetchMetadata(pasted);
-                  }
-                }}
-                placeholder="https://leetcode.com/problems/two-sum/..."
-                className={`input-base pr-20 ${errors.link ? 'input-error' : ''}`}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Trapping Rain Water"
+                className={`input-base text-xs sm:text-sm ${errors.title ? 'input-error' : ''}`}
               />
-              <button
-                type="button"
-                onClick={() => handleFetchMetadata()}
-                disabled={isSubmitting || isFetchingMetadata || !link.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/25 text-[10px] font-mono font-bold transition-all disabled:opacity-40 cursor-pointer"
-              >
-                {isFetchingMetadata ? 'Fetching…' : 'Fetch'}
-              </button>
+              {errors.title && <p className="mt-1.5 text-xs text-rose-400">{errors.title}</p>}
             </div>
-            {errors.link && <p className="mt-1.5 text-xs text-rose-400">{errors.link}</p>}
 
-            {/* Smart Detection Feedback Badge */}
-            {(autoDetected.platform || autoDetected.title) && (
-              <div className="flex items-center gap-1.5 mt-2 text-[11px] font-mono text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg animate-fadeIn">
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                <span>
-                  Detected{' '}
-                  {autoDetected.platform && (
-                    <strong className="capitalize text-white">{autoDetected.platform}</strong>
-                  )}
-                  {autoDetected.platform && autoDetected.title && ' · '}
-                  {autoDetected.title && (
-                    <strong className="text-white font-semibold">"{autoDetected.title}"</strong>
-                  )}
+            {/* 3. Platform & Difficulty */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Platform */}
+              <div>
+                <label htmlFor="problem-platform" className="block section-label mb-1.5">
+                  Platform <span className="text-rose-400">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    id="problem-platform"
+                    value={platform}
+                    disabled={isSubmitting}
+                    onChange={(e) => setPlatform(e.target.value)}
+                    className="input-base text-xs sm:text-sm appearance-none pr-9 font-medium bg-[#0D0F12] cursor-pointer"
+                  >
+                    {PLATFORMS.map((p) => (
+                      <option key={p.value} value={p.value} className="bg-[#131519] text-[#F3F4F6] py-1">
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#9CA3AF]">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+                {errors.platform && <p className="mt-1.5 text-xs text-rose-400">{errors.platform}</p>}
+              </div>
+
+              {/* Difficulty - Segmented Touch Pills */}
+              <div>
+                <label className="block section-label mb-1.5">
+                  Difficulty <span className="text-rose-400">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#0B0D11] border border-white/[0.08] rounded-xl h-[42px] items-center">
+                  {DIFFICULTIES.map((d) => {
+                    const isSelected = difficulty === d.value;
+                    let activeClasses = '';
+                    let dotColor = '';
+                    if (d.value === 'easy') {
+                      activeClasses = isSelected
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-sm shadow-emerald-500/20 font-bold'
+                        : 'text-[#9CA3AF] hover:text-emerald-300 border-transparent';
+                      dotColor = 'bg-emerald-400';
+                    } else if (d.value === 'medium') {
+                      activeClasses = isSelected
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm shadow-amber-500/20 font-bold'
+                        : 'text-[#9CA3AF] hover:text-amber-300 border-transparent';
+                      dotColor = 'bg-amber-400';
+                    } else {
+                      activeClasses = isSelected
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-sm shadow-rose-500/20 font-bold'
+                        : 'text-[#9CA3AF] hover:text-rose-300 border-transparent';
+                      dotColor = 'bg-rose-400';
+                    }
+
+                    return (
+                      <button
+                        key={d.value}
+                        type="button"
+                        onClick={() => setDifficulty(d.value)}
+                        disabled={isSubmitting}
+                        className={`h-full flex items-center justify-center gap-1.5 px-2 rounded-lg text-xs font-mono transition-all border cursor-pointer ${activeClasses}`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? dotColor : 'bg-transparent'} transition-colors`} />
+                        <span>{d.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {errors.difficulty && <p className="mt-1.5 text-xs text-rose-400">{errors.difficulty}</p>}
+              </div>
+            </div>
+
+            {/* 4. Topics */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="topic-input" className="section-label">
+                  Topics & Categories
+                </label>
+                <span className="text-[10px] text-[#9CA3AF] font-mono">
+                  Tap chips or type below
                 </span>
               </div>
-            )}
-          </div>
 
-          {/* 2. Problem Title */}
-          <div>
-            <label htmlFor="problem-title" className="block section-label mb-1.5">
-              Problem Title *
-            </label>
-            <input
-              id="problem-title"
-              type="text"
-              value={title}
-              disabled={isSubmitting}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Trapping Rain Water"
-              className={`input-base ${errors.title ? 'input-error' : ''}`}
-            />
-            {errors.title && <p className="mt-1.5 text-xs text-rose-400">{errors.title}</p>}
-          </div>
+              {/* Quick Suggestion Chips */}
+              <div className="mb-2.5">
+                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1">
+                  {POPULAR_TOPICS.map((popTopic) => {
+                    const isSelected = topics.some((t) => t.toLowerCase() === popTopic.toLowerCase());
+                    return (
+                      <button
+                        key={popTopic}
+                        type="button"
+                        onClick={() => handleToggleTopic(popTopic)}
+                        disabled={isSubmitting}
+                        className={`px-2 py-1 rounded-lg text-[11px] font-mono transition-all border cursor-pointer flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-[#E07A38]/15 border-[#E07A38]/35 text-[#E07A38] font-medium'
+                            : 'bg-[#0E1015] border-white/[0.06] text-[#9CA3AF] hover:text-[#F3F4F6] hover:border-white/[0.14]'
+                        }`}
+                      >
+                        <span>{popTopic}</span>
+                        {isSelected ? <Check className="w-3 h-3 text-[#E07A38]" /> : <Plus className="w-2.5 h-2.5 opacity-50" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {/* 3. Platform + Difficulty */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="problem-platform" className="block section-label mb-1.5">
-                Platform *
-              </label>
-              <select
-                id="problem-platform"
-                value={platform}
-                disabled={isSubmitting}
-                onChange={(e) => setPlatform(e.target.value)}
-                className="input-base"
-              >
-                {PLATFORMS.map((p) => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="problem-difficulty" className="block section-label mb-1.5">
-                Difficulty *
-              </label>
-              <select
-                id="problem-difficulty"
-                value={difficulty}
-                disabled={isSubmitting}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="input-base"
-              >
-                {DIFFICULTIES.map((d) => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+              {/* Topic Custom Input */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    id="topic-input"
+                    type="text"
+                    value={topicInput}
+                    disabled={isSubmitting}
+                    onChange={(e) => setTopicInput(e.target.value)}
+                    onKeyDown={handleTopicKeyDown}
+                    placeholder="Custom topic (Enter or comma to add)..."
+                    className="input-base text-xs sm:text-sm"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddTopic}
+                  disabled={isSubmitting || !topicInput.trim()}
+                  className="btn-ghost !px-3.5 text-xs shrink-0 disabled:opacity-40"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
+              </div>
 
-          {/* 4. Topics */}
-          <div>
-            <label htmlFor="topic-input" className="block section-label mb-1.5">
-              Topics
-              <span className="text-[#9CA3AF] font-normal ml-1 normal-case tracking-normal">
-                (Enter or comma to add)
-              </span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="topic-input"
-                type="text"
-                value={topicInput}
-                disabled={isSubmitting}
-                onChange={(e) => setTopicInput(e.target.value)}
-                onKeyDown={handleTopicKeyDown}
-                placeholder="e.g. Dynamic Programming, Trees"
-                className="input-base flex-1"
-              />
-              <button
-                type="button"
-                onClick={handleAddTopic}
-                disabled={isSubmitting || !topicInput.trim()}
-                className="btn-ghost disabled:opacity-50 text-xs px-3"
-              >
-                Add
-              </button>
-            </div>
-
-            {topics.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-lg bg-[#0E1015] border border-white/[0.08] text-[#9CA3AF]"
-                  >
-                    <span>#{topic}</span>
+              {/* Selected Topics Badges */}
+              {topics.length > 0 && (
+                <div className="mt-2.5 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-[#9CA3AF]">
+                    <span>Attached Topics ({topics.length}):</span>
                     <button
                       type="button"
-                      onClick={() => handleRemoveTopic(topic)}
-                      disabled={isSubmitting}
-                      className="text-[#9CA3AF] hover:text-rose-400 transition-colors ml-0.5"
-                      aria-label={`Remove ${topic}`}
+                      onClick={() => setTopics([])}
+                      className="text-rose-400/80 hover:text-rose-300 transition-colors cursor-pointer"
                     >
-                      ×
+                      Clear all
                     </button>
-                  </span>
-                ))}
-              </div>
-            )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 p-2 rounded-xl bg-[#0B0D11] border border-white/[0.06] max-h-24 overflow-y-auto">
+                    {topics.map((topic) => (
+                      <span
+                        key={topic}
+                        className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-lg bg-white/[0.06] border border-white/[0.1] text-[#E5E7EB] group"
+                      >
+                        <Hash className="w-3 h-3 text-[#E07A38]/80 shrink-0" />
+                        <span>{topic}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTopic(topic)}
+                          disabled={isSubmitting}
+                          className="text-[#9CA3AF] group-hover:text-rose-400 transition-colors ml-0.5 p-0.5 rounded hover:bg-white/[0.1] cursor-pointer"
+                          aria-label={`Remove ${topic}`}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-white/[0.08]">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="btn-ghost text-xs"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary text-xs disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Saving…</span>
-                </>
-              ) : isEdit ? (
-                'Update Problem'
-              ) : (
-                'Create Problem'
-              )}
-            </button>
+          {/* Fixed Sticky Footer */}
+          <div className="px-5 sm:px-6 py-3.5 border-t border-white/[0.08] bg-[#16191F] shrink-0 flex items-center justify-between gap-3">
+            <div className="text-[11px] text-[#9CA3AF] hidden sm:block font-mono">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.1] text-white">Esc</kbd> to exit
+            </div>
+            <div className="grid grid-cols-2 sm:flex items-center gap-2.5 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
+                className="btn-ghost text-xs w-full sm:w-auto"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary text-xs w-full sm:w-auto disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-[#12151B]/30 border-t-[#12151B] rounded-full animate-spin" />
+                    <span>Saving…</span>
+                  </>
+                ) : isEdit ? (
+                  'Update Problem'
+                ) : (
+                  'Create Problem'
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };
 
 export default ProblemForm;

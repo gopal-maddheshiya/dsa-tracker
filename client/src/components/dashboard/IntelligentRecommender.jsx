@@ -4,28 +4,28 @@ import {
   Sparkles,
   ArrowRight,
   ExternalLink,
-  RefreshCw,
-  Clock,
-  Target,
-  AlertTriangle,
-  Compass,
-  CheckCircle2,
-  ChevronRight,
   Flame,
+  Target,
 } from 'lucide-react';
 import { fetchProblemRecommendations } from '../../api/problems';
-import Badge from '../ui/Badge';
 
-const DIFFICULTY_COLORS = {
-  easy: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  medium: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  hard: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+const DIFFICULTY_CONFIG = {
+  easy: { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
+  medium: { text: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', dot: 'bg-amber-400' },
+  hard: { text: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/25', dot: 'bg-rose-400' },
 };
 
-const IntelligentRecommender = () => {
+const PLATFORM_LABELS = {
+  leetcode: 'LeetCode',
+  gfg: 'GeeksforGeeks',
+  codechef: 'CodeChef',
+  hackerrank: 'HackerRank',
+  other: 'External',
+};
+
+const IntelligentRecommender = ({ className = '' }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('spaced'); // 'spaced' | 'weakness' | 'backlog'
 
   const loadRecommendations = async () => {
     try {
@@ -47,9 +47,16 @@ const IntelligentRecommender = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#12161F] border border-white/5 rounded-2xl p-6 animate-pulse">
-        <div className="h-6 w-52 bg-white/10 rounded mb-4"></div>
-        <div className="h-28 bg-white/5 rounded-xl"></div>
+      <div className={`panel p-6 border-white/[0.08] animate-pulse flex flex-col justify-between h-full ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-xl shimmer shrink-0" />
+          <div className="space-y-2 flex-1">
+            <div className="h-4 w-44 shimmer rounded" />
+            <div className="h-3 w-64 shimmer rounded" />
+          </div>
+        </div>
+        <div className="h-28 shimmer rounded-xl my-4" />
+        <div className="h-10 w-48 shimmer rounded-xl" />
       </div>
     );
   }
@@ -58,209 +65,129 @@ const IntelligentRecommender = () => {
     return null;
   }
 
-  const { dailyFocus, spacedRepetition, weaknessDrill, unattemptedBacklog, weakestTopics } = data;
-
-  const currentList =
-    activeTab === 'spaced'
-      ? spacedRepetition
-      : activeTab === 'weakness'
-      ? weaknessDrill
-      : unattemptedBacklog;
+  const { dailyFocus, weakestTopics } = data;
+  const diffCfg = DIFFICULTY_CONFIG[dailyFocus.difficulty] || DIFFICULTY_CONFIG.medium;
+  const platformName = PLATFORM_LABELS[dailyFocus.platform] || dailyFocus.platform;
 
   return (
-    <div className="bg-gradient-to-b from-[#151A26] to-[#0F131C] border border-white/[0.08] rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
-      {/* Ambient background highlight */}
-      <div
-        className="absolute top-0 right-1/4 w-72 h-44 rounded-full pointer-events-none opacity-20"
-        style={{
-          background: 'radial-gradient(circle, rgba(249, 115, 22, 0.35), transparent 70%)',
-          filter: 'blur(50px)',
-        }}
-      />
-
-      {/* Header with Weak Topics Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 relative z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shadow-sm">
+    <div
+      className={`panel p-6 border-white/[0.08] relative overflow-hidden flex flex-col justify-between h-full group ${className}`}
+      style={{
+        background:
+          'radial-gradient(ellipse 70% 60% at 90% 10%, rgba(249,115,22,0.12) 0%, transparent 65%), linear-gradient(180deg, rgba(22, 27, 39, 0.85) 0%, rgba(14, 17, 26, 0.92) 100%)',
+      }}
+    >
+      {/* ── 1. Top Header: Kicker, Title & Focus Areas ──────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.08] relative z-10">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-md shadow-orange-500/20 shrink-0 mt-0.5">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-              Next Up: Adaptive Recommendation
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-orange-400/90 block">
+              RECOMMENDED DAILY FOCUS
+            </span>
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              Adaptive Practice Spotlight
             </h2>
-            <p className="text-[11px] text-gray-400">
-              Personalized practice priority tuned to your struggle areas and retention curve
-            </p>
           </div>
         </div>
 
-        {/* Weakest topics indicators */}
+        {/* Focus Areas pill list */}
         {weakestTopics && weakestTopics.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-[10px] uppercase font-semibold text-gray-400">Focus Areas:</span>
+          <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-center">
+            <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold flex items-center gap-1">
+              <Target className="w-3 h-3 text-orange-400" />
+              Focus:
+            </span>
             {weakestTopics.map((w, idx) => (
               <span
                 key={idx}
-                className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/5 text-gray-300 border border-white/5"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-rose-500/10 text-rose-300 border border-rose-500/20"
               >
-                {w.topic} ({Math.round(w.struggleRatio * 100)}% struggle)
+                <span>{w.topic}</span>
+                <span className="text-rose-400/80 font-bold">{Math.round(w.struggleRatio * 100)}%</span>
               </span>
             ))}
           </div>
         )}
       </div>
 
-      {/* Daily Focus Hero Card */}
-      <div className="bg-[#191F2C]/90 border border-orange-500/30 rounded-xl p-5 mb-5 relative overflow-hidden group hover:border-orange-500/50 transition-all shadow-lg">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            {/* Top pill row */}
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400 border border-orange-500/30 shadow-xs">
-                <Flame className="w-3 h-3 fill-orange-400" />
-                {dailyFocus.badge || 'Daily Focus'}
-              </span>
-              <span
-                className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border capitalize ${
-                  DIFFICULTY_COLORS[dailyFocus.difficulty] || 'text-gray-300'
-                }`}
-              >
-                {dailyFocus.difficulty}
-              </span>
-              <span className="text-[11px] font-mono text-gray-400 uppercase tracking-wide">
-                {dailyFocus.platform}
-              </span>
+      {/* ── 2. Hero Content Area: Meta, Title, Coaching, Topics ─────── */}
+      <div className="py-4 sm:py-5 space-y-4 relative z-10 flex-1 flex flex-col justify-between">
+        <div className="space-y-3">
+          {/* Metadata Pill Row: Uniform height, distinct roles */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Action priority badge */}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400 border border-orange-500/30">
+              <Flame className="w-3.5 h-3.5 fill-orange-400 shrink-0" />
+              <span>{dailyFocus.badge || 'Priority Practice'}</span>
+            </span>
+
+            {/* Difficulty Badge */}
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold uppercase border ${diffCfg.text} ${diffCfg.bg}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
+              <span>{dailyFocus.difficulty}</span>
+            </span>
+
+            {/* Platform Badge */}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold uppercase bg-white/[0.04] text-slate-300 border border-white/[0.08]">
+              {platformName}
+            </span>
+          </div>
+
+          {/* Problem Title: High contrast, multiline safe */}
+          <h3 className="text-xl sm:text-2xl font-extrabold text-white group-hover:text-orange-300 transition-colors tracking-tight leading-snug">
+            <Link to={`/problems/${dailyFocus.id}`} className="hover:underline">
+              {dailyFocus.title}
+            </Link>
+          </h3>
+
+          {/* AI Coaching Explanation Box */}
+          <div className="p-3.5 sm:p-4 rounded-xl bg-white/[0.02] border-l-2 border-l-orange-500 border border-white/[0.06] shadow-xs">
+            <div className="flex items-center gap-1.5 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider mb-1">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span>Why this problem now</span>
             </div>
-
-            {/* Problem Title */}
-            <h3 className="text-lg font-extrabold text-white group-hover:text-orange-300 transition-colors tracking-tight mb-2">
-              <Link to={`/problems/${dailyFocus.id}`} className="hover:underline">
-                {dailyFocus.title}
-              </Link>
-            </h3>
-
-            {/* AI Rationale */}
-            <p className="text-xs text-gray-300 leading-relaxed mb-3 bg-black/20 p-2.5 rounded-lg border border-white/5">
-              <span className="text-orange-400 font-semibold mr-1">Why this now:</span>
+            <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed font-sans">
               {dailyFocus.rationale}
             </p>
-
-            {/* Topics */}
-            {dailyFocus.topics && dailyFocus.topics.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {dailyFocus.topics.map((t, i) => (
-                  <span
-                    key={i}
-                    className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/5"
-                  >
-                    #{t}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Action CTAs */}
-          <div className="flex sm:flex-col items-center gap-2.5 shrink-0">
-            <Link
-              to={`/problems/${dailyFocus.id}`}
-              className="w-full text-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-            >
-              <span>Solve & Log</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-
-            {dailyFocus.link && (
-              <a
-                href={dailyFocus.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full text-center px-3 py-1.5 rounded-xl text-xs font-medium text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>External Link</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs for secondary queues */}
-      <div>
-        <div className="flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3">
-          <button
-            type="button"
-            onClick={() => setActiveTab('spaced')}
-            className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'spaced'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-            }`}
-          >
-            Spaced Repetition Due ({spacedRepetition?.length || 0})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('weakness')}
-            className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'weakness'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-            }`}
-          >
-            Weak Spot Drills ({weaknessDrill?.length || 0})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('backlog')}
-            className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'backlog'
-                ? 'bg-white/10 text-white font-semibold'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-            }`}
-          >
-            Fresh Challenges ({unattemptedBacklog?.length || 0})
-          </button>
-        </div>
-
-        {/* List items */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {currentList && currentList.length > 0 ? (
-            currentList.slice(0, 3).map((prob) => (
-              <Link
-                key={prob.id}
-                to={`/problems/${prob.id}`}
-                className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/15 transition-all flex flex-col justify-between group"
-              >
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span
-                    className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${
-                      DIFFICULTY_COLORS[prob.difficulty] || 'text-gray-300'
-                    }`}
-                  >
-                    {prob.difficulty}
-                  </span>
-                  {prob.daysSinceLastAttempt !== undefined && (
-                    <span className="text-[10px] text-gray-500 font-mono">
-                      {prob.daysSinceLastAttempt}d ago
-                    </span>
-                  )}
-                </div>
-                <h4 className="text-xs font-semibold text-gray-200 group-hover:text-orange-400 transition-colors truncate mb-1">
-                  {prob.title}
-                </h4>
-                <div className="flex items-center justify-between text-[10px] text-gray-500 font-mono">
-                  <span className="capitalize">{prob.platform}</span>
-                  <span className="text-orange-400 group-hover:translate-x-0.5 transition-transform flex items-center">
-                    Solve &rarr;
-                  </span>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div className="col-span-3 py-4 text-center text-xs text-gray-500 italic">
-              No additional recommendations in this category. Keep solving!
+          {/* Topic Hashtags */}
+          {dailyFocus.topics && dailyFocus.topics.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              {dailyFocus.topics.map((t, i) => (
+                <span key={i} className="chip-topic">
+                  #{t}
+                </span>
+              ))}
             </div>
+          )}
+        </div>
+
+        {/* ── 3. Symmetrical Action CTAs ────────────────────────────── */}
+        <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
+          {/* Primary Solve & Log CTA */}
+          <Link
+            to={`/problems/${dailyFocus.id}`}
+            className="btn-primary w-full sm:w-auto"
+          >
+            <span>Solve & Log Problem</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+
+          {/* Secondary External Link CTA: Symmetrical 40px height */}
+          {dailyFocus.link && (
+            <a
+              href={dailyFocus.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary w-full sm:w-auto"
+            >
+              <span>Original Problem</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+            </a>
           )}
         </div>
       </div>

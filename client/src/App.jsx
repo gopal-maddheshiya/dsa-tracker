@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import SmoothScrollProvider from './components/common/SmoothScroll';
 import AppShell from './components/layout/AppShell';
 import PrivateRoute from './components/PrivateRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
@@ -21,8 +22,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Sleek workspace route loading skeleton
 const RouteLoader = () => (
   <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-up">
-    <div className="w-10 h-10 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(249,115,22,0.15)]">
-      <span className="w-4 h-4 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
+    <div className="w-10 h-10 rounded-2xl bg-[#E07A38]/10 border border-[#E07A38]/25 flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(224,122,56,0.15)]">
+      <span className="w-4 h-4 border-2 border-[#E07A38]/30 border-t-[#E07A38] rounded-full animate-spin" />
     </div>
     <span className="text-[11px] font-mono text-slate-500 uppercase tracking-widest">
       Loading workspace…
@@ -35,30 +36,32 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <ToastProvider>
-          <AppShell>
-            <Suspense fallback={<RouteLoader />}>
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <SmoothScrollProvider>
+            <AppShell>
+              <Suspense fallback={<RouteLoader />}>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-                {/* Public only (redirect to dashboard if logged in) */}
-                <Route element={<PublicOnlyRoute />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/signup" element={<SignupPage />} />
-                </Route>
+                  {/* Public only (redirect to dashboard if logged in) */}
+                  <Route element={<PublicOnlyRoute />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupPage />} />
+                  </Route>
 
-                {/* Protected routes */}
-                <Route element={<PrivateRoute />}>
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/problems" element={<ProblemsPage />} />
-                  <Route path="/problems/:id" element={<ProblemDetailPage />} />
-                  <Route path="/revision" element={<RevisionPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                </Route>
+                  {/* Protected routes */}
+                  <Route element={<PrivateRoute />}>
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/problems" element={<ProblemsPage />} />
+                    <Route path="/problems/:id" element={<ProblemDetailPage />} />
+                    <Route path="/revision" element={<RevisionPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                  </Route>
 
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </Suspense>
-          </AppShell>
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </Suspense>
+            </AppShell>
+          </SmoothScrollProvider>
         </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>

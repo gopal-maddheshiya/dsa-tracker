@@ -9,6 +9,9 @@ const { securityHeaders } = require('./middleware/securityHeaders');
 
 const app = express();
 
+// Trust reverse proxy (e.g. Render, Railway, Vercel, Cloudflare, Nginx)
+app.set('trust proxy', 1);
+
 // Security HTTP headers
 app.use(securityHeaders);
 

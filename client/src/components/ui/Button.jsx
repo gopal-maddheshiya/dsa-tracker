@@ -1,11 +1,11 @@
 import React from 'react';
 
 const variants = {
-  primary: 'bg-gradient-to-b from-[#FB923C] to-[#F97316] hover:from-[#FDBA74] hover:to-[#FB923C] text-white shadow-orange border border-[#FB923C]/40',
-  ghost:   'bg-[#14171B] hover:bg-[#1B1F25] border border-white/[0.09] hover:border-white/[0.18] text-[#9CA3AF] hover:text-[#F3F4F6]',
-  danger:  'bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 hover:border-rose-500/40 text-rose-400 hover:text-rose-300',
-  outline: 'bg-transparent border border-white/[0.1] hover:border-[#F97316]/50 text-[#9CA3AF] hover:text-[#F97316]',
-  success: 'bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-400',
+  primary: 'bg-primary text-primary-foreground font-bold hover:opacity-90 active:scale-[0.98] shadow-sm border border-[#E07A38]/30 transition-all cursor-pointer',
+  ghost:   'bg-[#14171B] hover:bg-[#1B1F25] border border-white/[0.09] hover:border-white/[0.18] text-[#9CA3AF] hover:text-[#F3F4F6] transition-all cursor-pointer',
+  danger:  'bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 hover:border-rose-500/40 text-rose-400 hover:text-rose-300 transition-all cursor-pointer',
+  outline: 'bg-transparent border border-white/[0.1] hover:border-primary/50 text-[#9CA3AF] hover:text-primary transition-all cursor-pointer',
+  success: 'bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-400 transition-all cursor-pointer',
 };
 
 const sizes = {

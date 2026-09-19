@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Attempt = require('../models/Attempt');
 const generateToken = require('../utils/generateToken');
@@ -142,7 +143,13 @@ const googleAuth = async (req, res, next) => {
       });
     }
 
-    const clientId = process.env.GOOGLE_CLIENT_ID || '214396186358-rqb9it5bmsl3uedv1hn5kk5ls6jeotnk.apps.googleusercontent.com';
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      return res.status(500).json({
+        success: false,
+        message: 'Google authentication is not configured on this server (GOOGLE_CLIENT_ID missing)',
+      });
+    }
     let googleId, email, name, picture;
 
     if (credential) {
@@ -380,11 +387,21 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
-    return res.status(200).json({
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    const responsePayload = {
       success: true,
-      message: 'Password reset code generated. It will expire in 15 minutes.',
-      resetCode, // Provided for easy local verification without external SMTP
-    });
+      message: 'If an account exists with this email, a verification code has been dispatched. It will expire in 15 minutes.',
+    };
+
+    // In production, resetCode MUST NOT be returned in the HTTP response to prevent account takeover.
+    // In local development / test suites, it is provided to allow automated testing without an active SMTP server.
+    if (!isProduction) {
+      responsePayload.resetCode = resetCode;
+      responsePayload.devNotice = 'Development mode: resetCode included because external SMTP is not configured.';
+    }
+
+    return res.status(200).json(responsePayload);
   } catch (error) {
     return res.status(500).json({
       success: false,

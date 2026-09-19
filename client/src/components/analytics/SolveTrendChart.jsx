@@ -37,8 +37,8 @@ const CustomPeakDot = ({ cx, cy, payload, maxVal }) => {
   return (
     <g key={`peak-dot-${payload.date}`}>
       {/* Outer ambient beacon pulse */}
-      <circle cx={cx} cy={cy} r={10} fill="rgba(249, 115, 22, 0.2)" />
-      <circle cx={cx} cy={cy} r={6} fill="#F97316" stroke="#141312" strokeWidth={2.5} />
+      <circle cx={cx} cy={cy} r={10} fill="rgba(224, 122, 56, 0.2)" />
+      <circle cx={cx} cy={cy} r={6} fill="#E07A38" stroke="#141312" strokeWidth={2.5} />
       <circle cx={cx} cy={cy} r={2} fill="#FFFFFF" />
     </g>
   );
@@ -70,7 +70,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#F97316] shadow-[0_0_6px_rgba(249,115,22,0.8)]" />
+              <span className="w-2 h-2 rounded-full bg-[#E07A38] shadow-[0_0_6px_rgba(224,122,56,0.6)]" />
               <span className="text-[#9CA3AF] font-medium">Daily Solved</span>
             </div>
             <span className="font-mono font-bold text-[#F3F4F6] text-sm">
@@ -94,7 +94,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRetry }) => {
+const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRetry, className = '' }) => {
   // Mode: 'hybrid' (Dual volume + trajectory) | 'cumulative' (Growth curve) | 'daily' (Volume bars)
   const [chartMode, setChartMode] = useState('hybrid');
   // Range: '14D' | '30D' | 'all'
@@ -160,7 +160,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   if (isLoading) {
     return (
-      <div className="panel p-6 animate-pulse border-[#262320]">
+      <div className={`panel p-6 animate-pulse border-white/[0.08] flex flex-col justify-between h-full ${className}`}>
         <div className="flex justify-between items-center mb-5">
           <div className="space-y-2">
             <div className="h-4 w-32 shimmer rounded-md" />
@@ -175,8 +175,8 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   if (error) {
     return (
-      <div className="panel p-6 border-rose-500/20 text-center">
-        <h3 className="text-sm font-bold text-[#F5F5F4] mb-2">Solve Velocity</h3>
+      <div className={`panel p-6 border-rose-500/20 text-center flex flex-col justify-between h-full ${className}`}>
+        <h3 className="text-sm font-bold text-white mb-2">Solve Velocity</h3>
         <p className="text-xs text-rose-400 mb-4">Unable to load trend trajectory.</p>
         {onRetry && (
           <button onClick={onRetry} type="button" className="btn-ghost text-xs">
@@ -189,126 +189,128 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   return (
     <div
-      className="panel p-6 relative overflow-hidden transition-all"
+      className={`panel p-6 relative overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}
       style={{
-        background: 'radial-gradient(ellipse 75% 65% at 85% 0%, rgba(249,115,22,0.08) 0%, transparent 60%), linear-gradient(180deg, #171614 0%, #131211 100%)',
+        background: 'radial-gradient(ellipse 75% 65% at 85% 0%, rgba(249,115,22,0.12) 0%, transparent 60%), linear-gradient(180deg, rgba(22, 27, 39, 0.78) 0%, rgba(14, 17, 26, 0.88) 100%)',
       }}
     >
       {/* ── Top Header & Interactive Scrubber ──────────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+      <div className="space-y-3 mb-5">
+        {/* Tier 1: Title, Scrubber Badge, and Period Total */}
+        {/* Tier 1: Title, Scrubbing Indicator, Period Total & Subtitle */}
         <div>
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-bold text-[#F3F4F6] tracking-tight">
-              Solve Velocity
-            </h3>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
+              <h3 className="text-base font-bold text-white tracking-tight shrink-0">
+                Solve Velocity
+              </h3>
 
-            {/* Live Scrubbing Badge Indicator */}
-            {hoveredPoint ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-[11px] animate-fadeIn">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                {formatFullDate(hoveredPoint.date)}
-              </span>
-            ) : (
-              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#9CA3AF]">
-                {displayData.length} timeline points
-              </span>
-            )}
+              {/* Live Scrubbing Badge Indicator */}
+              {hoveredPoint ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-[11px] animate-fadeIn">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  {formatFullDate(hoveredPoint.date)}
+                </span>
+              ) : (
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-slate-400 shrink-0">
+                  <span className="sm:hidden">{displayData.length} pts</span>
+                  <span className="hidden sm:inline">{displayData.length} timeline points</span>
+                </span>
+              )}
 
-            {hoveredPoint?.isPeak && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold">
-                <Flame className="w-3 h-3 text-amber-400 fill-amber-400/20" />
-                Peak Day
+              {hoveredPoint?.isPeak && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold shrink-0">
+                  <Flame className="w-3 h-3 text-amber-400 fill-amber-400/20" />
+                  Peak
+                </span>
+              )}
+            </div>
+
+            {/* Period Total */}
+            <div className="flex items-baseline gap-1.5 shrink-0 font-mono">
+              <span className="text-[10px] uppercase text-slate-500 font-semibold">Total</span>
+              <span className="text-lg font-bold text-[#E07A38] leading-none">
+                {totalPeriodSolved}
               </span>
-            )}
+            </div>
           </div>
 
-          {/* Subtitle / Scrubber readout */}
-          <p className="text-xs text-[#9CA3AF] mt-1 font-mono">
+          <p className="text-xs text-slate-400 font-mono leading-relaxed mt-1">
             {hoveredPoint ? (
-              <span className="text-[#9CA3AF]">
-                Scrubbing: <strong className="text-[#F3F4F6]">+{hoveredPoint.solved} solves</strong> on this day • <strong className="text-emerald-400">{hoveredPoint.cumulative} cumulative</strong> total
+              <span>
+                Scrubbing: <strong className="text-white">+{hoveredPoint.solved} solves</strong> · <strong className="text-emerald-400">{hoveredPoint.cumulative} cumulative</strong>
               </span>
             ) : chartMode === 'hybrid' ? (
-              'Dual View • Daily output bars grounded with cumulative trajectory curve'
+              'Daily output bars grounded with trajectory curve'
             ) : chartMode === 'cumulative' ? (
-              'Trajectory View • Continuous upward momentum'
+              'Cumulative growth trajectory over time'
             ) : (
-              'Daily Output View • Discrete problem volume by day'
+              'Discrete problem solve volume by day'
             )}
           </p>
         </div>
 
-        {/* Action Controls & KPI Badges */}
-        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 sm:gap-3">
-          {/* View mode toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-[#0D0F13] border border-white/[0.08]">
-            <button
-              type="button"
-              onClick={() => setChartMode('hybrid')}
-              title="Dual Daily Volume + Cumulative Curve"
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                chartMode === 'hybrid'
-                  ? 'bg-[#F97316] text-white shadow-md shadow-[#F97316]/20'
-                  : 'text-[#6B7280] hover:text-[#F3F4F6]'
-              }`}
-            >
-              <Zap className="w-3 h-3" />
-              <span>Hybrid</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setChartMode('cumulative')}
-              title="Cumulative Growth Trajectory"
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                chartMode === 'cumulative'
-                  ? 'bg-[#F97316] text-white shadow-md shadow-[#F97316]/20'
-                  : 'text-[#6B7280] hover:text-[#F3F4F6]'
-              }`}
-            >
-              <TrendingUp className="w-3 h-3" />
-              <span>Growth</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setChartMode('daily')}
-              title="Discrete Daily Solve Bars"
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                chartMode === 'daily'
-                  ? 'bg-[#F97316] text-white shadow-md shadow-[#F97316]/20'
-                  : 'text-[#6B7280] hover:text-[#F3F4F6]'
-              }`}
-            >
-              <BarChart3 className="w-3 h-3" />
-              <span>Daily</span>
-            </button>
-          </div>
-
-          {/* Time range pills */}
-          <div className="flex items-center p-1 rounded-xl bg-[#0D0F13] border border-white/[0.08]">
-            {['14D', '30D', 'all'].map((r) => (
+        {/* Tier 2: Control Toggles (Mode + Range) */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06] flex-wrap">
+          {/* Controls: Mode + Range */}
+          <div className="flex items-center justify-between gap-2 w-full flex-wrap">
+            {/* View mode toggle */}
+            <div className="flex items-center p-0.5 rounded-lg bg-black/30 border border-white/[0.08]">
               <button
-                key={r}
                 type="button"
-                onClick={() => setRange(r)}
-                className={`px-2.5 py-1 text-[11px] font-mono font-semibold rounded-lg transition-all ${
-                  range === r
-                    ? 'bg-[#1C2026] text-[#F3F4F6] border border-white/[0.12]'
-                    : 'text-[#6B7280] hover:text-[#F3F4F6]'
+                onClick={() => setChartMode('hybrid')}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                  chartMode === 'hybrid'
+                    ? 'bg-primary text-primary-foreground font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
-                {r.toUpperCase()}
+                <Zap className="w-3 h-3" />
+                <span>Hybrid</span>
               </button>
-            ))}
-          </div>
+              <button
+                type="button"
+                onClick={() => setChartMode('cumulative')}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                  chartMode === 'cumulative'
+                    ? 'bg-primary text-primary-foreground font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <TrendingUp className="w-3 h-3" />
+                <span>Growth</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartMode('daily')}
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                  chartMode === 'daily'
+                    ? 'bg-primary text-primary-foreground font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <BarChart3 className="w-3 h-3" />
+                <span>Daily</span>
+              </button>
+            </div>
 
-          {/* Dynamic Period / Hovered KPI */}
-          <div className="text-right pl-2 shrink-0">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#6B7280] block">
-              {hoveredPoint ? 'At Point' : 'Period Total'}
-            </span>
-            <span className="text-base sm:text-lg font-bold font-mono text-[#F97316] leading-none block mt-0.5">
-              {hoveredPoint ? hoveredPoint.cumulative : totalPeriodSolved}
-            </span>
+            {/* Time horizon pills */}
+            <div className="flex items-center p-0.5 rounded-lg bg-black/30 border border-white/[0.08] font-mono text-xs">
+              {['14D', '30D', 'all'].map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRange(r)}
+                  className={`px-2 py-1 text-xs font-semibold rounded-md transition-all uppercase ${
+                    range === r
+                      ? 'bg-white/[0.12] text-white font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -316,7 +318,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
       {/* ── Chart Rendering Canvas ─────────────────────────────────── */}
       {displayData.length === 0 ? (
         <div className="h-60 flex flex-col items-center justify-center text-center border border-dashed border-white/[0.08] rounded-2xl">
-          <TrendingUp className="w-8 h-8 text-[#F97316] mb-2" />
+          <TrendingUp className="w-8 h-8 text-[#E07A38] mb-2" />
           <p className="text-xs text-[#6B7280]">No solved activity recorded in this period.</p>
         </div>
       ) : (
@@ -330,17 +332,17 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 onMouseLeave={handleMouseLeave}
               >
                 <defs>
-                  {/* Radiant orange glow underfill */}
+                  {/* Radiant warm ember glow underfill */}
                   <linearGradient id="growthGradPremium" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F97316" stopOpacity={0.4} />
-                    <stop offset="60%" stopColor="#F97316" stopOpacity={0.08} />
-                    <stop offset="100%" stopColor="#F97316" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor="#E07A38" stopOpacity={0.4} />
+                    <stop offset="60%" stopColor="#E07A38" stopOpacity={0.08} />
+                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.0} />
                   </linearGradient>
 
                   {/* Grounded dual volume bar gradient */}
                   <linearGradient id="hybridBarGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FB923C" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="#F97316" stopOpacity={0.15} />
+                    <stop offset="0%" stopColor="#E88B4B" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.15} />
                   </linearGradient>
 
                   {/* Active node glow filter */}
@@ -412,14 +414,14 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   yAxisId="cumulative"
                   type="monotone"
                   dataKey="cumulative"
-                  stroke="#F97316"
+                  stroke="#E07A38"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#growthGradPremium)"
                   dot={<CustomPeakDot maxVal={maxDaySolved} />}
                   activeDot={{
                     r: 6,
-                    fill: '#FB923C',
+                    fill: '#E07A38',
                     stroke: '#0D0F13',
                     strokeWidth: 3,
                     filter: 'url(#areaGlowFilter)',
@@ -436,9 +438,9 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
               >
                 <defs>
                   <linearGradient id="growthGradPremium" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F97316" stopOpacity={0.45} />
-                    <stop offset="50%" stopColor="#F97316" stopOpacity={0.12} />
-                    <stop offset="100%" stopColor="#F97316" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor="#E07A38" stopOpacity={0.45} />
+                    <stop offset="50%" stopColor="#E07A38" stopOpacity={0.12} />
+                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.0} />
                   </linearGradient>
                   <filter id="areaGlowFilter" x="-25%" y="-25%" width="150%" height="150%">
                     <feGaussianBlur stdDeviation="3.5" result="glowBlur" />
@@ -486,14 +488,14 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 <Area
                   type="monotone"
                   dataKey="cumulative"
-                  stroke="#F97316"
+                  stroke="#E07A38"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#growthGradPremium)"
                   dot={<CustomPeakDot maxVal={maxDaySolved} />}
                   activeDot={{
                     r: 6,
-                    fill: '#FB923C',
+                    fill: '#E07A38',
                     stroke: '#0D0F13',
                     strokeWidth: 3,
                     filter: 'url(#areaGlowFilter)',
@@ -510,8 +512,8 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
               >
                 <defs>
                   <linearGradient id="barGradPremium" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FB923C" stopOpacity={1} />
-                    <stop offset="100%" stopColor="#F97316" stopOpacity={0.75} />
+                    <stop offset="0%" stopColor="#E88B4B" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.75} />
                   </linearGradient>
                 </defs>
 
@@ -548,7 +550,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 {Number(avgDailySolved) > 0 && (
                   <ReferenceLine
                     y={Number(avgDailySolved)}
-                    stroke="#F97316"
+                    stroke="#E07A38"
                     strokeDasharray="4 4"
                     strokeOpacity={0.4}
                   />
@@ -574,10 +576,10 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
       {/* ── Footer KPI Strip ──────────────────────────────────────── */}
       {displayData.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-white/[0.08] text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-auto pt-3.5 border-t border-white/[0.08] text-xs">
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#F97316] shadow-[0_0_8px_rgba(249,115,22,0.7)]" />
+              <span className="w-2 h-2 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.5)]" />
               <span className="font-mono text-[#9CA3AF]">
                 {chartMode === 'hybrid'
                   ? 'Dual Mode'

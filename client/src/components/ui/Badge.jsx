@@ -2,7 +2,7 @@ import React from 'react';
 
 const variantMap = {
   default:  'bg-[#14171B] border-white/[0.09] text-[#9CA3AF]',
-  accent:   'bg-[#F97316]/12 border-[#F97316]/30 text-[#F97316]',
+  accent:   'bg-[#E07A38]/12 border-[#E07A38]/30 text-[#E07A38]',
   easy:     'bg-emerald-500/12 border-emerald-500/30 text-emerald-400',
   medium:   'bg-amber-500/12 border-amber-500/30 text-amber-400',
   hard:     'bg-rose-500/12 border-rose-500/30 text-rose-400',

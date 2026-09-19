@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Code2,
   Copy,
@@ -70,6 +71,18 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Lock body scroll when expanded
+  useEffect(() => {
+    if (isExpanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isExpanded]);
+
   useEffect(() => {
     setCode(problem?.solutionCode || '');
     setLanguage(problem?.solutionLanguage || 'cpp');
@@ -130,12 +143,15 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
   const currentLangObj = SUPPORTED_LANGS.find((l) => l.id === language) || SUPPORTED_LANGS[0];
   const activeTheme = THEMES[themeKey] || THEMES.obsidian;
 
-  return (
+  const container = (
     <div
-      className={`panel overflow-hidden border transition-all duration-300 rounded-2xl shadow-xl ${
-        isExpanded ? 'fixed inset-4 sm:inset-8 z-50 flex flex-col bg-[#0A0C10]' : 'relative'
+      className={`panel overflow-hidden border transition-all duration-300 rounded-2xl shadow-xl flex flex-col ${
+        isExpanded
+          ? 'w-full max-w-5xl h-[92vh] max-h-[880px] bg-[#0A0C10] shadow-[0_25px_80px_rgba(0,0,0,0.9)] z-50'
+          : 'relative'
       }`}
       style={{ borderColor: activeTheme.border }}
+      onClick={(e) => isExpanded && e.stopPropagation()}
     >
       {/* ── IDE Window Header ────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between px-4 sm:px-5 py-3 border-b border-white/[0.08] bg-[#0E1116] gap-2.5">
@@ -167,7 +183,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="h-8 px-2.5 rounded-lg bg-[#151821] border border-white/[0.1] text-xs font-mono text-slate-200 focus:outline-none focus:border-orange-500 cursor-pointer"
+                className="h-8 px-2.5 rounded-lg bg-[#151821] border border-white/[0.1] text-xs font-mono text-slate-200 focus:outline-none focus:border-[#E07A38] cursor-pointer"
               >
                 {SUPPORTED_LANGS.map((lang) => (
                   <option key={lang.id} value={lang.id} className="bg-[#101217]">
@@ -192,7 +208,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-3.5 h-8 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-xs font-semibold text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
+                className="px-3.5 h-8 rounded-lg bg-primary text-primary-foreground font-bold hover:opacity-90 shadow-sm border border-[#E07A38]/30 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>{isSaving ? 'Saving…' : 'Save Solution'}</span>
@@ -218,7 +234,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
               </div>
 
               {/* Language Chip */}
-              <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded-lg bg-white/[0.05] border border-white/[0.08] text-orange-400">
+              <span className="text-[10px] font-mono font-semibold px-2 py-1 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[#E07A38]">
                 {currentLangObj.label}
               </span>
 
@@ -229,7 +245,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
                   onClick={() => setWordWrap(!wordWrap)}
                   className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                     wordWrap
-                      ? 'bg-orange-500/15 border-orange-500/30 text-orange-400'
+                      ? 'bg-[#E07A38]/15 border-[#E07A38]/30 text-[#E07A38]'
                       : 'border-transparent text-[#6B7280] hover:text-[#9CA3AF] hover:bg-white/[0.04]'
                   }`}
                   title={wordWrap ? 'Disable Word Wrap' : 'Enable Word Wrap'}
@@ -274,7 +290,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="px-3 h-8 rounded-lg bg-orange-500/10 hover:bg-orange-500 border border-orange-500/30 hover:border-transparent text-xs font-semibold text-orange-400 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-xs"
+                className="px-3 h-8 rounded-lg bg-[#E07A38]/10 hover:bg-[#E07A38] border border-[#E07A38]/30 hover:border-transparent text-xs font-semibold text-[#E07A38] hover:text-[#12151B] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-xs"
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 <span>{code ? 'Edit Code' : '+ Add Code'}</span>
@@ -293,7 +309,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
             onChange={(e) => setCode(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={`// Paste or write your optimal ${currentLangObj.label} implementation here...\n// Press Tab to insert 4 spaces.`}
-            className="w-full flex-1 font-mono text-xs sm:text-sm text-[#E2E8F0] bg-transparent border-0 focus:outline-none resize-y leading-relaxed selection:bg-orange-500/30 placeholder:text-[#4B5563]"
+            className="w-full flex-1 font-mono text-xs sm:text-sm text-[#E2E8F0] bg-transparent border-0 focus:outline-none resize-y leading-relaxed selection:bg-[#E07A38]/30 placeholder:text-[#4B5563]"
             spellCheck={false}
             autoFocus
           />
@@ -319,7 +335,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
 
           {/* Actual Code View with optional Word Wrap */}
           <pre
-            className={`py-4 px-4 leading-relaxed overflow-x-auto flex-1 font-mono selection:bg-orange-500/30 ${
+            className={`py-4 px-4 leading-relaxed overflow-x-auto flex-1 font-mono selection:bg-[#E07A38]/30 ${
               wordWrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'
             }`}
             style={{ color: activeTheme.text }}
@@ -340,7 +356,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="mt-5 px-4 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500 border border-orange-500/30 hover:border-transparent text-xs font-semibold text-orange-400 hover:text-white transition-all cursor-pointer shadow-xs inline-flex items-center gap-1.5 active:scale-95"
+            className="mt-5 btn-primary text-xs active:scale-95 inline-flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Add Solution Snippet</span>
@@ -349,6 +365,20 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
       )}
     </div>
   );
+
+  if (isExpanded) {
+    return createPortal(
+      <div
+        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+        onClick={() => setIsExpanded(false)}
+      >
+        {container}
+      </div>,
+      document.body
+    );
+  }
+
+  return container;
 };
 
 export default SolutionCodeViewer;

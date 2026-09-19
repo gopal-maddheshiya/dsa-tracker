@@ -9,7 +9,7 @@ import {
   fetchRevisionQueue,
 } from '../api/analytics';
 import { getErrorMessage } from '../utils/errorHandler';
-import { getRank, fmtMonthYear } from '../utils/profileUtils';
+import { getRank } from '../utils/profileUtils';
 
 import StatCard from '../components/analytics/StatCard';
 import DifficultyChart from '../components/analytics/DifficultyChart';
@@ -18,14 +18,17 @@ import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import RevisionPreview from '../components/analytics/RevisionPreview';
 import IntelligentRecommender from '../components/dashboard/IntelligentRecommender';
-import ProgressRing from '../components/ui/ProgressRing';
 import Badge from '../components/ui/Badge';
-import { Trophy, BarChart3, Sparkles, Code2, CheckCircle2, Zap, Flame } from 'lucide-react';
-
-
+import Reveal from '../components/common/Reveal';
+import TiltCard from '../components/common/TiltCard';
+import { BarChart3, Code2, CheckCircle2, Zap, Flame } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Dashboard · DSA Tracker';
+  }, []);
 
   const [summary, setSummary] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
@@ -106,175 +109,201 @@ const DashboardPage = () => {
   const firstName = user?.name?.split(' ')[0] || 'Coder';
 
   const rank = useMemo(() => getRank(summary?.solvedProblems ?? 0), [summary?.solvedProblems]);
-  const memberSince = user?.createdAt ? fmtMonthYear(user.createdAt) : null;
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Hero greeting */}
-      <div
-        className="panel p-5 sm:p-7 flex flex-col gap-5 relative overflow-hidden"
-        style={{
-          background: 'radial-gradient(ellipse 65% 75% at 85% 20%, rgba(249,115,22,0.12), transparent 70%), linear-gradient(180deg, #14171C 0%, #101216 100%)',
-        }}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-5 relative">
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-mono uppercase tracking-widest text-[#F97316] mb-1 font-semibold">Welcome back</p>
+    <div className="space-y-6 pb-24 sm:pb-16 animate-fade-up">
+      {/* Clean Minimalist Hero Greeting & Quick Actions */}
+      <Reveal delay={0} y={16}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/[0.08] relative">
+          {/* Subtle ambient bloom behind greeting */}
+          <div
+            className="absolute -top-6 -left-6 w-48 h-24 rounded-full pointer-events-none opacity-30"
+            style={{ background: 'radial-gradient(circle, rgba(249, 115, 22, 0.25), transparent 70%)', filter: 'blur(30px)' }}
+          />
+
+          <div className="relative z-10">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-[#F3F4F6] flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                 {greeting}, {firstName}
-                <Sparkles className="w-5 h-5 text-amber-400 shrink-0 inline-block" />
               </h1>
               <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold font-mono border"
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium border"
                 style={{
                   color: rank.color,
-                  borderColor: `${rank.color}33`,
-                  background: `${rank.color}14`,
+                  borderColor: `${rank.color}44`,
+                  background: `${rank.color}18`,
                 }}
               >
                 {rank.Icon && <rank.Icon className="w-3.5 h-3.5" />}
                 {rank.label}
               </span>
             </div>
-            <p className="text-xs text-[#9CA3AF] mt-2 font-mono flex flex-wrap items-center gap-1.5">
-              {summary
-                ? `${summary.totalProblems} cataloged · ${summary.totalAttempts} sessions · ${summary.solvedProblems ?? 0} solved`
-                : 'Loading your progress…'}
-              {memberSince && <span className="text-[#6B7280]"> · Since {memberSince}</span>}
+            <p className="text-xs text-slate-400 mt-1">
+              Here is your daily momentum overview and recall priority.
             </p>
-            <div className="flex flex-wrap items-center gap-2 mt-4">
-              {revisionQueue.length > 0 && (
-                <Link to="/revision">
-                  <Badge variant="amber" dot size="sm">{revisionQueue.length} revision due</Badge>
-                </Link>
-              )}
-              {summary?.solvedProblems > 0 && (
-                <Badge variant="emerald" size="sm">
-                  <Trophy className="w-3 h-3 inline mr-1 text-emerald-400" />
-                  {summary.solvedProblems} solved
-                </Badge>
-              )}
-            </div>
           </div>
 
-          {/* Solve rate rings */}
-          <div className="flex items-center gap-4 sm:gap-6 bg-[#0D0F13]/80 p-3.5 rounded-2xl border border-white/[0.06] shrink-0 self-start sm:self-center">
-            <div className="text-center">
-              <ProgressRing
-                value={solvedPct}
-                size={60}
-                stroke={5}
-                color="#10B981"
-                label={
-                  <div className="text-center">
-                    <span className="text-xs font-bold font-mono text-emerald-400">{solvedPct}%</span>
-                  </div>
-                }
-              />
-              <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solved</p>
-            </div>
-            <div className="text-center">
-              <ProgressRing
-                value={solveRate}
-                size={60}
-                stroke={5}
-                color="#F97316"
-                label={
-                  <div className="text-center">
-                    <span className="text-sm font-bold font-mono text-[#F97316]">{solveRate}%</span>
-                  </div>
-                }
-              />
-              <p className="text-[10px] font-mono text-[#9CA3AF] mt-1.5 tracking-wide">solve rate</p>
-            </div>
+          <div className="flex items-center gap-2.5 self-start sm:self-auto relative z-10">
+            {revisionQueue.length > 0 && (
+              <Link to="/revision">
+                <Badge variant="amber" dot size="sm">
+                  {revisionQueue.length} revision due
+                </Badge>
+              </Link>
+            )}
+            <Link to="/problems?new=1" className="btn-primary text-xs sm:text-sm">
+              + Add Problem
+            </Link>
           </div>
         </div>
-
-        {/* Add problem CTA */}
-        <Link to="/problems" className="btn-primary text-xs sm:text-sm w-full sm:w-auto self-start">
-          + Add Problem
-        </Link>
-      </div>
+      </Reveal>
 
       {/* KPI Metric Stat Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
-        <StatCard
-          title="Cataloged"
-          value={summary?.totalProblems || 0}
-          subtitle="Problems in repository"
-          icon={Code2}
-          isLoading={loadingSummary}
-          badge={`${summary?.difficultyBreakdown?.find((d) => d.difficulty === 'hard')?.count || 0} Hard`}
-          glowColor="rgba(249,115,22,0.14)"
-        />
-        <StatCard
-          title="Solved"
-          value={summary?.solvedProblems || 0}
-          subtitle={`${solvedPct}% solve progress`}
-          icon={CheckCircle2}
-          valueColor="text-emerald-400"
-          isLoading={loadingSummary}
-          badge="Verified"
-          glowColor="rgba(16,185,129,0.14)"
-        />
-        <StatCard
-          title="Practice Sessions"
-          value={summary?.totalAttempts || 0}
-          subtitle={`${summary?.solvedAttempts || 0} successful`}
-          icon={Zap}
-          valueColor="text-amber-400"
-          isLoading={loadingSummary}
-          badge={`${solveRate}% accuracy`}
-          glowColor="rgba(245,158,11,0.14)"
-        />
-        <StatCard
-          title="Practice Streak"
-          value={`${summary?.currentStreak || 0} Days`}
-          subtitle={`Best: ${summary?.longestStreak || summary?.currentStreak || 0} days`}
-          icon={Flame}
-          valueColor="text-[#F97316]"
-          isLoading={loadingSummary}
-          badge={summary?.currentStreak > 0 ? '🔥 On Fire' : 'Ready'}
-          glowColor="rgba(249,115,22,0.2)"
-        />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        <Reveal delay={0} y={20} className="h-full">
+          <TiltCard maxTilt={8} className="h-full">
+            <StatCard
+              title="Total Cataloged"
+              value={summary?.totalProblems || 0}
+              subtitle="Problems in repository"
+              icon={Code2}
+              isLoading={loadingSummary}
+              badge={`${summary?.difficultyBreakdown?.find((d) => d.difficulty === 'hard')?.count || 0} Hard`}
+              glowColor="rgba(249,115,22,0.18)"
+            />
+          </TiltCard>
+        </Reveal>
+
+        <Reveal delay={70} y={20} className="h-full">
+          <TiltCard maxTilt={8} className="h-full">
+            <StatCard
+              title="Problems Solved"
+              value={summary?.solvedProblems || 0}
+              subtitle={`${solvedPct}% solve progress`}
+              icon={CheckCircle2}
+              valueColor="text-emerald-400"
+              isLoading={loadingSummary}
+              badge={`${solvedPct}%`}
+              glowColor="rgba(16,185,129,0.18)"
+              progressPercent={solvedPct}
+            />
+          </TiltCard>
+        </Reveal>
+
+        <Reveal delay={140} y={20} className="h-full">
+          <TiltCard maxTilt={8} className="h-full">
+            <StatCard
+              title="Practice Sessions"
+              value={summary?.totalAttempts || 0}
+              subtitle={`${summary?.solvedAttempts || 0} successful`}
+              icon={Zap}
+              valueColor="text-amber-400"
+              isLoading={loadingSummary}
+              badge={`${solveRate}% accuracy`}
+              glowColor="rgba(245,158,11,0.18)"
+            />
+          </TiltCard>
+        </Reveal>
+
+        <Reveal delay={210} y={20} className="h-full">
+          <TiltCard maxTilt={8} className="h-full">
+            <StatCard
+              title="Practice Streak"
+              value={`${summary?.currentStreak || 0} Days`}
+              subtitle={`Best: ${summary?.longestStreak || summary?.currentStreak || 0} days`}
+              icon={Flame}
+              valueColor="text-[#E07A38]"
+              isLoading={loadingSummary}
+              badge={summary?.currentStreak > 0 ? '🔥 Active' : 'Ready'}
+              glowColor="rgba(224,122,56,0.22)"
+            />
+          </TiltCard>
+        </Reveal>
       </div>
 
-      {/* Zero state */}
+      {/* Zero state vs Asymmetric Dashboard Grid */}
       {hasZeroData ? (
-        <div className="panel border-dashed p-14 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/20 flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="w-6 h-6 text-[#F97316]" />
+        <Reveal delay={100}>
+          <div className="bg-[#141824]/70 backdrop-blur-xl rounded-2xl border border-dashed border-white/[0.12] p-12 text-center shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center mx-auto mb-4">
+              <BarChart3 className="w-6 h-6 text-[#E07A38]" />
+            </div>
+            <h2 className="text-base font-semibold text-white">Nothing to show yet</h2>
+            <p className="text-sm text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed">
+              Add your first problem and log practice sessions to unlock analytics.
+            </p>
+            <Link to="/problems?new=1" className="btn-primary inline-flex mt-5 text-sm">
+              Add your first problem
+            </Link>
           </div>
-          <h2 className="text-base font-semibold text-[#F3F4F6]">Nothing to show yet</h2>
-          <p className="text-sm text-[#9CA3AF] mt-2 max-w-sm mx-auto leading-relaxed">
-            Add your first problem and log practice sessions to unlock analytics.
-          </p>
-          <Link to="/problems" className="btn-primary inline-flex mt-5 text-sm">
-            Add your first problem
-          </Link>
-        </div>
+        </Reveal>
       ) : (
-        <div className="space-y-6 stagger-children">
+        <div className="space-y-6">
+          {/* Row 1: Priority Action Spotlight & Recall Queue (Balanced & Aligned) */}
+          <Reveal delay={100} y={20}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              <div className="lg:col-span-7 xl:col-span-8 flex flex-col h-full">
+                <IntelligentRecommender className="h-full flex-1" />
+              </div>
+              <div className="lg:col-span-5 xl:col-span-4 flex flex-col h-full">
+                <RevisionPreview
+                  className="h-full flex-1"
+                  queue={revisionQueue}
+                  isLoading={loadingRevision}
+                  error={revisionError}
+                  onRetry={loadRevision}
+                />
+              </div>
+            </div>
+          </Reveal>
 
-          {/* Row 0: Adaptive Next Up Problem Recommendation Spotlight */}
-          <IntelligentRecommender />
+          {/* Row 2: Full-Width Practice Consistency & Rhythm Activity Center */}
+          <Reveal delay={120} y={20}>
+            <div className="w-full">
+              <PracticeHeatmap
+                heatmapData={heatmap}
+                isLoading={loadingHeatmap}
+                error={heatmapError}
+                onRetry={loadHeatmap}
+              />
+            </div>
+          </Reveal>
 
-          {/* Row 1: Solve Velocity Trend (Full Width) */}
-          <SolveTrendChart trendData={trend} isLoading={loadingTrend} error={trendError} onRetry={loadTrend} />
+          {/* Row 3: Performance Analytics - Solve Velocity & Difficulty Split (Matched Heights) */}
+          <Reveal delay={140} y={20}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <div className="flex flex-col h-full">
+                <SolveTrendChart
+                  className="h-full flex-1"
+                  trendData={trend}
+                  isLoading={loadingTrend}
+                  error={trendError}
+                  onRetry={loadTrend}
+                />
+              </div>
+              <div className="flex flex-col h-full">
+                <DifficultyChart
+                  className="h-full flex-1"
+                  breakdown={summary?.difficultyBreakdown}
+                  isLoading={loadingSummary}
+                  error={summaryError}
+                  onRetry={loadSummary}
+                />
+              </div>
+            </div>
+          </Reveal>
 
-
-          {/* Row 2: Practice Consistency & Rhythm (Full Width) */}
-          <PracticeHeatmap heatmapData={heatmap} isLoading={loadingHeatmap} error={heatmapError} onRetry={loadHeatmap} />
-
-          {/* Row 3: Topic Mastery & Difficulty Balance (2 Columns) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <TopicWeaknessChart topics={topics} isLoading={loadingTopics} error={topicsError} onRetry={loadTopics} />
-            <DifficultyChart breakdown={summary?.difficultyBreakdown} isLoading={loadingSummary} error={summaryError} onRetry={loadSummary} />
-          </div>
-
-          {/* Row 4: Spaced Repetition Revision Queue (Full Width) */}
-          <RevisionPreview queue={revisionQueue} isLoading={loadingRevision} error={revisionError} onRetry={loadRevision} />
+          {/* Row 4: Full-Width Topic Mastery & Diagnostics Matrix */}
+          <Reveal delay={160} y={20}>
+            <div className="w-full">
+              <TopicWeaknessChart
+                topics={topics}
+                isLoading={loadingTopics}
+                error={topicsError}
+                onRetry={loadTopics}
+              />
+            </div>
+          </Reveal>
         </div>
       )}
     </div>

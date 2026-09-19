@@ -6,6 +6,14 @@ const VALID_PLATFORMS = ['leetcode', 'gfg', 'codechef', 'hackerrank', 'codeforce
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 /**
+ * Escapes regex special characters to prevent ReDoS and regex syntax errors
+ */
+const escapeRegex = (string) => {
+  if (typeof string !== 'string') return '';
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+/**
  * Normalizes topics by trimming, removing empty strings, and deduplicating
  */
 const normalizeTopics = (topics) => {
@@ -41,14 +49,16 @@ const getProblems = async (req, res, next) => {
       query.difficulty = difficulty.toLowerCase();
     }
 
-    // Filter by topic
+    // Filter by topic (safe regex escaped)
     if (topic && topic.trim()) {
-      query.topics = { $regex: new RegExp(topic.trim(), 'i') };
+      const escapedTopic = escapeRegex(topic.trim());
+      query.topics = { $regex: new RegExp(escapedTopic, 'i') };
     }
 
-    // Search by title or topic
+    // Search by title or topic (safe regex escaped)
     if (search && search.trim()) {
-      const searchRegex = { $regex: search.trim(), $options: 'i' };
+      const escapedSearch = escapeRegex(search.trim());
+      const searchRegex = { $regex: escapedSearch, $options: 'i' };
       query.$or = [{ title: searchRegex }, { topics: searchRegex }];
     }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { fetchProblemById, deleteProblem } from '../api/problems';
+import { deleteAttempt } from '../api/attempts';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import AttemptForm from '../components/AttemptForm';
@@ -76,6 +77,8 @@ const ProblemDetailPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [timerElapsedMinutes, setTimerElapsedMinutes] = useState('');
+  const [editingAttempt, setEditingAttempt] = useState(null);
+  const [deletingAttemptId, setDeletingAttemptId] = useState(null);
 
   const loadProblem = useCallback(async () => {
     setIsLoading(true);
@@ -96,6 +99,13 @@ const ProblemDetailPage = () => {
     loadProblem();
   }, [loadProblem]);
 
+  // Dynamic document title based on problem name
+  useEffect(() => {
+    if (problem?.title) {
+      document.title = `${problem.title} · DSA Tracker`;
+    }
+  }, [problem?.title]);
+
   const handleDeleteProblem = async () => {
     if (!problem) return;
     setIsDeleting(true);
@@ -107,6 +117,21 @@ const ProblemDetailPage = () => {
       toast.error(getErrorMessage(err, 'Failed to delete problem.'));
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
+    }
+  };
+
+  const handleDeleteAttempt = async (attemptId) => {
+    if (!problem || !attemptId) return;
+    if (!window.confirm('Are you sure you want to delete this attempt?')) return;
+    setDeletingAttemptId(attemptId);
+    try {
+      await deleteAttempt(problem.id, attemptId);
+      toast.success('Attempt deleted successfully.');
+      loadProblem();
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Failed to delete attempt.'));
+    } finally {
+      setDeletingAttemptId(null);
     }
   };
 
@@ -159,7 +184,7 @@ const ProblemDetailPage = () => {
   const avgTime = times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-16 animate-fade-up">
+    <div className="space-y-6 max-w-4xl mx-auto pb-24 sm:pb-16 animate-fade-up">
       {/* Top Navigation Row */}
       <div className="flex items-center justify-between gap-4">
         <nav className="flex items-center gap-2 text-xs text-[#9CA3AF]">
@@ -174,7 +199,7 @@ const ProblemDetailPage = () => {
           <button
             onClick={() => setIsEditModalOpen(true)}
             type="button"
-            className="px-3 py-1.5 rounded-xl border border-white/[0.08] hover:border-amber-500/30 bg-[#14171C] hover:bg-amber-500/10 text-[#9CA3AF] hover:text-amber-400 text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer"
+            className="btn-secondary text-xs items-center gap-1.5"
             title="Edit problem details & topics"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -184,7 +209,7 @@ const ProblemDetailPage = () => {
           <button
             onClick={() => setIsDeleteModalOpen(true)}
             type="button"
-            className="px-3 py-1.5 rounded-xl border border-rose-500/25 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer"
+            className="btn-danger text-xs items-center gap-1.5"
             title="Delete this problem"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -196,7 +221,7 @@ const ProblemDetailPage = () => {
       {/* Main Problem Hero Card */}
       <div className="panel p-6 sm:p-7 relative overflow-hidden bg-[#121418] rounded-2xl border border-white/[0.08] shadow-xl">
         {/* Glow accent in top right */}
-        <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#F97316]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#E07A38]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6 relative z-10">
           <div className="min-w-0 space-y-3">
@@ -226,7 +251,7 @@ const ProblemDetailPage = () => {
                 {problem.topics.map((t) => (
                   <span
                     key={t}
-                    className="text-[10px] font-mono px-2.5 py-0.5 rounded-md bg-[#0E1015] border border-white/[0.08] text-[#9CA3AF] hover:border-white/[0.2] hover:text-[#F3F4F6] transition-colors"
+                    className="chip-topic"
                   >
                     #{t}
                   </span>
@@ -240,10 +265,10 @@ const ProblemDetailPage = () => {
               href={problem.link}
               target="_blank"
               rel="noreferrer"
-              className="btn-ghost shrink-0 self-start sm:self-auto flex items-center gap-2 group text-xs border border-white/[0.08] hover:border-[#F97316]/40 px-3.5 py-2 rounded-xl"
+              className="btn-secondary shrink-0 self-start sm:self-auto flex items-center gap-2 group text-xs"
             >
               <span>Solve on {platformCfg.short}</span>
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-[#F97316] transition-transform" />
+              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-[#E07A38] transition-transform" />
             </a>
           )}
         </div>
@@ -271,7 +296,7 @@ const ProblemDetailPage = () => {
           <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] hover:border-white/[0.16] transition-colors group">
             <div className="flex items-center justify-between text-[#9CA3AF] mb-1">
               <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">Average</span>
-              <Flame className="w-3.5 h-3.5 text-orange-400 group-hover:scale-110 transition-transform" />
+              <Flame className="w-3.5 h-3.5 text-[#E07A38] group-hover:scale-110 transition-transform" />
             </div>
             <span className="text-xl font-bold font-mono text-[#F3F4F6] block">
               {avgTime != null ? `${avgTime}m` : '—'}
@@ -321,6 +346,7 @@ const ProblemDetailPage = () => {
           <button
             onClick={() => {
               setTimerElapsedMinutes('');
+              setEditingAttempt(null);
               setIsAttemptModalOpen(true);
             }}
             type="button"
@@ -367,11 +393,11 @@ const ProblemDetailPage = () => {
                 <div
                   key={attempt.id || index}
                   className={`panel p-4.5 rounded-2xl transition-all duration-200 hover:border-white/[0.18] relative overflow-hidden ${
-                    isLatest ? 'border-[#F97316]/30 bg-gradient-to-r from-[#171A21] to-[#131519] shadow-md' : 'bg-[#121418] border-white/[0.08]'
+                    isLatest ? 'border-[#E07A38]/30 bg-gradient-to-r from-[#171A21] to-[#131519] shadow-md' : 'bg-[#121418] border-white/[0.08]'
                   }`}
                 >
                   {isLatest && (
-                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#F97316]" />
+                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#E07A38]" />
                   )}
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -382,7 +408,7 @@ const ProblemDetailPage = () => {
                       </span>
 
                       {isLatest && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316]">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#E07A38]/10 border border-[#E07A38]/30 text-[#E07A38]">
                           <Sparkles className="w-3 h-3" />
                           <span>Latest</span>
                         </span>
@@ -396,8 +422,29 @@ const ProblemDetailPage = () => {
                       )}
                     </div>
 
-                    <div className="font-mono text-xs text-[#9CA3AF]">
-                      {attemptDate} · {attemptTime}
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs text-[#9CA3AF]">
+                        {attemptDate} · {attemptTime}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEditingAttempt(attempt)}
+                          className="p-1 rounded-lg text-[#6B7280] hover:text-amber-400 hover:bg-white/[0.06] transition-colors cursor-pointer"
+                          title="Edit attempt"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={deletingAttemptId === (attempt.id || attempt._id)}
+                          onClick={() => handleDeleteAttempt(attempt.id || attempt._id)}
+                          className="p-1 rounded-lg text-[#6B7280] hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 cursor-pointer"
+                          title="Delete attempt"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -413,17 +460,19 @@ const ProblemDetailPage = () => {
         )}
       </div>
 
-      {/* Attempt Modal */}
+      {/* Attempt Modal (Log new or Edit existing) */}
       <AttemptForm
-        isOpen={isAttemptModalOpen}
+        isOpen={isAttemptModalOpen || Boolean(editingAttempt)}
         onClose={() => {
           setIsAttemptModalOpen(false);
+          setEditingAttempt(null);
           setTimerElapsedMinutes('');
         }}
         onSuccess={loadProblem}
         problemId={problem.id}
         problemTitle={problem.title}
         defaultTimeTaken={timerElapsedMinutes}
+        initialData={editingAttempt}
       />
 
       {/* Edit Problem Modal */}

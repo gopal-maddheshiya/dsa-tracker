@@ -106,10 +106,10 @@ const PracticeTimer = ({ onLogWithTime }) => {
         <div className="flex items-center gap-2.5">
           <div className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
             isRunning
-              ? 'bg-orange-500/20 border-orange-500/40 text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.3)]'
+              ? 'bg-[#E07A38]/20 border-[#E07A38]/40 text-[#E07A38] shadow-[0_0_12px_rgba(224,122,56,0.2)]'
               : 'bg-white/[0.04] border-white/[0.08] text-slate-400'
           }`}>
-            <Clock className={`w-3.5 h-3.5 ${isRunning ? 'animate-pulse text-orange-400' : ''}`} />
+            <Clock className={`w-3.5 h-3.5 ${isRunning ? 'animate-pulse text-[#E07A38]' : ''}`} />
           </div>
           <div>
             <span className="text-xs font-bold text-slate-200 tracking-tight">Practice Stopwatch & Timer</span>
@@ -131,7 +131,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
               }}
               className={`px-2.5 py-1 rounded-md transition-all ${
                 mode === 'stopwatch'
-                  ? 'bg-orange-500 text-white font-semibold shadow-xs'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -146,7 +146,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
               }}
               className={`px-2.5 py-1 rounded-md transition-all ${
                 mode === 'countdown'
-                  ? 'bg-orange-500 text-white font-semibold shadow-xs'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -175,7 +175,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
                 isFinished
                   ? 'text-rose-400 animate-pulse'
                   : isRunning
-                    ? 'text-orange-400'
+                    ? 'text-[#E07A38]'
                     : 'text-slate-200'
               }`}>
                 {formatTime(seconds)}
@@ -188,7 +188,6 @@ const PracticeTimer = ({ onLogWithTime }) => {
               )}
             </div>
 
-            {/* Presets if countdown */}
             {mode === 'countdown' && (
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider mr-1">Target:</span>
@@ -199,7 +198,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
                     onClick={() => handleSelectPreset(p.minutes)}
                     className={`px-2 py-0.5 rounded-md text-[11px] font-mono transition-all ${
                       targetMinutes === p.minutes
-                        ? 'bg-orange-500/20 text-orange-400 border border-orange-500/35 font-semibold'
+                        ? 'bg-[#E07A38]/20 text-[#E07A38] border border-[#E07A38]/35 font-semibold'
                         : 'bg-white/[0.03] text-slate-400 hover:text-slate-200 border border-white/[0.06]'
                     }`}
                   >
@@ -218,8 +217,8 @@ const PracticeTimer = ({ onLogWithTime }) => {
               onClick={handleTogglePlay}
               className={`px-4 h-10 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer ${
                 isRunning
-                  ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
-                  : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.35)]'
+                  ? 'bg-amber-400 hover:bg-amber-500 text-slate-950 shadow-soft'
+                  : 'btn-primary'
               }`}
             >
               {isRunning ? (

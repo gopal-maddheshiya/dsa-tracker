@@ -20,6 +20,7 @@ export const ToastProvider = ({ children }) => {
     success: (msg) => addToast(msg, 'success'),
     error: (msg) => addToast(msg, 'error'),
     info: (msg) => addToast(msg, 'info'),
+    showToast: (msg, type = 'info') => addToast(msg, type),
   };
 
   return (
@@ -34,7 +35,7 @@ export const ToastProvider = ({ children }) => {
         {toasts.map(({ id, message, type }) => {
           const config =
             type === 'success'
-              ? { dot: 'bg-[#F97316]', border: 'border-[#F97316]/30', bg: 'bg-[#F97316]/10' }
+              ? { dot: 'bg-[#E07A38]', border: 'border-[#E07A38]/30', bg: 'bg-[#E07A38]/10' }
               : type === 'error'
               ? { dot: 'bg-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' }
               : { dot: 'bg-[#A8A29E]', border: 'border-[#262320]', bg: 'bg-[#141312]' };

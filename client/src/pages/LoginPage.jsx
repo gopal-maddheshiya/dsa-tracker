@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
+  Mail,
+  Lock,
 } from 'lucide-react';
 
 const LoginPage = () => {
@@ -28,6 +30,19 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
+
+  // Dynamic document title
+  useEffect(() => {
+    document.title = 'Sign In · DSA Tracker';
+  }, []);
+
+  // Check if redirected due to expired session
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('expired') === 'true') {
+      setApiError('Your session has expired. Please sign in again.');
+    }
+  }, [location.search]);
 
   const validate = () => {
     const newErrors = {};
@@ -149,22 +164,24 @@ const LoginPage = () => {
       </div>
 
       {/* ── Right: Balanced, Ultra-Premium Auth Panel ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10 bg-gradient-to-br from-[#0C0E13]/95 via-[#090B0E] to-[#060709]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 relative z-10 bg-gradient-to-br from-[#0C0E13]/95 via-[#090B0E] to-[#060709]">
         
         {/* Soft radial backlight glow behind the card */}
         <div className="absolute w-[440px] h-[440px] rounded-full bg-orange-500/[0.06] blur-[120px] pointer-events-none" />
 
-        <div className="w-full max-w-[400px] relative animate-fade-up">
+        <div className="w-full max-w-[408px] relative animate-fade-up">
 
           {/* Mobile brand (hidden on lg) */}
-          <div className="lg:hidden flex items-center justify-center mb-8">
+          <div className="lg:hidden flex items-center justify-center mb-6">
             <BrandLogo size="lg" />
           </div>
 
-
           {/* Floating Luxury Auth Card */}
-          <div className="relative p-7 sm:p-8 rounded-2xl bg-[#11141B]/95 backdrop-blur-xl border border-white/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.7),0_1px_1px_rgba(255,255,255,0.06)]">
+          <div className="relative p-7 sm:p-8 rounded-2xl bg-[#10141C]/95 backdrop-blur-2xl border border-white/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)_inset] overflow-hidden">
             
+            {/* Ambient top hairline gradient highlight */}
+            <div className="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-[#E07A38]/35 to-transparent pointer-events-none" />
+
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -193,9 +210,9 @@ const LoginPage = () => {
             {/* Clean Hairline Divider */}
             <div className="relative my-5 text-center">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/[0.08]" />
+                <div className="w-full border-t border-white/[0.07]" />
               </div>
-              <span className="relative px-3 text-[11px] font-mono uppercase tracking-wider text-slate-500 bg-[#11141B]">
+              <span className="relative px-3 text-[10.5px] font-mono uppercase tracking-widest text-slate-500 bg-[#10141C]">
                 or continue with email
               </span>
             </div>
@@ -206,17 +223,20 @@ const LoginPage = () => {
                 <label htmlFor="email" className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Email address
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  disabled={isSubmitting}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className={`w-full h-11 px-3.5 rounded-xl bg-[#0B0D12] border border-white/[0.09] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/90 focus:ring-2 focus:ring-orange-500/20 transition-all ${
-                    errors.email ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
-                  }`}
-                />
+                <div className="relative group">
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#E07A38] transition-colors duration-200" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    disabled={isSubmitting}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className={`w-full h-11 pl-10 pr-3.5 rounded-xl bg-[#090C11]/90 border border-white/[0.08] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-4 focus:ring-[#E07A38]/10 transition-all duration-200 ${
+                      errors.email ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
+                    }`}
+                  />
+                </div>
                 {errors.email && <p className="mt-1.5 text-xs text-rose-400">{errors.email}</p>}
               </div>
 
@@ -228,12 +248,13 @@ const LoginPage = () => {
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-xs text-orange-400 hover:text-orange-300 transition-colors font-medium cursor-pointer"
+                    className="text-xs text-[#E07A38] hover:text-[#EDB082] transition-colors font-medium cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
-                <div className="relative">
+                <div className="relative group">
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#E07A38] transition-colors duration-200" />
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -241,7 +262,7 @@ const LoginPage = () => {
                     disabled={isSubmitting}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className={`w-full h-11 pl-3.5 pr-11 rounded-xl bg-[#0B0D12] border border-white/[0.09] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/90 focus:ring-2 focus:ring-orange-500/20 transition-all ${
+                    className={`w-full h-11 pl-10 pr-11 rounded-xl bg-[#090C11]/90 border border-white/[0.08] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-4 focus:ring-[#E07A38]/10 transition-all duration-200 ${
                       errors.password ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
                     }`}
                   />
@@ -257,60 +278,59 @@ const LoginPage = () => {
                 {errors.password && <p className="mt-1.5 text-xs text-rose-400">{errors.password}</p>}
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Button (Portfolio Ember System: Warm Ember with Dark Ink Typography) */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-2 h-11 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 active:scale-[0.99] shadow-[0_4px_24px_rgba(249,115,22,0.35),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full mt-2 h-11 rounded-xl text-sm font-bold text-[#12151B] bg-[#E07A38] hover:opacity-92 active:scale-[0.99] shadow-[0_1px_2px_rgba(0,0,0,0.35),0_6px_20px_-2px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer group/btn"
               >
                 {isSubmitting ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-[#12151B]/30 border-t-[#12151B] rounded-full animate-spin" />
                     <span>Signing in…</span>
                   </>
                 ) : (
                   <>
                     <span>Sign in to Dashboard</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
                   </>
                 )}
               </button>
             </form>
 
-            {/* Instant 1-Click Demo Login Card */}
-            <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-[#11141B] to-[#0D0F14] border border-orange-500/25 hover:border-orange-500/40 shadow-[0_4px_20px_rgba(249,115,22,0.1)] transition-all">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 shadow-xs">
-                    <Zap className="w-3.5 h-3.5 fill-orange-500/30" />
+            {/* Instant 1-Click Demo Guest Access Card */}
+            <div className="mt-5 p-4 rounded-2xl bg-gradient-to-b from-[#131722]/70 to-[#0A0D13]/80 border border-white/[0.07] hover:border-[#E07A38]/25 transition-all duration-300">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center text-[#E07A38] shrink-0">
+                    <Zap className="w-3.5 h-3.5 fill-[#E07A38]/30" />
                   </div>
-                  <span className="text-xs font-bold text-slate-100">Demo Guest Access</span>
+                  <span className="text-xs font-semibold text-slate-200">Demo Guest Access</span>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/25 font-bold tracking-wider shrink-0">
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-[#E07A38]/10 text-[#E07A38] border border-[#E07A38]/20 tracking-wider shrink-0">
                   1-CLICK
                 </span>
               </div>
               
-              <p className="text-[11px] font-mono text-slate-400 mb-3 leading-relaxed">
-                Explore full dashboard with 35 preloaded DSA problems & streaks.
+              <p className="text-[11.5px] text-slate-400 mb-3 leading-relaxed">
+                Explore full dashboard with 35 preloaded DSA problems & streaks without signing up.
               </p>
 
               <button
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleInstantDemoLogin}
-                className="w-full h-9 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_2px_12px_rgba(249,115,22,0.25)] transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                className="w-full h-9 rounded-xl text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-[#E07A38] hover:text-[#12151B] border border-white/[0.1] hover:border-transparent transition-all duration-200 active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 group/demo"
               >
                 <span>Launch Instant Demo</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/demo:translate-x-0.5" />
               </button>
             </div>
-
 
             {/* Bottom Sign-Up Link */}
             <p className="mt-5 text-center text-xs text-slate-400">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-semibold text-orange-400 hover:text-orange-300 transition-colors">
+              <Link to="/signup" className="font-semibold text-[#E07A38] hover:text-[#EDB082] transition-colors">
                 Create an account
               </Link>
             </p>

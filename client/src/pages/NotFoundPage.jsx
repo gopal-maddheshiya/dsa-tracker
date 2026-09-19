@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const NotFoundPage = () => {
+  useEffect(() => {
+    document.title = 'Page Not Found · DSA Tracker';
+  }, []);
   return (
     <div className="min-h-[calc(100vh-120px)] flex items-center justify-center animate-fade-up px-4">
       <div className="text-center max-w-md">
         {/* Decorative glow */}
         <div className="relative inline-block mb-6">
           <div className="absolute inset-0 rounded-full opacity-20"
-            style={{ background: 'radial-gradient(circle, #F97316, transparent)', filter: 'blur(40px)', transform: 'scale(2)' }} />
+            style={{ background: 'radial-gradient(circle, #E07A38, transparent)', filter: 'blur(40px)', transform: 'scale(2)' }} />
           <span className="relative font-mono text-8xl font-bold text-gradient block">404</span>
         </div>
 

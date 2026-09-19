@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload, FileJson, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, FileCheck } from 'lucide-react';
 import { importProblems } from '../../api/problems';
 import { useToast } from '../../context/ToastContext';
@@ -76,6 +77,18 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
   const [parseError, setParseError] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -166,22 +179,26 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      onClick={handleClose}
+    >
       <div
-        className="relative w-full max-w-lg bg-[#10131A] border border-white/[0.12] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+        data-lenis-prevent
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#10131A] border border-white/[0.12] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.8)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Subtle glow */}
         <div
-          className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-orange-500/10 pointer-events-none"
+          className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-[#E07A38]/10 pointer-events-none"
           style={{ filter: 'blur(50px)' }}
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/[0.08] sticky top-0 bg-[#10131A]/95 backdrop-blur-sm z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+            <div className="w-8 h-8 rounded-xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center text-[#E07A38]">
               <Upload className="w-4 h-4" />
             </div>
             <div>
@@ -192,7 +209,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
           <button
             onClick={handleClose}
             type="button"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -216,7 +233,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-xs font-semibold text-white shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all cursor-pointer"
+                className="btn-primary text-xs px-5 py-2.5"
               >
                 Done
               </button>
@@ -237,7 +254,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-8 border-2 border-dashed border-white/[0.12] hover:border-orange-500/50 bg-[#090B0E]/60 hover:bg-[#090B0E] rounded-2xl text-center cursor-pointer transition-all group"
+                  className="p-8 border-2 border-dashed border-white/[0.12] hover:border-[#E07A38]/50 bg-[#090B0E]/60 hover:bg-[#090B0E] rounded-2xl text-center cursor-pointer transition-all group"
                 >
                   <input
                     ref={fileInputRef}
@@ -246,27 +263,29 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-3 text-orange-400 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center mx-auto mb-3 text-[#E07A38] group-hover:scale-105 transition-transform">
                     <Upload className="w-6 h-6" />
                   </div>
-                  <h4 className="text-xs font-semibold text-slate-200">
-                    Click to browse or drag & drop backup file
-                  </h4>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Supports <span className="text-slate-400">.JSON</span> (DSA Tracker backup) or{' '}
-                    <span className="text-slate-400">.CSV</span>
-                  </p>
+                  <h3 className="text-xs font-semibold text-white mb-1">
+                    Click to upload or drag & drop backup file
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mb-3">Supports .JSON or .CSV format</p>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[11px] font-mono text-slate-400">
+                    <FileCheck className="w-3.5 h-3.5 text-[#E07A38]" /> Choose Backup File
+                  </span>
                 </div>
               ) : (
-                /* Parsed Preview Section */
-                <div className="space-y-3">
-                  <div className="p-3 rounded-xl bg-[#090B0E] border border-white/[0.08] flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <FileCheck className="w-4 h-4 text-emerald-400" />
-                      <div>
-                        <p className="text-xs font-semibold text-slate-200 truncate max-w-[200px]">{file?.name}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">
-                          {parsedProblems.length} problems detected
+                /* Parsed Preview */
+                <div className="space-y-4">
+                  <div className="p-3.5 rounded-xl bg-[#090B0E] border border-white/[0.06] flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">{file?.name}</p>
+                        <p className="text-[10px] text-slate-400 font-mono">
+                          {parsedProblems.length} {parsedProblems.length === 1 ? 'problem' : 'problems'} ready to import
                         </p>
                       </div>
                     </div>
@@ -277,49 +296,39 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                         setParsedProblems([]);
                         setParseError('');
                       }}
-                      className="text-xs text-orange-400 hover:text-orange-300 font-medium"
+                      className="text-[11px] text-rose-400 hover:text-rose-300 font-medium px-2 py-1 rounded hover:bg-rose-500/10 transition-colors cursor-pointer"
                     >
-                      Change File
+                      Remove
                     </button>
                   </div>
 
-                  {/* Sample preview cards */}
-                  <div className="p-3 rounded-xl bg-[#090B0E]/80 border border-white/[0.06] space-y-2 max-h-48 overflow-y-auto">
-                    <p className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-1">
-                      Preview (First {Math.min(3, parsedProblems.length)} items)
-                    </p>
-                    {parsedProblems.slice(0, 3).map((p, idx) => (
+                  {/* Sample problem preview list */}
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block mb-1">
+                      Previewing first {Math.min(5, parsedProblems.length)} of {parsedProblems.length} items:
+                    </span>
+                    {parsedProblems.slice(0, 5).map((p, idx) => (
                       <div
                         key={idx}
-                        className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.04] flex items-center justify-between gap-3 text-xs"
+                        className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-xs"
                       >
-                        <span className="font-semibold text-slate-200 truncate">{p.title}</span>
+                        <span className="text-slate-200 truncate max-w-[240px]">{p.title}</span>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/[0.06] text-slate-400 uppercase">
-                            {p.platform || 'other'}
-                          </span>
-                          <span
-                            className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                              p.difficulty === 'hard'
-                                ? 'text-rose-400 bg-rose-500/10'
-                                : p.difficulty === 'medium'
-                                ? 'text-amber-400 bg-amber-500/10'
-                                : 'text-emerald-400 bg-emerald-500/10'
-                            }`}
-                          >
+                          <span className="text-[10px] font-mono uppercase text-slate-500">{p.platform}</span>
+                          <Badge variant={p.difficulty || 'medium'} size="xs">
                             {p.difficulty || 'medium'}
-                          </span>
+                          </Badge>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Bottom Actions */}
-                  <div className="flex items-center justify-end gap-2.5 pt-3">
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/[0.06]">
                     <button
                       type="button"
                       onClick={handleClose}
-                      className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors"
+                      className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -327,11 +336,11 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                       type="button"
                       onClick={handleExecuteImport}
                       disabled={isImporting}
-                      className="px-5 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-xs font-semibold text-white shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                      className="btn-primary text-xs flex items-center gap-2 disabled:opacity-50"
                     >
                       {isImporting ? (
                         <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#12151B]" />
                           <span>Importing…</span>
                         </>
                       ) : (
@@ -345,7 +354,8 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

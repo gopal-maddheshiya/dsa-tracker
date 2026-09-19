@@ -33,6 +33,9 @@ const PLATFORMS = {
 
 /* ── Difficulty styling constants ──────────────────────────────────── */
 const DIFFICULTY_CONFIG = {
+  easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
+  medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',     dot: 'bg-amber-400' },
+  hard:   { text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25',       dot: 'bg-rose-400' },
   Easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
   Medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',     dot: 'bg-amber-400' },
   Hard:   { text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25',       dot: 'bg-rose-400' },
@@ -226,7 +229,8 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
         currentItem.data.action();
       } else if (currentItem.kind === 'problem') {
         onClose();
-        navigate(`/problems/${currentItem.data._id}`);
+        const targetId = currentItem.data.id || currentItem.data._id;
+        navigate(`/problems/${targetId}`);
       }
     }
   };
@@ -239,16 +243,17 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       onClick={onClose}
     >
       <div
+        data-lenis-prevent
         className="relative w-full max-w-2xl rounded-2xl bg-[#101216] border border-white/[0.14] shadow-[0_24px_64px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden flex flex-col max-h-[80vh] transition-all"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
         {/* ── Top Ambient Light Gradient ──────────────────────────── */}
-        <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#F97316]/70 to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#E07A38]/70 to-transparent pointer-events-none" />
 
         {/* ── Search Input Header ─────────────────────────────────── */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08] bg-[#14171D]/90">
-          <Search className="w-5 h-5 text-[#F97316] shrink-0" />
+          <Search className="w-5 h-5 text-[#E07A38] shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -277,7 +282,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
         <div ref={listRef} className="flex-1 overflow-y-auto p-2 space-y-4 scroll-smooth">
           {isLoading && !problems.length ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
-              <div className="w-6 h-6 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-[#E07A38] border-t-transparent rounded-full animate-spin" />
               <p className="text-xs text-[#9CA3AF]">Scanning problem database...</p>
             </div>
           ) : allSelectableItems.length === 0 ? (
@@ -312,14 +317,14 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                           onMouseEnter={() => setSelectedIndex(itemGlobalIndex)}
                           className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
                             isSelected
-                              ? 'bg-gradient-to-r from-orange-500/15 to-transparent border-l-2 border-[#F97316] text-[#F3F4F6]'
+                              ? 'bg-gradient-to-r from-[#E07A38]/15 to-transparent border-l-2 border-[#E07A38] text-[#F3F4F6]'
                               : 'text-[#9CA3AF] hover:bg-white/[0.04] hover:text-[#D1D5DB]'
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className={`p-2 rounded-xl border shrink-0 transition-colors ${
                               isSelected
-                                ? 'bg-[#F97316]/20 border-[#F97316]/40 text-[#F97316]'
+                                ? 'bg-[#E07A38]/20 border-[#E07A38]/40 text-[#E07A38]'
                                 : 'bg-white/[0.04] border-white/[0.08] text-[#9CA3AF]'
                             }`}>
                               <Icon className="w-4 h-4" />
@@ -343,7 +348,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                                 {action.shortcut}
                               </kbd>
                             )}
-                            <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'translate-x-0.5 text-[#F97316]' : 'text-[#4B5563]'}`} />
+                            <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'translate-x-0.5 text-[#E07A38]' : 'text-[#4B5563]'}`} />
                           </div>
                         </div>
                       );
@@ -361,26 +366,28 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                   </div>
                   <div className="space-y-1 mt-1">
                     {filteredProblems.map((prob) => {
+                      const probId = prob.id || prob._id;
                       const itemGlobalIndex = allSelectableItems.findIndex(
-                        (i) => i.kind === 'problem' && i.data._id === prob._id
+                        (i) => i.kind === 'problem' && (i.data.id || i.data._id) === probId
                       );
                       const isSelected = itemGlobalIndex === selectedIndex;
-                      const diffCfg = DIFFICULTY_CONFIG[prob.difficulty] || DIFFICULTY_CONFIG.Medium;
+                      const diffKey = prob.difficulty?.toLowerCase() || 'medium';
+                      const diffCfg = DIFFICULTY_CONFIG[diffKey] || DIFFICULTY_CONFIG.medium;
                       const platCfg = PLATFORMS[prob.platform?.toLowerCase()] || PLATFORMS.other;
-                      const latestStatus = prob.latestAttempt?.status;
+                      const latestStatus = prob.latestAttempt?.status?.toLowerCase();
 
                       return (
                         <div
-                          key={prob._id}
+                          key={probId}
                           data-active={isSelected}
                           onClick={() => {
                             onClose();
-                            navigate(`/problems/${prob._id}`);
+                            navigate(`/problems/${probId}`);
                           }}
                           onMouseEnter={() => setSelectedIndex(itemGlobalIndex)}
                           className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
                             isSelected
-                              ? 'bg-gradient-to-r from-orange-500/15 to-transparent border-l-2 border-[#F97316] text-[#F3F4F6]'
+                              ? 'bg-gradient-to-r from-[#E07A38]/15 to-transparent border-l-2 border-[#E07A38] text-[#F3F4F6]'
                               : 'text-[#9CA3AF] hover:bg-white/[0.04] hover:text-[#D1D5DB]'
                           }`}
                         >
@@ -401,13 +408,13 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                             <div className="min-w-0">
                               <div className="text-xs font-semibold text-[#F3F4F6] truncate flex items-center gap-2">
                                 <span className="truncate">{prob.title}</span>
-                                {latestStatus === 'Solved' && (
+                                {latestStatus === 'solved' && (
                                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" title="Solved" />
                                 )}
-                                {latestStatus === 'Revisit' && (
+                                {(latestStatus === 'revisit_needed' || latestStatus === 'revisit') && (
                                   <RotateCcw className="w-3.5 h-3.5 text-amber-400 shrink-0" title="Needs Revisit" />
                                 )}
-                                {latestStatus === 'Struggled' && (
+                                {latestStatus === 'struggled' && (
                                   <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" title="Struggled" />
                                 )}
                               </div>
@@ -437,7 +444,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                               <span>{prob.difficulty}</span>
                             </span>
 
-                            <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isSelected ? 'translate-x-1 text-[#F97316]' : 'text-[#4B5563]'}`} />
+                            <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isSelected ? 'translate-x-1 text-[#E07A38]' : 'text-[#4B5563]'}`} />
                           </div>
                         </div>
                       );
@@ -465,9 +472,9 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
           <div className="hidden sm:flex items-center gap-1.5 text-[#9CA3AF]">
             <span>Tip: Press</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#F97316] font-semibold">Ctrl</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#E07A38] font-semibold">Ctrl</kbd>
             <span>+</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#F97316] font-semibold">K</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#E07A38] font-semibold">K</kbd>
             <span>anytime</span>
           </div>
         </div>

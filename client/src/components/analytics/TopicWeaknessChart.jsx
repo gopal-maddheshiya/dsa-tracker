@@ -24,7 +24,7 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
 
   if (isLoading) {
     return (
-      <div className="panel p-6 animate-pulse border-[#262320]">
+      <div className="panel p-6 animate-pulse border-white/[0.08]">
         <div className="flex justify-between items-center mb-5">
           <div className="space-y-2">
             <div className="h-4 w-36 shimmer rounded-md" />
@@ -72,9 +72,9 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
 
   return (
     <div
-      className="panel p-6 border-[#262320] relative overflow-hidden transition-all flex flex-col justify-between"
+      className="panel p-6 border-white/[0.08] relative overflow-hidden transition-all flex flex-col justify-between"
       style={{
-        background: 'radial-gradient(ellipse 65% 55% at 10% 10%, rgba(244,63,94,0.05) 0%, transparent 60%), linear-gradient(180deg, #171614 0%, #131211 100%)',
+        background: 'radial-gradient(ellipse 65% 55% at 10% 10%, rgba(244,63,94,0.06) 0%, transparent 60%), linear-gradient(180deg, rgba(22, 27, 39, 0.78) 0%, rgba(14, 17, 26, 0.88) 100%)',
       }}
     >
       <div>
@@ -82,14 +82,14 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-[#F5F5F4] tracking-tight">
+              <h3 className="text-base font-bold text-white tracking-tight">
                 {viewMode === 'struggle' ? 'Topic Weakness' : 'Topic Mastery'}
               </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#141312] border border-[#262320] text-[#A8A29E]">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-slate-400">
                 {displayTopics.length} tracked
               </span>
             </div>
-            <p className="text-xs text-[#6B6560] mt-1 font-mono">
+            <p className="text-xs text-slate-400 mt-1 font-mono">
               {viewMode === 'struggle'
                 ? 'Ranked by struggle ratio • Click to practice topic'
                 : 'Ranked by win rate • Highest accuracy topics'}
@@ -97,14 +97,14 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
           </div>
 
           {/* Toggle pills */}
-          <div className="flex items-center p-1 rounded-xl bg-[#11100F] border border-[#262320] self-start sm:self-auto">
+          <div className="flex items-center p-1 rounded-xl bg-black/30 border border-white/[0.08] self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setViewMode('struggle')}
               className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                 viewMode === 'struggle'
                   ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm'
-                  : 'text-[#6B6560] hover:text-[#A8A29E]'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -116,7 +116,7 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
               className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                 viewMode === 'mastery'
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                  : 'text-[#6B6560] hover:text-[#A8A29E]'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Trophy className="w-3.5 h-3.5" />
@@ -125,13 +125,13 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
           </div>
         </div>
 
-        {/* ── Topics List ──────────────────────────────────────────── */}
+        {/* ── Topics Matrix Grid (2 columns on md/lg) ─────────────── */}
         {displayTopics.length === 0 ? (
-          <div className="h-44 flex flex-col items-center justify-center text-center border border-dashed border-[#262320] rounded-xl p-4">
-            <p className="text-xs text-[#6B6560]">No practice attempts recorded yet.</p>
+          <div className="h-44 flex flex-col items-center justify-center text-center border border-dashed border-white/[0.08] rounded-xl p-4">
+            <p className="text-xs text-slate-400">No practice attempts recorded yet.</p>
           </div>
         ) : (
-          <div className="space-y-3.5 my-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 my-auto">
             {displayTopics.map((item, idx) => {
               const strugglePct = Math.round(item.struggleRatio * 100);
               const masteryPct = Math.round((1 - item.struggleRatio) * 100);
@@ -174,35 +174,35 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
                 <div
                   key={item.topic}
                   onClick={() => handleTopicClick(item.topic)}
-                  className="group cursor-pointer p-2 -mx-2 rounded-xl hover:bg-[#1C1A18]/60 border border-transparent hover:border-[#262320] transition-all duration-150"
+                  className="group cursor-pointer p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-white/[0.14] transition-all duration-150"
                 >
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    {/* Topic index & name */}
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="font-mono text-[11px] text-[#6B6560] shrink-0 w-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs mb-2 gap-1.5 sm:gap-2">
+                    {/* Topic index & name with flex-1 min-w-0 */}
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <span className="font-mono text-[11px] text-slate-500 shrink-0 w-4 font-semibold">
                         {String(idx + 1).padStart(2, '0')}
                       </span>
-                      <span className="text-[#F5F5F4] font-semibold truncate group-hover:text-[#FB923C] transition-colors">
+                      <span className="text-sm font-semibold text-slate-200 group-hover:text-orange-400 transition-colors truncate">
                         {item.topic}
                       </span>
                       {/* Action pill on hover */}
-                      <span className="hidden group-hover:inline-flex items-center text-[10px] text-amber-400 font-mono font-medium pl-1 animate-fadeIn">
+                      <span className="hidden sm:group-hover:inline-flex items-center text-[10px] text-orange-400 font-mono font-medium pl-1 animate-fadeIn shrink-0">
                         Practice ↗
                       </span>
                     </div>
 
                     {/* Stats & Risk Badge */}
-                    <div className="flex items-center gap-2.5 shrink-0 font-mono text-[11px] ml-2">
-                      <span className="text-[#8C847E] font-medium hidden sm:inline">
-                        {item.struggledAttempts} / {item.totalAttempts} att.
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 font-mono text-[11px] self-end sm:self-auto pl-6 sm:pl-0">
+                      <span className="text-slate-400 font-medium text-[10px]">
+                        {item.struggledAttempts}/{item.totalAttempts} att.
                       </span>
 
-                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${badgeStyle} hidden md:inline`}>
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${badgeStyle}`}>
                         {badgeLabel}
                       </span>
 
                       <span
-                        className={`font-mono font-bold text-[11px] px-2 py-0.5 rounded border ${badgeStyle} min-w-[44px] text-center`}
+                        className={`font-mono font-bold text-[11px] px-2 py-0.5 rounded border ${badgeStyle} min-w-[40px] text-center`}
                       >
                         {pct}%
                       </span>
@@ -210,7 +210,7 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
                   </div>
 
                   {/* Sleek Gradient Glowing Bar */}
-                  <div className="h-1.5 w-full bg-[#11100F] rounded-full overflow-hidden border border-[#262320]">
+                  <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden border border-white/[0.08]">
                     <div
                       className="h-full rounded-full transition-all duration-700 ease-out"
                       style={{
@@ -229,7 +229,7 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
 
       {/* ── Dynamic AI / Coach Insight Footer ──────────────────────── */}
       {topics.length > 0 && (
-        <div className="mt-5 pt-4 border-t border-[#262320] flex items-start gap-2.5">
+        <div className="mt-5 pt-4 border-t border-white/[0.08] flex items-start gap-2.5">
           {viewMode === 'struggle' && topStruggle ? (
             <>
               <span className="relative flex h-2 w-2 mt-1 shrink-0">

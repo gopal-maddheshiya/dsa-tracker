@@ -26,4 +26,33 @@ api.interceptors.request.use(
   }
 );
 
+// Response interceptor to catch 401 Unauthorized (e.g. expired JWT)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const requestUrl = error.config?.url || '';
+      // Don't intercept credentials verification attempts
+      const isAuthRequest =
+        requestUrl.includes('/auth/login') ||
+        requestUrl.includes('/auth/signup') ||
+        requestUrl.includes('/auth/google') ||
+        requestUrl.includes('/auth/forgot-password') ||
+        requestUrl.includes('/auth/reset-password');
+
+      if (!isAuthRequest) {
+        localStorage.removeItem('token');
+        window.dispatchEvent(new CustomEvent('auth-expired'));
+
+        // Redirect to login if user is currently on an authenticated route
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/signup') {
+          window.location.href = '/login?expired=true';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

@@ -49,12 +49,8 @@ const Navbar = () => {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                {/* User Status Badge (Online - #22C55E) */}
+                {/* User Status Badge */}
                 <NavLink to="/profile" className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1C1A18] border border-[#262320] hover:border-[#3E3834] transition-colors">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]"></span>
-                  </span>
                   <span className="text-xs text-[#A8A29E] max-w-[140px] truncate">
                     {user?.name || user?.email}
                   </span>
@@ -68,7 +64,7 @@ const Navbar = () => {
                 <NavLink to="/login" className="btn-ghost">Log in</NavLink>
                 <NavLink
                   to="/signup"
-                  className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#F97316] hover:bg-[#FB923C] text-white transition-all duration-150"
+                  className="btn-primary inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs"
                 >
                   Get started
                 </NavLink>
@@ -91,7 +87,7 @@ const Navbar = () => {
                 to={to}
                 className={({ isActive }) =>
                   `flex-shrink-0 rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
-                    isActive ? 'text-[#F97316] bg-[#F97316]/10' : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
+                    isActive ? 'text-[#E07A38] bg-[#E07A38]/10' : 'text-[#9CA3AF] hover:text-[#F3F4F6]'
                   }`
                 }
               >

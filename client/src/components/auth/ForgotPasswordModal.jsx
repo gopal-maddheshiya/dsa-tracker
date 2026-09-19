@@ -33,7 +33,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
         setCodeNotice(`Verification code: ${res.resetCode}`);
       }
       setStep(2);
-      toast.success('Verification code generated!');
+      toast.success(res.resetCode ? 'Verification code generated!' : 'Verification code sent to your email!');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send reset code. Please try again.');
     } finally {
@@ -90,9 +90,9 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
         className="relative w-full max-w-md bg-[#10131A] border border-white/[0.12] rounded-2xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Subtle orange ambient glow */}
+        {/* Subtle warm ember ambient glow */}
         <div
-          className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-orange-500/10 pointer-events-none"
+          className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-[#E07A38]/10 pointer-events-none"
           style={{ filter: 'blur(45px)' }}
         />
 
@@ -107,7 +107,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-orange-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#E07A38]/10 border border-[#E07A38]/25 flex items-center justify-center text-[#E07A38] shrink-0">
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
@@ -144,7 +144,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
+                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
               />
             </div>
 
@@ -159,7 +159,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-5 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-xs font-semibold text-white shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all flex items-center gap-2 disabled:opacity-50"
+                className="btn-primary text-xs flex items-center gap-2 disabled:opacity-50"
               >
                 {isLoading ? (
                   <span>Generating Code…</span>
@@ -201,7 +201,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 value={resetCode}
                 onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-center font-mono text-base tracking-[0.25em] text-orange-400 placeholder:text-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
+                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-center font-mono text-base tracking-[0.25em] text-[#E07A38] placeholder:text-slate-600 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
               />
             </div>
 
@@ -220,7 +220,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-11 pl-3.5 pr-10 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
+                  className="w-full h-11 pl-3.5 pr-10 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
                 />
                 <button
                   type="button"
@@ -243,7 +243,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
+                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
               />
             </div>
 
@@ -267,7 +267,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-5 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-xs font-semibold text-white shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all flex items-center gap-2 disabled:opacity-50"
+                  className="btn-primary text-xs flex items-center gap-2 disabled:opacity-50"
                 >
                   {isLoading ? <span>Updating…</span> : <span>Update Password</span>}
                 </button>

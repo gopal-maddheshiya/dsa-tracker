@@ -59,11 +59,21 @@ const getSummary = async (req, res, next) => {
       { difficulty: 'hard', count: diffMap.hard },
     ];
 
-    // Calculate practice streaks
-    const allAttemptDates = await Attempt.find({ userId }).select('createdAt').lean();
+    // Calculate practice streaks safely
+    const allAttemptDates = await Attempt.find(
+      { userId, attemptedAt: { $exists: true, $ne: null } },
+      'attemptedAt'
+    ).lean();
     const daySet = new Set();
     allAttemptDates.forEach((a) => {
-      if (a.createdAt) daySet.add(new Date(a.createdAt).toISOString().slice(0, 10));
+      if (a.attemptedAt) {
+        try {
+          const d = new Date(a.attemptedAt);
+          if (!isNaN(d.getTime())) {
+            daySet.add(d.toISOString().slice(0, 10));
+          }
+        } catch (_) {}
+      }
     });
     const sortedDays = [...daySet].sort();
 
@@ -203,16 +213,18 @@ const getTrend = async (req, res, next) => {
         $match: {
           userId,
           status: 'solved',
+          attemptedAt: { $exists: true, $ne: null },
         },
       },
       {
         $group: {
           _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$attemptedAt' },
+            $dateToString: { format: '%Y-%m-%d', date: '$attemptedAt', onNull: '' },
           },
           solved: { $sum: 1 },
         },
       },
+      { $match: { _id: { $ne: '' } } },
       { $sort: { _id: 1 } },
       {
         $project: {
@@ -245,16 +257,18 @@ const getHeatmap = async (req, res, next) => {
       {
         $match: {
           userId,
+          attemptedAt: { $exists: true, $ne: null },
         },
       },
       {
         $group: {
           _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$attemptedAt' },
+            $dateToString: { format: '%Y-%m-%d', date: '$attemptedAt', onNull: '' },
           },
           count: { $sum: 1 },
         },
       },
+      { $match: { _id: { $ne: '' } } },
       { $sort: { _id: 1 } },
       {
         $project: {
@@ -324,32 +338,36 @@ const getRevisionQueue = async (req, res, next) => {
 
     const now = Date.now();
 
-    const queueItems = problemsWithLatestAttempt.map((problem) => {
-      const lastAttemptedAt = problem.latestAttempt.attemptedAt;
-      const elapsedDays = (now - new Date(lastAttemptedAt).getTime()) / (1000 * 60 * 60 * 24);
+    const queueItems = problemsWithLatestAttempt
+      .filter((p) => p.latestAttempt && p.latestAttempt.attemptedAt)
+      .map((problem) => {
+        const lastAttemptedAt = problem.latestAttempt.attemptedAt;
+        const lastTime = new Date(lastAttemptedAt).getTime();
+        const validTime = !isNaN(lastTime) ? lastTime : now;
+        const elapsedDays = Math.max(0, (now - validTime) / (1000 * 60 * 60 * 24));
 
-      // Clamp future-dated attempts so elapsed days is never negative
-      const daysSinceLastAttempt = Math.max(0, elapsedDays);
+        // Clamp future-dated attempts so elapsed days is never negative
+        const daysSinceLastAttempt = Math.max(0, elapsedDays);
 
-      const latestStatus = problem.latestAttempt.status;
-      const intervalForStatus = REVISION_INTERVALS[latestStatus] || 14;
-      const struggleWeight = STRUGGLE_WEIGHTS[latestStatus] ?? 0;
+        const latestStatus = problem.latestAttempt.status;
+        const intervalForStatus = REVISION_INTERVALS[latestStatus] || 14;
+        const struggleWeight = STRUGGLE_WEIGHTS[latestStatus] ?? 0;
 
-      // Deterministic priority formula
-      const priorityScore = (daysSinceLastAttempt / intervalForStatus) + struggleWeight;
+        // Deterministic priority formula
+        const priorityScore = (daysSinceLastAttempt / intervalForStatus) + struggleWeight;
 
-      return {
-        problemId: problem.problemId.toString(),
-        title: problem.title,
-        platform: problem.platform,
-        difficulty: problem.difficulty,
-        topics: problem.topics || [],
-        latestStatus,
-        lastAttemptedAt,
-        daysSinceLastAttempt: Number(daysSinceLastAttempt.toFixed(2)),
-        priorityScore: Number(priorityScore.toFixed(3)),
-      };
-    });
+        return {
+          problemId: problem.problemId.toString(),
+          title: problem.title,
+          platform: problem.platform,
+          difficulty: problem.difficulty,
+          topics: problem.topics || [],
+          latestStatus,
+          lastAttemptedAt,
+          daysSinceLastAttempt: Number(daysSinceLastAttempt.toFixed(2)),
+          priorityScore: Number(priorityScore.toFixed(3)),
+        };
+      });
 
     // Sort descending by priorityScore
     queueItems.sort((a, b) => b.priorityScore - a.priorityScore);
@@ -376,15 +394,23 @@ const getProfile = async (req, res, next) => {
     const userId = req.user._id;
 
     // ── All attempt dates (chronological) ─────────────────────────
-    const allAttempts = await Attempt.find({ userId }, 'attemptedAt status').sort({ attemptedAt: 1 });
+    const allAttempts = await Attempt.find(
+      { userId, attemptedAt: { $exists: true, $ne: null } },
+      'attemptedAt status'
+    ).sort({ attemptedAt: 1 });
 
     // ── Unique active days ─────────────────────────────────────────
     const daySet = new Set();
     const dayCountMap = {};
     for (const a of allAttempts) {
-      const d = a.attemptedAt.toISOString().slice(0, 10);
-      daySet.add(d);
-      dayCountMap[d] = (dayCountMap[d] || 0) + 1;
+      if (!a.attemptedAt) continue;
+      try {
+        const dateObj = new Date(a.attemptedAt);
+        if (isNaN(dateObj.getTime())) continue;
+        const d = dateObj.toISOString().slice(0, 10);
+        daySet.add(d);
+        dayCountMap[d] = (dayCountMap[d] || 0) + 1;
+      } catch (_) {}
     }
     const sortedDays = [...daySet].sort();
 

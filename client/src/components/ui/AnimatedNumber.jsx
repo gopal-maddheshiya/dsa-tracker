@@ -1,46 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 
 /**
- * AnimatedNumber — animates from 0 to target value with easeOutExpo.
+ * AnimatedNumber — animates from start to target value using GSAP power2.out easing.
  * @param {number} value      — target number
- * @param {number} duration   — ms (default 800)
+ * @param {number} duration   — duration in ms or seconds (default 0.9s / 900ms)
  * @param {string} suffix     — e.g. '%'
  * @param {string} className  — extra classes
  */
-const AnimatedNumber = ({ value = 0, duration = 800, suffix = '', className = '' }) => {
+const AnimatedNumber = ({ value = 0, duration = 900, suffix = '', className = '' }) => {
   const [display, setDisplay] = useState(0);
-  const ref = useRef(null);
-  const prevValue = useRef(0);
+  const counterRef = useRef({ val: 0 });
+  const end = typeof value === 'number' ? value : parseInt(value, 10) || 0;
 
   useEffect(() => {
-    const start = prevValue.current;
-    const end = typeof value === 'number' ? value : parseInt(value, 10) || 0;
-    if (start === end) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(end);
+      counterRef.current.val = end;
+      return;
+    }
 
-    let startTime = null;
-    let frame;
+    const dur = duration > 10 ? duration / 1000 : duration;
 
-    const easeOutExpo = (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
+    const tween = gsap.to(counterRef.current, {
+      val: end,
+      duration: dur,
+      ease: 'power2.out',
+      onUpdate: () => {
+        setDisplay(Math.round(counterRef.current.val));
+      },
+    });
 
-    const animate = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutExpo(progress);
-      const current = Math.round(start + (end - start) * eased);
-
-      setDisplay(current);
-
-      if (progress < 1) {
-        frame = requestAnimationFrame(animate);
-      } else {
-        prevValue.current = end;
-      }
-    };
-
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [value, duration]);
+    return () => tween.kill();
+  }, [end, duration]);
 
   return <span className={className}>{display}{suffix}</span>;
 };

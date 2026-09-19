@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
 
 const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleting }) => {
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  return (
+  const content = (
     <div
       className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
       role="alertdialog"
@@ -24,7 +37,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
             <h3 id="delete-modal-title" className="text-sm font-bold text-[#F3F4F6]">
               Delete Problem?
             </h3>
-            <p id="delete-modal-desc" className="text-xs text-[#9CA3AF] mt-0.5 leading-relaxed">
+            <p id="delete-modal-desc" className="text-xs text-[#9CA3AF] mt-0.5 leading-relaxed line-clamp-3">
               You are about to permanently delete{' '}
               <span className="font-semibold text-[#F3F4F6]">"{problemTitle}"</span>.
             </p>
@@ -48,7 +61,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
             type="button"
             onClick={onConfirm}
             disabled={isDeleting}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20 transition-all duration-150 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[2.5rem] rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20 transition-all duration-150 disabled:opacity-50 cursor-pointer"
           >
             {isDeleting ? (
               <>
@@ -63,6 +76,8 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
 
 export default DeleteConfirmModal;

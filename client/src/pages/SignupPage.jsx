@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
 import Rotating3DCube from '../components/auth/Rotating3DCube';
 import BrandLogo from '../components/ui/BrandLogo';
-import { ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2, User, Mail, Lock } from 'lucide-react';
 
 const SignupPage = () => {
   const [name, setName] = useState('');
@@ -14,6 +14,11 @@ const SignupPage = () => {
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Dynamic document title
+  useEffect(() => {
+    document.title = 'Create Account · DSA Tracker';
+  }, []);
 
   // Real-time password strength evaluation
   const passwordEvaluation = useMemo(() => {
@@ -171,22 +176,24 @@ const SignupPage = () => {
       </div>
 
       {/* ── Right: Balanced, Luxury Glass Signup Panel ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10 bg-gradient-to-br from-[#0C0E13]/95 via-[#090B0E] to-[#060709]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 relative z-10 bg-gradient-to-br from-[#0C0E13]/95 via-[#090B0E] to-[#060709]">
         
         {/* Soft radial backlight glow behind the card */}
         <div className="absolute w-[440px] h-[440px] rounded-full bg-orange-500/[0.06] blur-[120px] pointer-events-none" />
 
-        <div className="w-full max-w-[400px] relative animate-fade-up">
+        <div className="w-full max-w-[408px] relative animate-fade-up">
 
           {/* Mobile brand (hidden on lg) */}
-          <div className="lg:hidden flex items-center justify-center mb-8">
+          <div className="lg:hidden flex items-center justify-center mb-6">
             <BrandLogo size="lg" />
           </div>
 
-
           {/* Floating Luxury Auth Card */}
-          <div className="relative p-7 sm:p-8 rounded-2xl bg-[#11141B]/95 backdrop-blur-xl border border-white/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.7),0_1px_1px_rgba(255,255,255,0.06)]">
+          <div className="relative p-7 sm:p-8 rounded-2xl bg-[#10141C]/95 backdrop-blur-2xl border border-white/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)_inset] overflow-hidden">
             
+            {/* Ambient top hairline gradient highlight */}
+            <div className="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-[#E07A38]/35 to-transparent pointer-events-none" />
+
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -215,9 +222,9 @@ const SignupPage = () => {
             {/* Clean Hairline Divider */}
             <div className="relative my-5 text-center">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/[0.08]" />
+                <div className="w-full border-t border-white/[0.07]" />
               </div>
-              <span className="relative px-3 text-[11px] font-mono uppercase tracking-wider text-slate-500 bg-[#11141B]">
+              <span className="relative px-3 text-[10.5px] font-mono uppercase tracking-widest text-slate-500 bg-[#10141C]">
                 or register with email
               </span>
             </div>
@@ -228,17 +235,20 @@ const SignupPage = () => {
                 <label htmlFor="name" className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Full name
                 </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  disabled={isSubmitting}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Alex Morgan"
-                  className={`w-full h-11 px-3.5 rounded-xl bg-[#0B0D12] border border-white/[0.09] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/90 focus:ring-2 focus:ring-orange-500/20 transition-all ${
-                    errors.name ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
-                  }`}
-                />
+                <div className="relative group">
+                  <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#E07A38] transition-colors duration-200" />
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    disabled={isSubmitting}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Alex Morgan"
+                    className={`w-full h-11 pl-10 pr-3.5 rounded-xl bg-[#090C11]/90 border border-white/[0.08] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-4 focus:ring-[#E07A38]/10 transition-all duration-200 ${
+                      errors.name ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
+                    }`}
+                  />
+                </div>
                 {errors.name && <p className="mt-1.5 text-xs text-rose-400">{errors.name}</p>}
               </div>
 
@@ -246,17 +256,20 @@ const SignupPage = () => {
                 <label htmlFor="email" className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Email address
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  disabled={isSubmitting}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className={`w-full h-11 px-3.5 rounded-xl bg-[#0B0D12] border border-white/[0.09] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/90 focus:ring-2 focus:ring-orange-500/20 transition-all ${
-                    errors.email ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
-                  }`}
-                />
+                <div className="relative group">
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#E07A38] transition-colors duration-200" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    disabled={isSubmitting}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className={`w-full h-11 pl-10 pr-3.5 rounded-xl bg-[#090C11]/90 border border-white/[0.08] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-4 focus:ring-[#E07A38]/10 transition-all duration-200 ${
+                      errors.email ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
+                    }`}
+                  />
+                </div>
                 {errors.email && <p className="mt-1.5 text-xs text-rose-400">{errors.email}</p>}
               </div>
 
@@ -267,7 +280,8 @@ const SignupPage = () => {
                   </label>
                   <span className="text-[11px] text-slate-500 font-mono">Min. 6 chars</span>
                 </div>
-                <div className="relative">
+                <div className="relative group">
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:text-[#E07A38] transition-colors duration-200" />
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -275,7 +289,7 @@ const SignupPage = () => {
                     disabled={isSubmitting}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className={`w-full h-11 pl-3.5 pr-11 rounded-xl bg-[#0B0D12] border border-white/[0.09] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/90 focus:ring-2 focus:ring-orange-500/20 transition-all ${
+                    className={`w-full h-11 pl-10 pr-11 rounded-xl bg-[#090C11]/90 border border-white/[0.08] hover:border-white/[0.16] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-4 focus:ring-[#E07A38]/10 transition-all duration-200 ${
                       errors.password ? 'border-rose-500/60 focus:border-rose-500 focus:ring-rose-500/20' : ''
                     }`}
                   />
@@ -330,21 +344,21 @@ const SignupPage = () => {
                 )}
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Button (Portfolio Ember System: Warm Ember with Dark Ink Typography) */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-2 h-11 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 active:scale-[0.99] shadow-[0_4px_24px_rgba(249,115,22,0.35),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full mt-2 h-11 rounded-xl text-sm font-bold text-[#12151B] bg-[#E07A38] hover:opacity-92 active:scale-[0.99] shadow-[0_1px_2px_rgba(0,0,0,0.35),0_6px_20px_-2px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer group/btn"
               >
                 {isSubmitting ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-[#12151B]/30 border-t-[#12151B] rounded-full animate-spin" />
                     <span>Creating account…</span>
                   </>
                 ) : (
                   <>
                     <span>Create Free Account</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
                   </>
                 )}
               </button>
@@ -353,7 +367,7 @@ const SignupPage = () => {
             {/* Bottom Sign-In Link */}
             <p className="mt-6 text-center text-xs text-slate-400">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-orange-400 hover:text-orange-300 transition-colors">
+              <Link to="/login" className="font-semibold text-[#E07A38] hover:text-[#EDB082] transition-colors">
                 Sign in
               </Link>
             </p>

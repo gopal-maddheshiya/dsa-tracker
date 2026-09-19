@@ -57,14 +57,14 @@ const InstallAppBanner = () => {
 
   return (
     <div className="fixed bottom-5 right-5 z-50 max-w-sm w-[calc(100vw-40px)] animate-fade-up">
-      <div className="p-4 rounded-2xl bg-[#12151D] border border-orange-500/30 shadow-[0_12px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(249,115,22,0.15)] flex items-start gap-3.5 relative overflow-hidden">
+      <div className="p-4 rounded-2xl bg-[#12151D] border border-[#E07A38]/30 shadow-[0_12px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(224,122,56,0.1)] flex items-start gap-3.5 relative overflow-hidden">
         {/* Glow */}
         <div
-          className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-orange-500/15 pointer-events-none"
+          className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-[#E07A38]/15 pointer-events-none"
           style={{ filter: 'blur(30px)' }}
         />
 
-        <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-[#E07A38]/15 border border-[#E07A38]/30 flex items-center justify-center text-[#E07A38] shrink-0">
           <Download className="w-5 h-5" />
         </div>
 
@@ -78,7 +78,7 @@ const InstallAppBanner = () => {
             <button
               type="button"
               onClick={handleInstallClick}
-              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer active:scale-95"
+              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold shadow-xs transition-all cursor-pointer hover:opacity-90 active:scale-95"
             >
               Install App
             </button>

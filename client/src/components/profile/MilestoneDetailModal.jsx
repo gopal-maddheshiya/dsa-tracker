@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import {
   X,
@@ -12,6 +13,18 @@ import {
 } from 'lucide-react';
 
 const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !milestone) return null;
 
   const isUnlocked = milestone.check ? milestone.check(profile || {}) : false;
@@ -20,17 +33,18 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
   const pct = Math.min(100, Math.round((currentMetric / targetMetric) * 100));
 
   const Icon = milestone.iconComponent;
-  const badgeColor = milestone.color || '#F97316';
-  const badgeBg = milestone.bg || 'rgba(249,115,22,0.12)';
-  const badgeBorder = milestone.border || 'rgba(249,115,22,0.3)';
+  const badgeColor = milestone.color || '#E07A38';
+  const badgeBg = milestone.bg || 'rgba(224,122,56,0.12)';
+  const badgeBorder = milestone.border || 'rgba(224,122,56,0.3)';
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-2xl bg-[#12151B] border border-white/[0.12] shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden transition-all"
+        data-lenis-prevent
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-[#12151B] border border-white/[0.12] shadow-[0_24px_64px_rgba(0,0,0,0.8)] transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Ambient Top Glow */}
@@ -95,7 +109,7 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
             <div className="flex items-center justify-between text-xs font-mono mb-2">
               <span className="text-[#9CA3AF]">Progress toward unlock:</span>
               <span className="font-bold text-[#F3F4F6]">
-                {currentMetric} / {targetMetric} <span className="text-[#F97316]">({pct}%)</span>
+                {currentMetric} / {targetMetric} <span className="text-[#E07A38]">({pct}%)</span>
               </span>
             </div>
 
@@ -137,7 +151,7 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
             <Link
               to="/problems"
               onClick={onClose}
-              className="flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_2px_14px_rgba(249,115,22,0.3)] transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-[#12151B] bg-primary hover:opacity-90 shadow-sm border border-[#E07A38]/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <span>Practice Now</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -145,7 +159,8 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -123,7 +123,130 @@ const getAttemptsForProblem = async (req, res, next) => {
   }
 };
 
+/**
+ * @route   PUT /api/problems/:id/attempts/:attemptId
+ * @desc    Update a specific attempt (strictly scoped to owner and problem)
+ * @access  Private
+ */
+const updateAttempt = async (req, res, next) => {
+  try {
+    const { id: problemId, attemptId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(problemId) || !mongoose.Types.ObjectId.isValid(attemptId)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Attempt or problem not found',
+      });
+    }
+
+    const attempt = await Attempt.findOne({
+      _id: attemptId,
+      problemId,
+      userId: req.user._id,
+    });
+
+    if (!attempt) {
+      return res.status(404).json({
+        success: false,
+        message: 'Attempt not found',
+      });
+    }
+
+    const { status, timeTakenMinutes, notes, attemptedAt } = req.body;
+
+    if (status !== undefined) {
+      if (!VALID_STATUSES.includes(status.toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
+        });
+      }
+      attempt.status = status.toLowerCase().trim();
+    }
+
+    if (timeTakenMinutes !== undefined) {
+      if (timeTakenMinutes === null || timeTakenMinutes === '') {
+        attempt.timeTakenMinutes = null;
+      } else {
+        const parsedTime = Number(timeTakenMinutes);
+        if (isNaN(parsedTime) || parsedTime < 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Time taken in minutes must be a non-negative number',
+          });
+        }
+        attempt.timeTakenMinutes = parsedTime;
+      }
+    }
+
+    if (notes !== undefined) {
+      attempt.notes = typeof notes === 'string' ? notes.trim() : '';
+    }
+
+    if (attemptedAt !== undefined) {
+      const d = new Date(attemptedAt);
+      if (isNaN(d.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: 'attemptedAt must be a valid date',
+        });
+      }
+      attempt.attemptedAt = d;
+    }
+
+    await attempt.save();
+
+    return res.status(200).json({
+      success: true,
+      data: attempt.toJSON(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   DELETE /api/problems/:id/attempts/:attemptId
+ * @desc    Delete a specific attempt (strictly scoped to owner and problem)
+ * @access  Private
+ */
+const deleteAttempt = async (req, res, next) => {
+  try {
+    const { id: problemId, attemptId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(problemId) || !mongoose.Types.ObjectId.isValid(attemptId)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Attempt or problem not found',
+      });
+    }
+
+    const attempt = await Attempt.findOneAndDelete({
+      _id: attemptId,
+      problemId,
+      userId: req.user._id,
+    });
+
+    if (!attempt) {
+      return res.status(404).json({
+        success: false,
+        message: 'Attempt not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Attempt deleted successfully',
+      data: attempt.toJSON(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createAttempt,
   getAttemptsForProblem,
+  updateAttempt,
+  deleteAttempt,
 };

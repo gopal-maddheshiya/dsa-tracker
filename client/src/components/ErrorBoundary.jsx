@@ -66,7 +66,7 @@ class ErrorBoundary extends React.Component {
               <button
                 type="button"
                 onClick={this.handleGoDashboard}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#F97316] to-[#EA580C] hover:from-[#FB923C] hover:to-[#F97316] text-xs font-semibold text-white shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all active:scale-[0.98]"
+                className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs active:scale-[0.98]"
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 <span>Dashboard</span>

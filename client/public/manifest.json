@@ -1,6 +1,6 @@
 {
-  "name": "DSA Tracker — Technical Interview Preparation",
-  "short_name": "DSATracker",
+  "name": "DSA Tracker · Spaced Repetition Problem Tracker",
+  "short_name": "DSA Tracker",
   "description": "Master Data Structures & Algorithms with deterministic spaced repetition, velocity tracking, and topic weakness analytics.",
   "start_url": "/",
   "display": "standalone",

@@ -20,8 +20,14 @@ const createRateLimiter = ({
   }, 5 * 60 * 1000).unref(); // .unref() so it doesn't block server shutdown/tests
 
   return (req, res, next) => {
-    // Determine client IP
+    // In development mode, bypass rate limiting to prevent 429 lockouts during testing and rapid page reloads
+    if (process.env.NODE_ENV !== 'production') {
+      return next();
+    }
+
+    // Determine client IP (delegates to Express req.ip when trust proxy is active)
     const clientIp =
+      req.ip ||
       req.headers['x-forwarded-for']?.split(',')[0].trim() ||
       req.socket.remoteAddress ||
       'unknown-ip';

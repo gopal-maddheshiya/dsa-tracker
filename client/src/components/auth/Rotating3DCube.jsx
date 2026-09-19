@@ -38,9 +38,9 @@ const CUBE_STAGES = [
       metric: 'Top 3.8% Engineers',
       pill: 'Active Streak 🔥',
       icon: Flame,
-      color: 'text-orange-400',
-      borderGlow: 'border-orange-500/40 shadow-[0_0_35px_rgba(249,115,22,0.25)]',
-      gradientBorder: 'from-orange-400/60 via-orange-500/20 to-transparent',
+      color: 'text-[#E07A38]',
+      borderGlow: 'border-[#E07A38]/40 shadow-[0_0_35px_rgba(224,122,56,0.2)]',
+      gradientBorder: 'from-[#E07A38]/60 via-[#E07A38]/20 to-transparent',
     },
     tagTop: 'RUNTIME BOUND',
     tagTopPill: 'O(1) Access',
@@ -55,12 +55,12 @@ const CUBE_STAGES = [
     id: 1,
     faceTitle: 'SPACED REPETITION ENGINE',
     badge: 'R = e^(-t/S)',
-    badgeColor: 'text-orange-400 bg-orange-500/15 border-orange-500/35',
-    accentColor: '#F97316',
-    accentGlow: 'rgba(249, 115, 22, 0.45)',
-    borderGradient: 'from-orange-500/60 via-orange-500/20 to-transparent',
+    badgeColor: 'text-[#E07A38] bg-[#E07A38]/15 border-[#E07A38]/35',
+    accentColor: '#E07A38',
+    accentGlow: 'rgba(224, 122, 56, 0.45)',
+    borderGradient: 'from-[#E07A38]/60 via-[#E07A38]/20 to-transparent',
     problems: [
-      { title: '210. Course Schedule II', platform: "Kahn's Topological Sort", diff: 'Due: 24h', time: 'Recall', color: 'text-orange-400 bg-orange-500/15 border-orange-500/30' },
+      { title: '210. Course Schedule II', platform: "Kahn's Topological Sort", diff: 'Due: 24h', time: 'Recall', color: 'text-[#E07A38] bg-[#E07A38]/15 border-[#E07A38]/30' },
       { title: '139. Word Break', platform: 'Dynamic Programming', diff: 'Due: 3d', time: 'Recall', color: 'text-amber-400 bg-amber-500/15 border-amber-500/30' },
       { title: '4. Median of Two Arrays', platform: 'Binary Search Partition', diff: 'Due: 7d', time: 'Review', color: 'text-rose-400 bg-rose-500/15 border-rose-500/30' },
     ],
@@ -72,9 +72,9 @@ const CUBE_STAGES = [
       metric: 'Retention Rate: 94.2%',
       pill: '3-Day Interval',
       icon: Brain,
-      color: 'text-orange-400',
-      borderGlow: 'border-orange-500/40 shadow-[0_0_35px_rgba(249,115,22,0.25)]',
-      gradientBorder: 'from-orange-400/60 via-orange-500/20 to-transparent',
+      color: 'text-[#E07A38]',
+      borderGlow: 'border-[#E07A38]/40 shadow-[0_0_35px_rgba(224,122,56,0.2)]',
+      gradientBorder: 'from-[#E07A38]/60 via-[#E07A38]/20 to-transparent',
     },
     cardRight: {
       tag: 'DETERMINISTIC QUEUE',
@@ -93,8 +93,8 @@ const CUBE_STAGES = [
     bottomTitle: 'Ebbinghaus Exponential Decay Curve',
     bottomSub: 'Dynamically scales revision intervals on recall error',
     bottomMetric: '94.2% Retention',
-    bottomColor: 'text-orange-400',
-    bottomBorder: 'border-orange-500/30 shadow-[0_0_25px_rgba(249,115,22,0.15)]',
+    bottomColor: 'text-[#E07A38]',
+    bottomBorder: 'border-[#E07A38]/30 shadow-[0_0_25px_rgba(224,122,56,0.15)]',
   },
   {
     id: 2,
@@ -152,7 +152,7 @@ const CUBE_STAGES = [
     problems: [
       { title: '30-Day Activity Cadence', platform: 'Daily Timestamp Log', diff: '29 Active', time: '96.7%', color: 'text-cyan-400 bg-cyan-500/15 border-cyan-500/30' },
       { title: 'Tier Mix (12E / 18M / 7H)', platform: '37 Total Problems', diff: 'Balanced', time: 'Optimal', color: 'text-blue-400 bg-blue-500/15 border-blue-500/30' },
-      { title: 'Target Benchmark', platform: 'Blind 75 & NeetCode 150', diff: 'On Track', time: 'Top Tier', color: 'text-orange-400 bg-orange-500/15 border-orange-500/30' },
+      { title: 'Target Benchmark', platform: 'Blind 75 & NeetCode 150', diff: 'On Track', time: 'Top Tier', color: 'text-[#E07A38] bg-[#E07A38]/15 border-[#E07A38]/30' },
     ],
     footer: 'GitHub-style contribution grid and daily velocity tracker',
     cardLeft: {
@@ -162,9 +162,9 @@ const CUBE_STAGES = [
       metric: '2.4 Solves / Active Day',
       pill: 'Top 4% Velocity',
       icon: Flame,
-      color: 'text-orange-400',
-      borderGlow: 'border-orange-500/40 shadow-[0_0_35px_rgba(249,115,22,0.25)]',
-      gradientBorder: 'from-orange-400/60 via-orange-500/20 to-transparent',
+      color: 'text-[#E07A38]',
+      borderGlow: 'border-[#E07A38]/40 shadow-[0_0_35px_rgba(224,122,56,0.2)]',
+      gradientBorder: 'from-[#E07A38]/60 via-[#E07A38]/20 to-transparent',
     },
     cardRight: {
       tag: 'PATTERN MASTERY',
@@ -487,7 +487,7 @@ const Rotating3DCube = () => {
         }}
       >
         <div
-          className="p-[1px] rounded-[18px] bg-gradient-to-b from-orange-400/60 via-orange-500/20 to-transparent border-orange-500/30 shadow-[0_0_25px_rgba(249,115,22,0.18)] transition-all duration-500"
+          className="p-[1px] rounded-[18px] bg-gradient-to-b from-[#E07A38]/60 via-[#E07A38]/20 to-transparent border-[#E07A38]/30 shadow-[0_0_25px_rgba(224,122,56,0.18)] transition-all duration-500"
         >
           <div
             className={`p-2.5 rounded-[17px] border border-white/[0.16] shadow-[0_12px_30px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.35)] ${
@@ -521,7 +521,7 @@ const Rotating3DCube = () => {
             {/* Bottom Bar */}
             <div className="mt-1.5 pt-1.5 border-t border-white/[0.08] flex items-center justify-between">
               <span className="text-[8px] font-mono text-slate-400">Retention</span>
-              <span className="text-[7px] font-mono font-semibold px-1.5 py-0.5 rounded-md bg-orange-500/15 border border-orange-500/30 text-orange-300 shadow-sm">
+              <span className="text-[7px] font-mono font-semibold px-1.5 py-0.5 rounded-md bg-[#E07A38]/15 border border-[#E07A38]/30 text-[#E07A38] shadow-sm">
                 94.2% Optimal
               </span>
             </div>
@@ -770,8 +770,8 @@ const Rotating3DCube = () => {
             <div className="absolute top-1.5 right-1.5 w-2 h-2 border-t border-r border-white/25 rounded-tr-sm pointer-events-none" />
             <div className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b border-l border-white/25 rounded-bl-sm pointer-events-none" />
             <div className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b border-r border-white/25 rounded-br-sm pointer-events-none" />
-            <div className="w-14 h-14 rounded-full border border-orange-500/40 flex items-center justify-center bg-orange-500/15 shadow-[0_0_20px_rgba(249,115,22,0.2)]">
-              <Flame className="w-7 h-7 text-orange-400" />
+            <div className="w-14 h-14 rounded-full border border-[#E07A38]/40 flex items-center justify-center bg-[#E07A38]/15 shadow-[0_0_20px_rgba(224,122,56,0.2)]">
+              <Flame className="w-7 h-7 text-[#E07A38]" />
             </div>
             <span className="text-[9px] font-mono font-bold tracking-[0.16em] text-slate-200 uppercase mt-2.5">
               FIND PROBLEMS • REVISION QUEUE

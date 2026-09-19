@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { createAttempt } from '../api/attempts';
+import { createPortal } from 'react-dom';
+import { createAttempt, updateAttempt } from '../api/attempts';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import { X } from 'lucide-react';
@@ -25,8 +26,17 @@ const STATUS_OPTIONS = [
   },
 ];
 
-const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defaultTimeTaken = '' }) => {
+const AttemptForm = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  problemId,
+  problemTitle,
+  defaultTimeTaken = '',
+  initialData = null,
+}) => {
   const toast = useToast();
+  const isEditing = Boolean(initialData?.id || initialData?._id);
   const [status, setStatus] = useState('solved');
   const [timeTakenMinutes, setTimeTakenMinutes] = useState('');
   const [notes, setNotes] = useState('');
@@ -37,16 +47,42 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
-      if (defaultTimeTaken != null && defaultTimeTaken !== '') {
-        setTimeTakenMinutes(String(defaultTimeTaken));
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setStatus(initialData.status || 'solved');
+        setTimeTakenMinutes(initialData.timeTakenMinutes != null ? String(initialData.timeTakenMinutes) : '');
+        setNotes(initialData.notes || '');
+        if (initialData.attemptedAt) {
+          const d = new Date(initialData.attemptedAt);
+          setAttemptedAt(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        }
       } else {
-        setTimeTakenMinutes('');
+        setStatus('solved');
+        setNotes('');
+        const now = new Date();
+        setAttemptedAt(new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        if (defaultTimeTaken != null && defaultTimeTaken !== '') {
+          setTimeTakenMinutes(String(defaultTimeTaken));
+        } else {
+          setTimeTakenMinutes('');
+        }
       }
       setApiError('');
     }
-  }, [isOpen, defaultTimeTaken]);
+  }, [isOpen, initialData, defaultTimeTaken]);
 
   if (!isOpen) return null;
 
@@ -59,17 +95,25 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
     }
     setIsSubmitting(true);
     try {
-      await createAttempt(problemId, {
+      const payload = {
         status,
         timeTakenMinutes: timeTakenMinutes !== '' ? Math.round(Number(timeTakenMinutes)) : null,
         notes: notes.trim(),
         attemptedAt: attemptedAt ? new Date(attemptedAt).toISOString() : new Date().toISOString(),
-      });
-      toast.success(`Attempt logged as "${STATUS_OPTIONS.find((o) => o.value === status)?.label}".`);
+      };
+
+      if (isEditing) {
+        const attemptId = initialData.id || initialData._id;
+        await updateAttempt(problemId, attemptId, payload);
+        toast.success('Attempt updated successfully!');
+      } else {
+        await createAttempt(problemId, payload);
+        toast.success(`Attempt logged as "${STATUS_OPTIONS.find((o) => o.value === status)?.label}".`);
+      }
       onSuccess();
       onClose();
     } catch (err) {
-      const msg = getErrorMessage(err, 'Failed to log attempt.');
+      const msg = getErrorMessage(err, isEditing ? 'Failed to update attempt.' : 'Failed to log attempt.');
       setApiError(msg);
       toast.error(msg);
     } finally {
@@ -77,7 +121,7 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
     }
   };
 
-  return (
+  const content = (
     <div
       className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
@@ -90,10 +134,10 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
         <div className="flex items-start justify-between pb-4 border-b border-white/[0.08] mb-5">
           <div>
             <h2 id="attempt-form-title" className="text-base font-bold text-[#F3F4F6] tracking-tight">
-              Log Practice Attempt
+              {isEditing ? 'Edit Practice Attempt' : 'Log Practice Attempt'}
             </h2>
             {problemTitle && (
-              <p className="text-xs text-[#9CA3AF] mt-0.5 truncate max-w-xs">{problemTitle}</p>
+              <p className="text-xs text-[#9CA3AF] mt-0.5 line-clamp-2 leading-snug max-w-sm">{problemTitle}</p>
             )}
           </div>
           <button
@@ -124,7 +168,7 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => setStatus(opt.value)}
-                  className={`py-2 px-2.5 text-xs rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all ${
+                  className={`py-2 px-2.5 min-h-[40px] text-xs rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all cursor-pointer ${
                     status === opt.value
                       ? opt.active
                       : 'border-white/[0.08] bg-[#0E1015] text-[#9CA3AF] hover:text-[#F3F4F6] hover:border-white/[0.2]'
@@ -200,11 +244,11 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
             >
               {isSubmitting ? (
                 <>
-                  <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Saving…</span>
+                  <span className="w-3.5 h-3.5 border-2 border-[#12151B]/30 border-t-[#12151B] rounded-full animate-spin" />
+                  <span>{isEditing ? 'Updating…' : 'Saving…'}</span>
                 </>
               ) : (
-                'Save Attempt'
+                isEditing ? 'Update Attempt' : 'Save Attempt'
               )}
             </button>
           </div>
@@ -212,6 +256,8 @@ const AttemptForm = ({ isOpen, onClose, onSuccess, problemId, problemTitle, defa
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
 
 export default AttemptForm;
