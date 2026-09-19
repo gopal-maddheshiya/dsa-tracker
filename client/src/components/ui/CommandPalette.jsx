@@ -238,12 +238,12 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-3 sm:px-4 bg-black/70 animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-24 px-3 sm:px-4 bg-black/70 animate-fadeIn"
       onClick={onClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-2xl rounded-xl bg-surface border border-line shadow-modal overflow-hidden flex flex-col max-h-[80vh] transition-all"
+        className="relative w-full max-w-2xl rounded-xl bg-surface border border-line shadow-modal overflow-hidden flex flex-col max-h-[85dvh] transition-all"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >

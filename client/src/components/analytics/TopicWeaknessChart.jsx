@@ -24,7 +24,7 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
 
   if (isLoading) {
     return (
-      <div className="panel p-6 animate-pulse border-line">
+      <div className="panel p-4 sm:p-6 animate-pulse border-line">
         <div className="flex justify-between items-center mb-5">
           <div className="space-y-2">
             <div className="h-4 w-36 shimmer rounded-md" />
@@ -49,7 +49,7 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
 
   if (error) {
     return (
-      <div className="panel p-6 border-danger/25">
+      <div className="panel p-4 sm:p-6 border-danger/25">
         <h3 className="text-sm font-semibold text-text mb-3">Topic Weakness</h3>
         <div className="h-48 flex flex-col items-center justify-center text-center">
           <p className="text-xs text-danger mb-3">Unable to load topic analytics.</p>
@@ -71,10 +71,10 @@ const TopicWeaknessChart = ({ topics = [], isLoading = false, error = null, onRe
   };
 
   return (
-    <div className="panel p-6 relative overflow-hidden transition-all flex flex-col justify-between">
+    <div className="panel p-4 sm:p-6 relative overflow-hidden transition-all flex flex-col justify-between">
       <div>
         {/* ── Top Header & Mode Toggle ─────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 flex-wrap">
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-text tracking-tight">

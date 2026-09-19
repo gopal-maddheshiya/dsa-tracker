@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { easy, medium, hard, surface } from '../../theme/colors';
 
 const DIFFICULTY_CONFIG = [
@@ -125,9 +125,9 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
     >
       {/* ── Top Header ─────────────────────────────────────────────── */}
       <div className="shrink-0 mb-3 sm:mb-4">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-base font-semibold text-text tracking-tight">Difficulty Split</h3>
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 border border-line text-text-secondary">
                 Distribution
@@ -150,7 +150,7 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
         </div>
       ) : (
         <div className="flex-1 flex flex-col justify-around py-1 space-y-4">
-          <div className="flex flex-col sm:flex-row items-center gap-6 py-2">
+          <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-4 xl:gap-6 py-2">
             {/* Donut Chart */}
             <div className="relative w-44 h-44 shrink-0 flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -173,15 +173,13 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
                   >
                     {pieData.map((entry) => {
                       const isHovered = hoveredDiff === entry.key;
-                      const isDimmed = hoveredDiff && !isHovered;
                       return (
                         <Cell
                           key={`cell-${entry.key}`}
                           fill={entry.color}
-                          opacity={isDimmed ? 0.35 : 1}
-                          style={{
-                            transition: 'opacity 0.2s ease-in-out',
-                          }}
+                          opacity={hoveredDiff ? (isHovered ? 1 : 0.35) : 1}
+                          stroke={isHovered ? text : surface}
+                          strokeWidth={isHovered ? 2 : 1}
                         />
                       );
                     })}
@@ -189,24 +187,24 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
                 </PieChart>
               </ResponsiveContainer>
 
-              {/* Center Metric */}
+              {/* Dynamic Live Center Metric */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
                 <span
-                  className={`text-3xl font-bold tracking-tight tabular-nums leading-none ${
+                  className={`text-3xl font-extrabold tracking-tight leading-none transition-all duration-200 tabular-nums ${
                     activeConfig ? activeConfig.text : 'text-text'
                   }`}
                 >
                   {activeCount}
                 </span>
-                <span className="text-xs uppercase tracking-wide text-text-secondary mt-1 font-semibold">
+                <span className="text-xs uppercase tracking-wide text-text-secondary mt-1 font-medium transition-all duration-200">
                   {activeConfig ? `${activeConfig.label} (${activePct}%)` : 'TOTAL'}
                 </span>
               </div>
             </div>
 
             {/* Interactive Clickable Difficulty Rows */}
-            <div className="flex-1 w-full space-y-2">
-              {DIFFICULTY_CONFIG.map(({ key, label, text, dot, bg }) => {
+            <div className="w-full sm:flex-1 space-y-2">
+              {DIFFICULTY_CONFIG.map(({ key, label, text: textColor, dot }) => {
                 const count = counts[key] || 0;
                 const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                 const isHovered = hoveredDiff === key;
@@ -218,28 +216,26 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
                     onClick={() => handleDifficultyClick(key)}
                     onMouseEnter={() => setHoveredDiff(key)}
                     onMouseLeave={() => setHoveredDiff(null)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border transition-colors group text-left cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border transition-all duration-150 group text-left cursor-pointer ${
                       isHovered
-                        ? 'bg-surface border-accent'
-                        : 'bg-surface-2 border-line hover:border-line hover:bg-surface'
+                        ? 'bg-surface-2 border-line'
+                        : 'bg-surface border-line hover:border-line hover:bg-surface-2'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot}`}
-                      />
-                      <span className="text-xs font-semibold text-text">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${dot}`} />
+                      <span className="text-xs font-medium text-text group-hover:text-accent transition-colors">
                         {label}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2.5 text-xs">
+                    <div className="flex items-center gap-2 text-xs">
                       <div className="flex items-baseline gap-1.5 tabular-nums">
-                        <span className={`font-semibold text-sm ${text}`}>{count}</span>
-                        <span className="text-text-secondary text-xs">({pct}%)</span>
+                        <span className={`font-semibold text-xs sm:text-sm ${textColor}`}>{count}</span>
+                        <span className="text-xs text-text-secondary">({pct}%)</span>
                       </div>
                       <span className="text-xs text-text-secondary group-hover:text-accent transition-colors">
-                        Filter ↗
+                        ↗
                       </span>
                     </div>
                   </button>
@@ -250,7 +246,7 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
 
           {/* ── Interview Target Progress Bar ────────── */}
           <div className="pt-3.5 border-t border-line space-y-2">
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
               <span className="text-xs text-text-secondary font-medium">
                 Interview Readiness Split
               </span>
@@ -259,34 +255,18 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
               </span>
             </div>
 
-            {/* Segmented Proportional Bar */}
-            <div className="h-2 w-full bg-surface-2 rounded-full overflow-hidden flex gap-0.5 p-0.5 border border-line">
-              {easyPct > 0 && (
-                <div
-                  style={{ width: `${easyPct}%` }}
-                  className="h-full bg-easy rounded-l-full transition-all duration-300"
-                  title={`Easy: ${easyPct}%`}
-                />
-              )}
-              {medPct > 0 && (
-                <div
-                  style={{ width: `${medPct}%` }}
-                  className={`h-full bg-medium transition-all duration-300 ${
-                    easyPct === 0 ? 'rounded-l-full' : ''
-                  } ${hardPct === 0 ? 'rounded-r-full' : ''}`}
-                  title={`Medium: ${medPct}%`}
-                />
-              )}
-              {hardPct > 0 && (
-                <div
-                  style={{ width: `${hardPct}%` }}
-                  className="h-full bg-hard rounded-r-full transition-all duration-300"
-                  title={`Hard: ${hardPct}%`}
-                />
-              )}
+            {/* Proportional readiness bar bound to real medHardRatio percentage */}
+            <div className="h-2 w-full bg-surface-2 rounded-full overflow-hidden border border-line">
+              <div
+                style={{ width: `${Math.min(100, Math.max(0, medHardRatio))}%` }}
+                className={`h-full rounded-full transition-all duration-500 ${
+                  medHardRatio >= 65 ? 'bg-easy' : 'bg-medium'
+                }`}
+                title={`Interview Readiness: ${medHardRatio}%`}
+              />
             </div>
 
-            <div className="flex items-center justify-between text-xs text-text-secondary pt-0.5 tabular-nums">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary pt-0.5 tabular-nums">
               <span>Easy: {easyPct}%</span>
               <span>Medium: {medPct}%</span>
               <span>Hard: {hardPct}%</span>

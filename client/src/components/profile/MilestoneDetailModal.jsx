@@ -40,12 +40,12 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fadeIn"
+      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fadeIn"
       onClick={onClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-surface border border-line shadow-modal transition-all"
+        className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-xl bg-surface border border-line shadow-modal transition-all my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -56,7 +56,7 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="p-6 sm:p-7 flex flex-col items-center text-center relative z-0">
+        <div className="p-4 sm:p-7 flex flex-col items-center text-center relative z-0">
           {/* Badge Icon */}
           <div className="relative mb-5">
             <div

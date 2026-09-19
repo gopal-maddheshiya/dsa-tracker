@@ -182,18 +182,18 @@ const ProblemDetailPage = () => {
   const avgTime = times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-24 sm:pb-16 animate-fade-up">
+    <div className="space-y-6 max-w-4xl mx-auto pb-6 animate-fade-up">
       {/* Top Navigation Row */}
       <div className="flex items-center justify-between gap-4">
-        <nav className="flex items-center gap-2 text-xs text-muted">
-          <Link to="/problems" className="hover:text-text transition-colors flex items-center gap-1">
+        <nav className="flex items-center gap-2 text-xs text-muted min-w-0">
+          <Link to="/problems" className="hover:text-text transition-colors flex items-center gap-1 shrink-0">
             <span>Problems</span>
           </Link>
-          <ChevronRight className="w-3 h-3 text-muted" />
-          <span className="text-text font-medium truncate max-w-[240px] sm:max-w-md">{problem.title}</span>
+          <ChevronRight className="w-3 h-3 text-muted shrink-0" />
+          <span className="text-text font-medium truncate max-w-[180px] sm:max-w-md">{problem.title}</span>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setIsEditModalOpen(true)}
             type="button"
@@ -217,7 +217,7 @@ const ProblemDetailPage = () => {
       </div>
 
       {/* Main Problem Hero Card */}
-      <div className="p-6 sm:p-7 relative overflow-hidden bg-surface rounded-xl border border-line">
+      <div className="p-4 sm:p-7 relative overflow-hidden bg-surface rounded-xl border border-line">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6 relative z-10">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -237,7 +237,7 @@ const ProblemDetailPage = () => {
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-text leading-tight">
+            <h1 className="text-xl sm:text-3xl font-semibold tracking-tight text-text leading-tight break-words">
               {problem.title}
             </h1>
 
@@ -260,7 +260,7 @@ const ProblemDetailPage = () => {
               href={problem.link}
               target="_blank"
               rel="noreferrer"
-              className="btn-secondary shrink-0 self-start sm:self-auto flex items-center gap-2 group text-xs"
+              className="btn-secondary shrink-0 self-stretch sm:self-auto flex items-center justify-center gap-2 group text-xs w-full sm:w-auto"
             >
               <span>Solve on {platformCfg.short}</span>
               <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-accent transition-transform" />

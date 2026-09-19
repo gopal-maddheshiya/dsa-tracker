@@ -183,7 +183,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   return (
     <div
-      className={`panel p-6 relative overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}
+      className={`panel p-4 sm:p-6 relative overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}
     >
       {/* ── Top Header & Interactive Scrubber ──────────────────────── */}
       <div className="space-y-3 mb-5">
@@ -209,7 +209,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
               {hoveredPoint?.isPeak && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/12 text-accent border border-accent/25 text-xs font-semibold shrink-0">
-                  <Flame className="w-3 h-3 text-accent fill-accent/20" />
+                  <Flame className="w-3.5 h-3.5 text-accent fill-accent/20" />
                   Peak
                 </span>
               )}
@@ -249,53 +249,60 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 onClick={() => setChartMode('hybrid')}
                 className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   chartMode === 'hybrid'
-                    ? 'bg-surface text-text border border-line shadow-xs'
+                    ? 'bg-accent text-bg'
                     : 'text-muted hover:text-text'
                 }`}
+                title="Combined Output and Trajectory"
               >
-                <Zap className="w-3 h-3" />
-                <span>Hybrid</span>
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Hybrid</span>
               </button>
               <button
                 type="button"
                 onClick={() => setChartMode('cumulative')}
                 className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   chartMode === 'cumulative'
-                    ? 'bg-surface text-text border border-line shadow-xs'
+                    ? 'bg-accent text-bg'
                     : 'text-muted hover:text-text'
                 }`}
+                title="Cumulative Trajectory Only"
               >
-                <TrendingUp className="w-3 h-3" />
-                <span>Growth</span>
+                <Zap className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Cumulative</span>
               </button>
               <button
                 type="button"
                 onClick={() => setChartMode('daily')}
                 className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   chartMode === 'daily'
-                    ? 'bg-surface text-text border border-line shadow-xs'
+                    ? 'bg-accent text-bg'
                     : 'text-muted hover:text-text'
                 }`}
+                title="Daily Volume Bars Only"
               >
-                <BarChart3 className="w-3 h-3" />
-                <span>Daily</span>
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Daily</span>
               </button>
             </div>
 
-            {/* Time horizon pills */}
-            <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line text-xs">
-              {['14D', '30D', 'all'].map((r) => (
+            {/* Lookback Range Selectors */}
+            <div className="flex items-center gap-1">
+              {[
+                { label: '14D', value: '14D' },
+                { label: '30D', value: '30D' },
+                { label: 'ALL', value: 'all' },
+              ].map(({ label, value }) => (
                 <button
-                  key={r}
+                  key={value}
                   type="button"
-                  onClick={() => setRange(r)}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all uppercase ${
-                    range === r
-                      ? 'bg-surface text-text font-semibold border border-line'
-                      : 'text-muted hover:text-text'
+                  onClick={() => setRange(value)}
+                  className={`px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                    range === value
+                      ? 'bg-accent text-bg'
+                      : 'text-muted hover:text-text hover:bg-surface-2'
                   }`}
                 >
-                  {r}
+                  {label}
                 </button>
               ))}
             </div>
@@ -305,12 +312,12 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
       {/* ── Chart Rendering Canvas ─────────────────────────────────── */}
       {displayData.length === 0 ? (
-        <div className="h-60 flex flex-col items-center justify-center text-center border border-dashed border-line rounded-xl">
+        <div className="h-[220px] sm:h-72 flex flex-col items-center justify-center text-center border border-dashed border-line rounded-xl">
           <TrendingUp className="w-8 h-8 text-accent mb-2" />
           <p className="text-xs text-muted">No solved activity recorded in this period.</p>
         </div>
       ) : (
-        <div className="h-64 sm:h-72 w-full">
+        <div className="h-[220px] sm:h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             {chartMode === 'hybrid' ? (
               <ComposedChart

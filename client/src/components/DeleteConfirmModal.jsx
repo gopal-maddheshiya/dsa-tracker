@@ -19,14 +19,14 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
 
   const content = (
     <div
-      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-4 animate-fade-in"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="delete-modal-title"
       aria-describedby="delete-modal-desc"
     >
       <div
-        className="max-w-sm w-full p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in"
+        className="max-w-sm w-full p-4 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in my-auto max-h-[90dvh] overflow-y-auto"
       >
         {/* Icon + Title */}
         <div className="flex items-start gap-3 mb-4">

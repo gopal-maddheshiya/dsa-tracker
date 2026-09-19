@@ -206,7 +206,7 @@ const RevisionPage = () => {
   const hasActiveFilters = statusFilter !== 'all' || searchQuery.trim() !== '' || topicFilter !== '';
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto pb-24 sm:pb-16 animate-fade-up">
+    <div className="space-y-5 max-w-5xl mx-auto pb-6 animate-fade-up">
       {/* ── Top Header Banner ────────────────────────────────────────── */}
       <Reveal delay={0} y={12}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

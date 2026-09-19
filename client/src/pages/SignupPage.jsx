@@ -107,7 +107,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-bg relative overflow-hidden">
+    <div className="min-h-dvh flex bg-bg relative overflow-hidden">
       {/* ── Left: Interactive 3D Stage Panel ── */}
       <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden flex-col justify-between p-8 xl:p-10 bg-surface border-r border-line z-10">
         

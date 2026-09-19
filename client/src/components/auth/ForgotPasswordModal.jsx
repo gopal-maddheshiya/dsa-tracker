@@ -85,9 +85,9 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fade-in">
       <div
-        className="relative w-full max-w-md bg-surface border border-line rounded-xl p-6 shadow-modal overflow-hidden"
+        className="relative w-full max-w-md bg-surface border border-line rounded-xl p-4 sm:p-6 shadow-modal overflow-hidden my-auto max-h-[90dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
