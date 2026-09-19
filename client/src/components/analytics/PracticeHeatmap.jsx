@@ -114,7 +114,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
 
   if (isLoading) {
     return (
-      <div className="rounded-xl bg-surface border border-line p-6 animate-pulse">
+      <div className="rounded-xl bg-surface border border-line p-4 sm:p-6 animate-pulse">
         <div className="flex justify-between mb-4">
           <div className="h-4 w-32 bg-surface-2 rounded" />
           <div className="h-4 w-28 bg-surface-2 rounded" />
@@ -126,7 +126,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
 
   if (error) {
     return (
-      <div className="rounded-xl bg-surface border border-danger/20 p-6">
+      <div className="rounded-xl bg-surface border border-danger/20 p-4 sm:p-6">
         <h3 className="text-sm font-semibold text-text">Practice Activity</h3>
         <div className="h-36 flex flex-col items-center justify-center text-center">
           <p className="text-xs text-danger mb-3">Unable to load heatmap.</p>
@@ -151,7 +151,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
   const sparkMax = Math.max(...weeklyTotals, 1);
 
   return (
-    <div className="rounded-xl bg-surface border border-line p-6">
+    <div className="rounded-xl bg-surface border border-line p-4 sm:p-6 overflow-hidden min-w-0 max-w-full">
       {/* ── Top Header + Summary Badges ────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
         <div>
@@ -191,112 +191,114 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
       </div>
 
       {/* ── Main Content: Heatmap Grid (8 cols) + Rhythm Habits (4 cols) ─────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-5 min-w-0">
         {/* Left/Center: Heatmap Grid + Readout + Legend (8 cols) */}
-        <div className="lg:col-span-8 flex flex-col justify-between overflow-x-auto">
-          <div className="min-w-[420px]">
-            {/* Month labels */}
-            <div className="flex text-xs text-text-secondary mb-2 pl-6">
-              {weeks.map((_, wIndex) => {
-                const labelObj = monthLabels.find((m) => m.weekIndex === wIndex && m.name);
-                return (
-                  <div key={wIndex} className="w-4 mr-1 text-center shrink-0">
-                    {labelObj ? labelObj.name : ''}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Day rows + Heatmap cells */}
-            <div className="flex gap-2">
-              <div className="flex flex-col justify-between text-xs text-muted py-0.5 select-none w-4 shrink-0 text-right pr-1">
-                <span className="h-3.5 leading-3.5">M</span>
-                <span className="h-3.5 leading-3.5">W</span>
-                <span className="h-3.5 leading-3.5">F</span>
+        <div className="lg:col-span-8 min-w-0 flex flex-col justify-between">
+          <div className="w-full overflow-x-auto pb-2">
+            <div className="min-w-[420px]">
+              {/* Month labels */}
+              <div className="flex text-xs text-text-secondary mb-2 pl-6">
+                {weeks.map((_, wIndex) => {
+                  const labelObj = monthLabels.find((m) => m.weekIndex === wIndex && m.name);
+                  return (
+                    <div key={wIndex} className="w-4 mr-1 text-center shrink-0">
+                      {labelObj ? labelObj.name : ''}
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Weeks columns */}
-              <div className="flex gap-1.5 overflow-visible">
-                {weeks.map((week, wIdx) => (
-                  <div key={wIdx} className="flex flex-col gap-1.5 shrink-0">
-                    {week.map((day, dIdx) => {
-                      const isHovered = hoveredCell?.date === day.date;
-                      const isToday = day.date === todayStr;
+              {/* Day rows + Heatmap cells */}
+              <div className="flex gap-2">
+                <div className="flex flex-col justify-between text-xs text-muted py-0.5 select-none w-4 shrink-0 text-right pr-1">
+                  <span className="h-3.5 leading-3.5">M</span>
+                  <span className="h-3.5 leading-3.5">W</span>
+                  <span className="h-3.5 leading-3.5">F</span>
+                </div>
 
-                      if (day.isFuture) {
-                        return <div key={dIdx} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded bg-transparent" />;
-                      }
+                {/* Weeks columns */}
+                <div className="flex gap-1.5 overflow-visible">
+                  {weeks.map((week, wIdx) => (
+                    <div key={wIdx} className="flex flex-col gap-1.5 shrink-0">
+                      {week.map((day, dIdx) => {
+                        const isHovered = hoveredCell?.date === day.date;
+                        const isToday = day.date === todayStr;
 
-                      return (
-                        <div
-                          key={dIdx}
-                          onMouseEnter={() => setHoveredCell(day)}
-                          onMouseLeave={() => setHoveredCell(null)}
-                          onClick={() => setHoveredCell(day)}
-                          title={day.count !== null ? `${formatDisplayDate(day.date)}: ${day.count} attempts` : ''}
-                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border transition-colors cursor-pointer ${getColor(
-                            day.count
-                          )} ${
-                            isHovered ? 'ring-2 ring-accent scale-110 z-10' : ''
-                          } ${isToday && !isHovered ? 'ring-1 ring-accent' : ''}`}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
+                        if (day.isFuture) {
+                          return <div key={dIdx} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded bg-transparent" />;
+                        }
+
+                        return (
+                          <div
+                            key={dIdx}
+                            onMouseEnter={() => setHoveredCell(day)}
+                            onMouseLeave={() => setHoveredCell(null)}
+                            onClick={() => setHoveredCell(day)}
+                            title={day.count !== null ? `${formatDisplayDate(day.date)}: ${day.count} attempts` : ''}
+                            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border transition-colors cursor-pointer ${getColor(
+                              day.count
+                            )} ${
+                              isHovered ? 'ring-2 ring-accent scale-110 z-10' : ''
+                            } ${isToday && !isHovered ? 'ring-1 ring-accent' : ''}`}
+                          />
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Bottom bar directly below grid */}
-            <div className="mt-4 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs">
-              {/* Left: Window & Today */}
-              <div className="flex items-center gap-3 text-text-secondary">
-                <span>140d window</span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded border ring-1 ring-accent bg-surface-2 border-line inline-block" />
-                  <span>Today</span>
+          {/* Bottom bar directly below grid */}
+          <div className="mt-3 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs">
+            {/* Left: Window & Today */}
+            <div className="flex items-center gap-3 text-text-secondary">
+              <span>140d window</span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded border ring-1 ring-accent bg-surface-2 border-line inline-block" />
+                <span>Today</span>
+              </span>
+            </div>
+
+            {/* Center: Live Hover Inspection readout */}
+            <div className="text-xs">
+              {hoveredCell && hoveredCell.count !== null ? (
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-surface-2 border border-line">
+                  <span className="text-accent font-semibold tabular-nums">
+                    {hoveredCell.count === 0 ? '0' : hoveredCell.count} attempt{hoveredCell.count !== 1 ? 's' : ''}
+                  </span>
+                  <span className="text-muted">·</span>
+                  <span className="text-text">{formatDisplayDate(hoveredCell.date)}</span>
                 </span>
-              </div>
-
-              {/* Center: Live Hover Inspection readout */}
-              <div className="text-xs">
-                {hoveredCell && hoveredCell.count !== null ? (
-                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-surface-2 border border-line">
-                    <span className="text-accent font-semibold tabular-nums">
-                      {hoveredCell.count === 0 ? '0' : hoveredCell.count} attempt{hoveredCell.count !== 1 ? 's' : ''}
-                    </span>
-                    <span className="text-muted">·</span>
-                    <span className="text-text">{formatDisplayDate(hoveredCell.date)}</span>
-                  </span>
-                ) : (
-                  <span className="text-muted flex items-center gap-1.5 text-xs">
-                    <span className="text-accent">◉</span> Hover or tap any cell for session logs
-                  </span>
-                )}
-              </div>
-
-              {/* Right: Legend */}
-              <div className="flex items-center gap-1.5 text-xs text-text-secondary">
-                <span>Less</span>
-                {[
-                  'bg-surface-2 border-line',
-                  'bg-easy/25 border-easy/35',
-                  'bg-easy/45 border-easy/55',
-                  'bg-easy/70 border-easy/80',
-                  'bg-easy border-easy',
-                ].map((cls, i) => (
-                  <span key={i} className={`w-3 h-3 rounded border ${cls}`} />
-                ))}
-                <span>More</span>
-              </div>
+              ) : (
+                <span className="text-muted flex items-center gap-1.5 text-xs">
+                  <span className="text-accent">◉</span> Hover or tap any cell for session logs
+                </span>
+              )}
             </div>
 
-            {/* Mobile swipe indicator */}
-            <div className="sm:hidden text-xs text-muted text-center pt-2.5 flex items-center justify-center gap-1.5 border-t border-line mt-2">
-              <span>←</span>
-              <span>Swipe horizontally to view full 20-week timeline</span>
-              <span>→</span>
+            {/* Right: Legend */}
+            <div className="flex items-center gap-1.5 text-xs text-text-secondary">
+              <span>Less</span>
+              {[
+                'bg-surface-2 border-line',
+                'bg-easy/25 border-easy/35',
+                'bg-easy/45 border-easy/55',
+                'bg-easy/70 border-easy/80',
+                'bg-easy border-easy',
+              ].map((cls, i) => (
+                <span key={i} className={`w-3 h-3 rounded border ${cls}`} />
+              ))}
+              <span>More</span>
             </div>
+          </div>
+
+          {/* Mobile swipe indicator */}
+          <div className="sm:hidden text-xs text-muted text-center pt-2.5 flex items-center justify-center gap-1.5 border-t border-line mt-2">
+            <span>←</span>
+            <span>Swipe horizontally to view full 20-week timeline</span>
+            <span>→</span>
           </div>
         </div>
 

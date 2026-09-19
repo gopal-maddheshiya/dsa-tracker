@@ -47,16 +47,16 @@ const IntelligentRecommender = ({ className = '' }) => {
 
   if (loading) {
     return (
-      <div className={`panel p-6 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
+      <div className={`panel p-4 sm:p-6 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl shimmer shrink-0" />
-          <div className="space-y-2 flex-1">
-            <div className="h-4 w-44 shimmer rounded" />
-            <div className="h-3 w-64 shimmer rounded" />
+          <div className="space-y-2 flex-1 min-w-0">
+            <div className="h-4 w-36 max-w-full shimmer rounded" />
+            <div className="h-3 w-48 max-w-full shimmer rounded" />
           </div>
         </div>
         <div className="h-28 shimmer rounded-xl my-4" />
-        <div className="h-10 w-48 shimmer rounded-xl" />
+        <div className="h-10 w-40 max-w-full shimmer rounded-xl" />
       </div>
     );
   }
@@ -70,7 +70,7 @@ const IntelligentRecommender = ({ className = '' }) => {
   const platformName = PLATFORM_LABELS[dailyFocus.platform] || dailyFocus.platform;
 
   return (
-    <div className={`panel p-6 relative overflow-hidden flex flex-col justify-between h-full group ${className}`}>
+    <div className={`panel p-4 sm:p-6 relative overflow-hidden flex flex-col justify-between h-full group ${className}`}>
       {/* ── 1. Top Header: Kicker, Title & Focus Areas ──────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-line relative z-10">
         <div className="flex items-start gap-3">
@@ -161,10 +161,10 @@ const IntelligentRecommender = ({ className = '' }) => {
         </div>
 
         {/* ── 3. Symmetrical Action CTAs ────────────────────────────── */}
-        <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
+        <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Link
             to={`/problems/${dailyFocus.id}`}
-            className="btn-primary w-full sm:w-auto"
+            className="btn-primary w-full sm:w-auto text-center justify-center"
           >
             <span>Solve & Log Problem</span>
             <ArrowRight className="w-4 h-4" />
@@ -175,7 +175,7 @@ const IntelligentRecommender = ({ className = '' }) => {
               href={dailyFocus.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary w-full sm:w-auto"
+              className="btn-secondary w-full sm:w-auto text-center justify-center"
             >
               <span>Original Problem</span>
               <ExternalLink className="w-3.5 h-3.5 opacity-80" />

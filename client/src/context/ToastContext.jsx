@@ -27,10 +27,10 @@ export const ToastProvider = ({ children }) => {
     <ToastContext.Provider value={toast}>
       {children}
 
-      {/* Toast Container */}
+      {/* Toast Container - positioned above mobile bottom tab bar */}
       <div
         aria-live="polite"
-        className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+        className="fixed bottom-20 lg:bottom-5 right-4 sm:right-5 left-4 sm:left-auto z-[100] flex flex-col gap-2 max-w-sm pointer-events-none pb-safe"
       >
         {toasts.map(({ id, message, type }) => {
           const config =

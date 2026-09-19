@@ -124,16 +124,16 @@ const EditProfileModal = ({ isOpen, onClose }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-3 sm:p-4 animate-fade-in"
       onClick={onClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal"
+        className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal my-auto flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-line sticky top-0 bg-surface z-10">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-4 border-b border-line sticky top-0 bg-surface z-10">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
               {activeTab === 'profile' ? <User className="w-4 h-4" /> : <Lock className="w-4 h-4" />}

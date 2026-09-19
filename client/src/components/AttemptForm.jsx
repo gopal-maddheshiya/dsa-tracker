@@ -123,13 +123,13 @@ const AttemptForm = ({
 
   const content = (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-3 sm:p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="attempt-form-title"
     >
       <div
-        className="max-w-md w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in"
+        className="max-w-md w-full max-h-[90dvh] overflow-y-auto p-4 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in flex flex-col my-auto"
       >
         <div className="flex items-start justify-between pb-4 border-b border-line mb-5">
           <div>

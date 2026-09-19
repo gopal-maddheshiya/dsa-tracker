@@ -102,7 +102,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
   return (
     <div className="panel overflow-hidden border-line bg-surface rounded-xl transition-all duration-200">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-line bg-surface-2/40">
+      <div className="flex flex-wrap items-center justify-between px-4 sm:px-5 py-3.5 border-b border-line bg-surface-2/40 gap-2">
         <div className="flex items-center gap-2.5">
           <div className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
             isRunning
@@ -167,7 +167,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
 
       {/* Main Timer Body */}
       {!isCollapsed && (
-        <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+        <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5">
           {/* Left: Clock Display & Presets */}
           <div className="space-y-2">
             <div className="flex items-baseline gap-3">

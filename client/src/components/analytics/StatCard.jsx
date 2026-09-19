@@ -17,7 +17,7 @@ const StatCard = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-5 flex flex-col justify-between animate-pulse rounded-xl bg-surface border border-line">
+      <div className="p-4 sm:p-5 flex flex-col justify-between shimmer rounded-xl bg-surface border border-line">
         <div className="flex items-center justify-between mb-3">
           <div className="h-3.5 w-20 bg-surface-2 rounded" />
           <div className="h-7 w-7 bg-surface-2 rounded-lg" />
@@ -41,10 +41,10 @@ const StatCard = ({
   };
 
   return (
-    <div className="h-full p-4 sm:p-5 flex flex-col justify-between rounded-xl bg-surface border border-line transition-colors">
+    <div className="h-full p-3.5 sm:p-5 flex flex-col justify-between rounded-xl bg-surface border border-line transition-colors min-w-0">
       {/* Top row: Title + Icon */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary leading-snug flex-1 min-w-0">
+      <div className="flex items-start justify-between gap-2 mb-2 min-w-0">
+        <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary leading-snug flex-1 min-w-0 break-words">
           {title}
         </span>
         {Icon && (
@@ -55,13 +55,13 @@ const StatCard = ({
       </div>
 
       {/* Metric value and badge */}
-      <div className="my-1">
-        <div className="flex items-baseline gap-2 flex-wrap">
-          <div className={`text-2xl sm:text-3xl font-bold tracking-tight tabular-nums ${valueColor}`}>
+      <div className="my-1 min-w-0">
+        <div className="flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+          <div className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight tabular-nums ${valueColor}`}>
             {renderValue()}
           </div>
           {badge && (
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/12 border border-accent/25 text-accent self-center">
+            <span className="text-[11px] sm:text-xs font-medium px-2 py-0.5 rounded-full bg-accent/12 border border-accent/25 text-accent self-center whitespace-nowrap">
               {badge}
             </span>
           )}
@@ -79,7 +79,7 @@ const StatCard = ({
       </div>
 
       {subtitle && (
-        <p className="text-xs text-text-secondary mt-1.5 leading-normal">
+        <p className="text-[11px] sm:text-xs text-text-secondary mt-1.5 leading-normal break-words min-w-0">
           {subtitle}
         </p>
       )}

@@ -181,16 +181,16 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fade-in"
       onClick={handleClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal"
+        className="relative w-full max-w-lg max-h-[90dvh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal my-auto flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-line sticky top-0 bg-surface-2/40 z-10">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-4 border-b border-line sticky top-0 bg-surface-2/40 z-10">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-accent/12 border border-accent/25 flex items-center justify-center text-accent">
               <Upload className="w-4 h-4" />
@@ -210,7 +210,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4">
           {/* Result view */}
           {importResult ? (
             <div className="text-center py-6 space-y-4">

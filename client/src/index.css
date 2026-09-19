@@ -464,19 +464,49 @@
   }
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 640px) {
+/* === RESPONSIVE & MOBILE POLISH === */
+@media (max-width: 639px) {
   .stat-value {
     font-size: 1.25rem;
   }
 
-  button, a, [role="button"] {
-    min-height: 36px;
+  /* Prevent iOS Safari zoom on focus by enforcing >=16px font */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea,
+  .input-base {
+    font-size: 16px !important;
+  }
+
+  /* Ensure comfortable tap target on phone for primary interactive buttons and nav */
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-touch {
+    min-height: 44px;
   }
 }
 
-/* Safe area padding for notched phones */
+/* Touch-only hover suppression to prevent sticky hover states on mobile */
+@media (hover: none) {
+  .panel:hover {
+    border-color: var(--line);
+  }
+  .data-table tbody tr:hover {
+    background-color: transparent;
+  }
+}
+
+/* Safe area insets for iOS notches and navigation bars */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
 .pb-safe {
-  padding-bottom: 0px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
 }

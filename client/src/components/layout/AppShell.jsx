@@ -336,14 +336,14 @@ const AppShell = ({ children }) => {
   // Public pages — no sidebar
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col text-text bg-bg">
+      <div className="min-h-dvh flex flex-col text-text bg-bg">
         {children}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex text-text bg-bg">
+    <div className="min-h-dvh flex text-text bg-bg">
 
       {/* ── Desktop sidebar ─────────────────────── */}
       <div className="hidden lg:flex shrink-0 h-screen sticky top-0 z-20">
@@ -433,21 +433,23 @@ const AppShell = ({ children }) => {
               </NavLink>
             )}
 
-            {/* Desktop Quick Add Problem Button */}
+            {/* Quick Add Problem Button: icon-only on mobile, compact with label on sm+ */}
             <button
               type="button"
               onClick={() => setIsQuickAddOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-bg text-xs font-semibold transition-colors cursor-pointer"
-              title="Create / Catalog a new problem"
+              className="flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-bg text-xs font-semibold transition-colors cursor-pointer"
+              aria-label="Create new problem"
+              title="Create new problem"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>New Problem</span>
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span className="hidden sm:inline">New Problem</span>
             </button>
 
             {/* User Profile Avatar */}
             <NavLink
               to="/profile"
               className="flex items-center gap-2 p-1 rounded-lg hover:bg-surface-2 transition-colors group"
+              aria-label="View Profile & Settings"
               title="View Profile & Settings"
             >
               <div className="relative">
@@ -480,33 +482,30 @@ const AppShell = ({ children }) => {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 px-4 sm:px-6 md:px-8 py-6 max-w-7xl w-full mx-auto outline-none focus:outline-none"
+          className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-28 lg:pb-8 max-w-7xl w-full mx-auto outline-none focus:outline-none"
         >
           {children}
         </main>
 
-        {/* ── Mobile Floating Dock Navigation ── */}
+        {/* ── Fixed Bottom Tab Bar Navigation (< lg) ── */}
         <nav
-          aria-label="Mobile Dock Navigation"
-          className="fixed bottom-0 inset-x-0 z-40 lg:hidden px-3 pb-safe pt-1 pointer-events-none"
+          aria-label="Bottom Tab Navigation"
+          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface border-t border-line pb-safe"
         >
-          <div className="pointer-events-auto max-w-md mx-auto mb-2.5 px-3 py-1.5 rounded-xl bg-surface border border-line shadow-modal grid grid-cols-5 items-center gap-1">
+          <div className="grid grid-cols-4 items-center w-full max-w-lg mx-auto">
 
             {/* 1. Dashboard */}
             <NavLink
               to="/dashboard"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                flex flex-col items-center justify-center py-2 transition-colors min-h-[48px] cursor-pointer
                 ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
-                  {isActive && (
-                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
-                  )}
                   <LayoutDashboard className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
-                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
+                  <span className={`text-xs mt-1 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Dashboard
                   </span>
                 </>
@@ -517,83 +516,57 @@ const AppShell = ({ children }) => {
             <NavLink
               to="/problems"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                flex flex-col items-center justify-center py-2 transition-colors min-h-[48px] cursor-pointer
                 ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
-                  {isActive && (
-                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
-                  )}
                   <Code2 className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
-                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
+                  <span className={`text-xs mt-1 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Problems
                   </span>
                 </>
               )}
             </NavLink>
 
-            {/* 3. Center Quick Action Button */}
-            <div className="flex flex-col items-center justify-center -mt-5 relative z-10">
-              <button
-                type="button"
-                onClick={() => setIsQuickAddOpen(true)}
-                className="group relative flex flex-col items-center justify-center cursor-pointer focus:outline-none"
-                aria-label="Add new problem"
-              >
-                <div className="w-11 h-11 rounded-lg bg-accent text-bg flex items-center justify-center ring-4 ring-bg hover:bg-accent-hover transition-colors">
-                  <Plus className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                <span className="text-xs font-medium text-text-secondary mt-1">
-                  Add
-                </span>
-              </button>
-            </div>
-
-            {/* 4. Revision */}
+            {/* 3. Revision */}
             <NavLink
               to="/revision"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                flex flex-col items-center justify-center py-2 transition-colors min-h-[48px] cursor-pointer
                 ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
-                  {isActive && (
-                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
-                  )}
                   <div className="relative">
                     <Repeat className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
                     {revisionCount > 0 && (
-                      <span className="absolute -top-1 -right-2.5 min-w-[16px] h-[16px] px-1 rounded-full bg-accent text-bg text-xs font-bold tabular-nums flex items-center justify-center border-2 border-surface">
+                      <span className="absolute -top-1 -right-2.5 min-w-[16px] h-[16px] px-1 rounded-full bg-accent text-bg text-[10px] font-bold tabular-nums flex items-center justify-center border border-surface">
                         {revisionCount > 9 ? '9+' : revisionCount}
                       </span>
                     )}
                   </div>
-                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
+                  <span className={`text-xs mt-1 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Revision
                   </span>
                 </>
               )}
             </NavLink>
 
-            {/* 5. Profile */}
+            {/* 4. Profile */}
             <NavLink
               to="/profile"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                flex flex-col items-center justify-center py-2 transition-colors min-h-[48px] cursor-pointer
                 ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
-                  {isActive && (
-                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
-                  )}
                   <User className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
-                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
+                  <span className={`text-xs mt-1 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Profile
                   </span>
                 </>

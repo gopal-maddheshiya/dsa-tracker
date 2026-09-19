@@ -726,7 +726,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="space-y-6 pb-28 sm:pb-20 animate-fade-up">
+    <div className="space-y-6 pb-6 animate-fade-up">
 
       {/* ── Hero Banner ─────────────────────────────────────────── */}
       <Reveal delay={0} y={15}>

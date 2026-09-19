@@ -111,7 +111,7 @@ const DashboardPage = () => {
   const rank = useMemo(() => getRank(summary?.solvedProblems ?? 0), [summary?.solvedProblems]);
 
   return (
-    <div className="space-y-6 pb-24 sm:pb-16 animate-fade-up">
+    <div className="space-y-6 pb-6 animate-fade-up">
       {/* Clean Minimalist Hero Greeting & Quick Actions */}
       <Reveal delay={0} y={16}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-line relative">
@@ -137,7 +137,7 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start sm:self-auto relative z-10">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end relative z-10">
             {revisionQueue.length > 0 && (
               <Link to="/revision">
                 <Badge variant="amber" dot size="sm">

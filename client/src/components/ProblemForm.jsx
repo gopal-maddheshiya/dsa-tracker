@@ -343,7 +343,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
       {/* Modal Dialog Card */}
       <div
         data-lenis-prevent
-        className="panel relative w-full max-w-lg sm:max-w-xl max-h-[90vh] flex flex-col bg-surface border border-line shadow-modal rounded-xl overflow-hidden my-auto animate-scale-in"
+        className="panel relative w-full max-w-lg sm:max-w-xl max-h-[90dvh] flex flex-col bg-surface border border-line shadow-modal rounded-xl overflow-hidden my-auto animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Fixed Header */}
