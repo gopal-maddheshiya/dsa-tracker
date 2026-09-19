@@ -25,6 +25,7 @@ router.route('/')
 
 // Intelligent problem recommendations endpoint (must be before /:id)
 router.get('/recommendations', getProblemRecommendations);
+router.get('/recommendation', getProblemRecommendations);
 
 // URL metadata resolver endpoint (must be before /:id)
 router.post('/resolve-metadata', resolveProblemMetadata);

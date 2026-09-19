@@ -16,8 +16,8 @@
     --border-emphasis: rgba(255, 255, 255, 0.18);
     
     /* Portfolio Design System - Warm Ember & Graphite Ink */
-    --primary: oklch(0.72 0.15 52);
-    --primary-foreground: oklch(0.19 0.02 60);
+    --primary: #E07A38;
+    --primary-foreground: #12151B;
     --accent: #E07A38;
     --accent-hover: #E88B4B;
     --accent-dim: #C76326;

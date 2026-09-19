@@ -110,7 +110,8 @@ const ProblemDetailPage = () => {
     if (!problem) return;
     setIsDeleting(true);
     try {
-      await deleteProblem(problem.id);
+      const delId = problem.id || problem._id;
+      await deleteProblem(delId);
       toast.success(`Problem "${problem.title}" deleted.`);
       navigate('/problems', { replace: true });
     } catch (err) {
@@ -469,8 +470,8 @@ const ProblemDetailPage = () => {
           setTimerElapsedMinutes('');
         }}
         onSuccess={loadProblem}
-        problemId={problem.id}
-        problemTitle={problem.title}
+        problemId={problem?.id || problem?._id}
+        problemTitle={problem?.title}
         defaultTimeTaken={timerElapsedMinutes}
         initialData={editingAttempt}
       />

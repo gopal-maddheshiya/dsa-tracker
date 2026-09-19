@@ -113,7 +113,8 @@ const detectPlatformAndTitle = (inputUrl) => {
 
 const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const toast = useToast();
-  const isEdit = Boolean(initialData && initialData.id);
+  const problemId = initialData?.id || initialData?._id;
+  const isEdit = Boolean(initialData && problemId);
 
   const [title, setTitle] = useState('');
   const [platform, setPlatform] = useState('leetcode');
@@ -305,7 +306,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         topics: topics.map((t) => t.trim()).filter(Boolean),
       };
       if (isEdit) {
-        await updateProblem(initialData.id, payload);
+        await updateProblem(problemId, payload);
         toast.success(`"${payload.title}" updated.`);
       } else {
         await createProblem(payload);

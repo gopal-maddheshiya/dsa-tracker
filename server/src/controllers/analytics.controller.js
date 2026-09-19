@@ -470,7 +470,10 @@ const getProfile = async (req, res, next) => {
       { $group: { _id: '$p.difficulty', count: { $sum: 1 } } },
     ]);
     const diffSolved = { easy: 0, medium: 0, hard: 0 };
-    solvedByDiff.forEach(d => { if (diffSolved[d._id] !== undefined) diffSolved[d._id] = d.count; });
+    solvedByDiff.forEach(d => {
+      const diffKey = (d._id || '').toLowerCase().trim();
+      if (diffSolved[diffKey] !== undefined) diffSolved[diffKey] = d.count;
+    });
 
     // ── Totals ─────────────────────────────────────────────────────
     const totalProblems = await Problem.countDocuments({ userId });

@@ -217,6 +217,7 @@ const Rotating3DCube = () => {
 
     const currentPhrase = TYPEWRITER_PHRASES[phraseIndex];
     const speed = isDeleting ? 18 : 34;
+    let pauseTimer = null;
 
     const timer = setTimeout(() => {
       if (!isDeleting) {
@@ -225,7 +226,7 @@ const Rotating3DCube = () => {
         } else {
           // Finished typing sentence: 2.6-second reading pause!
           setIsPaused(true);
-          setTimeout(() => {
+          pauseTimer = setTimeout(() => {
             setIsPaused(false);
             setIsDeleting(true);
           }, 2600);
@@ -240,28 +241,38 @@ const Rotating3DCube = () => {
       }
     }, speed);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (pauseTimer) clearTimeout(pauseTimer);
+    };
   }, [typedText, isDeleting, isPaused, phraseIndex]);
 
   useEffect(() => {
+    let t1 = null;
+    let t2 = null;
+
     // ── 2-Second Mathematical Gyroscopic Spin
     const interval = setInterval(() => {
       setAnimationState('rolling');
       setRollId((prev) => prev + 1);
 
       // Mid-spin stage flip & alternate diagonal pair
-      setTimeout(() => {
+      t1 = setTimeout(() => {
         setCurrentFace((prev) => (prev + 1) % 4);
         setActiveDiagonal((prev) => (prev === 0 ? 1 : 0));
       }, 1000);
 
       // Settle upright & trigger card emergence
-      setTimeout(() => {
+      t2 = setTimeout(() => {
         setAnimationState('emerged');
       }, 2000);
     }, 6200);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (t1) clearTimeout(t1);
+      if (t2) clearTimeout(t2);
+    };
   }, []);
 
   const stage = CUBE_STAGES[currentFace];

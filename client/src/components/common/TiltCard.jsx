@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 
 /**
@@ -15,6 +15,13 @@ export function TiltCard({
 }) {
   const cardRef = useRef(null);
   const sheenRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (cardRef.current) gsap.killTweensOf(cardRef.current);
+      if (sheenRef.current) gsap.killTweensOf(sheenRef.current);
+    };
+  }, []);
 
   const handleMouseMove = (e) => {
     const node = cardRef.current;

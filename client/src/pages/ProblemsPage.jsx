@@ -468,9 +468,10 @@ const ProblemsPage = () => {
   const handleConfirmDelete = async () => {
     if (!deletingProblem) return;
     setIsDeleting(true);
+    const delId = deletingProblem.id || deletingProblem._id;
     try {
-      await deleteProblem(deletingProblem.id);
-      setProblems((prev) => prev.filter((p) => p.id !== deletingProblem.id));
+      await deleteProblem(delId);
+      setProblems((prev) => prev.filter((p) => (p.id || p._id) !== delId));
       setDeletingProblem(null);
       toast.success(`Deleted "${deletingProblem.title}".`);
       loadProblems();
@@ -979,7 +980,7 @@ const ProblemsPage = () => {
         isOpen={Boolean(loggingProblem)}
         onClose={() => setLoggingProblem(null)}
         onSuccess={loadProblems}
-        problemId={loggingProblem?.id}
+        problemId={loggingProblem?.id || loggingProblem?._id}
         problemTitle={loggingProblem?.title}
       />
     </div>

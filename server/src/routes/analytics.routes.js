@@ -15,9 +15,11 @@ router.use(protect);
 
 router.get('/summary', getSummary);
 router.get('/topics', getTopics);
+router.get('/weakness', getTopics);
 router.get('/trend', getTrend);
 router.get('/heatmap', getHeatmap);
 router.get('/revision-queue', getRevisionQueue);
+router.get('/revision', getRevisionQueue);
 router.get('/profile', getProfile);
 
 module.exports = router;
