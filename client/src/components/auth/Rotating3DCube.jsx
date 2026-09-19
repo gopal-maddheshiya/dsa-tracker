@@ -1,191 +1,103 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Flame, Brain, CheckCircle2, Target, Sparkles, Cpu, Terminal } from 'lucide-react';
+import { Flame, Cpu, Terminal, Sparkles } from 'lucide-react';
 import { colors } from '../../theme/colors';
+import SlidingWindowViz from './cube-visuals/SlidingWindowViz';
+import RevisionLadderViz from './cube-visuals/RevisionLadderViz';
+import TopicRadarViz from './cube-visuals/TopicRadarViz';
+import HeatmapViz from './cube-visuals/HeatmapViz';
 
 /**
- * Clean DSA Stage Data for the 4 Cube Stages.
- * All metrics clearly formatted with honest labels and real spaced-repetition intervals.
+ * Clean Stage Metadata for the 4 Cube Stages.
+ * Synchronized with the 4 live face visualizations.
  */
 const CUBE_STAGES = [
   {
     id: 0,
-    faceTitle: 'RECENT SOLVES • SAMPLE',
-    badge: 'DESIGN',
-    badgeColor: 'text-easy bg-easy/12 border-easy/25',
-    accentColor: colors.easy,
     stageLabel: 'Solves',
-    hero: {
-      kicker: 'SYSTEM DESIGN',
-      kickerIcon: CheckCircle2,
-      kickerColor: 'text-easy',
-      statusText: 'SAMPLE',
-      statusColor: 'text-easy',
-      num: '146',
-      title: 'LRU Cache Design',
-      sub: 'Doubly-Linked List + Hash Map',
-      pill: 'Optimal O(1)',
-      pillColor: 'bg-easy/12 text-easy',
-      company: 'System Architecture',
-      tag: 'DESIGN',
-    },
+    accentColor: colors.easy,
     terminal: {
       tag: 'RUNTIME BOUND',
-      pill: 'O(1) Access',
-      message: 'Sample verification: Doubly-linked list achieves O(1) eviction for LRU cache.',
-      subLeft: 'Sample Queue',
-      subRight: 'Active',
+      pill: 'O(N) Time',
+      message: 'Sliding window maintains maximum sum across size-3 subarray in a single pass.',
+      subLeft: 'Window Size',
+      subRight: 'k = 3',
       subRightDot: 'bg-easy text-easy',
     },
     insight: {
       tag: 'ALGORITHM PATTERN',
-      pill: 'Sample',
-      title: 'Sliding Window & Pointers',
-      sub: 'Sample benchmark across problem sets',
-      footerLeft: 'Pattern Category',
-      footerRight: 'O(1) Aux Space',
+      pill: 'Two Pointers',
+      title: 'Sliding Window Technique',
+      sub: 'Reuses previous subarray sum by adding right and removing left',
+      footerLeft: 'Time Complexity',
+      footerRight: 'O(N) Runtime',
       tagColor: 'text-easy',
     },
-    problems: [
-      { title: '146. LRU Cache', platform: 'Doubly-Linked + HashMap', diff: 'Med', time: 'Sample', color: 'text-medium bg-medium/12 border-medium/25' },
-      { title: '42. Trapping Rain Water', platform: 'Two Pointers Optimal', diff: 'Hard', time: 'Sample', color: 'text-hard bg-hard/12 border-hard/25' },
-      { title: '23. Merge k Sorted Lists', platform: 'Min-Heap Priority Queue', diff: 'Hard', time: 'Sample', color: 'text-hard bg-hard/12 border-hard/25' },
-    ],
-    footer: 'Sample problems illustrating LRU cache design',
   },
   {
     id: 1,
-    faceTitle: 'SPACED REPETITION ENGINE',
-    badge: 'INTERVALS',
-    badgeColor: 'text-accent bg-accent/12 border-accent/25',
-    accentColor: colors.accent,
     stageLabel: 'Spaced',
-    hero: {
-      kicker: 'REVISION INTERVALS',
-      kickerIcon: Brain,
-      kickerColor: 'text-accent',
-      statusText: '2d • 5d • 14d',
-      statusColor: 'text-accent',
-      num: '210',
-      title: 'Course Schedule II',
-      sub: "Kahn's Topological Sort (DAG)",
-      pill: 'Due in 2d',
-      pillColor: 'bg-accent/12 text-accent',
-      company: 'Graph Algorithms',
-      tag: 'GRAPH',
-    },
+    accentColor: colors.accent,
     terminal: {
       tag: 'SPACED RECALL',
       pill: '2d / 5d / 14d',
-      message: 'Adaptive queue: 2-day interval for struggled, 5-day for review, 14-day for solved.',
-      subLeft: 'Revision Cadence',
-      subRight: 'Active Queue',
+      message: 'Adaptive intervals: 2-day recall for struggled, 5-day for review, 14-day for solved.',
+      subLeft: 'Schedule Rule',
+      subRight: 'Active Intervals',
       subRightDot: 'bg-accent text-accent',
     },
     insight: {
-      tag: 'SCHEDULE MATRIX',
-      pill: 'Sample Queue',
-      title: 'Adaptive Revision Scheduling',
-      sub: 'Urgency scored by days elapsed divided by status interval',
-      footerLeft: 'Schedule Rule',
-      footerRight: '2d • 5d • 14d',
+      tag: 'REVISION LADDER',
+      pill: 'Due Engine',
+      title: 'Outcome-Based Scheduling',
+      sub: 'Next review date dynamically scales based on attempt performance',
+      footerLeft: 'Interval Tiers',
+      footerRight: '2d · 5d · 14d',
       tagColor: 'text-accent',
     },
-    problems: [
-      { title: '210. Course Schedule II', platform: 'Struggled Attempt', diff: '2d Interval', time: 'Sample', color: 'text-accent bg-accent/12 border-accent/25' },
-      { title: '139. Word Break', platform: 'Revisit Needed', diff: '5d Interval', time: 'Sample', color: 'text-medium bg-medium/12 border-medium/25' },
-      { title: '146. LRU Cache', platform: 'Solved Attempt', diff: '14d Interval', time: 'Sample', color: 'text-easy bg-easy/12 border-easy/25' },
-    ],
-    footer: 'Real server intervals: 2d struggled, 5d review, 14d solved',
   },
   {
     id: 2,
-    faceTitle: 'TOPIC WEAKNESS MATRIX',
-    badge: 'ANALYTICS',
-    badgeColor: 'text-medium bg-medium/12 border-medium/25',
-    accentColor: colors.medium,
     stageLabel: 'Topics',
-    hero: {
-      kicker: 'WEAKNESS RADAR',
-      kickerIcon: Target,
-      kickerColor: 'text-medium',
-      statusText: 'SAMPLE GAP',
-      statusColor: 'text-danger',
-      num: 'DP',
-      title: 'Dynamic Programming',
-      sub: '0/1 Knapsack & Subproblems',
-      pill: 'Sample Focus',
-      pillColor: 'bg-danger/12 text-danger',
-      company: 'Memoization & DP',
-      tag: 'DP',
-    },
+    accentColor: colors.medium,
     terminal: {
-      tag: 'TOPIC MATRIX',
-      pill: 'Sample Scan',
-      message: 'Topic matrix scan: Identifies struggle ratio by topic to prioritize problem queues.',
-      subLeft: 'Topic Priority',
-      subRight: 'Sample Active',
+      tag: 'TOPIC RADAR',
+      pill: 'Radar Scan',
+      message: 'Topic analysis ranks categories by struggle ratio to target high-priority revision.',
+      subLeft: 'Focus Priority',
+      subRight: 'Dynamic Prog',
       subRightDot: 'bg-danger text-danger',
     },
     insight: {
-      tag: 'TOPIC BREAKDOWN',
-      pill: 'Sample',
-      title: 'Subproblem Analysis',
-      sub: 'Aggregates attempts to highlight areas needing extra practice',
-      footerLeft: 'Priority Area',
-      footerRight: 'Sample Focus',
+      tag: 'TOPIC MATRIX',
+      pill: 'Multi-Axis',
+      title: '6-Axis Struggle Ratio',
+      sub: 'Surfaces highest friction topics so you spend practice time effectively',
+      footerLeft: 'Weakest Category',
+      footerRight: 'DP (0.80)',
       tagColor: 'text-medium',
     },
-    problems: [
-      { title: 'Dynamic Programming', platform: 'Sample Topic', diff: 'Focus #1', time: 'Sample', color: 'text-hard bg-hard/12 border-hard/25' },
-      { title: 'Graph Traversal', platform: 'Sample Topic', diff: 'Focus #2', time: 'Sample', color: 'text-medium bg-medium/12 border-medium/25' },
-      { title: 'Binary Search Trees', platform: 'Sample Topic', diff: 'Mastered', time: 'Sample', color: 'text-easy bg-easy/12 border-easy/25' },
-    ],
-    footer: 'Aggregation groups problem attempts by topic struggle ratio',
   },
   {
     id: 3,
-    faceTitle: 'PREPARATION CADENCE',
-    badge: 'SAMPLE HEATMAP',
-    badgeColor: 'text-easy bg-easy/12 border-easy/25',
-    accentColor: colors.easy,
     stageLabel: 'Velocity',
-    hero: {
-      kicker: 'CADENCE PULSE',
-      kickerIcon: Flame,
-      kickerColor: 'text-accent',
-      statusText: 'SAMPLE',
-      statusColor: 'text-accent',
-      num: '30d',
-      title: 'Activity Cadence',
-      sub: 'Daily Practice Consistency',
-      pill: 'Sample Trend',
-      pillColor: 'bg-accent/12 text-accent',
-      company: 'Practice Cadence',
-      tag: 'CADENCE',
-    },
+    accentColor: colors.easy,
     terminal: {
-      tag: 'ACTIVITY LOG',
-      pill: 'Sample',
-      message: 'Cadence monitor: Tracks daily practice sessions and streaks across problem categories.',
-      subLeft: 'Consistency',
-      subRight: 'Sample Log',
-      subRightDot: 'bg-accent text-accent',
+      tag: 'PRACTICE CADENCE',
+      pill: '140 Days',
+      message: 'Heatmap visualization tracks 20 weeks of practice consistency across daily sessions.',
+      subLeft: 'Cadence Window',
+      subRight: '20 Weeks',
+      subRightDot: 'bg-easy text-easy',
     },
     insight: {
-      tag: 'PRACTICE CADENCE',
-      pill: 'Sample',
-      title: 'Consistency Tracking',
-      sub: 'Regular daily cadence builds long-term algorithmic recall',
-      footerLeft: 'Practice Focus',
-      footerRight: 'Curated Set',
+      tag: 'ACTIVITY LOG',
+      pill: 'Consistency',
+      title: 'Daily Engineering Cadence',
+      sub: 'Persistent daily problem solving builds durable pattern recognition',
+      footerLeft: 'Cadence View',
+      footerRight: 'Active Streak',
       tagColor: 'text-easy',
     },
-    problems: [
-      { title: '30-Day Activity Log', platform: 'Sample Calendar', diff: 'Daily Log', time: 'Sample', color: 'text-easy bg-easy/12 border-easy/25' },
-      { title: 'Difficulty Distribution', platform: 'Sample Problem Mix', diff: 'Balanced', time: 'Sample', color: 'text-accent bg-accent/12 border-accent/25' },
-      { title: 'Curated Topic Roadmap', platform: 'Sample Progress', diff: 'In Progress', time: 'Sample', color: 'text-accent bg-accent/12 border-accent/25' },
-    ],
-    footer: 'Activity heatmap and daily problem solving cadence',
   },
 ];
 
@@ -291,8 +203,7 @@ const Rotating3DCube = () => {
 
   return (
     <div
-      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-2"
-      style={{ '--s': 'clamp(150px, 22vw, 210px)' }}
+      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-2 [--s:clamp(180px,48vw,220px)] sm:[--s:clamp(180px,23vw,220px)]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsFocused(true)}
@@ -391,64 +302,23 @@ const Rotating3DCube = () => {
               willChange: 'transform',
             }}
           >
-            {/* 4 Lateral Faces: fixed content, rotateY(i*90deg) translateZ(var(--s)/2) */}
+            {/* 4 Lateral Faces: each hosts its own dedicated visualization */}
             {[0, 1, 2, 3].map((i) => {
-              const face = CUBE_STAGES[i];
-              const HeroIcon = face.hero.kickerIcon;
+              const isFaceActive = activeStage === i;
               return (
                 <div
-                  key={face.id}
-                  className="absolute inset-0 rounded-xl p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden select-none bg-surface border border-line shadow-card"
+                  key={i}
+                  className="absolute inset-0 rounded-xl p-2.5 sm:p-3 overflow-hidden select-none bg-surface border border-line shadow-card"
                   style={{
                     transform: `rotateY(${i * 90}deg) translateZ(calc(var(--s) / 2))`,
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
                   }}
                 >
-                  {/* Top Status Header */}
-                  <div className="flex items-center justify-between border-b border-line pb-1 sm:pb-1.5">
-                    <span className={`text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 sm:gap-1.5 ${face.hero.kickerColor}`}>
-                      <HeroIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                      {face.hero.kicker}
-                    </span>
-                    <span className={`text-[10px] sm:text-[11px] font-bold font-mono ${face.hero.statusColor}`}>
-                      {face.hero.statusText}
-                    </span>
-                  </div>
-
-                  {/* Middle Problem Box */}
-                  <div className="p-2 sm:p-2.5 rounded-lg bg-surface-2 border border-line flex flex-col justify-between my-1 flex-1">
-                    {/* Top Row: Number & Pill */}
-                    <div className="flex items-center justify-between">
-                      <span className="px-1.5 py-0.5 rounded bg-surface border border-line text-text font-mono font-bold text-[11px] sm:text-xs">
-                        #{face.hero.num}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold font-mono ${face.hero.pillColor}`}>
-                        {face.hero.pill}
-                      </span>
-                    </div>
-
-                    {/* Middle Row: Full Problem Title & Subtitle - Zero Truncation */}
-                    <div className="my-0.5">
-                      <h4 className="text-[11px] sm:text-xs font-bold text-text tracking-tight leading-snug">
-                        {face.hero.title}
-                      </h4>
-                      <p className="text-[10px] sm:text-[11px] text-text-secondary leading-snug mt-0.5">
-                        {face.hero.sub}
-                      </p>
-                    </div>
-
-                    {/* Bottom Row: Company & Domain Tag */}
-                    <div className="pt-1.5 border-t border-line/60 flex items-center justify-between text-[10px] sm:text-[11px]">
-                      <span className="flex items-center gap-1.5 text-text-secondary font-mono truncate">
-                        <Terminal className="w-3 h-3 text-accent shrink-0" />
-                        {face.hero.company}
-                      </span>
-                      <span className="text-[9px] sm:text-[10px] font-bold text-accent font-mono tracking-wider shrink-0">
-                        {face.hero.tag}
-                      </span>
-                    </div>
-                  </div>
+                  {i === 0 && <SlidingWindowViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                  {i === 1 && <RevisionLadderViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                  {i === 2 && <TopicRadarViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                  {i === 3 && <HeatmapViz active={isFaceActive} reducedMotion={reducedMotion} />}
                 </div>
               );
             })}
