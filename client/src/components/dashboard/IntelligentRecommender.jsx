@@ -10,9 +10,9 @@ import {
 import { fetchProblemRecommendations } from '../../api/problems';
 
 const DIFFICULTY_CONFIG = {
-  easy: { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
-  medium: { text: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', dot: 'bg-amber-400' },
-  hard: { text: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/25', dot: 'bg-rose-400' },
+  easy: { text: 'text-easy', bg: 'bg-easy/12 border-easy/25', dot: 'bg-easy' },
+  medium: { text: 'text-medium', bg: 'bg-medium/12 border-medium/25', dot: 'bg-medium' },
+  hard: { text: 'text-hard', bg: 'bg-hard/12 border-hard/25', dot: 'bg-hard' },
 };
 
 const PLATFORM_LABELS = {
@@ -47,7 +47,7 @@ const IntelligentRecommender = ({ className = '' }) => {
 
   if (loading) {
     return (
-      <div className={`panel p-6 border-white/[0.08] animate-pulse flex flex-col justify-between h-full ${className}`}>
+      <div className={`panel p-6 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl shimmer shrink-0" />
           <div className="space-y-2 flex-1">
@@ -70,24 +70,18 @@ const IntelligentRecommender = ({ className = '' }) => {
   const platformName = PLATFORM_LABELS[dailyFocus.platform] || dailyFocus.platform;
 
   return (
-    <div
-      className={`panel p-6 border-white/[0.08] relative overflow-hidden flex flex-col justify-between h-full group ${className}`}
-      style={{
-        background:
-          'radial-gradient(ellipse 70% 60% at 90% 10%, rgba(249,115,22,0.12) 0%, transparent 65%), linear-gradient(180deg, rgba(22, 27, 39, 0.85) 0%, rgba(14, 17, 26, 0.92) 100%)',
-      }}
-    >
+    <div className={`panel p-6 relative overflow-hidden flex flex-col justify-between h-full group ${className}`}>
       {/* ── 1. Top Header: Kicker, Title & Focus Areas ──────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.08] relative z-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-line relative z-10">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-md shadow-orange-500/20 shrink-0 mt-0.5">
+          <div className="w-9 h-9 rounded-xl bg-accent/12 border border-accent/25 flex items-center justify-center text-accent shrink-0 mt-0.5">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-orange-400/90 block">
+            <span className="text-xs font-semibold uppercase tracking-wider text-accent block">
               RECOMMENDED DAILY FOCUS
             </span>
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-semibold text-text tracking-tight">
               Adaptive Practice Spotlight
             </h2>
           </div>
@@ -96,17 +90,17 @@ const IntelligentRecommender = ({ className = '' }) => {
         {/* Focus Areas pill list */}
         {weakestTopics && weakestTopics.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-center">
-            <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold flex items-center gap-1">
-              <Target className="w-3 h-3 text-orange-400" />
+            <span className="text-xs uppercase text-muted font-semibold flex items-center gap-1">
+              <Target className="w-3 h-3 text-accent" />
               Focus:
             </span>
             {weakestTopics.map((w, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-rose-500/10 text-rose-300 border border-rose-500/20"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-danger/12 text-danger border border-danger/25"
               >
                 <span>{w.topic}</span>
-                <span className="text-rose-400/80 font-bold">{Math.round(w.struggleRatio * 100)}%</span>
+                <span className="font-semibold tabular-nums">{Math.round(w.struggleRatio * 100)}%</span>
               </span>
             ))}
           </div>
@@ -119,37 +113,37 @@ const IntelligentRecommender = ({ className = '' }) => {
           {/* Metadata Pill Row: Uniform height, distinct roles */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Action priority badge */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400 border border-orange-500/30">
-              <Flame className="w-3.5 h-3.5 fill-orange-400 shrink-0" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-accent/12 text-accent border border-accent/25">
+              <Flame className="w-3.5 h-3.5 fill-accent shrink-0" />
               <span>{dailyFocus.badge || 'Priority Practice'}</span>
             </span>
 
             {/* Difficulty Badge */}
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold uppercase border ${diffCfg.text} ${diffCfg.bg}`}>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase border ${diffCfg.text} ${diffCfg.bg}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
               <span>{dailyFocus.difficulty}</span>
             </span>
 
             {/* Platform Badge */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold uppercase bg-white/[0.04] text-slate-300 border border-white/[0.08]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium uppercase bg-surface-2 text-text-secondary border border-line">
               {platformName}
             </span>
           </div>
 
-          {/* Problem Title: High contrast, multiline safe */}
-          <h3 className="text-xl sm:text-2xl font-extrabold text-white group-hover:text-orange-300 transition-colors tracking-tight leading-snug">
+          {/* Problem Title */}
+          <h3 className="text-xl sm:text-2xl font-bold text-text group-hover:text-accent transition-colors tracking-tight leading-snug">
             <Link to={`/problems/${dailyFocus.id}`} className="hover:underline">
               {dailyFocus.title}
             </Link>
           </h3>
 
           {/* AI Coaching Explanation Box */}
-          <div className="p-3.5 sm:p-4 rounded-xl bg-white/[0.02] border-l-2 border-l-orange-500 border border-white/[0.06] shadow-xs">
-            <div className="flex items-center gap-1.5 text-orange-400 font-mono font-bold text-xs uppercase tracking-wider mb-1">
+          <div className="p-3.5 sm:p-4 rounded-xl bg-surface-2 border-l-2 border-l-accent border border-line">
+            <div className="flex items-center gap-1.5 text-accent font-semibold text-xs uppercase tracking-wider mb-1">
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               <span>Why this problem now</span>
             </div>
-            <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed font-sans">
+            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
               {dailyFocus.rationale}
             </p>
           </div>
@@ -168,7 +162,6 @@ const IntelligentRecommender = ({ className = '' }) => {
 
         {/* ── 3. Symmetrical Action CTAs ────────────────────────────── */}
         <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
-          {/* Primary Solve & Log CTA */}
           <Link
             to={`/problems/${dailyFocus.id}`}
             className="btn-primary w-full sm:w-auto"
@@ -177,7 +170,6 @@ const IntelligentRecommender = ({ className = '' }) => {
             <ArrowRight className="w-4 h-4" />
           </Link>
 
-          {/* Secondary External Link CTA: Symmetrical 40px height */}
           {dailyFocus.link && (
             <a
               href={dailyFocus.link}

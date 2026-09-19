@@ -35,33 +35,30 @@ const DIFFICULTY_CONFIG = {
 const STATUS_CONFIG = {
   solved: {
     label: 'Solved',
-    dot: 'bg-emerald-400',
-    text: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/25',
-    glow: 'shadow-[0_0_8px_rgba(16,185,129,0.15)]',
+    dot: 'bg-success',
+    text: 'text-success',
+    bg: 'bg-success/12 border-success/25',
   },
   struggled: {
     label: 'Struggled',
-    dot: 'bg-rose-400',
-    text: 'text-rose-400',
-    bg: 'bg-rose-500/10 border-rose-500/25',
-    glow: 'shadow-[0_0_8px_rgba(244,63,94,0.15)]',
+    dot: 'bg-danger',
+    text: 'text-danger',
+    bg: 'bg-danger/12 border-danger/25',
   },
   revisit_needed: {
     label: 'Revisit Needed',
-    dot: 'bg-amber-400',
-    text: 'text-amber-400',
-    bg: 'bg-amber-500/10 border-amber-500/25',
-    glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]',
+    dot: 'bg-medium',
+    text: 'text-medium',
+    bg: 'bg-medium/12 border-medium/25',
   },
 };
 
 const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-amber-400 bg-amber-500/10 border-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.08)]', dot: 'bg-amber-400' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.08)]', dot: 'bg-emerald-400' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-amber-300 bg-amber-600/10 border-amber-600/25 shadow-[0_0_8px_rgba(217,119,6,0.08)]', dot: 'bg-amber-300' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-green-400 bg-green-500/10 border-green-500/25 shadow-[0_0_8px_rgba(34,197,94,0.08)]', dot: 'bg-green-400' },
-  other:      { label: 'External', short: 'Ext', style: 'text-[#9CA3AF] bg-white/[0.04] border-white/[0.08]', dot: 'bg-[#9CA3AF]' },
+  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
+  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
+  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
+  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
 };
 
 const ProblemDetailPage = () => {
@@ -139,20 +136,20 @@ const ProblemDetailPage = () => {
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto space-y-5 animate-pulse pb-12">
-        <div className="h-4 w-44 shimmer rounded-md" />
-        <div className="panel p-6 sm:p-8 space-y-4 rounded-2xl">
-          <div className="h-8 w-72 shimmer rounded-lg" />
-          <div className="h-4 w-48 shimmer rounded-md" />
+        <div className="h-4 w-44 bg-surface-2 rounded-md" />
+        <div className="p-6 sm:p-8 space-y-4 rounded-xl bg-surface border border-line">
+          <div className="h-8 w-72 bg-surface-2 rounded-lg" />
+          <div className="h-4 w-48 bg-surface-2 rounded-md" />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-20 shimmer rounded-xl" />
+              <div key={i} className="h-20 bg-surface-2 rounded-lg" />
             ))}
           </div>
         </div>
-        <div className="panel p-6 space-y-3 rounded-2xl">
-          <div className="h-5 w-32 shimmer rounded-md" />
+        <div className="p-6 space-y-3 rounded-xl bg-surface border border-line">
+          <div className="h-5 w-32 bg-surface-2 rounded-md" />
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 shimmer rounded-xl" />
+            <div key={i} className="h-16 bg-surface-2 rounded-lg" />
           ))}
         </div>
       </div>
@@ -161,12 +158,12 @@ const ProblemDetailPage = () => {
 
   if (error || !problem) {
     return (
-      <div className="panel p-12 text-center max-w-lg mx-auto my-12 border border-rose-500/20 rounded-2xl bg-[#121418]">
-        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400 shadow-sm">
-          <AlertTriangle className="w-6 h-6 text-rose-400" />
+      <div className="p-12 text-center max-w-lg mx-auto my-12 border border-danger/25 rounded-xl bg-surface">
+        <div className="w-12 h-12 rounded-xl bg-danger/10 border border-danger/25 flex items-center justify-center mx-auto mb-4 text-danger">
+          <AlertTriangle className="w-6 h-6 text-danger" />
         </div>
-        <h3 className="text-base font-bold text-[#F3F4F6] mb-1">Problem Not Found</h3>
-        <p className="text-xs text-[#9CA3AF] mb-6 leading-relaxed">{error || 'This problem might have been removed or does not exist.'}</p>
+        <h3 className="text-base font-semibold text-text mb-1">Problem Not Found</h3>
+        <p className="text-xs text-muted mb-6 leading-relaxed">{error || 'This problem might have been removed or does not exist.'}</p>
         <Link to="/problems" className="btn-primary text-xs">
           ← Return to Problems Catalog
         </Link>
@@ -188,12 +185,12 @@ const ProblemDetailPage = () => {
     <div className="space-y-6 max-w-4xl mx-auto pb-24 sm:pb-16 animate-fade-up">
       {/* Top Navigation Row */}
       <div className="flex items-center justify-between gap-4">
-        <nav className="flex items-center gap-2 text-xs text-[#9CA3AF]">
-          <Link to="/problems" className="hover:text-[#F3F4F6] transition-colors flex items-center gap-1">
+        <nav className="flex items-center gap-2 text-xs text-muted">
+          <Link to="/problems" className="hover:text-text transition-colors flex items-center gap-1">
             <span>Problems</span>
           </Link>
-          <ChevronRight className="w-3 h-3 text-[#4B5563]" />
-          <span className="text-[#F3F4F6] font-medium truncate max-w-[240px] sm:max-w-md">{problem.title}</span>
+          <ChevronRight className="w-3 h-3 text-muted" />
+          <span className="text-text font-medium truncate max-w-[240px] sm:max-w-md">{problem.title}</span>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -210,7 +207,7 @@ const ProblemDetailPage = () => {
           <button
             onClick={() => setIsDeleteModalOpen(true)}
             type="button"
-            className="btn-danger text-xs items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-danger/10 text-danger border border-danger/25 hover:bg-danger/20 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
             title="Delete this problem"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -220,30 +217,27 @@ const ProblemDetailPage = () => {
       </div>
 
       {/* Main Problem Hero Card */}
-      <div className="panel p-6 sm:p-7 relative overflow-hidden bg-[#121418] rounded-2xl border border-white/[0.08] shadow-xl">
-        {/* Glow accent in top right */}
-        <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#E07A38]/10 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="p-6 sm:p-7 relative overflow-hidden bg-surface rounded-xl border border-line">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5 mb-6 relative z-10">
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant={diffCfg.variant} dot size="sm">{diffCfg.label}</Badge>
               <span
-                className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platformCfg.style}`}
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-md border ${platformCfg.style}`}
                 title={platformCfg.label}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
                 <span>{platformCfg.label}</span>
               </span>
               {latestCfg && (
-                <span className={`inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-lg border ${latestCfg.bg} ${latestCfg.text} ${latestCfg.glow}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${latestCfg.dot} animate-pulse`} />
+                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${latestCfg.bg} ${latestCfg.text}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${latestCfg.dot}`} />
                   <span>{latestCfg.label}</span>
                 </span>
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F3F4F6] leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-text leading-tight">
               {problem.title}
             </h1>
 
@@ -252,7 +246,7 @@ const ProblemDetailPage = () => {
                 {problem.topics.map((t) => (
                   <span
                     key={t}
-                    className="chip-topic"
+                    className="font-mono text-xs px-2.5 py-1 rounded-md bg-surface-2 border border-line text-text-secondary"
                   >
                     #{t}
                   </span>
@@ -269,47 +263,47 @@ const ProblemDetailPage = () => {
               className="btn-secondary shrink-0 self-start sm:self-auto flex items-center gap-2 group text-xs"
             >
               <span>Solve on {platformCfg.short}</span>
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-[#E07A38] transition-transform" />
+              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-accent transition-transform" />
             </a>
           )}
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-white/[0.08] relative z-10">
-          <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] hover:border-white/[0.16] transition-colors group">
-            <div className="flex items-center justify-between text-[#9CA3AF] mb-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">Sessions</span>
-              <Zap className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-line relative z-10">
+          <div className="p-3.5 rounded-lg bg-surface-2/60 border border-line group">
+            <div className="flex items-center justify-between text-text-secondary mb-1">
+              <span className="text-xs uppercase tracking-wide font-semibold">Sessions</span>
+              <Zap className="w-3.5 h-3.5 text-accent" />
             </div>
-            <span className="text-xl font-bold font-mono text-[#F3F4F6] block">{attempts.length}</span>
+            <span className="text-xl font-semibold text-text block tabular-nums">{attempts.length}</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] hover:border-emerald-500/30 transition-colors group">
-            <div className="flex items-center justify-between text-[#9CA3AF] mb-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">Best Time</span>
-              <Clock className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+          <div className="p-3.5 rounded-lg bg-surface-2/60 border border-line group">
+            <div className="flex items-center justify-between text-text-secondary mb-1">
+              <span className="text-xs uppercase tracking-wide font-semibold">Best Time</span>
+              <Clock className="w-3.5 h-3.5 text-success" />
             </div>
-            <span className="text-xl font-bold font-mono text-emerald-400 block">
+            <span className="text-xl font-semibold text-success block tabular-nums">
               {bestTime != null ? `${bestTime}m` : '—'}
             </span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] hover:border-white/[0.16] transition-colors group">
-            <div className="flex items-center justify-between text-[#9CA3AF] mb-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">Average</span>
-              <Flame className="w-3.5 h-3.5 text-[#E07A38] group-hover:scale-110 transition-transform" />
+          <div className="p-3.5 rounded-lg bg-surface-2/60 border border-line group">
+            <div className="flex items-center justify-between text-text-secondary mb-1">
+              <span className="text-xs uppercase tracking-wide font-semibold">Average</span>
+              <Flame className="w-3.5 h-3.5 text-accent" />
             </div>
-            <span className="text-xl font-bold font-mono text-[#F3F4F6] block">
+            <span className="text-xl font-semibold text-text block tabular-nums">
               {avgTime != null ? `${avgTime}m` : '—'}
             </span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] hover:border-white/[0.16] transition-colors group">
-            <div className="flex items-center justify-between text-[#9CA3AF] mb-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">Cataloged</span>
-              <Calendar className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:scale-110 transition-transform" />
+          <div className="p-3.5 rounded-lg bg-surface-2/60 border border-line group">
+            <div className="flex items-center justify-between text-text-secondary mb-1">
+              <span className="text-xs uppercase tracking-wide font-semibold">Cataloged</span>
+              <Calendar className="w-3.5 h-3.5 text-muted" />
             </div>
-            <span className="text-xs font-mono text-[#9CA3AF] mt-1.5 block truncate">
+            <span className="text-xs text-muted mt-1.5 block truncate tabular-nums">
               {new Date(problem.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
@@ -334,13 +328,13 @@ const ProblemDetailPage = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-[#F3F4F6] tracking-tight flex items-center gap-2">
+            <h2 className="text-base font-semibold text-text tracking-tight flex items-center gap-2">
               <span>Practice Audit History</span>
-              <span className="text-xs font-mono font-normal text-[#9CA3AF]">
+              <span className="text-xs font-normal text-muted tabular-nums">
                 ({attempts.length} {attempts.length === 1 ? 'attempt' : 'attempts'})
               </span>
             </h2>
-            <p className="text-xs text-[#9CA3AF] mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               Chronological log of recall sessions, speed metrics, and notes.
             </p>
           </div>
@@ -351,7 +345,7 @@ const ProblemDetailPage = () => {
               setIsAttemptModalOpen(true);
             }}
             type="button"
-            className="btn-primary text-xs flex items-center gap-1.5 shadow-[0_0_16px_rgba(249,115,22,0.2)] cursor-pointer"
+            className="btn-primary text-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Attempt</span>
@@ -359,12 +353,12 @@ const ProblemDetailPage = () => {
         </div>
 
         {attempts.length === 0 ? (
-          <div className="panel border-dashed p-12 text-center bg-[#121418] rounded-2xl border-white/[0.1]">
-            <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto mb-4 text-[#9CA3AF]">
-              <Clock className="w-5 h-5 text-[#9CA3AF]" />
+          <div className="border border-dashed p-12 text-center bg-surface rounded-xl border-line">
+            <div className="w-12 h-12 rounded-xl bg-surface-2 border border-line flex items-center justify-center mx-auto mb-4 text-muted">
+              <Clock className="w-5 h-5 text-muted" />
             </div>
-            <h3 className="text-sm font-semibold text-[#F3F4F6]">No practice sessions recorded yet</h3>
-            <p className="text-xs text-[#9CA3AF] mt-1.5 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-sm font-semibold text-text">No practice sessions recorded yet</h3>
+            <p className="text-xs text-muted mt-1.5 max-w-sm mx-auto leading-relaxed">
               Use the stopwatch timer above or click below to log your first solve attempt and schedule your recall intervals.
             </p>
             <button
@@ -378,7 +372,7 @@ const ProblemDetailPage = () => {
         ) : (
           <div className="space-y-3">
             {attempts.map((attempt, index) => {
-              const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-[#9CA3AF]', dot: 'bg-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]' };
+              const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-muted', dot: 'bg-muted', bg: 'bg-surface-2 border-line' };
               const attemptDate = new Date(attempt.attemptedAt).toLocaleDateString('en-IN', {
                 month: 'short',
                 day: 'numeric',
@@ -393,45 +387,39 @@ const ProblemDetailPage = () => {
               return (
                 <div
                   key={attempt.id || index}
-                  className={`panel p-4.5 rounded-2xl transition-all duration-200 hover:border-white/[0.18] relative overflow-hidden ${
-                    isLatest ? 'border-[#E07A38]/30 bg-gradient-to-r from-[#171A21] to-[#131519] shadow-md' : 'bg-[#121418] border-white/[0.08]'
-                  }`}
+                  className="p-4 sm:p-4.5 rounded-xl transition-all duration-200 border border-line bg-surface hover:bg-surface-2/40 relative overflow-hidden"
                 >
-                  {isLatest && (
-                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-full bg-[#E07A38]" />
-                  )}
-
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div className="flex items-center gap-3">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-mono font-semibold px-2.5 py-0.5 rounded-lg border ${cfg.bg} ${cfg.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} animate-pulse`} />
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.text}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                         <span>{cfg.label}</span>
                       </span>
 
                       {isLatest && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#E07A38]/10 border border-[#E07A38]/30 text-[#E07A38]">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent">
                           <Sparkles className="w-3 h-3" />
                           <span>Latest</span>
                         </span>
                       )}
 
                       {attempt.timeTakenMinutes != null && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#9CA3AF] px-2 py-0.5 rounded-md bg-[#0E1015] border border-white/[0.08]">
-                          <Clock className="w-3 h-3 text-[#9CA3AF]" />
+                        <span className="inline-flex items-center gap-1 text-xs text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line tabular-nums">
+                          <Clock className="w-3 h-3 text-muted" />
                           <span>{attempt.timeTakenMinutes}m</span>
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs text-[#9CA3AF]">
+                      <span className="text-xs text-muted tabular-nums">
                         {attemptDate} · {attemptTime}
                       </span>
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => setEditingAttempt(attempt)}
-                          className="p-1 rounded-lg text-[#6B7280] hover:text-amber-400 hover:bg-white/[0.06] transition-colors cursor-pointer"
+                          className="p-1 rounded-lg text-muted hover:text-medium hover:bg-surface-2 transition-colors cursor-pointer"
                           title="Edit attempt"
                         >
                           <Edit2 className="w-3 h-3" />
@@ -440,7 +428,7 @@ const ProblemDetailPage = () => {
                           type="button"
                           disabled={deletingAttemptId === (attempt.id || attempt._id)}
                           onClick={() => handleDeleteAttempt(attempt.id || attempt._id)}
-                          className="p-1 rounded-lg text-[#6B7280] hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 cursor-pointer"
+                          className="p-1 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-50 cursor-pointer"
                           title="Delete attempt"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -450,7 +438,7 @@ const ProblemDetailPage = () => {
                   </div>
 
                   {attempt.notes && (
-                    <div className="mt-3 p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] text-xs text-[#D1D5DB] leading-relaxed font-mono">
+                    <div className="mt-3 p-3.5 rounded-lg bg-surface-2 border border-line text-xs text-text-secondary leading-relaxed">
                       {attempt.notes}
                     </div>
                   )}

@@ -124,49 +124,43 @@ const EditProfileModal = ({ isOpen, onClose }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
       onClick={onClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#10131A] border border-white/[0.12] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.8)]"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Ambient background glow */}
-        <div
-          className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-[#E07A38]/10 pointer-events-none"
-          style={{ filter: 'blur(45px)' }}
-        />
-
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/[0.08] sticky top-0 bg-[#10131A]/95 backdrop-blur-sm z-10">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-line sticky top-0 bg-surface z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center text-[#E07A38]">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
               {activeTab === 'profile' ? <User className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">Account Settings</h2>
-              <p className="text-[11px] text-slate-400">Manage your profile details and credentials</p>
+              <h2 className="text-sm font-semibold text-text tracking-tight">Account Settings</h2>
+              <p className="text-xs text-muted">Manage your profile details and credentials</p>
             </div>
           </div>
           <button
             onClick={onClose}
             type="button"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex px-6 pt-3 pb-1 border-b border-white/[0.06] gap-2 sticky top-[69px] bg-[#10131A]/95 backdrop-blur-sm z-10">
+        <div className="flex px-6 pt-3 pb-1 border-b border-line gap-2 sticky top-[65px] bg-surface z-10">
           <button
             type="button"
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-2 pb-2.5 text-xs font-semibold transition-all relative cursor-pointer ${
               activeTab === 'profile'
-                ? 'text-[#E07A38] border-b-2 border-[#E07A38]'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent border-b-2 border-accent'
+                : 'text-muted hover:text-text'
             }`}
           >
             <User className="w-3.5 h-3.5" />
@@ -177,8 +171,8 @@ const EditProfileModal = ({ isOpen, onClose }) => {
             onClick={() => setActiveTab('security')}
             className={`flex items-center gap-2 pb-2.5 text-xs font-semibold transition-all relative cursor-pointer ${
               activeTab === 'security'
-                ? 'text-[#E07A38] border-b-2 border-[#E07A38]'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent border-b-2 border-accent'
+                : 'text-muted hover:text-text'
             }`}
           >
             <Lock className="w-3.5 h-3.5" />
@@ -190,7 +184,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
         {activeTab === 'profile' && (
           <form onSubmit={handleUpdateProfile} className="p-6 space-y-4">
             {profileError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center gap-2 text-xs text-rose-400">
+              <div className="p-3 rounded-lg bg-danger/10 border border-danger/25 flex items-center gap-2 text-xs text-danger">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{profileError}</span>
               </div>
@@ -198,24 +192,24 @@ const EditProfileModal = ({ isOpen, onClose }) => {
 
             {/* Email (Read-only) */}
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-                Email Address <span className="text-[10px] text-slate-500">(Permanent)</span>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5">
+                Email Address <span className="text-xs text-muted">(Permanent)</span>
               </label>
               <input
                 type="text"
                 disabled
                 value={user?.email || ''}
-                className="w-full h-10 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.06] text-xs font-mono text-slate-400 cursor-not-allowed select-all"
+                className="w-full h-10 px-3.5 rounded-lg bg-surface-2 border border-line text-xs text-muted cursor-not-allowed select-all"
               />
             </div>
 
             {/* Display Name */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="display-name" className="text-xs font-semibold text-slate-300">
+                <label htmlFor="display-name" className="text-xs font-semibold text-text-secondary">
                   Display Name
                 </label>
-                <span className="text-[10px] text-slate-500">{name.length}/50</span>
+                <span className="text-xs text-muted">{name.length}/50</span>
               </div>
               <input
                 id="display-name"
@@ -225,7 +219,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your full name"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                className="w-full h-10 px-3.5 rounded-lg bg-surface-2 border border-line hover:border-line/80 text-sm text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
               />
             </div>
 
@@ -233,7 +227,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                className="px-4 h-9 rounded-lg text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -252,7 +246,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
         {activeTab === 'security' && (
           <form onSubmit={handleChangePassword} className="p-6 space-y-4">
             {passwordError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center gap-2 text-xs text-rose-400">
+              <div className="p-3 rounded-lg bg-danger/10 border border-danger/25 flex items-center gap-2 text-xs text-danger">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{passwordError}</span>
               </div>
@@ -260,7 +254,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
 
             {user?.hasPassword && (
               <div>
-                <label htmlFor="current-pass" className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label htmlFor="current-pass" className="block text-xs font-semibold text-text-secondary mb-1.5">
                   Current Password
                 </label>
                 <div className="relative">
@@ -271,12 +265,12 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-11 pl-3.5 pr-10 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-lg bg-surface-2 border border-line hover:border-line/80 text-sm text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrent(!showCurrent)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text cursor-pointer"
                   >
                     {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -286,10 +280,10 @@ const EditProfileModal = ({ isOpen, onClose }) => {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="new-pass" className="text-xs font-semibold text-slate-300">
+                <label htmlFor="new-pass" className="text-xs font-semibold text-text-secondary">
                   New Password
                 </label>
-                <span className="text-[10px] text-slate-500">Min. 6 chars</span>
+                <span className="text-xs text-muted">Min. 6 chars</span>
               </div>
               <div className="relative">
                 <input
@@ -299,12 +293,12 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-11 pl-3.5 pr-10 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                  className="w-full h-10 pl-3.5 pr-10 rounded-lg bg-surface-2 border border-line hover:border-line/80 text-sm text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew(!showNew)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text cursor-pointer"
                 >
                   {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -312,7 +306,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <label htmlFor="confirm-new-pass" className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label htmlFor="confirm-new-pass" className="block text-xs font-semibold text-text-secondary mb-1.5">
                 Confirm New Password
               </label>
               <input
@@ -322,7 +316,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                className="w-full h-10 px-3.5 rounded-lg bg-surface-2 border border-line hover:border-line/80 text-sm text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
               />
             </div>
 
@@ -330,7 +324,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                className="px-4 h-9 rounded-lg text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -346,15 +340,15 @@ const EditProfileModal = ({ isOpen, onClose }) => {
         )}
 
         {/* Footer: Session status & Sign Out action */}
-        <div className="p-4 sm:p-4.5 bg-white/[0.02] border-t border-white/[0.06] flex items-center justify-between gap-3">
+        <div className="p-4 bg-surface-2/40 border-t border-line flex items-center justify-between gap-3">
           <div className="text-left min-w-0">
-            <p className="text-xs font-semibold text-slate-300 truncate">{user?.name || 'User'}</p>
-            <p className="text-[11px] text-slate-500 font-mono truncate">{user?.email}</p>
+            <p className="text-xs font-semibold text-text truncate">{user?.name || 'User'}</p>
+            <p className="text-xs text-muted truncate">{user?.email}</p>
           </div>
           <button
             type="button"
             onClick={handleSignOut}
-            className="px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 hover:border-rose-500/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0 min-h-[34px]"
+            className="px-3.5 py-1.5 rounded-lg bg-danger/10 hover:bg-danger/20 text-danger border border-danger/20 hover:border-danger/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 min-h-[34px]"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>

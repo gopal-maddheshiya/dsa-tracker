@@ -9,20 +9,20 @@ const STATUS_OPTIONS = [
   {
     value: 'solved',
     label: 'Solved',
-    dot: 'bg-emerald-400',
-    active: 'border-emerald-500/60 text-emerald-400 bg-emerald-500/10 shadow-sm shadow-emerald-500/10',
+    dot: 'bg-easy',
+    active: 'border-easy/50 text-easy bg-easy/12',
   },
   {
     value: 'struggled',
     label: 'Struggled',
-    dot: 'bg-rose-400',
-    active: 'border-rose-500/60 text-rose-400 bg-rose-500/10 shadow-sm shadow-rose-500/10',
+    dot: 'bg-hard',
+    active: 'border-hard/50 text-hard bg-hard/12',
   },
   {
     value: 'revisit_needed',
     label: 'Revisit',
-    dot: 'bg-amber-400',
-    active: 'border-amber-500/60 text-amber-400 bg-amber-500/10 shadow-sm shadow-amber-500/10',
+    dot: 'bg-medium',
+    active: 'border-medium/50 text-medium bg-medium/12',
   },
 ];
 
@@ -123,28 +123,28 @@ const AttemptForm = ({
 
   const content = (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="attempt-form-title"
     >
       <div
-        className="panel max-w-md w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
+        className="max-w-md w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in"
       >
-        <div className="flex items-start justify-between pb-4 border-b border-white/[0.08] mb-5">
+        <div className="flex items-start justify-between pb-4 border-b border-line mb-5">
           <div>
-            <h2 id="attempt-form-title" className="text-base font-bold text-[#F3F4F6] tracking-tight">
+            <h2 id="attempt-form-title" className="text-base font-semibold text-text tracking-tight">
               {isEditing ? 'Edit Practice Attempt' : 'Log Practice Attempt'}
             </h2>
             {problemTitle && (
-              <p className="text-xs text-[#9CA3AF] mt-0.5 line-clamp-2 leading-snug max-w-sm">{problemTitle}</p>
+              <p className="text-xs text-text-secondary mt-0.5 line-clamp-2 leading-snug max-w-sm">{problemTitle}</p>
             )}
           </div>
           <button
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-[#9CA3AF] hover:text-[#F3F4F6] transition-colors p-1.5 -m-1 rounded-lg hover:bg-white/[0.06]"
+            className="text-muted hover:text-text transition-colors p-1.5 -m-1 rounded-lg hover:bg-surface-2"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -152,9 +152,9 @@ const AttemptForm = ({
         </div>
 
         {apiError && (
-          <div className="mb-4 flex items-start gap-2 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0" />
-            <p className="text-xs text-rose-300">{apiError}</p>
+          <div className="mb-4 flex items-start gap-2 p-3 rounded-lg bg-danger/10 border border-danger/25">
+            <span className="w-1.5 h-1.5 rounded-full bg-danger mt-1 shrink-0" />
+            <p className="text-xs text-danger">{apiError}</p>
           </div>
         )}
 
@@ -168,10 +168,10 @@ const AttemptForm = ({
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => setStatus(opt.value)}
-                  className={`py-2 px-2.5 min-h-[40px] text-xs rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all cursor-pointer ${
+                  className={`py-2 px-2.5 min-h-[36px] text-xs rounded-lg border flex items-center justify-center gap-1.5 font-medium transition-colors cursor-pointer ${
                     status === opt.value
                       ? opt.active
-                      : 'border-white/[0.08] bg-[#0E1015] text-[#9CA3AF] hover:text-[#F3F4F6] hover:border-white/[0.2]'
+                      : 'border-line bg-surface-2 text-text-secondary hover:text-text hover:border-line'
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${opt.dot} shrink-0`} />
@@ -195,7 +195,7 @@ const AttemptForm = ({
                 disabled={isSubmitting}
                 onChange={(e) => setTimeTakenMinutes(e.target.value)}
                 placeholder="e.g. 25"
-                className="input-base font-mono text-xs"
+                className="input-base text-xs tabular-nums"
               />
             </div>
             <div>
@@ -208,7 +208,7 @@ const AttemptForm = ({
                 value={attemptedAt}
                 disabled={isSubmitting}
                 onChange={(e) => setAttemptedAt(e.target.value)}
-                className="input-base font-mono text-[11px]"
+                className="input-base text-xs"
               />
             </div>
           </div>
@@ -228,12 +228,12 @@ const AttemptForm = ({
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/[0.08]">
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-line">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="btn-ghost text-xs"
+              className="btn-secondary text-xs"
             >
               Cancel
             </button>
@@ -244,7 +244,7 @@ const AttemptForm = ({
             >
               {isSubmitting ? (
                 <>
-                  <span className="w-3.5 h-3.5 border-2 border-[#12151B]/30 border-t-[#12151B] rounded-full animate-spin" />
+                  <span className="w-3.5 h-3.5 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />
                   <span>{isEditing ? 'Updating…' : 'Saving…'}</span>
                 </>
               ) : (

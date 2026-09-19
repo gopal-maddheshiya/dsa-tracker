@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
+import { accent, easy, line, surface2 } from '../../theme/colors';
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DAY_LABELS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 const formatDisplayDate = (iso) => {
   if (!iso) return '';
@@ -72,13 +72,11 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
       iter.setDate(iter.getDate() + 1);
     }
 
-    // Weekly totals for sparkline
     const wTotals = generatedWeeks.map(w => w.reduce((s, c) => s + (c.count || 0), 0));
     const bestWIdx = wTotals.reduce((best, val, i) => val > wTotals[best] ? i : best, 0);
     const curWeek = wTotals[wTotals.length - 1] || 0;
     const prvWeek = wTotals.length > 1 ? wTotals[wTotals.length - 2] || 0 : 0;
 
-    // Day of week totals (0 = Sun .. 6 = Sat)
     const dTotals = [0, 0, 0, 0, 0, 0, 0];
     generatedWeeks.forEach(w => {
       w.forEach((cell, dayIdx) => {
@@ -107,34 +105,33 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
 
   const getColor = (count) => {
     if (count === null || count === undefined) return 'bg-transparent border-transparent';
-    if (count === 0) return 'bg-white/[0.03] border-white/[0.06]';
-    if (count === 1) return 'bg-[#92400E]/60 border-[#92400E]/80';
-    if (count <= 2) return 'bg-[#B45309]/70 border-[#B45309]/90';
-    if (count <= 4) return 'bg-[#D97706]/80 border-[#D97706]';
-    if (count <= 6) return 'bg-[#F59E0B] border-[#FBBF24]';
-    return 'bg-[#FCD34D] border-[#FDE68A]';
+    if (count === 0) return 'bg-surface-2 border-line';
+    if (count === 1) return 'bg-easy/25 border-easy/35';
+    if (count <= 2) return 'bg-easy/45 border-easy/55';
+    if (count <= 4) return 'bg-easy/70 border-easy/80';
+    return 'bg-easy border-easy text-bg';
   };
 
   if (isLoading) {
     return (
-      <div className="panel p-6 animate-pulse border-white/[0.08]">
+      <div className="rounded-xl bg-surface border border-line p-6 animate-pulse">
         <div className="flex justify-between mb-4">
-          <div className="h-4 w-32 shimmer rounded-md" />
-          <div className="h-4 w-28 shimmer rounded-md" />
+          <div className="h-4 w-32 bg-surface-2 rounded" />
+          <div className="h-4 w-28 bg-surface-2 rounded" />
         </div>
-        <div className="h-44 shimmer rounded-xl" />
+        <div className="h-44 bg-surface-2 rounded-xl" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="panel p-6 border-rose-500/20">
-        <h3 className="text-sm font-bold text-white">Practice Activity</h3>
+      <div className="rounded-xl bg-surface border border-danger/20 p-6">
+        <h3 className="text-sm font-semibold text-text">Practice Activity</h3>
         <div className="h-36 flex flex-col items-center justify-center text-center">
-          <p className="text-xs text-rose-400 mb-3">Unable to load heatmap.</p>
+          <p className="text-xs text-danger mb-3">Unable to load heatmap.</p>
           {onRetry && (
-            <button onClick={onRetry} type="button" className="btn-ghost text-xs">
+            <button onClick={onRetry} type="button" className="btn-secondary text-xs">
               Retry
             </button>
           )}
@@ -145,59 +142,49 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
 
   const consistencyPct = Math.round((activeDaysCount / 140) * 100);
   const avgPerActiveDay = activeDaysCount > 0 ? (totalAttemptsInPeriod / activeDaysCount).toFixed(1) : '—';
-
-  // Consistency grade
   const grade = consistencyPct >= 80 ? 'A' : consistencyPct >= 60 ? 'B' : consistencyPct >= 40 ? 'C' : consistencyPct >= 20 ? 'D' : 'F';
-  const gradeColor = consistencyPct >= 60 ? '#10B981' : consistencyPct >= 40 ? '#F59E0B' : '#EF4444';
 
   const DAY_ABBRS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weekDelta = currentWeekTotal - prevWeekTotal;
   const weekTrend = weekDelta > 0 ? '↑' : weekDelta < 0 ? '↓' : '→';
-  const weekTrendColor = weekDelta > 0 ? 'text-emerald-400' : weekDelta < 0 ? 'text-rose-400' : 'text-slate-400';
+  const weekTrendColor = weekDelta > 0 ? 'text-easy' : weekDelta < 0 ? 'text-danger' : 'text-text-secondary';
   const sparkMax = Math.max(...weeklyTotals, 1);
 
   return (
-    <div className="panel p-6 border-white/[0.08]">
+    <div className="rounded-xl bg-surface border border-line p-6">
       {/* ── Top Header + Summary Badges ────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.5)]" />
-            <h3 className="text-base font-bold text-white tracking-tight">Practice Activity</h3>
-            <span
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg flex items-center gap-1.5"
-              style={{
-                color: gradeColor,
-                background: `${gradeColor}15`,
-                border: `1px solid ${gradeColor}35`,
-              }}
-            >
+            <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+            <h3 className="text-base font-semibold text-text tracking-tight">Practice Activity</h3>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-surface-2 border border-line text-text">
               Grade {grade} · {consistencyPct}% Consistent
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1 font-mono">
+          <p className="text-xs text-text-secondary mt-1">
             Rolling 140-day (20-week) consistency & momentum tracker
           </p>
         </div>
 
         {/* Top 3 Quick Stats */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <div className="px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-            <span className="text-[10px] font-mono text-slate-400 block uppercase tracking-wider">Active Days</span>
-            <span className="text-xs font-bold font-mono text-white">
-              {activeDaysCount} <span className="text-[10px] text-slate-500 font-normal">/ 140d</span>
+          <div className="px-3.5 py-2 rounded-lg bg-surface-2 border border-line">
+            <span className="text-xs text-text-secondary block uppercase tracking-wide">Active Days</span>
+            <span className="text-xs font-semibold tabular-nums text-text">
+              {activeDaysCount} <span className="text-xs text-muted font-normal">/ 140d</span>
             </span>
           </div>
-          <div className="px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-            <span className="text-[10px] font-mono text-slate-400 block uppercase tracking-wider">Total Sessions</span>
-            <span className="text-xs font-bold font-mono text-[#E07A38]">
-              {totalAttemptsInPeriod} <span className="text-[10px] text-slate-500 font-normal">attempts</span>
+          <div className="px-3.5 py-2 rounded-lg bg-surface-2 border border-line">
+            <span className="text-xs text-text-secondary block uppercase tracking-wide">Total Sessions</span>
+            <span className="text-xs font-semibold tabular-nums text-accent">
+              {totalAttemptsInPeriod} <span className="text-xs text-muted font-normal">attempts</span>
             </span>
           </div>
-          <div className="px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-            <span className="text-[10px] font-mono text-slate-400 block uppercase tracking-wider">Daily Avg</span>
-            <span className="text-xs font-bold font-mono text-slate-300">
-              {avgPerActiveDay} <span className="text-[10px] text-slate-500 font-normal">/ active</span>
+          <div className="px-3.5 py-2 rounded-lg bg-surface-2 border border-line">
+            <span className="text-xs text-text-secondary block uppercase tracking-wide">Daily Avg</span>
+            <span className="text-xs font-semibold tabular-nums text-text">
+              {avgPerActiveDay} <span className="text-xs text-muted font-normal">/ active</span>
             </span>
           </div>
         </div>
@@ -209,7 +196,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
         <div className="lg:col-span-8 flex flex-col justify-between overflow-x-auto">
           <div className="min-w-[420px]">
             {/* Month labels */}
-            <div className="flex text-[11px] text-slate-400 font-mono mb-2 pl-6">
+            <div className="flex text-xs text-text-secondary mb-2 pl-6">
               {weeks.map((_, wIndex) => {
                 const labelObj = monthLabels.find((m) => m.weekIndex === wIndex && m.name);
                 return (
@@ -222,14 +209,13 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
 
             {/* Day rows + Heatmap cells */}
             <div className="flex gap-2">
-              {/* Day of week labels (M, W, F) */}
-              <div className="flex flex-col justify-between text-[10px] font-mono text-slate-500 py-0.5 select-none w-4 shrink-0 text-right pr-1">
+              <div className="flex flex-col justify-between text-xs text-muted py-0.5 select-none w-4 shrink-0 text-right pr-1">
                 <span className="h-3.5 leading-3.5">M</span>
                 <span className="h-3.5 leading-3.5">W</span>
                 <span className="h-3.5 leading-3.5">F</span>
               </div>
 
-              {/* Weeks columns with generous cell sizing */}
+              {/* Weeks columns */}
               <div className="flex gap-1.5 overflow-visible">
                 {weeks.map((week, wIdx) => (
                   <div key={wIdx} className="flex flex-col gap-1.5 shrink-0">
@@ -238,7 +224,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                       const isToday = day.date === todayStr;
 
                       if (day.isFuture) {
-                        return <div key={dIdx} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-xs bg-transparent" />;
+                        return <div key={dIdx} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded bg-transparent" />;
                       }
 
                       return (
@@ -248,11 +234,11 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                           onMouseLeave={() => setHoveredCell(null)}
                           onClick={() => setHoveredCell(day)}
                           title={day.count !== null ? `${formatDisplayDate(day.date)}: ${day.count} attempts` : ''}
-                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-xs border transition-all duration-150 cursor-pointer ${getColor(
+                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border transition-colors cursor-pointer ${getColor(
                             day.count
                           )} ${
-                            isHovered ? 'ring-2 ring-[#E07A38] scale-125 z-10 shadow-lg shadow-[#E07A38]/30' : ''
-                          } ${isToday && !isHovered ? 'ring-1 ring-[#E07A38]/50' : ''}`}
+                            isHovered ? 'ring-2 ring-accent scale-110 z-10' : ''
+                          } ${isToday && !isHovered ? 'ring-1 ring-accent' : ''}`}
                         />
                       );
                     })}
@@ -262,52 +248,51 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
             </div>
 
             {/* Bottom bar directly below grid */}
-            <div className="mt-4 pt-3 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-[11px]">
+            <div className="mt-4 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs">
               {/* Left: Window & Today */}
-              <div className="flex items-center gap-3 font-mono text-slate-500">
+              <div className="flex items-center gap-3 text-text-secondary">
                 <span>140d window</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs border ring-1 ring-[#E07A38]/40 bg-black/40 border-white/[0.1] inline-block" />
+                  <span className="w-2.5 h-2.5 rounded border ring-1 ring-accent bg-surface-2 border-line inline-block" />
                   <span>Today</span>
                 </span>
               </div>
 
-              {/* Center: Live Hover/Tap Inspection readout */}
-              <div className="font-mono text-xs">
+              {/* Center: Live Hover Inspection readout */}
+              <div className="text-xs">
                 {hoveredCell && hoveredCell.count !== null ? (
-                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.06] border border-white/[0.12]">
-                    <span className="text-[#E07A38] font-bold">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-surface-2 border border-line">
+                    <span className="text-accent font-semibold tabular-nums">
                       {hoveredCell.count === 0 ? '0' : hoveredCell.count} attempt{hoveredCell.count !== 1 ? 's' : ''}
                     </span>
-                    <span className="text-slate-500">·</span>
-                    <span className="text-slate-300">{formatDisplayDate(hoveredCell.date)}</span>
+                    <span className="text-muted">·</span>
+                    <span className="text-text">{formatDisplayDate(hoveredCell.date)}</span>
                   </span>
                 ) : (
-                  <span className="text-slate-500 flex items-center gap-1.5 text-[11px]">
-                    <span className="text-[#E07A38]">◉</span> Hover or tap any cell for session logs
+                  <span className="text-muted flex items-center gap-1.5 text-xs">
+                    <span className="text-accent">◉</span> Hover or tap any cell for session logs
                   </span>
                 )}
               </div>
 
               {/* Right: Legend */}
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+              <div className="flex items-center gap-1.5 text-xs text-text-secondary">
                 <span>Less</span>
                 {[
-                  'bg-white/[0.03] border-white/[0.06]',
-                  'bg-[#92400E]/60 border-[#92400E]/80',
-                  'bg-[#B45309]/70 border-[#B45309]/90',
-                  'bg-[#D97706]/80 border-[#D97706]',
-                  'bg-[#F59E0B] border-[#FBBF24]',
-                  'bg-[#FCD34D] border-[#FDE68A]',
+                  'bg-surface-2 border-line',
+                  'bg-easy/25 border-easy/35',
+                  'bg-easy/45 border-easy/55',
+                  'bg-easy/70 border-easy/80',
+                  'bg-easy border-easy',
                 ].map((cls, i) => (
-                  <span key={i} className={`w-3 h-3 rounded-xs border ${cls}`} />
+                  <span key={i} className={`w-3 h-3 rounded border ${cls}`} />
                 ))}
                 <span>More</span>
               </div>
             </div>
 
             {/* Mobile swipe indicator */}
-            <div className="sm:hidden text-[10px] text-slate-500 font-mono text-center pt-2.5 flex items-center justify-center gap-1.5 border-t border-white/[0.04] mt-2">
+            <div className="sm:hidden text-xs text-muted text-center pt-2.5 flex items-center justify-center gap-1.5 border-t border-line mt-2">
               <span>←</span>
               <span>Swipe horizontally to view full 20-week timeline</span>
               <span>→</span>
@@ -316,15 +301,15 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
         </div>
 
         {/* Right: Practice Habits & Velocity Breakdown (4 cols) */}
-        <div className="lg:col-span-4 flex flex-col justify-between gap-3 border-t lg:border-t-0 lg:border-l border-white/[0.08] pt-4 lg:pt-0 lg:pl-6">
+        <div className="lg:col-span-4 flex flex-col justify-between gap-3 border-t lg:border-t-0 lg:border-l border-line pt-4 lg:pt-0 lg:pl-6">
           {/* Day of Week Rhythm */}
-          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+          <div className="p-3.5 rounded-lg bg-surface-2 border border-line">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+              <span className="text-xs uppercase tracking-wide text-text-secondary font-semibold">
                 Day-of-Week Rhythm
               </span>
               {dayTotals[bestDayIdx] > 0 && (
-                <span className="text-[10px] font-mono font-semibold text-amber-400">
+                <span className="text-xs font-semibold tabular-nums text-accent">
                   Peak: {DAY_ABBRS[bestDayIdx]} ({dayTotals[bestDayIdx]})
                 </span>
               )}
@@ -336,14 +321,14 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                     <div
-                      className="w-full rounded-xs transition-all duration-300"
+                      className="w-full rounded transition-all duration-300"
                       style={{
                         height: `${h}px`,
-                        background: isPeak ? '#E07A38' : tot > 0 ? 'rgba(224,122,56,0.45)' : 'rgba(255,255,255,0.06)',
+                        backgroundColor: isPeak ? accent : tot > 0 ? `${accent}88` : line,
                       }}
                       title={`${DAY_ABBRS[idx]}: ${tot} attempts`}
                     />
-                    <span className={`text-[9px] font-mono ${isPeak ? 'text-[#E07A38] font-bold' : 'text-slate-500'}`}>
+                    <span className={`text-xs ${isPeak ? 'text-accent font-semibold' : 'text-muted'}`}>
                       {['S', 'M', 'T', 'W', 'T', 'F', 'S'][idx]}
                     </span>
                   </div>
@@ -353,12 +338,12 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
           </div>
 
           {/* Weekly Output Trend */}
-          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.08]">
+          <div className="p-3.5 rounded-lg bg-surface-2 border border-line">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+              <span className="text-xs uppercase tracking-wide text-text-secondary font-semibold">
                 Weekly Output
               </span>
-              <span className={`text-[10px] font-mono font-bold ${weekTrendColor}`}>
+              <span className={`text-xs font-semibold tabular-nums ${weekTrendColor}`}>
                 {weekTrend} {Math.abs(weekDelta)} this week
               </span>
             </div>
@@ -366,14 +351,13 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
               {weeklyTotals.map((wt, i) => {
                 const h = Math.max(3, (wt / sparkMax) * 26);
                 const isCur = i === weeklyTotals.length - 1;
-                const isBest = i === bestWeekIdx && wt > 0;
                 return (
                   <div
                     key={i}
-                    className="flex-1 rounded-xs transition-all duration-200"
+                    className="flex-1 rounded transition-all duration-200"
                     style={{
                       height: `${h}px`,
-                      background: isCur ? '#E07A38' : isBest ? '#FCD34D' : wt > 0 ? 'rgba(224,122,56,0.45)' : 'rgba(255,255,255,0.06)',
+                      backgroundColor: isCur ? accent : wt > 0 ? `${accent}88` : line,
                     }}
                     title={`Week ${i + 1}: ${wt} sessions`}
                   />

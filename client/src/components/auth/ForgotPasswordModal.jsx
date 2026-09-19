@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, KeyRound, ArrowRight, ShieldCheck, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, KeyRound, ArrowRight, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { forgotPassword, resetPassword } from '../../api/auth';
 import { useToast } from '../../context/ToastContext';
 
@@ -85,36 +85,30 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in">
       <div
-        className="relative w-full max-w-md bg-[#10131A] border border-white/[0.12] rounded-2xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+        className="relative w-full max-w-md bg-surface border border-line rounded-xl p-6 shadow-modal overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Subtle warm ember ambient glow */}
-        <div
-          className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-[#E07A38]/10 pointer-events-none"
-          style={{ filter: 'blur(45px)' }}
-        />
-
         {/* Close Button */}
         <button
           onClick={handleClose}
           type="button"
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-[#E07A38]/10 border border-[#E07A38]/25 flex items-center justify-center text-[#E07A38] shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-accent shrink-0">
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight">
+            <h2 className="text-base font-semibold text-text tracking-tight">
               {step === 1 ? 'Reset Password' : 'Set New Password'}
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-text-secondary">
               {step === 1
                 ? 'Enter your account email to receive a verification code'
                 : `Enter the code sent for ${email}`}
@@ -124,7 +118,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
 
         {/* Error banner */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2.5 text-xs text-rose-400">
+          <div className="mb-4 p-3 rounded-lg bg-danger/10 border border-danger/25 flex items-start gap-2.5 text-xs text-danger">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -134,7 +128,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
         {step === 1 && (
           <form onSubmit={handleSendCode} className="space-y-4">
             <div>
-              <label htmlFor="reset-email" className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label htmlFor="reset-email" className="block text-xs font-medium text-text-secondary mb-1.5">
                 Account Email Address
               </label>
               <input
@@ -144,7 +138,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                className="input-base"
               />
             </div>
 
@@ -152,7 +146,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors"
+                className="btn-secondary text-xs px-4"
               >
                 Cancel
               </button>
@@ -178,19 +172,19 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
         {step === 2 && (
           <form onSubmit={handleResetPassword} className="space-y-4">
             {codeNotice && (
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between text-xs text-amber-300 font-mono">
+              <div className="p-3 rounded-lg bg-medium/12 border border-medium/25 flex items-center justify-between text-xs text-medium">
                 <span className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                  <CheckCircle2 className="w-4 h-4 text-medium" />
                   <span>{codeNotice}</span>
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-amber-400/70 font-sans">
+                <span className="text-xs uppercase tracking-wider text-medium">
                   Auto-detected
                 </span>
               </div>
             )}
 
             <div>
-              <label htmlFor="reset-code" className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label htmlFor="reset-code" className="block text-xs font-medium text-text-secondary mb-1.5">
                 6-Digit Verification Code
               </label>
               <input
@@ -201,16 +195,16 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 value={resetCode}
                 onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-center font-mono text-base tracking-[0.25em] text-[#E07A38] placeholder:text-slate-600 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                className="w-full h-10 px-3.5 rounded-lg bg-surface-2 border border-line text-center font-mono text-base tracking-[0.25em] text-accent placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent transition-colors"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="new-password" className="text-xs font-semibold text-slate-300">
+                <label htmlFor="new-password" className="text-xs font-medium text-text-secondary">
                   New Password
                 </label>
-                <span className="text-[10px] text-slate-500">Min. 6 characters</span>
+                <span className="text-xs text-muted">Min. 6 characters</span>
               </div>
               <div className="relative">
                 <input
@@ -220,12 +214,12 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-11 pl-3.5 pr-10 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                  className="input-base pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-text cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -233,7 +227,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
             </div>
 
             <div>
-              <label htmlFor="confirm-password" className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label htmlFor="confirm-password" className="block text-xs font-medium text-text-secondary mb-1.5">
                 Confirm New Password
               </label>
               <input
@@ -243,7 +237,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-11 px-3.5 rounded-xl bg-[#090B0E] border border-white/[0.1] hover:border-white/[0.18] text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#E07A38] focus:ring-1 focus:ring-[#E07A38]/30 transition-all"
+                className="input-base"
               />
             </div>
 
@@ -251,7 +245,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                className="text-xs text-text-secondary hover:text-text transition-colors cursor-pointer"
               >
                 ← Change email
               </button>
@@ -260,7 +254,7 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors"
+                  className="btn-secondary text-xs px-4"
                 >
                   Cancel
                 </button>

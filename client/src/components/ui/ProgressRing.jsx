@@ -1,4 +1,5 @@
 import React from 'react';
+import { accent, line } from '../../theme/colors';
 
 /**
  * ProgressRing — SVG circular progress indicator.
@@ -12,7 +13,7 @@ const ProgressRing = ({
   value = 0,
   size = 64,
   stroke = 5,
-  color = '#E07A38',
+  color = accent,
   label,
   className = '',
 }) => {
@@ -27,7 +28,7 @@ const ProgressRing = ({
         <circle
           cx={size / 2} cy={size / 2} r={r}
           fill="none"
-          stroke="#262320"
+          stroke={line}
           strokeWidth={stroke}
         />
         {/* Fill */}
@@ -41,13 +42,12 @@ const ProgressRing = ({
           strokeDashoffset={filled}
           style={{
             transition: 'stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)',
-            filter: `drop-shadow(0 0 4px ${color}88)`,
           }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {label ?? (
-          <span className="text-xs font-bold font-mono text-[#F5F5F4]">{value}%</span>
+          <span className="text-xs font-semibold tabular-nums text-text">{value}%</span>
         )}
       </div>
     </div>

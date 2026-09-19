@@ -26,28 +26,22 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#0A0C10] flex items-center justify-center p-6 select-none font-sans text-slate-200">
-          <div className="relative max-w-md w-full p-8 rounded-2xl bg-[#11141B] border border-white/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.6)] text-center">
-            {/* Ambient amber glow */}
-            <div
-              className="absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full bg-amber-500/15 pointer-events-none"
-              style={{ filter: 'blur(50px)' }}
-            />
-
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-5 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
-              <AlertTriangle className="w-7 h-7" />
+        <div className="min-h-screen bg-bg flex items-center justify-center p-6 select-none font-sans text-text">
+          <div className="relative max-w-md w-full p-8 rounded-xl bg-surface border border-line shadow-modal text-center">
+            <div className="w-12 h-12 rounded-lg bg-medium/12 border border-medium/25 flex items-center justify-center mx-auto mb-5 text-medium">
+              <AlertTriangle className="w-6 h-6" />
             </div>
 
-            <h1 className="text-xl font-bold text-white tracking-tight mb-2">
+            <h1 className="text-xl font-semibold text-text tracking-tight mb-2">
               Something went wrong
             </h1>
-            <p className="text-xs text-slate-400 leading-relaxed mb-6">
+            <p className="text-xs text-text-secondary leading-relaxed mb-6">
               An unexpected application error occurred. You can reload the page or return to the main dashboard.
             </p>
 
             {this.state.error && (
-              <div className="mb-6 p-3 rounded-xl bg-[#090B0E] border border-white/[0.06] text-left overflow-x-auto max-h-24">
-                <p className="font-mono text-[11px] text-rose-400 truncate">
+              <div className="mb-6 p-3 rounded-lg bg-surface-2 border border-line text-left overflow-x-auto max-h-24">
+                <p className="font-mono text-xs text-danger truncate">
                   {this.state.error?.message || String(this.state.error)}
                 </p>
               </div>
@@ -57,16 +51,16 @@ class ErrorBoundary extends React.Component {
               <button
                 type="button"
                 onClick={this.handleReload}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1B202B] hover:bg-[#232938] border border-white/[0.1] text-xs font-medium text-slate-200 transition-all active:scale-[0.98]"
+                className="btn-secondary flex items-center gap-2 px-4 py-2 text-xs"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
+                <RefreshCw className="w-3.5 h-3.5 text-text-secondary" />
                 <span>Reload Page</span>
               </button>
 
               <button
                 type="button"
                 onClick={this.handleGoDashboard}
-                className="btn-primary flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs active:scale-[0.98]"
+                className="btn-primary flex items-center gap-2 px-4 py-2 text-xs"
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 <span>Dashboard</span>

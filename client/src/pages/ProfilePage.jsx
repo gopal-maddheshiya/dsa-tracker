@@ -15,6 +15,7 @@ import TargetGoalsCard from '../components/profile/TargetGoalsCard';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import Reveal from '../components/common/Reveal';
 import TiltCard from '../components/common/TiltCard';
+import { colors } from '../theme/colors';
 import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
@@ -29,34 +30,32 @@ const fmtDate = (d) => {
   return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
-/* ── Milestone Config with Premium Icons ──────────────────────────── */
+/* ── Milestone Config with Theme Colors ───────────────────────────── */
 const MILESTONE_CONFIG = {
-  day_one:      { Icon: Rocket, color: '#38BDF8', bg: 'rgba(56,189,248,0.12)', border: 'rgba(56,189,248,0.3)' },
-  first_step:   { Icon: Sprout, color: '#34D399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)' },
-  getting_warm: { Icon: Flame,  color: '#E07A38', bg: 'rgba(224,122,56,0.12)', border: 'rgba(224,122,56,0.3)' },
-  half_century: { Icon: Zap,    color: '#FBBF24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)' },
-  century:      { Icon: Award,  color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.3)' },
-  elite:        { Icon: Crown,  color: '#FCD34D', bg: 'rgba(252,211,77,0.15)', border: 'rgba(252,211,77,0.4)' },
-  hard_first:   { Icon: Brain,  color: '#F43F5E', bg: 'rgba(244,63,94,0.12)', border: 'rgba(244,63,94,0.3)' },
-  hard_ten:     { Icon: Gem,    color: '#C084FC', bg: 'rgba(192,132,252,0.12)', border: 'rgba(192,132,252,0.3)' },
-  streak_7:     { Icon: Calendar, color: '#60A5FA', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)' },
-  streak_30:    { Icon: Target, color: '#F87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)' },
+  day_one:      { Icon: Rocket,   color: colors.easy,    bg: `${colors.easy}1f`,    border: `${colors.easy}40` },
+  first_step:   { Icon: Sprout,   color: colors.success, bg: `${colors.success}1f`, border: `${colors.success}40` },
+  getting_warm: { Icon: Flame,    color: colors.accent,  bg: `${colors.accent}1f`,  border: `${colors.accent}40` },
+  half_century: { Icon: Zap,      color: colors.medium,  bg: `${colors.medium}1f`,  border: `${colors.medium}40` },
+  century:      { Icon: Award,    color: colors.accent,  bg: `${colors.accent}1f`,  border: `${colors.accent}40` },
+  elite:        { Icon: Crown,    color: colors.medium,  bg: `${colors.medium}1f`,  border: `${colors.medium}40` },
+  hard_first:   { Icon: Brain,    color: colors.hard,    bg: `${colors.hard}1f`,    border: `${colors.hard}40` },
+  hard_ten:     { Icon: Gem,      color: colors.hard,    bg: `${colors.hard}1f`,    border: `${colors.hard}40` },
+  streak_7:     { Icon: Calendar, color: colors.easy,    bg: `${colors.easy}1f`,    border: `${colors.easy}40` },
+  streak_30:    { Icon: Target,   color: colors.accent,  bg: `${colors.accent}1f`,  border: `${colors.accent}40` },
 };
 
 const MilestoneBadgeIcon = ({ id, size = 22, className = '' }) => {
-  const conf = MILESTONE_CONFIG[id] || { Icon: Award, color: '#E07A38', bg: 'rgba(224,122,56,0.12)', border: 'rgba(224,122,56,0.3)' };
+  const conf = MILESTONE_CONFIG[id] || { Icon: Award, color: colors.accent, bg: `${colors.accent}1f`, border: `${colors.accent}40` };
   const { Icon, color, bg, border } = conf;
   return (
     <div
-      className={`rounded-2xl flex items-center justify-center transition-transform duration-300 shadow-lg ${className}`}
+      className={`rounded-xl flex items-center justify-center transition-transform duration-200 border ${className}`}
       style={{
         width: Math.round(size * 2),
         height: Math.round(size * 2),
         backgroundColor: bg,
         borderColor: border,
-        borderWidth: 1,
         color: color,
-        boxShadow: `0 4px 16px ${color}22`,
       }}
     >
       <Icon style={{ width: size, height: size }} />
@@ -87,15 +86,7 @@ if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
     @keyframes barGrow { from { width: 0% } }
     @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .bar-animated { animation: barGrow 0.8s cubic-bezier(0.4,0,0.2,1) forwards; }
-    .stat-block-hover { transition: transform 0.2s, box-shadow 0.2s; }
-    .stat-block-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(249,115,22,0.08); }
     .badge-card { position: relative; overflow: hidden; }
-    .badge-card::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: linear-gradient(45deg, transparent 40%, rgba(249,115,22,0.06) 50%, transparent 60%);
-      transform: translateX(-100%); transition: none;
-    }
-    .badge-card:hover::before { transform: translateX(100%); transition: transform 0.6s ease; }
     .heatmap-cell { position: relative; }
   `;
   document.head.appendChild(style);
@@ -180,12 +171,12 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
 
   const getColor = (count) => {
     if (count === null) return 'transparent';
-    if (count === 0)   return 'rgba(255, 255, 255, 0.04)';
-    if (count === 1)   return '#9A3412';
-    if (count === 2)   return '#C2410C';
-    if (count <= 4)    return '#EA580C';
-    if (count <= 6)    return '#E07A38';
-    return '#FDBA74';
+    if (count === 0)   return colors.surface2;
+    if (count === 1)   return `${colors.easy}40`;
+    if (count === 2)   return `${colors.easy}70`;
+    if (count <= 4)    return `${colors.easy}a6`;
+    if (count <= 6)    return `${colors.easy}d9`;
+    return colors.easy;
   };
 
   // Month label positions
@@ -203,7 +194,7 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
   return (
     <div className="space-y-4">
       {/* ── Scrollable Heatmap Board ──────────────────────────── */}
-      <div ref={scrollRef} className="overflow-x-auto relative rounded-xl bg-[#0B0C0E]/50 border border-white/[0.05] p-3 sm:p-4">
+      <div ref={scrollRef} className="overflow-x-auto relative rounded-xl bg-surface border border-line p-3 sm:p-4">
         <div ref={containerRef} className="relative select-none" style={{ minWidth: 780 }}>
           {/* Month labels */}
           <div className="flex mb-1.5 ml-8" style={{ gap: 2.5 }}>
@@ -211,7 +202,7 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
               const lbl = monthLabels.find(m => m.week === wi);
               return (
                 <div key={wi} style={{ width: 12.5, flexShrink: 0 }}>
-                  {lbl && <span className="text-[10px] text-[#9CA3AF] font-mono font-medium">{lbl.month}</span>}
+                  {lbl && <span className="text-xs text-muted font-medium">{lbl.month}</span>}
                 </div>
               );
             })}
@@ -223,7 +214,7 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
               {DAYS.map((d, i) => (
                 <div key={d} style={{ height: 12.5, display: 'flex', alignItems: 'center' }}>
                   {i % 2 === 1 && (
-                    <span className="text-[8px] text-[#9CA3AF] font-mono w-6 text-right font-medium">{d}</span>
+                    <span className="text-xs text-muted w-6 text-right font-medium">{d}</span>
                   )}
                   {i % 2 === 0 && <span className="w-6" />}
                 </div>
@@ -242,7 +233,7 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
                       height: 12.5,
                       borderRadius: 2.5,
                       background: getColor(cell.count),
-                      border: cell.count !== null ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                      border: cell.count !== null ? `1px solid ${colors.line}` : 'none',
                       cursor: cell.count !== null ? 'pointer' : 'default',
                       transition: 'transform 0.12s ease',
                     }}
@@ -295,23 +286,22 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
 
             return (
               <div
-                className="pointer-events-none absolute z-50 px-2.5 py-1.5 rounded-xl text-[11px] font-mono shadow-2xl transition-all duration-75"
+                className="pointer-events-none absolute z-50 px-2.5 py-1.5 rounded-lg text-xs shadow-modal transition-all duration-75"
                 style={{
                   left: clampedX,
                   top: isFlipped ? hoveredCell.y + 20 : hoveredCell.y - 36,
                   transform: 'translateX(-50%)',
-                  backgroundColor: '#161920',
-                  border: '1px solid rgba(255, 255, 255, 0.18)',
-                  boxShadow: '0 10px 28px -4px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(224, 122, 56, 0.25)',
+                  backgroundColor: colors.surface,
+                  border: `1px solid ${colors.line}`,
                   whiteSpace: 'nowrap',
                 }}
               >
                 <div className="flex items-center gap-1.5">
-                  <span className={`font-bold ${hoveredCell.count > 0 ? 'text-[#E07A38]' : 'text-[#9CA3AF]'}`}>
+                  <span className={`font-semibold ${hoveredCell.count > 0 ? 'text-accent' : 'text-muted'}`}>
                     {hoveredCell.count} {hoveredCell.count === 1 ? 'session' : 'sessions'}
                   </span>
-                  <span className="text-white/25">·</span>
-                  <span className="text-[#F3F4F6] font-medium">
+                  <span className="text-muted">·</span>
+                  <span className="text-text font-medium">
                     {hoveredCell.date}
                   </span>
                 </div>
@@ -327,13 +317,13 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
                           bottom: '100%',
                           borderLeft: '5px solid transparent',
                           borderRight: '5px solid transparent',
-                          borderBottom: '5px solid #161920',
+                          borderBottom: `5px solid ${colors.surface}`,
                         }
                       : {
                           top: '100%',
                           borderLeft: '5px solid transparent',
                           borderRight: '5px solid transparent',
-                          borderTop: '5px solid #161920',
+                          borderTop: `5px solid ${colors.surface}`,
                         }),
                   }}
                 />
@@ -342,15 +332,15 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
           })()}
 
           {/* Legend Strip */}
-          <div className="flex flex-wrap items-center justify-between mt-3.5 pt-2.5 border-t border-white/[0.05] sm:ml-8 ml-1 gap-3">
+          <div className="flex flex-wrap items-center justify-between mt-3.5 pt-2.5 border-t border-line sm:ml-8 ml-1 gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-[#9CA3AF] font-mono">Less</span>
-              {['rgba(255,255,255,0.04)','#9A3412','#C2410C','#EA580C','#E07A38','#FDBA74'].map(c => (
-                <div key={c} style={{ width: 12, height: 12, borderRadius: 2.5, background: c, border: '1px solid rgba(255,255,255,0.08)' }} />
+              <span className="text-xs text-muted">Less</span>
+              {[colors.surface2, `${colors.easy}40`, `${colors.easy}70`, `${colors.easy}a6`, colors.easy].map(c => (
+                <div key={c} style={{ width: 12, height: 12, borderRadius: 2.5, background: c, border: `1px solid ${colors.line}` }} />
               ))}
-              <span className="text-[10px] text-[#9CA3AF] font-mono">More</span>
+              <span className="text-xs text-muted">More</span>
             </div>
-            <span className="text-[10px] font-mono text-[#6B7280]">
+            <span className="text-xs text-muted">
               Tap or hover any square to view date & practice sessions
             </span>
           </div>
@@ -359,50 +349,50 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
 
       {/* ── Integrated Heatmap Analytics Bar ─────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
-            <Calendar className="w-3 h-3 text-[#9CA3AF]" />
+        <div className="p-3.5 rounded-xl bg-surface border border-line flex flex-col justify-between">
+          <span className="text-xs uppercase tracking-wider text-secondary font-medium flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-muted" />
             Active Days
           </span>
           <div className="my-1">
-            <span className="text-xl font-bold font-mono text-[#F3F4F6]">{activeDaysCount}</span>
-            <span className="text-xs font-mono text-[#6B7280]"> / 365d</span>
+            <span className="text-xl font-semibold tabular-nums text-text">{activeDaysCount}</span>
+            <span className="text-xs text-muted"> / 365d</span>
           </div>
-          <span className="text-[10px] font-mono text-[#9CA3AF]">{consistencyRate}% annual habit</span>
+          <span className="text-xs text-muted">{consistencyRate}% annual habit</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
-            <Zap className="w-3 h-3 text-amber-400" />
+        <div className="p-3.5 rounded-xl bg-surface border border-line flex flex-col justify-between">
+          <span className="text-xs uppercase tracking-wider text-secondary font-medium flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-medium" />
             Practice Pace
           </span>
           <div className="my-1">
-            <span className="text-xl font-bold font-mono text-[#F3F4F6]">{avgPerWeek}</span>
-            <span className="text-xs font-mono text-[#6B7280]"> sess/wk</span>
+            <span className="text-xl font-semibold tabular-nums text-text">{avgPerWeek}</span>
+            <span className="text-xs text-muted"> sess/wk</span>
           </div>
-          <span className="text-[10px] font-mono text-[#9CA3AF]">{totalSessions} sessions logged</span>
+          <span className="text-xs text-muted">{totalSessions} sessions logged</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
-            <Target className="w-3 h-3 text-emerald-400" />
+        <div className="p-3.5 rounded-xl bg-surface border border-line flex flex-col justify-between">
+          <span className="text-xs uppercase tracking-wider text-secondary font-medium flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5 text-easy" />
             Prime Practice Day
           </span>
           <div className="my-1">
-            <span className="text-xl font-bold font-mono text-emerald-400 truncate block">{bestDayName}</span>
+            <span className="text-xl font-semibold text-easy truncate block">{bestDayName}</span>
           </div>
-          <span className="text-[10px] font-mono text-[#9CA3AF]">{bestDaySessions} sessions logged</span>
+          <span className="text-xs text-muted">{bestDaySessions} sessions logged</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#0E1015] border border-white/[0.08] flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#9CA3AF] flex items-center gap-1.5">
-            <Flame className="w-3 h-3 text-[#E07A38]" />
+        <div className="p-3.5 rounded-xl bg-surface border border-line flex flex-col justify-between">
+          <span className="text-xs uppercase tracking-wider text-secondary font-medium flex items-center gap-1.5">
+            <Flame className="w-3.5 h-3.5 text-accent" />
             Peak Month
           </span>
           <div className="my-1">
-            <span className="text-xl font-bold font-mono text-[#E07A38] truncate block">{busiestMonthLabel}</span>
+            <span className="text-xl font-semibold text-accent truncate block">{busiestMonthLabel}</span>
           </div>
-          <span className="text-[10px] font-mono text-[#9CA3AF]">{busiestMonthCount} peak sessions</span>
+          <span className="text-xs text-muted">{busiestMonthCount} peak sessions</span>
         </div>
       </div>
     </div>
@@ -410,30 +400,26 @@ const YearlyHeatmap = ({ heatmapData = [], currentStreak = 0, longestStreak = 0 
 };
 
 /* ── Stat Block ───────────────────────────────────────────────────── */
-const StatBlock = ({ label, value, sub, color = '#F3F4F6', icon: Icon, isNumber = false }) => (
+const StatBlock = ({ label, value, sub, color = colors.text, icon: Icon, isNumber = false }) => (
   <TiltCard maxTilt={7} className="h-full">
-    <div className="h-full flex flex-col gap-1.5 p-4 rounded-2xl bg-gradient-to-b from-[#14171E] to-[#0F1116] border border-white/[0.08] hover:border-white/[0.16] stat-block-hover cursor-default shadow-md shadow-black/40 relative overflow-hidden group">
-      <div
-        className="absolute -right-6 -bottom-6 w-20 h-20 rounded-full pointer-events-none opacity-0 group-hover:opacity-15 transition-opacity duration-300"
-        style={{ background: color, filter: 'blur(20px)' }}
-      />
+    <div className="h-full flex flex-col gap-1.5 p-4 rounded-xl bg-surface border border-line hover:border-line/80 cursor-default relative overflow-hidden group">
       {Icon && (
         <div
-          className="w-8 h-8 rounded-xl flex items-center justify-center mb-0.5 border transition-colors"
+          className="w-8 h-8 rounded-lg flex items-center justify-center mb-0.5 border"
           style={{
-            color: color || '#9CA3AF',
+            color: color || colors.muted,
             backgroundColor: color ? `${color}14` : 'rgba(255,255,255,0.05)',
-            borderColor: color ? `${color}28` : 'rgba(255,255,255,0.08)',
+            borderColor: color ? `${color}28` : colors.line,
           }}
         >
           <Icon className="w-4 h-4" />
         </div>
       )}
-      <span className="text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">{label}</span>
-      <span className="text-2xl font-bold font-mono tracking-tight leading-none" style={{ color }}>
+      <span className="text-xs font-medium uppercase tracking-wider text-secondary">{label}</span>
+      <span className="text-2xl font-semibold tabular-nums tracking-tight leading-none" style={{ color }}>
         {isNumber && typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
       </span>
-      {sub && <span className="text-[10px] font-mono text-[#6B7280]">{sub}</span>}
+      {sub && <span className="text-xs text-muted">{sub}</span>}
     </div>
   </TiltCard>
 );
@@ -454,37 +440,35 @@ const NextBadgeTeaser = ({ profile }) => {
 
   if (!nextMilestone) {
     return (
-      <div className="mt-4 p-4 rounded-2xl border border-dashed border-[#E07A38]/30 bg-[#E07A38]/5 text-center">
-        <PartyPopper className="w-8 h-8 text-[#E07A38] mx-auto mb-1" />
-        <p className="text-xs font-mono text-[#E07A38] mt-1">All milestones unlocked! You're a legend.</p>
+      <div className="mt-4 p-4 rounded-xl border border-dashed border-accent/40 bg-accent/10 text-center">
+        <PartyPopper className="w-8 h-8 text-accent mx-auto mb-1" />
+        <p className="text-xs text-accent mt-1">All milestones unlocked! You're a legend.</p>
       </div>
     );
   }
 
   return (
-    <div className="mt-4 p-4 rounded-2xl border border-white/[0.08] bg-[#0E1014]">
+    <div className="mt-4 p-4 rounded-xl border border-line bg-surface">
       <div className="flex items-center gap-3">
         <MilestoneBadgeIcon id={nextMilestone.id} size={18} className="opacity-40 grayscale shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold text-[#9CA3AF]">
-              Next: <span className="text-[#F3F4F6]">{nextMilestone.label}</span>
+            <span className="text-xs font-semibold text-secondary">
+              Next: <span className="text-text">{nextMilestone.label}</span>
             </span>
-            <span className="text-[10px] font-mono text-[#9CA3AF]">
+            <span className="text-xs tabular-nums text-muted">
               {nextMilestone.current}/{nextMilestone.target}
             </span>
           </div>
-          <div className="h-1.5 rounded-full overflow-hidden bg-white/[0.08]">
+          <div className="h-1.5 rounded-full overflow-hidden bg-surface-2">
             <div
-              className="h-full rounded-full bar-animated"
+              className="h-full rounded-full bar-animated bg-accent"
               style={{
                 width: `${nextMilestone.pct}%`,
-                background: 'linear-gradient(90deg, #E07A3866, #E07A38)',
-                boxShadow: '0 0 8px rgba(224,122,56,0.3)',
               }}
             />
           </div>
-          <p className="text-[10px] font-mono text-[#6B7280] mt-1">{nextMilestone.desc}</p>
+          <p className="text-xs text-muted mt-1">{nextMilestone.desc}</p>
         </div>
       </div>
     </div>
@@ -499,9 +483,9 @@ const DifficultyDistribution = ({ profile }) => {
   const total = easy + med + hard || 1;
 
   const bars = [
-    { label: 'Easy',   count: easy, pct: Math.round((easy / total) * 100), color: '#10B981', gradient: 'linear-gradient(90deg, #059669, #10B981, #34D399)' },
-    { label: 'Medium', count: med,  pct: Math.round((med  / total) * 100), color: '#F59E0B', gradient: 'linear-gradient(90deg, #D97706, #F59E0B, #FBBF24)' },
-    { label: 'Hard',   count: hard, pct: Math.round((hard / total) * 100), color: '#F43F5E', gradient: 'linear-gradient(90deg, #E11D48, #F43F5E, #FB7185)' },
+    { label: 'Easy',   count: easy, pct: Math.round((easy / total) * 100), color: colors.easy, bgClass: 'bg-easy' },
+    { label: 'Medium', count: med,  pct: Math.round((med  / total) * 100), color: colors.medium, bgClass: 'bg-medium' },
+    { label: 'Hard',   count: hard, pct: Math.round((hard / total) * 100), color: colors.hard, bgClass: 'bg-hard' },
   ];
 
   return (
@@ -510,35 +494,31 @@ const DifficultyDistribution = ({ profile }) => {
         <div key={b.label}>
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: b.color, boxShadow: `0 0 6px ${b.color}66` }} />
-              <span className="text-xs font-semibold text-[#F3F4F6]">{b.label}</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: b.color }} />
+              <span className="text-xs font-semibold text-text">{b.label}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold font-mono" style={{ color: b.color }}>{b.count}</span>
-              <span className="text-[10px] font-mono text-[#6B7280]">{b.pct}%</span>
+              <span className="text-xs font-semibold tabular-nums" style={{ color: b.color }}>{b.count}</span>
+              <span className="text-xs tabular-nums text-muted">{b.pct}%</span>
             </div>
           </div>
-          <div className="h-2.5 rounded-full overflow-hidden bg-white/[0.06]">
+          <div className="h-2 rounded-full overflow-hidden bg-surface-2">
             <div
-              className="h-full rounded-full bar-animated"
-              style={{
-                width: `${b.pct}%`,
-                background: b.gradient,
-                boxShadow: `0 0 10px ${b.color}33`,
-              }}
+              className={`h-full rounded-full bar-animated ${b.bgClass}`}
+              style={{ width: `${b.pct}%` }}
             />
           </div>
         </div>
       ))}
 
       {/* Ratio summary strip */}
-      <div className="flex items-center gap-2 mt-2 pt-3 border-t border-white/[0.06]">
-        <div className="flex-1 h-1.5 rounded-full overflow-hidden flex">
-          {easy > 0 && <div className="h-full" style={{ width: `${(easy / total) * 100}%`, background: '#10B981' }} />}
-          {med  > 0 && <div className="h-full" style={{ width: `${(med  / total) * 100}%`, background: '#F59E0B' }} />}
-          {hard > 0 && <div className="h-full" style={{ width: `${(hard / total) * 100}%`, background: '#F43F5E' }} />}
+      <div className="flex items-center gap-2 mt-2 pt-3 border-t border-line">
+        <div className="flex-1 h-1.5 rounded-full overflow-hidden flex bg-surface-2">
+          {easy > 0 && <div className="h-full bg-easy" style={{ width: `${(easy / total) * 100}%` }} />}
+          {med  > 0 && <div className="h-full bg-medium" style={{ width: `${(med  / total) * 100}%` }} />}
+          {hard > 0 && <div className="h-full bg-hard" style={{ width: `${(hard / total) * 100}%` }} />}
         </div>
-        <span className="text-[10px] font-mono text-[#6B7280] shrink-0">{total} solved</span>
+        <span className="text-xs tabular-nums text-muted shrink-0">{total} solved</span>
       </div>
     </div>
   );
@@ -577,7 +557,7 @@ const WeeklyMomentum = ({ heatmapData = [] }) => {
   const lastWeek = weeks[weeks.length - 1]?.count ?? 0;
   const prevWeek = weeks[weeks.length - 2]?.count ?? 0;
   const trend = lastWeek > prevWeek ? 'up' : lastWeek < prevWeek ? 'down' : 'flat';
-  const trendColor = trend === 'up' ? '#10B981' : trend === 'down' ? '#F43F5E' : '#9CA3AF';
+  const trendColor = trend === 'up' ? colors.success : trend === 'down' ? colors.danger : colors.muted;
   const trendLabel = trend === 'up' ? `+${lastWeek - prevWeek} vs last week` : trend === 'down' ? `${lastWeek - prevWeek} vs last week` : 'Same as last week';
 
   return (
@@ -587,7 +567,7 @@ const WeeklyMomentum = ({ heatmapData = [] }) => {
         <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${trendColor}18`, border: `1px solid ${trendColor}33` }}>
           <TrendingUp className="w-3.5 h-3.5" style={{ color: trendColor, transform: trend === 'down' ? 'rotate(180deg)' : 'none' }} />
         </div>
-        <span className="text-xs font-mono" style={{ color: trendColor }}>{trendLabel}</span>
+        <span className="text-xs tabular-nums" style={{ color: trendColor }}>{trendLabel}</span>
       </div>
 
       {/* Bar chart */}
@@ -597,22 +577,19 @@ const WeeklyMomentum = ({ heatmapData = [] }) => {
           const isLatest = i === weeks.length - 1;
           return (
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group cursor-default">
-              <span className="text-[9px] font-mono text-[#6B7280] opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs tabular-nums text-muted opacity-0 group-hover:opacity-100 transition-opacity">
                 {w.count}
               </span>
               <div
                 className="w-full rounded-md bar-animated transition-all duration-200 group-hover:scale-x-110"
                 style={{
                   height: barH,
-                  background: isLatest
-                    ? 'linear-gradient(180deg, #E07A38, #C76326)'
-                    : 'linear-gradient(180deg, rgba(224,122,56,0.35), rgba(224,122,56,0.15))',
-                  border: isLatest ? '1px solid rgba(224,122,56,0.5)' : '1px solid rgba(224,122,56,0.1)',
-                  boxShadow: isLatest ? '0 0 12px rgba(224,122,56,0.3)' : 'none',
+                  backgroundColor: isLatest ? colors.accent : colors.surface2,
+                  border: isLatest ? `1px solid ${colors.accent}` : `1px solid ${colors.line}`,
                   minWidth: 12,
                 }}
               />
-              <span className="text-[8px] font-mono text-[#6B7280] truncate w-full text-center">
+              <span className="text-xs text-muted truncate w-full text-center">
                 {w.label.split(' ')[0]}
               </span>
             </div>
@@ -728,22 +705,22 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <div className="space-y-5 pb-12 animate-pulse">
-        <div className="h-36 panel shimmer rounded-2xl" />
+        <div className="h-36 bg-surface border border-line rounded-xl" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[1,2,3,4].map(i => <div key={i} className="h-28 panel shimmer rounded-2xl" />)}
+          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-surface border border-line rounded-xl" />)}
         </div>
-        <div className="h-24 panel shimmer rounded-2xl" />
-        <div className="h-52 panel shimmer rounded-2xl" />
-        <div className="h-40 panel shimmer rounded-2xl" />
+        <div className="h-24 bg-surface border border-line rounded-xl" />
+        <div className="h-52 bg-surface border border-line rounded-xl" />
+        <div className="h-40 bg-surface border border-line rounded-xl" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="panel p-10 text-center">
-        <p className="text-red-400 text-sm">{error}</p>
-        <button onClick={load} className="btn-ghost mt-4">Retry</button>
+      <div className="bg-surface border border-line rounded-xl p-10 text-center">
+        <p className="text-danger text-sm">{error}</p>
+        <button onClick={load} className="btn-secondary mt-4">Retry</button>
       </div>
     );
   }
@@ -753,47 +730,39 @@ const ProfilePage = () => {
 
       {/* ── Hero Banner ─────────────────────────────────────────── */}
       <Reveal delay={0} y={15}>
-        <div className="panel p-4 sm:p-6 lg:p-7 relative overflow-hidden"
-          style={{ background: 'linear-gradient(145deg, #14171C 0%, #101216 100%)' }}>
-          {/* Decorative glow blob */}
-          <div className="absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.14), transparent 70%)', transform: 'translate(20%, -20%)', filter: 'blur(35px)' }} />
-
+        <div className="bg-surface border border-line rounded-xl p-4 sm:p-6 lg:p-7 relative overflow-hidden">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 sm:gap-6 relative">
             
             {/* Left: User Identity & Stats */}
             <div className="flex-1 min-w-0 w-full lg:w-auto">
               {/* Avatar + Primary User Details Row */}
               <div className="flex items-start sm:items-center gap-3.5 sm:gap-5">
-                {/* Avatar with glow and rank border */}
+                {/* Avatar with rank border */}
                 <div className="relative shrink-0">
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
                       alt={user?.name || 'User'}
-                      className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl object-cover border-2 transition-all shadow-xl"
+                      className="w-14 h-14 sm:w-18 sm:h-18 rounded-xl object-cover border-2 transition-all"
                       style={{
-                        borderColor: `${rank.color}80`,
-                        boxShadow: `0 0 28px ${rank.color}33`,
+                        borderColor: rank.color,
                       }}
                       referrerPolicy="no-referrer"
                     />
                   ) : (
                     <div
-                      className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold font-mono transition-all shadow-xl"
+                      className="w-14 h-14 sm:w-18 sm:h-18 rounded-xl flex items-center justify-center text-xl sm:text-2xl font-bold transition-all bg-surface-2 border-2"
                       style={{
-                        background: `linear-gradient(135deg, ${rank.color}33, ${rank.color}0D)`,
-                        border: `2px solid ${rank.color}80`,
+                        borderColor: rank.color,
                         color: rank.color,
-                        boxShadow: `0 0 28px ${rank.color}33`,
                       }}
                     >
                       {initials}
                     </div>
                   )}
                   {profile?.currentStreak > 0 && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-[#0D0F13] border border-[#E07A38]/40 flex items-center justify-center shadow-lg">
-                      <Flame className="w-3 h-3 text-amber-500 fill-amber-500/20" />
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-surface border border-line flex items-center justify-center">
+                      <Flame className="w-3 h-3 text-accent fill-accent/20" />
                     </div>
                   )}
                 </div>
@@ -801,27 +770,27 @@ const ProfilePage = () => {
                 {/* Name, Badges, Email */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-                    <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-[#F3F4F6] truncate">
+                    <h1 className="text-lg sm:text-2xl font-semibold tracking-tight text-text truncate">
                       {user?.name || 'DSA Coder'}
                     </h1>
                     {/* Rank badge */}
                     <span
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold font-mono border shadow-xs shrink-0"
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border shrink-0"
                       style={{
                         color: rank.color,
                         borderColor: `${rank.color}40`,
-                        background: `${rank.color}14`,
+                        backgroundColor: `${rank.color}14`,
                       }}
                     >
-                      {rank.Icon && <rank.Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
+                      {rank.Icon && <rank.Icon className="w-3 h-3" />}
                       {rank.label}
                     </span>
                     <Badge variant="online" dot size="sm">Active</Badge>
                   </div>
 
-                  <p className="text-xs text-[#9CA3AF] font-mono truncate">
+                  <p className="text-xs text-secondary truncate">
                     {user?.email}
-                    {memberSince && <span className="ml-2 text-[#6B7280] hidden sm:inline">· Member since {memberSince}</span>}
+                    {memberSince && <span className="ml-2 text-muted hidden sm:inline">· Member since {memberSince}</span>}
                   </p>
                 </div>
               </div>
@@ -829,24 +798,24 @@ const ProfilePage = () => {
               {/* Activity highlights */}
               <div className="flex flex-wrap items-center gap-2 mt-3">
                 {profile?.currentStreak > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#E07A38]/10 border border-[#E07A38]/20 text-xs">
-                    <Flame className="w-3.5 h-3.5 text-[#E07A38] fill-[#E07A38]/20" />
-                    <span className="font-bold font-mono text-[#E07A38]">{profile.currentStreak}d</span>
-                    <span className="text-[#9CA3AF] font-mono text-[11px]">streak</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-2 border border-line text-xs">
+                    <Flame className="w-3.5 h-3.5 text-accent fill-accent/20" />
+                    <span className="font-semibold tabular-nums text-accent">{profile.currentStreak}d</span>
+                    <span className="text-muted text-xs">streak</span>
                   </div>
                 )}
                 {profile?.activeDays > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs">
-                    <Calendar className="w-3.5 h-3.5 text-[#9CA3AF]" />
-                    <span className="font-bold font-mono text-[#F3F4F6]">{profile.activeDays}</span>
-                    <span className="text-[#9CA3AF] font-mono text-[11px]">active days</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-2 border border-line text-xs">
+                    <Calendar className="w-3.5 h-3.5 text-muted" />
+                    <span className="font-semibold tabular-nums text-text">{profile.activeDays}</span>
+                    <span className="text-muted text-xs">active days</span>
                   </div>
                 )}
                 {profile?.bestDay && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs">
-                    <Zap className="w-3.5 h-3.5 text-[#F59E0B]" />
-                    <span className="font-bold font-mono text-[#F3F4F6]">{profile.bestDayCount}</span>
-                    <span className="text-[#9CA3AF] font-mono text-[11px]">best ({fmtDate(profile.bestDay)})</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-2 border border-line text-xs">
+                    <Zap className="w-3.5 h-3.5 text-medium" />
+                    <span className="font-semibold tabular-nums text-text">{profile.bestDayCount}</span>
+                    <span className="text-muted text-xs">best ({fmtDate(profile.bestDay)})</span>
                   </div>
                 )}
               </div>
@@ -854,58 +823,56 @@ const ProfilePage = () => {
               {/* Rank progress bar (if not max rank) */}
               {rank.next && (
                 <div className="mt-3.5 max-w-lg">
-                  <div className="flex items-center justify-between mb-1.5 text-[11px] font-mono">
-                    <span className="text-[#9CA3AF] flex items-center gap-1.5">
-                      {rank.Icon && <rank.Icon className="w-3 h-3 text-[#E07A38]" />}
-                      <span className="font-semibold text-[#F3F4F6]">{rank.label}</span>
+                  <div className="flex items-center justify-between mb-1.5 text-xs">
+                    <span className="text-secondary flex items-center gap-1.5">
+                      {rank.Icon && <rank.Icon className="w-3 h-3 text-accent" />}
+                      <span className="font-semibold text-text">{rank.label}</span>
                     </span>
-                    <span className="text-[#E07A38] font-semibold flex items-center gap-1">
-                      <span>{Math.round(rank.progress)}%</span>
-                      <span className="text-[#6B7280]">to {rank.next.label}</span>
+                    <span className="text-accent font-semibold flex items-center gap-1">
+                      <span className="tabular-nums">{Math.round(rank.progress)}%</span>
+                      <span className="text-muted">to {rank.next.label}</span>
                     </span>
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden bg-white/[0.08] p-0.5">
+                  <div className="h-2 rounded-full overflow-hidden bg-surface-2 p-0.5">
                     <div
-                      className="h-full rounded-full bar-animated"
+                      className="h-full rounded-full bar-animated bg-accent"
                       style={{
                         width: `${Math.min(rank.progress, 100)}%`,
-                        background: `linear-gradient(90deg, ${rank.color}, ${rank.next.color})`,
-                        boxShadow: `0 0 12px ${rank.color}66`,
                       }}
                     />
                   </div>
-                  <div className="text-[10px] font-mono text-[#6B7280] mt-1 flex items-center justify-between">
-                    <span>{profile?.totalSolved ?? 0} problems solved</span>
-                    <span>Goal: {rank.next.min} solved</span>
+                  <div className="text-xs text-muted mt-1 flex items-center justify-between">
+                    <span className="tabular-nums">{profile?.totalSolved ?? 0} problems solved</span>
+                    <span className="tabular-nums">Goal: {rank.next.min} solved</span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Right: Actions & Dual Progress Rings Panel */}
-            <div className="w-full lg:w-auto shrink-0 flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between lg:justify-center gap-3 border-t lg:border-t-0 border-white/[0.06] pt-3.5 lg:pt-0">
+            <div className="w-full lg:w-auto shrink-0 flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between lg:justify-center gap-3 border-t lg:border-t-0 border-line pt-3.5 lg:pt-0">
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] hover:border-[#E07A38]/40 text-xs font-semibold text-slate-200 hover:text-[#E07A38] transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-xs cursor-pointer min-h-[36px] w-full sm:w-auto self-end order-1 sm:order-2 lg:order-1"
+                className="btn-secondary text-xs flex items-center justify-center gap-1.5 min-h-[36px] w-full sm:w-auto self-end order-1 sm:order-2 lg:order-1"
               >
-                <Settings className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#E07A38]" />
+                <Settings className="w-3.5 h-3.5 text-muted" />
                 <span>Account Settings</span>
               </button>
 
-              <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-center gap-4 sm:gap-6 bg-[#0D0F13]/90 p-3 sm:p-4 rounded-2xl border border-white/[0.08] shadow-inner w-full sm:w-auto order-2 sm:order-1 lg:order-2">
+              <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-center gap-4 sm:gap-6 bg-surface-2/50 p-3 sm:p-4 rounded-xl border border-line w-full sm:w-auto order-2 sm:order-1 lg:order-2">
                 <div className="text-center flex flex-col items-center">
-                  <ProgressRing value={solvedPct} size={62} stroke={5} color="#10B981"
-                    label={<span className="text-xs font-bold font-mono text-emerald-400">{solvedPct}%</span>} />
-                  <p className="text-[10px] font-mono text-[#9CA3AF] mt-1 font-medium">solved</p>
+                  <ProgressRing value={solvedPct} size={62} stroke={5} color={colors.easy}
+                    label={<span className="text-xs font-semibold tabular-nums text-easy">{solvedPct}%</span>} />
+                  <p className="text-xs text-secondary mt-1 font-medium">solved</p>
                 </div>
-                <div className="text-center flex flex-col items-center border-l sm:border-l-0 border-white/[0.06] pl-2 sm:pl-0">
+                <div className="text-center flex flex-col items-center border-l sm:border-l-0 border-line pl-2 sm:pl-0">
                   <ProgressRing
                     value={Math.min(100, Math.round((profile?.longestStreak || 0) / 30 * 100))}
-                    size={62} stroke={5} color="#E07A38"
-                    label={<span className="text-xs font-bold font-mono text-[#E07A38]">{profile?.longestStreak || 0}d</span>}
+                    size={62} stroke={5} color={colors.accent}
+                    label={<span className="text-xs font-semibold tabular-nums text-accent">{profile?.longestStreak || 0}d</span>}
                   />
-                  <p className="text-[10px] font-mono text-[#9CA3AF] mt-1 font-medium">best streak</p>
+                  <p className="text-xs text-secondary mt-1 font-medium">best streak</p>
                 </div>
               </div>
             </div>
@@ -917,10 +884,10 @@ const ProfilePage = () => {
       {/* ── KPI Grid ────────────────────────────────────────────── */}
       <Reveal delay={40} y={15}>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatBlock label="Total Cataloged"   value={profile?.totalProblems ?? 0}  sub="problems"          icon={FolderGit2}   color="#9CA3AF" isNumber />
-          <StatBlock label="Total Solved"       value={profile?.totalSolved ?? 0}     sub="unique problems"   icon={CheckCircle2} color="#10B981" isNumber />
-          <StatBlock label="Sessions Logged"    value={profile?.totalAttempts ?? 0}   sub="total attempts"    icon={History}      color="#E07A38" isNumber />
-          <StatBlock label="Current Streak"     value={`${profile?.currentStreak ?? 0}d`} sub={`best: ${profile?.longestStreak ?? 0}d`} icon={Flame} color="#F59E0B" />
+          <StatBlock label="Total Cataloged"   value={profile?.totalProblems ?? 0}  sub="problems"          icon={FolderGit2}   color={colors.muted} isNumber />
+          <StatBlock label="Total Solved"       value={profile?.totalSolved ?? 0}     sub="unique problems"   icon={CheckCircle2} color={colors.easy} isNumber />
+          <StatBlock label="Sessions Logged"    value={profile?.totalAttempts ?? 0}   sub="total attempts"    icon={History}      color={colors.accent} isNumber />
+          <StatBlock label="Current Streak"     value={`${profile?.currentStreak ?? 0}d`} sub={`best: ${profile?.longestStreak ?? 0}d`} icon={Flame} color={colors.medium} />
         </div>
       </Reveal>
 
@@ -931,20 +898,20 @@ const ProfilePage = () => {
 
       {/* ── Solve Pace & Insights ─────────────────────────────── */}
       <Reveal delay={100} y={15}>
-        <div className="panel p-5">
+        <div className="bg-surface border border-line rounded-xl p-5">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="text-sm font-semibold text-[#F3F4F6] flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-text flex items-center gap-2">
                 Solve Pace
-                <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-white/[0.05] text-[#9CA3AF] border border-white/[0.08]">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
                   Weekly Velocity
                 </span>
               </h2>
-              <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Your practice rhythm & difficulty split</p>
+              <p className="text-xs text-muted mt-0.5">Your practice rhythm & difficulty split</p>
             </div>
             <Link
               to="/problems"
-              className="text-xs font-mono text-[#E07A38] hover:text-[#E88B4B] transition-colors shrink-0 whitespace-nowrap flex items-center gap-1 group"
+              className="text-xs text-accent hover:text-accent-hover transition-colors shrink-0 whitespace-nowrap flex items-center gap-1 group"
             >
               <span>View all</span>
               <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
@@ -965,39 +932,39 @@ const ProfilePage = () => {
               const medHardPct = Math.round(((med + hard) / total) * 100);
               return (
                 <>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-[#0E1014] border border-white/[0.07] hover:border-white/[0.14] transition-all stat-block-hover cursor-default">
+                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">Solve Rate</span>
-                      <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Solve Rate</span>
+                      <TrendingUp className="w-3.5 h-3.5 text-easy" />
                     </div>
-                    <span className="text-xl font-bold font-mono text-[#F3F4F6] leading-none my-0.5">{pace}</span>
-                    <span className="text-[10px] font-mono text-[#6B7280]">problems/week</span>
+                    <span className="text-xl font-semibold tabular-nums text-text leading-none my-0.5">{pace}</span>
+                    <span className="text-xs text-muted">problems/week</span>
                   </div>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-[#0E1014] border border-white/[0.07] hover:border-white/[0.14] transition-all stat-block-hover cursor-default">
+                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">Attempts/Solve</span>
-                      <History className="w-3.5 h-3.5 text-[#E07A38]" />
+                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Attempts/Solve</span>
+                      <History className="w-3.5 h-3.5 text-accent" />
                     </div>
-                    <span className="text-xl font-bold font-mono text-[#E07A38] leading-none my-0.5">{attPerSolve}</span>
-                    <span className="text-[10px] font-mono text-[#6B7280]">avg attempts</span>
+                    <span className="text-xl font-semibold tabular-nums text-accent leading-none my-0.5">{attPerSolve}</span>
+                    <span className="text-xs text-muted">avg attempts</span>
                   </div>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-[#0E1014] border border-white/[0.07] hover:border-white/[0.14] transition-all stat-block-hover cursor-default">
+                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">Med+Hard %</span>
-                      <Brain className={`w-3.5 h-3.5 ${medHardPct >= 65 ? 'text-emerald-400' : 'text-amber-400'}`} />
+                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Med+Hard %</span>
+                      <Brain className={`w-3.5 h-3.5 ${medHardPct >= 65 ? 'text-easy' : 'text-medium'}`} />
                     </div>
-                    <span className={`text-xl font-bold font-mono leading-none my-0.5 ${medHardPct >= 65 ? 'text-emerald-400' : 'text-amber-400'}`}>{medHardPct}%</span>
-                    <span className="text-[10px] font-mono text-[#6B7280]">{medHardPct >= 65 ? 'interview ready' : 'need more hard'}</span>
+                    <span className={`text-xl font-semibold tabular-nums leading-none my-0.5 ${medHardPct >= 65 ? 'text-easy' : 'text-medium'}`}>{medHardPct}%</span>
+                    <span className="text-xs text-muted">{medHardPct >= 65 ? 'interview ready' : 'need more hard'}</span>
                   </div>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-[#0E1014] border border-white/[0.07] hover:border-white/[0.14] transition-all stat-block-hover cursor-default">
+                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">Active Ratio</span>
-                      <Zap className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Active Ratio</span>
+                      <Zap className="w-3.5 h-3.5 text-medium" />
                     </div>
-                    <span className="text-xl font-bold font-mono text-amber-400 leading-none my-0.5">
+                    <span className="text-xl font-semibold tabular-nums text-medium leading-none my-0.5">
                       {profile?.activeDays > 0 && memberSince ? `${profile.activeDays}d` : `${profile?.activeDays ?? 0}d`}
                     </span>
-                    <span className="text-[10px] font-mono text-[#6B7280]">active days</span>
+                    <span className="text-xs text-muted">active days</span>
                   </div>
                 </>
               );
@@ -1008,11 +975,11 @@ const ProfilePage = () => {
 
       {/* ── Yearly Heatmap ──────────────────────────────────────── */}
       <Reveal delay={120} y={15}>
-        <div className="panel p-5">
+        <div className="bg-surface border border-line rounded-xl p-5">
           <div className="flex items-start justify-between mb-5">
             <div>
-              <h2 className="text-sm font-semibold text-[#F3F4F6]">Activity Heatmap</h2>
-              <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">365-day practice history</p>
+              <h2 className="text-sm font-semibold text-text">Activity Heatmap</h2>
+              <p className="text-xs text-muted mt-0.5">365-day practice history</p>
             </div>
             <Badge variant="default" size="xs">{heatmap.length} active days</Badge>
           </div>
@@ -1023,27 +990,27 @@ const ProfilePage = () => {
       {/* ── Difficulty Distribution + Weekly Momentum ────────────── */}
       <Reveal delay={140} y={15}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="panel p-5">
+          <div className="bg-surface border border-line rounded-xl p-5">
             <div className="flex items-start justify-between mb-5">
               <div>
-                <h2 className="text-sm font-semibold text-[#F3F4F6]">Difficulty Distribution</h2>
-                <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Your solve breakdown by difficulty</p>
+                <h2 className="text-sm font-semibold text-text">Difficulty Distribution</h2>
+                <p className="text-xs text-muted mt-0.5">Your solve breakdown by difficulty</p>
               </div>
-              <div className="w-7 h-7 rounded-xl flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20">
-                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-easy/12 border border-easy/25">
+                <Layers className="w-3.5 h-3.5 text-easy" />
               </div>
             </div>
             <DifficultyDistribution profile={profile} />
           </div>
 
-          <div className="panel p-5">
+          <div className="bg-surface border border-line rounded-xl p-5">
             <div className="flex items-start justify-between mb-5">
               <div>
-                <h2 className="text-sm font-semibold text-[#F3F4F6]">Weekly Momentum</h2>
-                <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Sessions per week · last 8 weeks</p>
+                <h2 className="text-sm font-semibold text-text">Weekly Momentum</h2>
+                <p className="text-xs text-muted mt-0.5">Sessions per week · last 8 weeks</p>
               </div>
-              <div className="w-7 h-7 rounded-xl flex items-center justify-center bg-[#E07A38]/10 border border-[#E07A38]/20">
-                <BarChart3 className="w-3.5 h-3.5 text-[#E07A38]" />
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-accent/12 border border-accent/25">
+                <BarChart3 className="w-3.5 h-3.5 text-accent" />
               </div>
             </div>
             <WeeklyMomentum heatmapData={heatmap} />
@@ -1053,27 +1020,27 @@ const ProfilePage = () => {
 
       {/* ── Milestone Hall of Fame ─────────────────────────────── */}
       <Reveal delay={160} y={15}>
-        <div className="panel p-5 sm:p-6">
+        <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold text-[#F3F4F6]">Milestone Hall of Fame</h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                <h2 className="text-sm font-semibold text-text">Milestone Hall of Fame</h2>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/12 border border-accent/25 text-accent">
                   {profile?.badges?.length ?? 0} / {ALL_MILESTONES.length} Unlocked
                 </span>
               </div>
-              <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">Click any milestone badge to inspect unlock criteria & your progress</p>
+              <p className="text-xs text-muted mt-0.5">Click any milestone badge to inspect unlock criteria & your progress</p>
             </div>
 
             {/* Segmented Filter Pills */}
-            <div className="flex items-center p-1 bg-[#0E1014] border border-white/[0.08] rounded-xl text-xs shrink-0 self-start sm:self-auto">
+            <div className="flex items-center p-1 bg-surface-2 border border-line rounded-lg text-xs shrink-0 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => setMilestoneFilter('all')}
-                className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
                   milestoneFilter === 'all'
-                    ? 'bg-white/[0.1] text-[#F3F4F6] shadow-xs'
-                    : 'text-[#9CA3AF] hover:text-[#D1D5DB]'
+                    ? 'bg-surface text-text shadow-xs'
+                    : 'text-muted hover:text-text'
                 }`}
               >
                 All ({ALL_MILESTONES.length})
@@ -1081,10 +1048,10 @@ const ProfilePage = () => {
               <button
                 type="button"
                 onClick={() => setMilestoneFilter('earned')}
-                className={`px-3 py-1 rounded-lg font-medium transition-all ${
+                className={`px-3 py-1 rounded-md font-medium transition-all ${
                   milestoneFilter === 'earned'
-                    ? 'bg-white/[0.1] text-[#F3F4F6] shadow-xs'
-                    : 'text-[#9CA3AF] hover:text-[#D1D5DB]'
+                    ? 'bg-surface text-text shadow-xs'
+                    : 'text-muted hover:text-text'
                 }`}
               >
                 Earned ({profile?.badges?.length ?? 0})
@@ -1093,9 +1060,9 @@ const ProfilePage = () => {
           </div>
 
           {milestoneFilter === 'earned' && (!profile?.badges || profile.badges.length === 0) ? (
-            <div className="border border-dashed border-white/[0.1] rounded-2xl p-10 text-center">
-              <Target className="w-8 h-8 text-[#9CA3AF] mx-auto mb-2" />
-              <p className="text-xs text-[#9CA3AF] font-mono">No badges earned yet. Solve your first problem to kickstart your journey!</p>
+            <div className="border border-dashed border-line rounded-xl p-10 text-center">
+              <Target className="w-8 h-8 text-muted mx-auto mb-2" />
+              <p className="text-xs text-muted">No badges earned yet. Solve your first problem to kickstart your journey!</p>
               <Link to="/problems" className="btn-primary inline-flex mt-4 text-xs">
                 + Catalog a Problem
               </Link>
@@ -1110,29 +1077,25 @@ const ProfilePage = () => {
                   const isUnlocked = m.check ? m.check(profile || {}) : false;
                   const currentMetric = m.metric ? m.metric(profile || {}) : 0;
                   const pct = Math.min(100, Math.round((currentMetric / m.target) * 100));
-                  const conf = MILESTONE_CONFIG[m.id] || { Icon: Award, color: '#E07A38', bg: 'rgba(224,122,56,0.12)', border: 'rgba(224,122,56,0.3)' };
+                  const conf = MILESTONE_CONFIG[m.id] || { Icon: Award, color: colors.accent, bg: `${colors.accent}1f`, border: `${colors.accent}40` };
 
                   return (
                     <Reveal key={m.id} delay={Math.min(idx * 25, 250)} y={10} className="h-full">
                       <TiltCard maxTilt={6} className="h-full">
                         <div
                           onClick={() => setSelectedMilestone({ ...m, iconComponent: conf.Icon, ...conf })}
-                          className={`badge-card h-full flex flex-col items-center p-3.5 rounded-2xl border transition-all duration-200 text-center cursor-pointer group select-none relative ${
+                          className={`badge-card h-full flex flex-col items-center p-3.5 rounded-xl border transition-all duration-200 text-center cursor-pointer group select-none relative ${
                             isUnlocked
-                              ? 'border-white/[0.12] bg-[#0E1014] hover:bg-[#15181E] shadow-sm hover:scale-[1.03]'
-                              : 'border-white/[0.05] bg-[#0A0C0E]/60 opacity-60 hover:opacity-90 hover:border-white/[0.15]'
+                              ? 'border-line bg-surface hover:bg-surface-2'
+                              : 'border-line/60 bg-surface/60 opacity-60 hover:opacity-90'
                           }`}
-                          style={isUnlocked ? {
-                            borderColor: conf.border,
-                            boxShadow: `0 4px 18px ${conf.color}15`,
-                          } : {}}
                         >
                           {/* Top Mini Lock / Check Icon */}
                           <div className="absolute top-2.5 right-2.5">
                             {isUnlocked ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-easy" />
                             ) : (
-                              <Lock className="w-3 h-3 text-[#6B7280]" />
+                              <Lock className="w-3 h-3 text-muted" />
                             )}
                           </div>
 
@@ -1142,21 +1105,21 @@ const ProfilePage = () => {
                             className={`mb-2.5 ${!isUnlocked ? 'grayscale opacity-50' : ''}`}
                           />
 
-                          <p className="text-xs font-semibold text-[#F3F4F6] truncate w-full">{m.label}</p>
-                          <p className="text-[10px] text-[#9CA3AF] font-mono line-clamp-2 h-[28px] mt-0.5 leading-snug w-full">
+                          <p className="text-xs font-semibold text-text truncate w-full">{m.label}</p>
+                          <p className="text-xs text-muted line-clamp-2 h-[32px] mt-0.5 leading-snug w-full">
                             {m.desc}
                           </p>
 
                           {/* Progress indicator for locked milestones */}
                           {!isUnlocked && (
                             <div className="w-full mt-2.5">
-                              <div className="h-1 rounded-full overflow-hidden bg-white/[0.08]">
+                              <div className="h-1 rounded-full overflow-hidden bg-surface-2">
                                 <div
                                   className="h-full rounded-full"
                                   style={{ width: `${pct}%`, backgroundColor: conf.color }}
                                 />
                               </div>
-                              <span className="text-[9px] font-mono text-[#6B7280] block mt-1">
+                              <span className="text-xs tabular-nums text-muted block mt-1">
                                 {currentMetric}/{m.target} ({pct}%)
                               </span>
                             </div>
@@ -1175,18 +1138,18 @@ const ProfilePage = () => {
         </div>
       </Reveal>
 
-      {/* ── Data Portability & Backup ────────────────────────────── */}
+      {/* ── Data Portability & Backup ─────────────────────── */}
       <Reveal delay={180} y={15}>
-        <div className="panel p-5 sm:p-6">
+        <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold text-[#F3F4F6]">Data Portability & Backup</h2>
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                <h2 className="text-sm font-semibold text-text">Data Portability & Backup</h2>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
                   OFFLINE BACKUP
                 </span>
               </div>
-              <p className="text-[11px] text-[#9CA3AF] font-mono mt-0.5">
+              <p className="text-xs text-muted mt-0.5">
                 Export all your cataloged problems, topics, and practice records.
               </p>
             </div>
@@ -1194,34 +1157,34 @@ const ProfilePage = () => {
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
-                className="min-h-[42px] px-4 py-2 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+                className="btn-secondary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
-                <Upload className="w-3.5 h-3.5" />
+                <Upload className="w-3.5 h-3.5 text-easy" />
                 <span>Import Backup</span>
               </button>
               <button
                 type="button"
                 disabled={isExporting}
                 onClick={() => handleExportData('json')}
-                className="min-h-[42px] px-4 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+                className="btn-secondary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
               >
-                <FileJson className="w-3.5 h-3.5 text-amber-400" />
+                <FileJson className="w-3.5 h-3.5 text-medium" />
                 <span>Export JSON</span>
               </button>
               <button
                 type="button"
                 disabled={isExporting}
                 onClick={() => handleExportData('csv')}
-                className="btn-primary min-h-[42px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+                className="btn-primary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
                 <span>Export CSV</span>
               </button>
             </div>
           </div>
-          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-3 text-xs text-slate-400 font-mono">
-            <Database className="w-4 h-4 text-slate-500 shrink-0" />
-            <p className="leading-relaxed text-[11px]">
+          <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex items-center gap-3 text-xs text-muted">
+            <Database className="w-4 h-4 text-muted shrink-0" />
+            <p className="leading-relaxed text-xs">
               Your data belongs to you. Backups include full problem descriptions, difficulty ratings, tags, attempt timestamps, and review statuses.
             </p>
           </div>
