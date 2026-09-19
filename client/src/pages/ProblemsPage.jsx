@@ -31,6 +31,28 @@ const PLATFORM_LABELS = {
   other:      { label: 'External', short: 'Ext', style: 'text-[#9CA3AF] bg-white/[0.04] border-white/[0.08]', dot: 'bg-[#9CA3AF]' },
 };
 
+export const DEFAULT_DSA_TOPICS = [
+  'Array',
+  'Backtracking',
+  'Binary Search',
+  'Bit Manipulation',
+  'Dynamic Programming',
+  'Graph',
+  'Greedy',
+  'Hash Table',
+  'Heap',
+  'Linked List',
+  'Math',
+  'Matrix',
+  'Recursion',
+  'Sliding Window',
+  'Stack',
+  'String',
+  'Tree',
+  'Trie',
+  'Two Pointers',
+];
+
 /* ── View toggle icons ───────────────────────────────────────────── */
 const TableIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -81,7 +103,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       {/* Middle row: Problem Title + External Link */}
       <div className="flex items-start justify-between gap-2">
         <Link
-          to={`/problems/${problem.id}`}
+          to={`/problems/${problem.id || problem._id}`}
           className="text-sm font-semibold text-[#F3F4F6] leading-snug line-clamp-2 active:text-[#E07A38] transition-colors"
         >
           {problem.title}
@@ -135,7 +157,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         )}
 
         <Link
-          to={`/problems/${problem.id}`}
+          to={`/problems/${problem.id || problem._id}`}
           aria-label="View problem details"
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-[#22262E] active:text-[#F3F4F6] transition-colors"
         >
@@ -248,7 +270,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       {/* Problem Title & External Link */}
       <div className="flex items-start justify-between gap-2 relative z-10">
         <Link
-          to={`/problems/${problem.id}`}
+          to={`/problems/${problem.id || problem._id}`}
           className="text-sm font-semibold text-[#F3F4F6] group-hover:text-[#E07A38] transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
           title={problem.title}
         >
@@ -306,7 +328,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             </button>
           )}
           <Link
-            to={`/problems/${problem.id}`}
+            to={`/problems/${problem.id || problem._id}`}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-white/[0.08] bg-[#0E1014] transition-all"
             title="View Details"
           >
@@ -493,16 +515,53 @@ const ProblemsPage = () => {
 
   // Header quick statistics
   const stats = useMemo(() => {
-    const total = problems.length;
-    const easy = problems.filter((p) => p.difficulty === 'easy').length;
-    const medium = problems.filter((p) => p.difficulty === 'medium').length;
-    const hard = problems.filter((p) => p.difficulty === 'hard').length;
-    const solved = problems.filter((p) => p.latestAttempt?.status === 'solved').length;
+    const list = Array.isArray(problems) ? problems : [];
+    const total = list.length;
+    const easy = list.filter((p) => p?.difficulty === 'easy').length;
+    const medium = list.filter((p) => p?.difficulty === 'medium').length;
+    const hard = list.filter((p) => p?.difficulty === 'hard').length;
+    const solved = list.filter((p) => p?.latestAttempt?.status === 'solved').length;
     return { total, easy, medium, hard, solved };
   }, [problems]);
 
+  // Extract all unique sorted topics from problems catalog and maintain persistent set across filters
+  const [knownTopics, setKnownTopics] = useState([]);
+
+  useEffect(() => {
+    if (Array.isArray(problems) && problems.length > 0) {
+      setKnownTopics((prev) => {
+        const set = new Set(prev);
+        problems.forEach((p) => {
+          if (Array.isArray(p?.topics)) {
+            p.topics.forEach((t) => {
+              if (t && typeof t === 'string' && t.trim()) {
+                set.add(t.trim());
+              }
+            });
+          }
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+      });
+    }
+  }, [problems]);
+
+  const allTopics = useMemo(() => {
+    const set = new Set(DEFAULT_DSA_TOPICS);
+    (knownTopics || []).forEach((t) => set.add(t));
+    if (Array.isArray(problems)) {
+      problems.forEach((p) => {
+        if (Array.isArray(p?.topics)) {
+          p.topics.forEach((t) => {
+            if (t && typeof t === 'string' && t.trim()) set.add(t.trim());
+          });
+        }
+      });
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [knownTopics, problems]);
+
   // Pagination calculations
-  const totalProblems = problems.length;
+  const totalProblems = Array.isArray(problems) ? problems.length : 0;
   const totalPages = pageSize === 'all' ? 1 : Math.max(1, Math.ceil(totalProblems / pageSize));
 
   const paginatedProblems = useMemo(() => {
@@ -532,8 +591,10 @@ const ProblemsPage = () => {
     const pool = priorityCandidates.length > 0 ? priorityCandidates : problems;
     const picked = pool[Math.floor(Math.random() * pool.length)];
 
-    toast.success(`Picked: "${picked.title}"`);
-    navigate(`/problems/${picked.id}`);
+    if (picked) {
+      toast.success(`Picked: "${picked.title || 'Problem'}"`);
+      navigate(`/problems/${picked.id || picked._id}`);
+    }
   };
 
   const handleExportCSV = () => {
@@ -691,8 +752,8 @@ const ProblemsPage = () => {
                 onChange={(e) => setTopic(e.target.value)}
                 className="input pl-9 pr-8 py-2 text-xs sm:text-sm w-full bg-[#0D0F13] border-white/[0.08] rounded-xl text-slate-300 focus:border-[#E07A38]/50 focus:ring-1 focus:ring-[#E07A38]/50 appearance-none cursor-pointer"
               >
-                <option value="">All Topics ({allTopics.length})</option>
-                {allTopics.map((t) => (
+                <option value="">All Topics ({(allTopics || []).length})</option>
+                {(allTopics || []).map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>
@@ -804,7 +865,7 @@ const ProblemsPage = () => {
         ) : (
           <div className="space-y-3">
             {paginatedProblems.map((p, idx) => (
-              <Reveal key={p.id} delay={Math.min(idx * 25, 180)} y={10}>
+              <Reveal key={p.id || p._id || idx} delay={Math.min(idx * 25, 180)} y={10}>
                 <MobileProblemCard
                   problem={p}
                   onEdit={handleEdit}
@@ -818,7 +879,7 @@ const ProblemsPage = () => {
       ) : viewMode === 'grid' && !isLoading && !error && problems.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {paginatedProblems.map((p, idx) => (
-            <Reveal key={p.id} delay={Math.min(idx * 30, 200)} y={12} className="h-full">
+            <Reveal key={p.id || p._id || idx} delay={Math.min(idx * 30, 200)} y={12} className="h-full">
               <TiltCard maxTilt={5} className="h-full">
                 <ProblemCard
                   problem={p}

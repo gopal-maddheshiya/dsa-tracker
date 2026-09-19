@@ -225,7 +225,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
               return (
                 <tr
-                  key={problem.id}
+                  key={problem.id || problem._id || idx}
                   className="hover:bg-[#14171D] transition-colors duration-150 group relative"
                 >
                   {/* # Index Column with subtle hover accent */}
@@ -238,7 +238,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   <td className="py-3.5 px-3">
                     <div className="flex items-center gap-2 max-w-sm sm:max-w-md">
                       <Link
-                        to={`/problems/${problem.id}`}
+                        to={`/problems/${problem.id || problem._id}`}
                         className="font-semibold text-[#F3F4F6] group-hover:text-[#E07A38] transition-colors line-clamp-2 text-[13px] tracking-tight leading-snug"
                         title={problem.title}
                       >
@@ -341,7 +341,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
                       {/* View Action */}
                       <Link
-                        to={`/problems/${problem.id}`}
+                        to={`/problems/${problem.id || problem._id}`}
                         title="View problem details"
                         className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-white/[0.08] bg-[#0E1014] transition-all"
                       >

@@ -36,3 +36,4 @@ lerna-debug.log*
 *.sln
 *.sw?
 Thumbs.db
+image.png
