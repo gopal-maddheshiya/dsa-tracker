@@ -1,0 +1,13 @@
+{
+  "name": "dsa-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DSA and Interview Preparation Tracker",
+  "scripts": {
+    "dev": "node run-dev.js",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "test": "npm test --prefix server"
+  }
+}
