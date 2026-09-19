@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sprout, BookOpen, Zap, Flame, Gem, Crown } from 'lucide-react';
+import { colors } from '../theme/colors';
 
 /* ── Shared Profile Utilities ─────────────────────────────────────── */
 
@@ -8,12 +9,12 @@ import { Sprout, BookOpen, Zap, Flame, Gem, Crown } from 'lucide-react';
  * Used by both DashboardPage and ProfilePage.
  */
 export const RANKS = [
-  { min: 0,   label: 'Beginner',     iconName: 'Sprout',   Icon: Sprout,   color: '#6B6560' },
-  { min: 5,   label: 'Learner',      iconName: 'BookOpen', Icon: BookOpen, color: '#60A5FA' },
-  { min: 25,  label: 'Intermediate', iconName: 'Zap',      Icon: Zap,      color: '#10B981' },
-  { min: 50,  label: 'Advanced',     iconName: 'Flame',    Icon: Flame,    color: '#F59E0B' },
-  { min: 100, label: 'Expert',       iconName: 'Gem',      Icon: Gem,      color: '#8B5CF6' },
-  { min: 250, label: 'Legend',       iconName: 'Crown',    Icon: Crown,    color: '#FCD34D' },
+  { min: 0,   label: 'Beginner',     iconName: 'Sprout',   Icon: Sprout,   color: colors.muted },
+  { min: 5,   label: 'Learner',      iconName: 'BookOpen', Icon: BookOpen, color: colors.easy },
+  { min: 25,  label: 'Intermediate', iconName: 'Zap',      Icon: Zap,      color: colors.success },
+  { min: 50,  label: 'Advanced',     iconName: 'Flame',    Icon: Flame,    color: colors.medium },
+  { min: 100, label: 'Expert',       iconName: 'Gem',      Icon: Gem,      color: colors.accent },
+  { min: 250, label: 'Legend',       iconName: 'Crown',    Icon: Crown,    color: colors.hard },
 ];
 
 /**

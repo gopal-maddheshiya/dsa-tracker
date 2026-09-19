@@ -14,21 +14,21 @@ import TiltCard from '../components/common/TiltCard';
 
 /* ── Difficulty / Status maps ─────────────────────────────────────── */
 const DIFF_STYLE = {
-  easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
-  medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',   dot: 'bg-amber-400' },
-  hard:   { text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25',     dot: 'bg-rose-400' },
+  easy:   { text: 'text-easy',   bg: 'bg-easy/12 border-easy/25',   dot: 'bg-easy' },
+  medium: { text: 'text-medium', bg: 'bg-medium/12 border-medium/25', dot: 'bg-medium' },
+  hard:   { text: 'text-hard',   bg: 'bg-hard/12 border-hard/25',   dot: 'bg-hard' },
 };
 const STATUS_CFG = {
-  solved:         { label: 'Solved',   dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', glow: 'shadow-[0_0_8px_rgba(16,185,129,0.15)]' },
-  struggled:      { label: 'Struggled',dot: 'bg-rose-400',    text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25', glow: 'shadow-[0_0_8px_rgba(244,63,94,0.15)]' },
-  revisit_needed: { label: 'Revisit',  dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25', glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]' },
+  solved:         { label: 'Solved',   dot: 'bg-success', text: 'text-success', bg: 'bg-success/12 border-success/25' },
+  struggled:      { label: 'Struggled',dot: 'bg-danger',  text: 'text-danger',  bg: 'bg-danger/12 border-danger/25' },
+  revisit_needed: { label: 'Revisit',  dot: 'bg-medium',  text: 'text-medium',  bg: 'bg-medium/12 border-medium/25' },
 };
 const PLATFORM_LABELS = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-amber-400 bg-amber-500/10 border-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.08)]', dot: 'bg-amber-400' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.08)]', dot: 'bg-emerald-400' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-amber-300 bg-amber-600/10 border-amber-600/25 shadow-[0_0_8px_rgba(217,119,6,0.08)]', dot: 'bg-amber-300' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-green-400 bg-green-500/10 border-green-500/25 shadow-[0_0_8px_rgba(34,197,94,0.08)]', dot: 'bg-green-400' },
-  other:      { label: 'External', short: 'Ext', style: 'text-[#9CA3AF] bg-white/[0.04] border-white/[0.08]', dot: 'bg-[#9CA3AF]' },
+  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
+  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
+  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
+  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
 };
 
 export const DEFAULT_DSA_TOPICS = [
@@ -66,35 +66,35 @@ const GridIcon = () => (
   </svg>
 );
 
-/* ── Mobile Problem Card (ultra polished touch card) ──────────────── */
+/* ── Mobile Problem Card (touch-first card) ──────────────────────── */
 const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]', dot: 'bg-zinc-400' };
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted' };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
   const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="panel p-4 bg-[#12151A] border-white/[0.08] flex flex-col gap-3 relative overflow-hidden transition-all duration-150 active:border-white/[0.2] rounded-2xl shadow-lg">
+    <div className="p-4 bg-surface border border-line flex flex-col gap-3 rounded-xl transition-all duration-150">
       {/* Top row: Difficulty + Platform on left, Status on right */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg border ${diff.text} ${diff.bg}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot} animate-pulse`} />
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${diff.text} ${diff.bg}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
             <span>{problem.difficulty}</span>
           </span>
-          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platform.style}`}>
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md border ${platform.style}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${platform.dot}`} />
             <span>{platform.short}</span>
           </span>
         </div>
 
         {statusCfg ? (
-          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.glow}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
-            <span className="text-[11px] font-mono font-semibold">{statusCfg.label}</span>
+          <div className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+            <span className="text-xs font-semibold">{statusCfg.label}</span>
           </div>
         ) : (
-          <span className="text-[10px] font-mono text-[#6B7280] px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.07]">
+          <span className="text-xs text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line">
             Unattempted
           </span>
         )}
@@ -104,7 +104,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       <div className="flex items-start justify-between gap-2">
         <Link
           to={`/problems/${problem.id || problem._id}`}
-          className="text-sm font-semibold text-[#F3F4F6] leading-snug line-clamp-2 active:text-[#E07A38] transition-colors"
+          className="text-sm font-semibold text-text leading-snug line-clamp-2 hover:text-accent active:text-accent transition-colors"
         >
           {problem.title}
         </Link>
@@ -113,7 +113,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="p-1 text-[#6B7280] hover:text-[#E07A38] active:text-[#E07A38] shrink-0"
+            className="p-1 text-muted hover:text-accent active:text-accent shrink-0"
             title="Open original problem"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -127,29 +127,29 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           {problem.topics?.slice(0, 3).map((t) => (
             <span
               key={t}
-              className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.08] text-[#9CA3AF]"
+              className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary"
             >
-              {t}
+              #{t}
             </span>
           ))}
           {(problem.topics?.length || 0) > 3 && (
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0A0C0F] border border-white/[0.08] text-[#6B7280]">
+            <span className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted">
               +{problem.topics.length - 3}
             </span>
           )}
         </div>
 
-        <span className="text-[10px] font-mono text-[#9CA3AF]">
+        <span className="text-xs text-muted tabular-nums">
           {problem.attemptCount > 0 ? `${problem.attemptCount} attempt${problem.attemptCount > 1 ? 's' : ''}` : 'No attempts'}
         </span>
       </div>
 
       {/* Bottom actions row */}
-      <div className="flex items-center gap-2 pt-2.5 border-t border-white/[0.06]">
+      <div className="flex items-center gap-2 pt-2.5 border-t border-line">
         {onLog && (
           <button
             onClick={() => onLog(problem)}
-            className="flex-1 h-9 flex items-center justify-center gap-1.5 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 active:bg-emerald-500/25 transition-all shadow-sm cursor-pointer"
+            className="flex-1 h-9 flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold bg-success/10 text-success border border-success/25 hover:bg-success/20 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Attempt</span>
@@ -159,7 +159,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <Link
           to={`/problems/${problem.id || problem._id}`}
           aria-label="View problem details"
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-[#22262E] active:text-[#F3F4F6] transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface-2 text-muted border border-line hover:text-text transition-colors"
         >
           <Eye className="w-3.5 h-3.5" />
         </Link>
@@ -167,7 +167,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <button
           onClick={() => onEdit(problem)}
           aria-label="Edit problem"
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#181B20] text-[#9CA3AF] border border-white/[0.08] active:bg-amber-500/10 active:text-amber-400 transition-colors cursor-pointer"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface-2 text-muted border border-line hover:text-medium transition-colors cursor-pointer"
         >
           <Edit2 className="w-3.5 h-3.5" />
         </button>
@@ -175,7 +175,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <button
           onClick={() => onDelete(problem)}
           aria-label="Delete problem"
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 active:bg-rose-500/25 transition-colors cursor-pointer"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-danger/10 text-danger border border-danger/25 hover:bg-danger/20 transition-colors cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -188,20 +188,20 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
 const MobileProblemSkeleton = () => (
   <div className="space-y-3">
     {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="panel p-4 bg-[#12151A] border-white/[0.08] space-y-3 animate-pulse rounded-2xl">
+      <div key={i} className="p-4 bg-surface border border-line space-y-3 animate-pulse rounded-xl">
         <div className="flex justify-between">
-          <div className="h-4 w-20 shimmer rounded-md" />
-          <div className="h-4 w-16 shimmer rounded-md" />
+          <div className="h-4 w-20 bg-surface-2 rounded-md" />
+          <div className="h-4 w-16 bg-surface-2 rounded-md" />
         </div>
-        <div className="h-4 w-4/5 shimmer rounded-md" />
+        <div className="h-4 w-4/5 bg-surface-2 rounded-md" />
         <div className="flex gap-1.5">
-          <div className="h-3 w-12 shimmer rounded-md" />
-          <div className="h-3 w-14 shimmer rounded-md" />
+          <div className="h-3 w-12 bg-surface-2 rounded-md" />
+          <div className="h-3 w-14 bg-surface-2 rounded-md" />
         </div>
-        <div className="pt-2 border-t border-white/[0.06] flex gap-2">
-          <div className="h-8 flex-1 shimmer rounded-xl" />
-          <div className="h-8 w-8 shimmer rounded-xl" />
-          <div className="h-8 w-8 shimmer rounded-xl" />
+        <div className="pt-2 border-t border-line flex gap-2">
+          <div className="h-8 flex-1 bg-surface-2 rounded-lg" />
+          <div className="h-8 w-8 bg-surface-2 rounded-lg" />
+          <div className="h-8 w-8 bg-surface-2 rounded-lg" />
         </div>
       </div>
     ))}
@@ -210,12 +210,12 @@ const MobileProblemSkeleton = () => (
 
 /* ── Mobile Empty State ───────────────────────────────────────────── */
 const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
-  <div className="panel p-8 text-center border-dashed border-white/[0.1] bg-[#121418] space-y-3 rounded-2xl">
-    <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto text-[#9CA3AF] shadow-sm">
+  <div className="p-8 text-center border border-dashed border-line bg-surface space-y-3 rounded-xl">
+    <div className="w-12 h-12 rounded-xl bg-surface-2 border border-line flex items-center justify-center mx-auto text-muted">
       <FolderOpen className="w-6 h-6" />
     </div>
-    <h3 className="text-sm font-bold text-[#F3F4F6]">No problems found</h3>
-    <p className="text-xs text-[#9CA3AF] max-w-xs mx-auto">
+    <h3 className="text-sm font-semibold text-text">No problems found</h3>
+    <p className="text-xs text-muted max-w-xs mx-auto">
       {hasFilters ? 'No problems match your filters.' : 'Your repository is empty. Add your first problem to start tracking.'}
     </p>
     {hasFilters ? (
@@ -232,36 +232,33 @@ const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
 
 /* ── Problem Card (desktop card/grid view) ────────────────────────── */
 const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-[#9CA3AF]', bg: 'bg-[#181B20] border-white/[0.08]', dot: 'bg-zinc-400' };
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted' };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
   const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="panel p-4 sm:p-5 flex flex-col gap-3.5 bg-[#121418] hover:bg-[#15181E] border border-white/[0.08] hover:border-[#E07A38]/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.6)] hover:-translate-y-1 transition-all duration-200 group relative rounded-2xl overflow-hidden">
-      {/* Subtle top corner ambient glow */}
-      <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#E07A38]/5 group-hover:bg-[#E07A38]/15 blur-2xl rounded-full pointer-events-none transition-all duration-300" />
-
+    <div className="p-4 sm:p-5 flex flex-col gap-3.5 bg-surface hover:bg-surface-2/60 border border-line hover:border-line/80 transition-colors group relative rounded-xl overflow-hidden">
       {/* Top row: Difficulty & Platform chips */}
       <div className="flex items-center justify-between gap-2 relative z-10">
         <div className="flex items-center gap-1.5">
-          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg border ${diff.text} ${diff.bg}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot} animate-pulse`} />
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${diff.text} ${diff.bg}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
             <span>{problem.difficulty}</span>
           </span>
-          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platform.style}`} title={platform.label}>
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md border ${platform.style}`} title={platform.label}>
             <span className={`w-1.5 h-1.5 rounded-full ${platform.dot}`} />
             <span>{platform.short}</span>
           </span>
         </div>
 
         {statusCfg ? (
-          <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-lg border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.glow}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
             <span>{statusCfg.label}</span>
           </span>
         ) : (
-          <span className="text-[10px] font-mono text-[#6B7280] px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.06]">
+          <span className="text-xs text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line">
             Unattempted
           </span>
         )}
@@ -271,7 +268,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       <div className="flex items-start justify-between gap-2 relative z-10">
         <Link
           to={`/problems/${problem.id || problem._id}`}
-          className="text-sm font-semibold text-[#F3F4F6] group-hover:text-[#E07A38] transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
+          className="text-sm font-semibold text-text group-hover:text-accent transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
           title={problem.title}
         >
           {problem.title}
@@ -281,7 +278,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="text-[#6B7280] hover:text-[#E07A38] transition-colors shrink-0 p-1 -m-1 rounded hover:bg-white/[0.05]"
+            className="text-muted hover:text-accent transition-colors shrink-0 p-1 -m-1 rounded hover:bg-surface-2"
             title="Open original problem in new tab"
           >
             <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -293,12 +290,12 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       {problem.topics?.length > 0 && (
         <div className="flex flex-wrap gap-1 relative z-10">
           {problem.topics.slice(0, 3).map((t) => (
-            <span key={t} className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#9CA3AF] group-hover:border-white/[0.14] transition-colors">
-              {t}
+            <span key={t} className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary">
+              #{t}
             </span>
           ))}
           {problem.topics.length > 3 && (
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#6B7280]" title={problem.topics.slice(3).join(', ')}>
+            <span className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted" title={problem.topics.slice(3).join(', ')}>
               +{problem.topics.length - 3}
             </span>
           )}
@@ -306,10 +303,10 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       )}
 
       {/* Sessions info & action buttons */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/[0.06] text-xs relative z-10">
-        <span className="font-mono text-[11px] text-[#6B7280]">
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-line text-xs relative z-10">
+        <span className="text-xs text-muted tabular-nums">
           {problem.attemptCount > 0 ? (
-            <span className="text-[#9CA3AF] font-semibold">{problem.attemptCount} attempt{problem.attemptCount > 1 ? 's' : ''}</span>
+            <span className="text-text-secondary font-medium">{problem.attemptCount} attempt{problem.attemptCount > 1 ? 's' : ''}</span>
           ) : (
             'No attempts'
           )}
@@ -320,7 +317,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             <button
               type="button"
               onClick={() => onLog(problem)}
-              className="h-8 px-2.5 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 text-[11px] font-mono font-semibold flex items-center gap-1 transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="h-8 px-2.5 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
               title="Log practice attempt"
             >
               <Plus className="w-3 h-3 stroke-[2.5]" />
@@ -329,7 +326,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           )}
           <Link
             to={`/problems/${problem.id || problem._id}`}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-white/[0.08] bg-[#0E1014] transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all"
             title="View Details"
           >
             <Eye className="w-3.5 h-3.5" />
@@ -337,7 +334,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           <button
             type="button"
             onClick={() => onEdit(problem)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-amber-400 hover:bg-amber-500/10 border border-white/[0.08] bg-[#0E1014] hover:border-amber-500/25 transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-medium hover:bg-medium/10 border border-line bg-surface transition-all cursor-pointer"
             title="Edit problem"
           >
             <Edit2 className="w-3.5 h-3.5" />
@@ -345,7 +342,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           <button
             type="button"
             onClick={() => onDelete(problem)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-rose-400 hover:bg-rose-500/10 border border-white/[0.08] bg-[#0E1014] hover:border-rose-500/25 transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/10 border border-line bg-surface transition-all cursor-pointer"
             title="Delete problem"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -633,46 +630,46 @@ const ProblemsPage = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl font-bold tracking-tight text-[#F3F4F6]">Problems</h1>
-              <span className="text-xs font-mono text-[#9CA3AF] bg-[#14171C] border border-white/[0.08] px-2.5 py-0.5 rounded-lg">
+              <h1 className="text-xl font-semibold tracking-tight text-text">Problems</h1>
+              <span className="text-xs text-muted bg-surface-2 border border-line px-2.5 py-0.5 rounded-lg tabular-nums">
                 {stats.total} total
               </span>
 
               {/* Quick Stat Chips — scrollable on mobile, inline on desktop */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
-                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 shrink-0">
+                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-easy/12 border border-easy/25 text-easy shrink-0 tabular-nums">
                   ● {stats.easy} Easy
                 </span>
-                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0">
+                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-medium/12 border border-medium/25 text-medium shrink-0 tabular-nums">
                   ● {stats.medium} Med
                 </span>
-                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/25 text-rose-400 shrink-0">
+                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-hard/12 border border-hard/25 text-hard shrink-0 tabular-nums">
                   ● {stats.hard} Hard
                 </span>
-                <span className="inline-flex text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 items-center gap-1 shrink-0">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-success/12 border border-success/25 text-success items-center gap-1 shrink-0 tabular-nums">
+                  <CheckCircle2 className="w-3 h-3 text-success" />
                   {stats.solved} Solved
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#9CA3AF] mt-1 font-mono">
+            <p className="text-xs text-muted mt-1">
               Your centralized repository across topics, platforms, and difficulty tiers.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             {/* View toggle (desktop only) */}
-            <div className="hidden sm:flex items-center gap-0.5 p-1 rounded-xl bg-[#14171C] border border-white/[0.08] h-10">
+            <div className="hidden sm:flex items-center gap-0.5 p-1 rounded-lg bg-surface-2 border border-line h-9">
               <button
                 onClick={() => toggleView('table')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-primary text-primary-foreground font-bold shadow-sm' : 'text-[#6B7280] hover:text-[#F3F4F6]'}`}
+                className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'table' ? 'bg-accent text-bg font-semibold shadow-xs' : 'text-muted hover:text-text'}`}
                 title="Table view"
               >
                 <TableIcon />
               </button>
               <button
                 onClick={() => toggleView('grid')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary text-primary-foreground font-bold shadow-sm' : 'text-[#6B7280] hover:text-[#F3F4F6]'}`}
+                className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'grid' ? 'bg-accent text-bg font-semibold shadow-xs' : 'text-muted hover:text-text'}`}
                 title="Grid view"
               >
                 <GridIcon />
@@ -696,7 +693,7 @@ const ProblemsPage = () => {
               className="btn-secondary text-xs items-center gap-1.5"
               title="Pick a random problem to practice"
             >
-              <Dices className="w-3.5 h-3.5 text-amber-400" />
+              <Dices className="w-3.5 h-3.5 text-accent" />
               <span className="hidden sm:inline">Pick Random</span>
             </button>
 
@@ -714,12 +711,12 @@ const ProblemsPage = () => {
 
       {/* ── Unified Modern Command & Filter Toolbar ────────────────── */}
       <Reveal delay={50} y={12}>
-        <div className="panel p-3.5 sm:p-4 border-white/[0.08] bg-[#121418] space-y-3 rounded-2xl shadow-md">
+        <div className="p-3.5 sm:p-4 border border-line bg-surface space-y-3 rounded-xl">
           {/* Top Row: Search Title + Topic Filter + Reset */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3 items-center">
             {/* Search Title */}
             <div className="md:col-span-6 relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
                 <Search className="w-4 h-4" />
               </span>
               <input
@@ -728,13 +725,13 @@ const ProblemsPage = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search problems by title, keywords... (Press / to focus)"
-                className="input pl-9.5 pr-8 py-2 text-xs sm:text-sm w-full bg-[#0D0F13] border-white/[0.08] rounded-xl focus:border-[#E07A38]/50 focus:ring-1 focus:ring-[#E07A38]/50"
+                className="input pl-9.5 pr-8 py-2 text-xs sm:text-sm w-full bg-surface-2 border border-line rounded-lg text-text placeholder:text-muted focus:border-accent focus:ring-1 focus:ring-accent"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 p-0.5"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-text p-0.5 cursor-pointer"
                   title="Clear search"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -744,13 +741,13 @@ const ProblemsPage = () => {
 
             {/* Topic Filter Dropdown */}
             <div className="md:col-span-4 relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
                 <Tag className="w-3.5 h-3.5" />
               </span>
               <select
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="input pl-9 pr-8 py-2 text-xs sm:text-sm w-full bg-[#0D0F13] border-white/[0.08] rounded-xl text-slate-300 focus:border-[#E07A38]/50 focus:ring-1 focus:ring-[#E07A38]/50 appearance-none cursor-pointer"
+                className="input pl-9 pr-8 py-2 text-xs sm:text-sm w-full bg-surface-2 border border-line rounded-lg text-text focus:border-accent focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
               >
                 <option value="">All Topics ({(allTopics || []).length})</option>
                 {(allTopics || []).map((t) => (
@@ -759,7 +756,7 @@ const ProblemsPage = () => {
                   </option>
                 ))}
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-xs">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-xs">
                 ▼
               </span>
             </div>
@@ -770,13 +767,13 @@ const ProblemsPage = () => {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="btn-ghost text-xs text-amber-400 hover:text-amber-300 border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 py-1.5 px-2.5 rounded-xl flex items-center gap-1.5 w-full justify-center sm:w-auto transition-colors"
+                  className="text-xs text-accent hover:text-accent-hover border border-accent/20 bg-accent/10 hover:bg-accent/20 py-1.5 px-2.5 rounded-lg flex items-center gap-1.5 w-full justify-center sm:w-auto transition-colors cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                   <span>Reset ({activeFilterCount})</span>
                 </button>
               ) : (
-                <span className="text-[11px] font-mono text-slate-500 hidden md:inline">
+                <span className="text-xs text-muted hidden md:inline">
                   No active filters
                 </span>
               )}
@@ -784,28 +781,28 @@ const ProblemsPage = () => {
           </div>
 
           {/* Bottom Row: Difficulty & Status Quick Filter Chips */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2.5 border-t border-white/[0.04]">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2.5 border-t border-line">
             {/* Difficulty Segmented Control */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              <span className="text-[11px] font-medium text-slate-400 shrink-0 flex items-center gap-1">
-                <SlidersHorizontal className="w-3 h-3 text-slate-500" />
+              <span className="text-xs font-medium text-text-secondary shrink-0 flex items-center gap-1">
+                <SlidersHorizontal className="w-3 h-3 text-muted" />
                 <span>Difficulty:</span>
               </span>
-              <div className="flex items-center p-0.5 rounded-lg bg-[#0B0D11] border border-white/[0.07] shrink-0">
+              <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line shrink-0">
                 {[
-                  { value: '', label: 'All', active: 'bg-white/[0.12] text-white font-semibold border-white/[0.2] shadow-xs' },
-                  { value: 'easy', label: 'Easy', active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/35 font-semibold shadow-xs' },
-                  { value: 'medium', label: 'Medium', active: 'bg-amber-500/15 text-amber-400 border-amber-500/35 font-semibold shadow-xs' },
-                  { value: 'hard', label: 'Hard', active: 'bg-rose-500/15 text-rose-400 border-rose-500/35 font-semibold shadow-xs' },
+                  { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
+                  { value: 'easy', label: 'Easy', active: 'bg-easy/15 text-easy border-easy/35 font-semibold shadow-xs' },
+                  { value: 'medium', label: 'Medium', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
+                  { value: 'hard', label: 'Hard', active: 'bg-hard/15 text-hard border-hard/35 font-semibold shadow-xs' },
                 ].map((d) => (
                   <button
                     key={d.value}
                     type="button"
                     onClick={() => setDifficulty(d.value)}
-                    className={`text-[11px] font-mono px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                    className={`text-xs px-2.5 py-0.5 rounded-md border transition-all cursor-pointer ${
                       difficulty === d.value
                         ? d.active
-                        : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                        : 'border-transparent text-muted hover:text-text hover:bg-surface'
                     }`}
                   >
                     {d.label}
@@ -816,25 +813,25 @@ const ProblemsPage = () => {
 
             {/* Status Segmented Control */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              <span className="text-[11px] font-medium text-slate-400 shrink-0 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-slate-500" />
+              <span className="text-xs font-medium text-text-secondary shrink-0 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-muted" />
                 <span>Status:</span>
               </span>
-              <div className="flex items-center p-0.5 rounded-lg bg-[#0B0D11] border border-white/[0.07] shrink-0">
+              <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line shrink-0">
                 {[
-                  { value: '', label: 'All', active: 'bg-white/[0.12] text-white font-semibold border-white/[0.2] shadow-xs' },
-                  { value: 'solved', label: 'Solved', active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/35 font-semibold shadow-xs' },
-                  { value: 'struggled', label: 'Struggled', active: 'bg-rose-500/15 text-rose-400 border-rose-500/35 font-semibold shadow-xs' },
-                  { value: 'revisit_needed', label: 'Revisit', active: 'bg-amber-500/15 text-amber-400 border-amber-500/35 font-semibold shadow-xs' },
+                  { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
+                  { value: 'solved', label: 'Solved', active: 'bg-success/15 text-success border-success/35 font-semibold shadow-xs' },
+                  { value: 'struggled', label: 'Struggled', active: 'bg-danger/15 text-danger border-danger/35 font-semibold shadow-xs' },
+                  { value: 'revisit_needed', label: 'Revisit', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
                 ].map((s) => (
                   <button
                     key={s.value}
                     type="button"
                     onClick={() => setStatus(s.value)}
-                    className={`text-[11px] font-mono px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                    className={`text-xs px-2.5 py-0.5 rounded-md border transition-all cursor-pointer ${
                       status === s.value
                         ? s.active
-                        : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                        : 'border-transparent text-muted hover:text-text hover:bg-surface'
                     }`}
                   >
                     {s.label}
@@ -848,13 +845,13 @@ const ProblemsPage = () => {
 
       {/* ── Content: Mobile Cards / Desktop Table or Grid ──────────── */}
       {isMobile ? (
-        /* Mobile: Beautiful touch-first individual cards */
+        /* Mobile: touch-first individual cards */
         isLoading ? (
           <MobileProblemSkeleton />
         ) : error ? (
-          <div className="panel p-6 text-center border-rose-500/25 bg-[#140F11]">
-            <p className="text-sm font-semibold text-rose-300">Unable to load problems</p>
-            <p className="text-xs text-rose-400 mt-1">{error}</p>
+          <div className="p-6 text-center border border-danger/25 bg-danger/10 rounded-xl">
+            <p className="text-sm font-semibold text-danger">Unable to load problems</p>
+            <p className="text-xs text-danger/80 mt-1">{error}</p>
           </div>
         ) : problems.length === 0 ? (
           <MobileEmptyState
@@ -906,24 +903,24 @@ const ProblemsPage = () => {
 
       {/* ── Smart Responsive Pagination Footer ── */}
       {!isLoading && !error && totalProblems > 0 && (
-        <div className="panel p-3 sm:px-4 sm:py-3 border-white/[0.08] bg-[#121418] rounded-2xl shadow-md space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4 overflow-hidden">
+        <div className="p-3 sm:px-4 sm:py-3 border border-line bg-surface rounded-xl space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4 overflow-hidden">
           {/* Mobile Top Row / Desktop Left: Range Info & Mobile Page Size */}
           <div className="flex items-center justify-between sm:justify-start gap-3">
-            <div className="font-mono text-slate-400 text-xs flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 shrink-0" />
-              <span className="text-slate-400">
+            <div className="text-muted text-xs flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
+              <span className="text-muted">
                 <span className="hidden sm:inline">Showing </span>
-                <strong className="text-slate-100 font-semibold">
+                <strong className="text-text font-semibold tabular-nums">
                   {pageSize === 'all' ? 1 : Math.min((currentPage - 1) * pageSize + 1, totalProblems)}–{pageSize === 'all' ? totalProblems : Math.min(currentPage * pageSize, totalProblems)}
                 </strong>
-                <span className="text-slate-500"> of </span>
-                <strong className="text-slate-200 font-semibold">{totalProblems}</strong>
-                <span className="hidden md:inline text-slate-400"> problems</span>
+                <span className="text-muted"> of </span>
+                <strong className="text-text font-semibold tabular-nums">{totalProblems}</strong>
+                <span className="hidden md:inline text-muted"> problems</span>
               </span>
             </div>
 
             {/* Mobile-only compact Page Size selector */}
-            <div className="sm:hidden flex items-center p-0.5 rounded-lg bg-[#0B0D11] border border-white/[0.08] shrink-0">
+            <div className="sm:hidden flex items-center p-0.5 rounded-lg bg-surface-2 border border-line shrink-0">
               {[10, 25, 50, 'all'].map((size) => (
                 <button
                   key={size}
@@ -932,10 +929,10 @@ const ProblemsPage = () => {
                     setPageSize(size);
                     setCurrentPage(1);
                   }}
-                  className={`h-6 px-2 flex items-center justify-center text-[10px] font-mono rounded-md transition-all cursor-pointer ${
+                  className={`h-6 px-2 flex items-center justify-center text-xs rounded-md transition-all cursor-pointer ${
                     pageSize === size
-                      ? 'bg-[#1C2026] text-white font-bold border border-white/[0.12] shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-surface text-text font-semibold border border-line shadow-xs'
+                      : 'text-muted hover:text-text'
                   }`}
                 >
                   {size === 'all' ? 'All' : size}
@@ -951,7 +948,7 @@ const ProblemsPage = () => {
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className="h-9 sm:h-8 px-3 rounded-xl sm:rounded-lg border border-white/[0.08] bg-[#0E1014] text-slate-300 hover:text-white hover:bg-[#181B20] disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-xs text-xs font-semibold"
+                className="btn-secondary h-8 px-3 rounded-lg disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold"
                 title="Previous Page"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
@@ -965,10 +962,10 @@ const ProblemsPage = () => {
                     key={p}
                     type="button"
                     onClick={() => setCurrentPage(p)}
-                    className={`w-7 h-7 rounded-lg font-mono text-xs flex items-center justify-center transition-all cursor-pointer ${
+                    className={`w-7 h-7 rounded-lg text-xs tabular-nums flex items-center justify-center transition-all cursor-pointer ${
                       currentPage === p
-                        ? 'bg-primary text-primary-foreground font-bold shadow-sm'
-                        : 'bg-[#0E1014] border border-white/[0.08] text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-[#181B20]'
+                        ? 'bg-accent text-bg font-semibold'
+                        : 'bg-surface-2 border border-line text-muted hover:text-text hover:bg-surface-2/80'
                     }`}
                   >
                     {p}
@@ -977,17 +974,17 @@ const ProblemsPage = () => {
               </div>
 
               {/* Mobile / Tablet: Prominent Page Counter */}
-              <div className="md:hidden px-3.5 h-9 sm:h-8 flex items-center justify-center font-mono text-xs font-bold text-slate-200 bg-[#0E1014] border border-white/[0.08] rounded-xl sm:rounded-lg min-w-[70px] shadow-xs">
-                <span className="text-white">{currentPage}</span>
-                <span className="text-slate-500 mx-1.5 font-normal">of</span>
-                <span className="text-slate-400">{totalPages}</span>
+              <div className="md:hidden px-3.5 h-8 flex items-center justify-center text-xs font-semibold text-text bg-surface-2 border border-line rounded-lg min-w-[70px] tabular-nums">
+                <span className="text-text">{currentPage}</span>
+                <span className="text-muted mx-1.5 font-normal">of</span>
+                <span className="text-muted">{totalPages}</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="h-9 sm:h-8 px-3 rounded-xl sm:rounded-lg border border-white/[0.08] bg-[#0E1014] text-slate-300 hover:text-white hover:bg-[#181B20] disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-xs text-xs font-semibold"
+                className="btn-secondary h-8 px-3 rounded-lg disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold"
                 title="Next Page"
               >
                 <span>Next</span>
@@ -998,8 +995,8 @@ const ProblemsPage = () => {
 
           {/* Desktop Right: Per page selector */}
           <div className="hidden sm:flex items-center gap-2 shrink-0">
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider hidden lg:inline">Per page:</span>
-            <div className="h-8 flex items-center p-0.5 rounded-lg bg-[#0E1014] border border-white/[0.08]">
+            <span className="text-xs text-muted uppercase tracking-wide hidden lg:inline">Per page:</span>
+            <div className="h-8 flex items-center p-0.5 rounded-lg bg-surface-2 border border-line">
               {[10, 25, 50, 'all'].map((size) => (
                 <button
                   key={size}
@@ -1008,10 +1005,10 @@ const ProblemsPage = () => {
                     setPageSize(size);
                     setCurrentPage(1);
                   }}
-                  className={`h-7 px-2 sm:px-2.5 flex items-center justify-center text-[10px] sm:text-[11px] font-mono rounded-md transition-all cursor-pointer ${
+                  className={`h-7 px-2 sm:px-2.5 flex items-center justify-center text-xs rounded-md transition-all cursor-pointer ${
                     pageSize === size
-                      ? 'bg-[#1C2026] text-white font-bold border border-white/[0.12] shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-surface text-text font-semibold border border-line shadow-xs'
+                      : 'text-muted hover:text-text'
                   }`}
                 >
                   {size === 'all' ? 'All' : size}

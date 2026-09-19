@@ -181,35 +181,29 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
       onClick={handleClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#10131A] border border-white/[0.12] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.8)]"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Subtle glow */}
-        <div
-          className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-[#E07A38]/10 pointer-events-none"
-          style={{ filter: 'blur(50px)' }}
-        />
-
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/[0.08] sticky top-0 bg-[#10131A]/95 backdrop-blur-sm z-10">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-line sticky top-0 bg-surface-2/40 z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center text-[#E07A38]">
+            <div className="w-8 h-8 rounded-lg bg-accent/12 border border-accent/25 flex items-center justify-center text-accent">
               <Upload className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">Import & Restore Data</h2>
-              <p className="text-[11px] text-slate-400">Restore your problems from a JSON or CSV backup</p>
+              <h2 className="text-sm font-semibold text-text tracking-tight">Import & Restore Data</h2>
+              <p className="text-xs text-muted">Restore your problems from a JSON or CSV backup</p>
             </div>
           </div>
           <button
             onClick={handleClose}
             type="button"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -220,14 +214,14 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
           {/* Result view */}
           {importResult ? (
             <div className="text-center py-6 space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mx-auto text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+              <div className="w-14 h-14 rounded-xl bg-success/12 border border-success/25 flex items-center justify-center mx-auto text-success">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-white">Import Complete!</h3>
-              <div className="p-3.5 rounded-xl bg-[#090B0E] border border-white/[0.06] text-xs font-mono text-slate-300 max-w-sm mx-auto space-y-1">
-                <p className="text-emerald-400 font-semibold">{importResult.count} problems successfully added</p>
+              <h3 className="text-base font-semibold text-text">Import Complete!</h3>
+              <div className="p-3.5 rounded-xl bg-surface-2 border border-line text-xs text-text-secondary max-w-sm mx-auto space-y-1">
+                <p className="text-success font-semibold">{importResult.count} problems successfully added</p>
                 {importResult.skipped > 0 && (
-                  <p className="text-slate-500">{importResult.skipped} duplicate problems skipped</p>
+                  <p className="text-muted">{importResult.skipped} duplicate problems skipped</p>
                 )}
               </div>
               <button
@@ -242,7 +236,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
             <>
               {/* Error Notice */}
               {parseError && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2.5 text-xs text-rose-400">
+                <div className="p-3 rounded-lg bg-danger/10 border border-danger/25 flex items-start gap-2.5 text-xs text-danger">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{parseError}</span>
                 </div>
@@ -254,7 +248,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-8 border-2 border-dashed border-white/[0.12] hover:border-[#E07A38]/50 bg-[#090B0E]/60 hover:bg-[#090B0E] rounded-2xl text-center cursor-pointer transition-all group"
+                  className="p-8 border-2 border-dashed border-line hover:border-accent/50 bg-surface-2/40 hover:bg-surface-2 rounded-xl text-center cursor-pointer transition-all group"
                 >
                   <input
                     ref={fileInputRef}
@@ -263,28 +257,28 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="w-12 h-12 rounded-2xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center mx-auto mb-3 text-[#E07A38] group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-accent/12 border border-accent/25 flex items-center justify-center mx-auto mb-3 text-accent group-hover:scale-105 transition-transform">
                     <Upload className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xs font-semibold text-white mb-1">
+                  <h3 className="text-xs font-semibold text-text mb-1">
                     Click to upload or drag & drop backup file
                   </h3>
-                  <p className="text-[11px] text-slate-500 mb-3">Supports .JSON or .CSV format</p>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[11px] font-mono text-slate-400">
-                    <FileCheck className="w-3.5 h-3.5 text-[#E07A38]" /> Choose Backup File
+                  <p className="text-xs text-muted mb-3">Supports .JSON or .CSV format</p>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface border border-line text-xs text-muted">
+                    <FileCheck className="w-3.5 h-3.5 text-accent" /> Choose Backup File
                   </span>
                 </div>
               ) : (
                 /* Parsed Preview */
                 <div className="space-y-4">
-                  <div className="p-3.5 rounded-xl bg-[#090B0E] border border-white/[0.06] flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-surface-2 border border-line flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-success/12 border border-success/25 flex items-center justify-center text-success shrink-0">
                         <CheckCircle2 className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-white truncate">{file?.name}</p>
-                        <p className="text-[10px] text-slate-400 font-mono">
+                        <p className="text-xs font-semibold text-text truncate">{file?.name}</p>
+                        <p className="text-xs text-muted">
                           {parsedProblems.length} {parsedProblems.length === 1 ? 'problem' : 'problems'} ready to import
                         </p>
                       </div>
@@ -296,7 +290,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                         setParsedProblems([]);
                         setParseError('');
                       }}
-                      className="text-[11px] text-rose-400 hover:text-rose-300 font-medium px-2 py-1 rounded hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      className="text-xs text-danger hover:underline font-medium px-2 py-1 rounded hover:bg-danger/10 transition-colors cursor-pointer"
                     >
                       Remove
                     </button>
@@ -304,17 +298,17 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
 
                   {/* Sample problem preview list */}
                   <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block mb-1">
+                    <span className="text-xs uppercase tracking-wider text-muted block mb-1">
                       Previewing first {Math.min(5, parsedProblems.length)} of {parsedProblems.length} items:
                     </span>
                     {parsedProblems.slice(0, 5).map((p, idx) => (
                       <div
                         key={idx}
-                        className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-xs"
+                        className="p-2 rounded-lg bg-surface border border-line flex items-center justify-between text-xs"
                       >
-                        <span className="text-slate-200 truncate max-w-[240px]">{p.title}</span>
+                        <span className="text-text truncate max-w-[240px]">{p.title}</span>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[10px] font-mono uppercase text-slate-500">{p.platform}</span>
+                          <span className="text-xs font-mono uppercase text-muted">{p.platform}</span>
                           <Badge variant={p.difficulty || 'medium'} size="xs">
                             {p.difficulty || 'medium'}
                           </Badge>
@@ -324,11 +318,11 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/[0.06]">
+                  <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-line">
                     <button
                       type="button"
                       onClick={handleClose}
-                      className="px-4 h-10 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                      className="btn-secondary px-4 h-10 rounded-lg text-xs font-medium cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -340,7 +334,7 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
                     >
                       {isImporting ? (
                         <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#12151B]" />
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-bg" />
                           <span>Importing…</span>
                         </>
                       ) : (

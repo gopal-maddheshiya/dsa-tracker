@@ -17,7 +17,6 @@ import {
   Flame,
   Search,
   Plus,
-  X,
 } from 'lucide-react';
 import { scrollToTop } from '../common/SmoothScroll';
 
@@ -47,21 +46,20 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
     <NavLink
       to={to}
       className={({ isActive }) => `
-        group flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm
-        transition-all duration-150 relative overflow-hidden
+        group flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm
+        transition-colors relative select-none
         ${isActive
-          ? 'bg-[#E07A38]/10 text-[#E07A38] border border-[#E07A38]/25 font-semibold'
-          : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 border border-transparent'
+          ? 'bg-surface-2 text-accent border border-line font-medium'
+          : 'text-text-secondary hover:text-text hover:bg-surface-2 border border-transparent'
         }
       `}
     >
       {({ isActive }) => (
         <>
-          {/* Active left accent bar */}
           {isActive && (
-            <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.5)]" />
+            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r bg-accent" />
           )}
-          <span className={`shrink-0 ${isActive ? 'text-[#E07A38]' : 'text-zinc-400 group-hover:text-zinc-200'} transition-colors`}>
+          <span className={`shrink-0 ${isActive ? 'text-accent' : 'text-text-secondary group-hover:text-text'} transition-colors`}>
             <NavIcon className="w-4 h-4" />
           </span>
           {!collapsed && <span className="truncate">{label}</span>}
@@ -73,21 +71,20 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
   return (
     <aside
       className={`
-        flex flex-col h-full bg-[#0E1118]/90 backdrop-blur-2xl border-r border-white/[0.08]
-        transition-all duration-300 ease-in-out overflow-hidden select-none
+        flex flex-col h-full bg-surface border-r border-line
+        transition-all duration-200 ease-in-out overflow-hidden select-none
         ${collapsed ? 'w-[64px]' : 'w-[240px]'}
       `}
     >
       {/* ── Logo ──────────────────────────────── */}
-      <div className="flex items-center h-14 sm:h-[60px] px-3.5 border-b border-white/[0.08] shrink-0">
+      <div className="flex items-center h-14 sm:h-[60px] px-3.5 border-b border-line shrink-0">
         <NavLink to="/dashboard" className="flex items-center gap-2.5 min-w-0">
           <BrandLogo size="md" showText={!collapsed} />
         </NavLink>
-        {/* Desktop collapse toggle */}
         {!collapsed && (
           <button
             onClick={onToggle}
-            className="ml-auto p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 transition-all cursor-pointer"
+            className="ml-auto p-1.5 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
             title="Collapse sidebar"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -100,13 +97,13 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
         {collapsed ? (
           <button
             onClick={onToggle}
-            className="w-full flex items-center justify-center p-2.5 mb-2 rounded-xl text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 transition-all"
+            className="w-full flex items-center justify-center p-2 mb-2 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors"
             title="Expand sidebar"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         ) : (
-          <p className="px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-400 font-mono">
+          <p className="px-3 pb-1.5 pt-1 text-xs font-semibold uppercase tracking-wide text-text-secondary">
             Navigation
           </p>
         )}
@@ -119,15 +116,15 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
       {!collapsed && (
         <NavLink
           to="/profile"
-          className="mx-2.5 mb-2 px-3 py-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 hover:border-[#E07A38]/40 transition-all block group shadow-sm hover:shadow-[0_0_16px_rgba(224,122,56,0.1)] shrink-0"
+          className="mx-2.5 mb-2 px-3 py-2.5 rounded-lg bg-surface-2 border border-line hover:border-accent transition-colors block group shrink-0"
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#E07A38]/15 border border-[#E07A38]/25 flex items-center justify-center shrink-0">
-              <Flame className="w-4 h-4 text-[#E07A38] group-hover:scale-110 transition-transform" />
+            <div className="w-7 h-7 rounded-lg bg-accent/12 border border-accent/25 flex items-center justify-center shrink-0">
+              <Flame className="w-4 h-4 text-accent" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Practice Streak</p>
-              <p className="text-xs font-bold font-mono text-zinc-100 flex items-center gap-1.5">
+              <p className="text-xs text-text-secondary uppercase tracking-wide">Practice Streak</p>
+              <p className="text-xs font-semibold text-text tabular-nums flex items-center gap-1.5">
                 <span>{streak != null ? `${streak} day${streak !== 1 ? 's' : ''}` : 'Active'}</span>
               </p>
             </div>
@@ -136,19 +133,19 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
       )}
 
       {/* ── User footer ───────────────────────── */}
-      <div className={`shrink-0 border-t border-zinc-800/80 p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
+      <div className={`shrink-0 border-t border-line p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
         {collapsed ? (
           <>
             {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-xl object-cover border border-[#E07A38]/30 shadow-xs" referrerPolicy="no-referrer" />
+              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-lg object-cover border border-line" referrerPolicy="no-referrer" />
             ) : (
-              <div className="w-8 h-8 rounded-xl bg-[#E07A38]/15 border border-[#E07A38]/25 flex items-center justify-center shadow-xs">
-                <span className="text-[11px] font-bold text-[#E07A38] font-mono">{initials}</span>
+              <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center">
+                <span className="text-xs font-semibold text-text-secondary">{initials}</span>
               </div>
             )}
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
+              className="p-2 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
               title="Sign out"
             >
               <LogOut className="w-4 h-4" />
@@ -157,21 +154,21 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
         ) : (
           <div className="flex items-center gap-2.5 p-1">
             {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-xl object-cover border border-[#E07A38]/30 shrink-0 shadow-xs" referrerPolicy="no-referrer" />
+              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-lg object-cover border border-line shrink-0" referrerPolicy="no-referrer" />
             ) : (
-              <div className="w-8 h-8 rounded-xl bg-[#E07A38]/15 border border-[#E07A38]/25 flex items-center justify-center shrink-0 shadow-xs">
-                <span className="text-[11px] font-bold text-[#E07A38] font-mono">{initials}</span>
+              <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center shrink-0">
+                <span className="text-xs font-semibold text-text-secondary">{initials}</span>
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-zinc-100 truncate">
+              <p className="text-xs font-semibold text-text truncate">
                 {user?.name || 'User'}
               </p>
-              <p className="text-[10px] text-zinc-400 font-mono truncate">{user?.email}</p>
+              <p className="text-xs text-muted truncate">{user?.email}</p>
             </div>
             <button
               onClick={handleLogout}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all shrink-0"
+              className="p-1.5 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors shrink-0 cursor-pointer"
               title="Sign out"
             >
               <LogOut className="w-4 h-4" />
@@ -339,14 +336,14 @@ const AppShell = ({ children }) => {
   // Public pages — no sidebar
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col text-[#F8FAFC]">
+      <div className="min-h-screen flex flex-col text-text bg-bg">
         {children}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex text-[#F8FAFC]">
+    <div className="min-h-screen flex text-text bg-bg">
 
       {/* ── Desktop sidebar ─────────────────────── */}
       <div className="hidden lg:flex shrink-0 h-screen sticky top-0 z-20">
@@ -360,30 +357,29 @@ const AppShell = ({ children }) => {
       {/* ── Main area ───────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* ── Top Header Ribbon (Frosted Obsidian Glass) ───────── */}
-        <header className="sticky top-0 z-30 flex items-center justify-between h-14 sm:h-[60px] px-3 sm:px-6 border-b border-white/[0.08] bg-[#0B0D13]/80 backdrop-blur-2xl shrink-0 transition-all">
+        {/* ── Top Header Ribbon ───────────────────── */}
+        <header className="sticky top-0 z-30 flex items-center justify-between h-14 sm:h-[60px] px-3 sm:px-6 border-b border-line bg-surface shrink-0">
 
           {/* Left: Mobile Brand Logo OR Desktop Breadcrumbs */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            {/* Mobile logo (prominent, clean, without hamburger clutter) */}
-            <NavLink to="/dashboard" className="flex items-center lg:hidden active:scale-95 transition-transform" title="DSA Tracker">
+            <NavLink to="/dashboard" className="flex items-center lg:hidden" title="DSA Tracker">
               <BrandLogo size="sm" showText={true} />
             </NavLink>
 
             {/* Desktop Breadcrumbs */}
             <nav aria-label="Breadcrumb" className="hidden lg:flex items-center gap-2 text-xs">
-              <span className="flex items-center gap-1.5 font-medium text-zinc-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+              <span className="flex items-center gap-1.5 font-medium text-text-secondary">
+                <span className="w-2 h-2 rounded-full bg-success" />
                 {breadcrumb.section}
               </span>
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-              <span className="text-zinc-400 font-medium">
+              <ChevronRight className="w-3.5 h-3.5 text-muted" />
+              <span className="text-text-secondary font-medium">
                 {breadcrumb.page}
               </span>
               {breadcrumb.subpage && (
                 <>
-                  <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
-                  <span className="text-zinc-100 font-semibold">
+                  <ChevronRight className="w-3.5 h-3.5 text-muted" />
+                  <span className="text-text font-semibold">
                     {breadcrumb.subpage}
                   </span>
                 </>
@@ -396,16 +392,16 @@ const AppShell = ({ children }) => {
             <button
               type="button"
               onClick={handleSearchPillClick}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-850 border border-zinc-800/80 hover:border-[#E07A38]/35 text-zinc-400 hover:text-zinc-200 transition-all group w-52 sm:w-64 lg:w-72 shadow-sm text-xs cursor-pointer"
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface border border-line hover:border-accent text-text-secondary hover:text-text transition-colors group w-52 sm:w-64 lg:w-72 text-xs cursor-pointer"
               title="Search problems and topics (Press / or Ctrl+K)"
             >
-              <Search className="w-3.5 h-3.5 text-zinc-400 group-hover:text-[#E07A38] transition-colors" />
+              <Search className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors" />
               <span className="truncate flex-1 text-left">Search problems, tags...</span>
               <div className="flex items-center gap-1">
-                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 rounded group-hover:border-[#E07A38]/30 group-hover:text-[#E07A38] transition-colors">
+                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-xs font-mono text-muted bg-surface border border-line rounded">
                   Ctrl K
                 </kbd>
-                <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 rounded group-hover:border-[#E07A38]/30 group-hover:text-[#E07A38] transition-colors">
+                <kbd className="inline-flex items-center px-1.5 py-0.5 text-xs font-mono text-muted bg-surface border border-line rounded">
                   /
                 </kbd>
               </div>
@@ -418,7 +414,7 @@ const AppShell = ({ children }) => {
             <button
               type="button"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="md:hidden p-2 rounded-xl text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 active:scale-95 transition-all"
+              className="md:hidden p-2 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
               aria-label="Search problems and actions"
               title="Search problems"
             >
@@ -429,10 +425,10 @@ const AppShell = ({ children }) => {
             {streak != null && streak > 0 && (
               <NavLink
                 to="/profile"
-                className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-zinc-900 border border-[#E07A38]/25 hover:border-[#E07A38]/50 text-xs font-mono font-bold text-[#E07A38] transition-all active:scale-95 shadow-[0_0_12px_rgba(224,122,56,0.12)]"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/12 border border-accent/25 text-xs font-medium tabular-nums text-accent transition-colors"
                 title={`${streak} day practice streak`}
               >
-                <Flame className="w-3.5 h-3.5 text-[#E07A38]" />
+                <Flame className="w-3.5 h-3.5 text-accent" />
                 <span>{streak}d</span>
               </NavLink>
             )}
@@ -441,7 +437,7 @@ const AppShell = ({ children }) => {
             <button
               type="button"
               onClick={() => setIsQuickAddOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E07A38] hover:opacity-92 text-[#12151B] text-xs font-bold shadow-[0_1px_3px_rgba(0,0,0,0.35),0_4px_12px_rgba(0,0,0,0.25)] active:scale-95 transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-bg text-xs font-semibold transition-colors cursor-pointer"
               title="Create / Catalog a new problem"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -451,7 +447,7 @@ const AppShell = ({ children }) => {
             {/* User Profile Avatar */}
             <NavLink
               to="/profile"
-              className="flex items-center gap-2 p-1 rounded-xl hover:bg-zinc-800/60 transition-all group active:scale-95"
+              className="flex items-center gap-2 p-1 rounded-lg hover:bg-surface-2 transition-colors group"
               title="View Profile & Settings"
             >
               <div className="relative">
@@ -459,20 +455,20 @@ const AppShell = ({ children }) => {
                   <img
                     src={user.avatar}
                     alt={user.name}
-                    className="w-8 h-8 rounded-xl object-cover ring-1 ring-white/10 group-hover:ring-[#E07A38]/50 transition-all"
+                    className="w-8 h-8 rounded-lg object-cover border border-line group-hover:border-accent transition-colors"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-white/10 flex items-center justify-center text-xs font-bold text-zinc-300 group-hover:border-[#E07A38]/50 group-hover:text-white transition-all shadow-inner">
+                  <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
                     {initials}
                   </div>
                 )}
               </div>
               <div className="hidden xl:flex flex-col text-left">
-                <span className="text-xs font-semibold text-zinc-100 group-hover:text-white transition-colors truncate max-w-[100px]">
+                <span className="text-xs font-semibold text-text truncate max-w-[100px]">
                   {user?.name || 'User'}
                 </span>
-                <span className="text-[10px] text-zinc-400 font-mono">
+                <span className="text-xs text-muted">
                   Pro Learner
                 </span>
               </div>
@@ -494,27 +490,23 @@ const AppShell = ({ children }) => {
           aria-label="Mobile Dock Navigation"
           className="fixed bottom-0 inset-x-0 z-40 lg:hidden px-3 pb-safe pt-1 pointer-events-none"
         >
-          {/* Frosted Glass Pill Container */}
-          <div className="pointer-events-auto max-w-md mx-auto mb-2.5 px-3 py-1.5 rounded-2xl bg-[#0F1218]/90 backdrop-blur-2xl border border-white/[0.1] shadow-[0_8px_32px_rgba(0,0,0,0.6),0_1px_1px_rgba(255,255,255,0.08)_inset] grid grid-cols-5 items-center gap-1">
+          <div className="pointer-events-auto max-w-md mx-auto mb-2.5 px-3 py-1.5 rounded-xl bg-surface border border-line shadow-modal grid grid-cols-5 items-center gap-1">
 
             {/* 1. Dashboard */}
             <NavLink
               to="/dashboard"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 active:scale-90 min-h-[46px] cursor-pointer
-                ${isActive ? 'text-[#E07A38] font-semibold' : 'text-zinc-400 hover:text-zinc-200'}
+                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
-                  {/* Top glowing active indicator */}
                   {isActive && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.6)]" />
+                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
                   )}
-                  <div className="relative">
-                    <LayoutDashboard className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-[#E07A38]' : 'group-hover:text-zinc-200'}`} />
-                  </div>
-                  <span className={`text-[10px] tracking-tight mt-1 transition-colors ${isActive ? 'font-bold text-[#E07A38]' : 'font-medium text-zinc-400 group-hover:text-zinc-300'}`}>
+                  <LayoutDashboard className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
+                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Dashboard
                   </span>
                 </>
@@ -525,26 +517,24 @@ const AppShell = ({ children }) => {
             <NavLink
               to="/problems"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 active:scale-90 min-h-[46px] cursor-pointer
-                ${isActive ? 'text-[#E07A38] font-semibold' : 'text-zinc-400 hover:text-zinc-200'}
+                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.6)]" />
+                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
                   )}
-                  <div className="relative">
-                    <Code2 className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-[#E07A38]' : 'group-hover:text-zinc-200'}`} />
-                  </div>
-                  <span className={`text-[10px] tracking-tight mt-1 transition-colors ${isActive ? 'font-bold text-[#E07A38]' : 'font-medium text-zinc-400 group-hover:text-zinc-300'}`}>
+                  <Code2 className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
+                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Problems
                   </span>
                 </>
               )}
             </NavLink>
 
-            {/* 3. Center Elevated Quick Action Button (Add Problem - Portfolio Ember) */}
+            {/* 3. Center Quick Action Button */}
             <div className="flex flex-col items-center justify-center -mt-5 relative z-10">
               <button
                 type="button"
@@ -552,10 +542,10 @@ const AppShell = ({ children }) => {
                 className="group relative flex flex-col items-center justify-center cursor-pointer focus:outline-none"
                 aria-label="Add new problem"
               >
-                <div className="w-12 h-12 rounded-[20px] bg-[#E07A38] text-[#12151B] flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.45)] ring-4 ring-[#0B0D13] group-active:scale-90 group-hover:scale-105 group-hover:opacity-92 transition-all duration-200">
-                  <Plus className="w-6 h-6 stroke-[2.5] text-[#12151B] group-hover:rotate-90 transition-transform duration-200" />
+                <div className="w-11 h-11 rounded-lg bg-accent text-bg flex items-center justify-center ring-4 ring-bg hover:bg-accent-hover transition-colors">
+                  <Plus className="w-5 h-5 stroke-[2.5]" />
                 </div>
-                <span className="text-[10px] font-semibold text-zinc-300 mt-1 tracking-tight group-hover:text-white transition-colors">
+                <span className="text-xs font-medium text-text-secondary mt-1">
                   Add
                 </span>
               </button>
@@ -565,24 +555,24 @@ const AppShell = ({ children }) => {
             <NavLink
               to="/revision"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 active:scale-90 min-h-[46px] cursor-pointer
-                ${isActive ? 'text-[#E07A38] font-semibold' : 'text-zinc-400 hover:text-zinc-200'}
+                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.6)]" />
+                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
                   )}
                   <div className="relative">
-                    <Repeat className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-[#E07A38]' : 'group-hover:text-zinc-200'}`} />
+                    <Repeat className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
                     {revisionCount > 0 && (
-                      <span className="absolute -top-1 -right-2.5 min-w-[16px] h-[16px] px-1 rounded-full bg-[#E07A38] text-[#12151B] font-mono text-[9px] font-black flex items-center justify-center shadow-xs border-2 border-[#0B0D13]">
+                      <span className="absolute -top-1 -right-2.5 min-w-[16px] h-[16px] px-1 rounded-full bg-accent text-bg text-xs font-bold tabular-nums flex items-center justify-center border-2 border-surface">
                         {revisionCount > 9 ? '9+' : revisionCount}
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] tracking-tight mt-1 transition-colors ${isActive ? 'font-bold text-[#E07A38]' : 'font-medium text-zinc-400 group-hover:text-zinc-300'}`}>
+                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Revision
                   </span>
                 </>
@@ -593,19 +583,17 @@ const AppShell = ({ children }) => {
             <NavLink
               to="/profile"
               className={({ isActive }) => `
-                group relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 active:scale-90 min-h-[46px] cursor-pointer
-                ${isActive ? 'text-[#E07A38] font-semibold' : 'text-zinc-400 hover:text-zinc-200'}
+                group relative flex flex-col items-center justify-center py-1 rounded-lg transition-colors min-h-[46px] cursor-pointer
+                ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
               `}
             >
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.6)]" />
+                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
                   )}
-                  <div className="relative">
-                    <User className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-[#E07A38]' : 'group-hover:text-zinc-200'}`} />
-                  </div>
-                  <span className={`text-[10px] tracking-tight mt-1 transition-colors ${isActive ? 'font-bold text-[#E07A38]' : 'font-medium text-zinc-400 group-hover:text-zinc-300'}`}>
+                  <User className={`w-5 h-5 ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
+                  <span className={`text-xs mt-0.5 ${isActive ? 'font-semibold text-accent' : 'text-text-secondary'}`}>
                     Profile
                   </span>
                 </>
@@ -639,4 +627,3 @@ const AppShell = ({ children }) => {
 };
 
 export default AppShell;
-

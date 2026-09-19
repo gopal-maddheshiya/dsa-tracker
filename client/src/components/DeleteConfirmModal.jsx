@@ -19,32 +19,32 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
 
   const content = (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 animate-fade-in"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="delete-modal-title"
       aria-describedby="delete-modal-desc"
     >
       <div
-        className="panel max-w-sm w-full p-6 shadow-2xl bg-[#131519] border border-white/[0.08] animate-scale-in"
+        className="max-w-sm w-full p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in"
       >
         {/* Icon + Title */}
         <div className="flex items-start gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-5 h-5 text-rose-400" />
+          <div className="w-10 h-10 rounded-lg bg-danger/10 border border-danger/25 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5 text-danger" />
           </div>
           <div>
-            <h3 id="delete-modal-title" className="text-sm font-bold text-[#F3F4F6]">
+            <h3 id="delete-modal-title" className="text-sm font-semibold text-text">
               Delete Problem?
             </h3>
-            <p id="delete-modal-desc" className="text-xs text-[#9CA3AF] mt-0.5 leading-relaxed line-clamp-3">
+            <p id="delete-modal-desc" className="text-xs text-text-secondary mt-0.5 leading-relaxed line-clamp-3">
               You are about to permanently delete{' '}
-              <span className="font-semibold text-[#F3F4F6]">"{problemTitle}"</span>.
+              <span className="font-semibold text-text">"{problemTitle}"</span>.
             </p>
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 leading-relaxed mb-5">
+        <div className="p-3 rounded-lg bg-danger/10 border border-danger/25 text-xs text-danger leading-relaxed mb-5">
           This will also delete all practice history and spaced repetition data. This action cannot be undone.
         </div>
 
@@ -53,7 +53,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="btn-ghost text-xs"
+            className="btn-secondary text-xs"
           >
             Cancel
           </button>
@@ -61,7 +61,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
             type="button"
             onClick={onConfirm}
             disabled={isDeleting}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[2.5rem] rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20 transition-all duration-150 disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-danger hover:opacity-90 text-white transition-opacity disabled:opacity-50 cursor-pointer"
           >
             {isDeleting ? (
               <>

@@ -35,25 +35,25 @@ export const ToastProvider = ({ children }) => {
         {toasts.map(({ id, message, type }) => {
           const config =
             type === 'success'
-              ? { dot: 'bg-[#E07A38]', border: 'border-[#E07A38]/30', bg: 'bg-[#E07A38]/10' }
+              ? { dot: 'bg-success', border: 'border-success/30', bg: 'bg-surface' }
               : type === 'error'
-              ? { dot: 'bg-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' }
-              : { dot: 'bg-[#A8A29E]', border: 'border-[#262320]', bg: 'bg-[#141312]' };
+              ? { dot: 'bg-danger', border: 'border-danger/30', bg: 'bg-surface' }
+              : { dot: 'bg-accent', border: 'border-line', bg: 'bg-surface' };
 
           return (
             <div
               key={id}
               role={type === 'error' ? 'alert' : 'status'}
-              className={`pointer-events-auto bg-[#1C1A18] border ${config.border} ${config.bg} rounded-xl p-3.5 shadow-2xl shadow-black/80 flex items-start gap-2.5 backdrop-blur-md`}
+              className={`pointer-events-auto bg-surface border ${config.border} rounded-xl p-3.5 shadow-modal flex items-start gap-2.5`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${config.dot} mt-1.5 shrink-0`} />
-              <div className="flex-1 text-xs text-[#F5F5F4] leading-relaxed">
+              <div className="flex-1 text-xs text-text leading-relaxed">
                 {message}
               </div>
               <button
                 type="button"
                 onClick={() => removeToast(id)}
-                className="text-[#78716C] hover:text-[#F5F5F4] transition-colors text-xs p-0.5 ml-1"
+                className="text-muted hover:text-text transition-colors text-xs p-0.5 ml-1 cursor-pointer"
                 aria-label="Dismiss"
               >
                 <X className="w-3.5 h-3.5" />

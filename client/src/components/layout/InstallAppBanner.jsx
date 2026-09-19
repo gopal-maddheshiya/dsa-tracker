@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, X, Smartphone, Monitor } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 
 const InstallAppBanner = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -57,20 +57,14 @@ const InstallAppBanner = () => {
 
   return (
     <div className="fixed bottom-5 right-5 z-50 max-w-sm w-[calc(100vw-40px)] animate-fade-up">
-      <div className="p-4 rounded-2xl bg-[#12151D] border border-[#E07A38]/30 shadow-[0_12px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(224,122,56,0.1)] flex items-start gap-3.5 relative overflow-hidden">
-        {/* Glow */}
-        <div
-          className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-[#E07A38]/15 pointer-events-none"
-          style={{ filter: 'blur(30px)' }}
-        />
-
-        <div className="w-10 h-10 rounded-xl bg-[#E07A38]/15 border border-[#E07A38]/30 flex items-center justify-center text-[#E07A38] shrink-0">
-          <Download className="w-5 h-5" />
+      <div className="p-4 rounded-xl bg-surface border border-line shadow-dropdown flex items-start gap-3.5 relative overflow-hidden">
+        <div className="w-9 h-9 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-accent shrink-0">
+          <Download className="w-4 h-4" />
         </div>
 
         <div className="flex-1 min-w-0 pr-4">
-          <h4 className="text-xs font-bold text-white tracking-tight">Install DSATracker App</h4>
-          <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+          <h4 className="text-xs font-semibold text-text tracking-tight">Install DSATracker App</h4>
+          <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
             Install to your desktop or home screen for faster practice and offline access.
           </p>
 
@@ -78,14 +72,14 @@ const InstallAppBanner = () => {
             <button
               type="button"
               onClick={handleInstallClick}
-              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold shadow-xs transition-all cursor-pointer hover:opacity-90 active:scale-95"
+              className="btn-primary text-xs px-3 py-1.5"
             >
               Install App
             </button>
             <button
               type="button"
               onClick={handleDismiss}
-              className="px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 text-xs transition-colors"
+              className="btn-secondary text-xs px-2.5 py-1.5"
             >
               Later
             </button>
@@ -95,7 +89,7 @@ const InstallAppBanner = () => {
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute top-3 right-3 text-slate-500 hover:text-slate-300 transition-colors p-1"
+          className="absolute top-3 right-3 text-muted hover:text-text transition-colors p-1"
         >
           <X className="w-3.5 h-3.5" />
         </button>

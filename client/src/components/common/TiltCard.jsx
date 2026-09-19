@@ -2,24 +2,20 @@ import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 
 /**
- * 3D Magnetic Tilt Card driven by GSAP.
- * Gives rich tactile responsiveness with smooth deceleration and ambient sheen.
+ * 3D Subtle Tilt Card driven by GSAP without glows or gradients.
  */
 export function TiltCard({
   children,
   className = '',
-  maxTilt = 6,
-  scale = 1.01,
-  sheen = true,
+  maxTilt = 3,
+  scale = 1.005,
   ...props
 }) {
   const cardRef = useRef(null);
-  const sheenRef = useRef(null);
 
   useEffect(() => {
     return () => {
       if (cardRef.current) gsap.killTweensOf(cardRef.current);
-      if (sheenRef.current) gsap.killTweensOf(sheenRef.current);
     };
   }, []);
 
@@ -47,16 +43,6 @@ export function TiltCard({
       ease: 'power1.out',
       duration: 0.3,
     });
-
-    if (sheen && sheenRef.current) {
-      const sheenX = (x / rect.width) * 100;
-      const sheenY = (y / rect.height) * 100;
-      gsap.to(sheenRef.current, {
-        opacity: 0.15,
-        background: `radial-gradient(circle 180px at ${sheenX}% ${sheenY}%, rgba(224, 122, 56, 0.4), transparent 80%)`,
-        duration: 0.2,
-      });
-    }
   };
 
   const handleMouseLeave = () => {
@@ -70,13 +56,6 @@ export function TiltCard({
       ease: 'power2.out',
       duration: 0.5,
     });
-
-    if (sheen && sheenRef.current) {
-      gsap.to(sheenRef.current, {
-        opacity: 0,
-        duration: 0.4,
-      });
-    }
   };
 
   return (
@@ -88,13 +67,6 @@ export function TiltCard({
       style={{ transformStyle: 'preserve-3d' }}
       {...props}
     >
-      {sheen && (
-        <div
-          ref={sheenRef}
-          aria-hidden="true"
-          className="absolute inset-0 rounded-[inherit] pointer-events-none opacity-0 transition-opacity z-10"
-        />
-      )}
       {children}
     </div>
   );

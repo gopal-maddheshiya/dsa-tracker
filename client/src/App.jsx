@@ -22,10 +22,10 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Sleek workspace route loading skeleton
 const RouteLoader = () => (
   <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-up">
-    <div className="w-10 h-10 rounded-2xl bg-[#E07A38]/10 border border-[#E07A38]/25 flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(224,122,56,0.15)]">
-      <span className="w-4 h-4 border-2 border-[#E07A38]/30 border-t-[#E07A38] rounded-full animate-spin" />
+    <div className="w-10 h-10 rounded-xl bg-surface border border-line flex items-center justify-center mb-3">
+      <span className="w-4 h-4 border-2 border-line border-t-accent rounded-full animate-spin" />
     </div>
-    <span className="text-[11px] font-mono text-slate-500 uppercase tracking-widest">
+    <span className="text-xs text-muted uppercase tracking-wider font-medium">
       Loading workspace…
     </span>
   </div>

@@ -4,6 +4,7 @@ import {
   ResponsiveContainer, CartesianGrid, ReferenceLine,
 } from 'recharts';
 import { Flame, TrendingUp, Zap, BarChart3 } from 'lucide-react';
+import { THEME_COLORS } from '../../theme/colors';
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -36,32 +37,25 @@ const CustomPeakDot = ({ cx, cy, payload, maxVal }) => {
 
   return (
     <g key={`peak-dot-${payload.date}`}>
-      {/* Outer ambient beacon pulse */}
-      <circle cx={cx} cy={cy} r={10} fill="rgba(224, 122, 56, 0.2)" />
-      <circle cx={cx} cy={cy} r={6} fill="#E07A38" stroke="#141312" strokeWidth={2.5} />
-      <circle cx={cx} cy={cy} r={2} fill="#FFFFFF" />
+      <circle cx={cx} cy={cy} r={8} fill={`${THEME_COLORS.accent}33`} />
+      <circle cx={cx} cy={cy} r={5} fill={THEME_COLORS.accent} stroke={THEME_COLORS.bg} strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={2} fill={THEME_COLORS.text} />
     </g>
   );
 };
 
-/* ── Custom Glassmorphic Tooltip ──────────────────────────────────── */
+/* ── Custom Tooltip ──────────────────────────────────── */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div
-        className="rounded-2xl p-3.5 shadow-2xl border border-white/[0.12] text-xs min-w-[180px] backdrop-blur-xl transition-all"
-        style={{
-          background: 'linear-gradient(165deg, rgba(20, 23, 28, 0.98), rgba(13, 15, 19, 0.98))',
-          boxShadow: '0 16px 36px rgba(0,0,0,0.75), inset 0 1px 0 0 rgba(255,255,255,0.08)',
-        }}
-      >
-        <div className="flex items-center justify-between pb-2 border-b border-white/[0.08] mb-2.5">
-          <span className="text-[10px] font-mono font-medium text-[#9CA3AF]">
+      <div className="rounded-xl p-3.5 shadow-dropdown border border-line text-xs min-w-[180px] bg-surface text-text">
+        <div className="flex items-center justify-between pb-2 border-b border-line mb-2.5">
+          <span className="text-xs font-medium text-muted">
             {formatFullDate(label || data.date)}
           </span>
           {data.isPeak && (
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+            <span className="text-xs px-1.5 py-0.5 rounded bg-accent/12 text-accent font-semibold border border-accent/25">
               PEAK
             </span>
           )}
@@ -70,20 +64,20 @@ const CustomTooltip = ({ active, payload, label }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#E07A38] shadow-[0_0_6px_rgba(224,122,56,0.6)]" />
-              <span className="text-[#9CA3AF] font-medium">Daily Solved</span>
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <span className="text-muted font-medium">Daily Solved</span>
             </div>
-            <span className="font-mono font-bold text-[#F3F4F6] text-sm">
+            <span className="font-semibold text-text text-sm tabular-nums">
               +{data.solved}
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-3 pt-1.5 border-t border-white/[0.08]">
+          <div className="flex items-center justify-between gap-3 pt-1.5 border-t border-line">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
-              <span className="text-[#9CA3AF] font-medium">Trajectory Total</span>
+              <span className="w-2 h-2 rounded-full bg-success" />
+              <span className="text-muted font-medium">Trajectory Total</span>
             </div>
-            <span className="font-mono font-bold text-emerald-400 text-sm">
+            <span className="font-semibold text-success text-sm tabular-nums">
               {data.cumulative}
             </span>
           </div>
@@ -160,7 +154,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   if (isLoading) {
     return (
-      <div className={`panel p-6 animate-pulse border-white/[0.08] flex flex-col justify-between h-full ${className}`}>
+      <div className={`panel p-6 animate-pulse border-line flex flex-col justify-between h-full ${className}`}>
         <div className="flex justify-between items-center mb-5">
           <div className="space-y-2">
             <div className="h-4 w-32 shimmer rounded-md" />
@@ -175,11 +169,11 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   if (error) {
     return (
-      <div className={`panel p-6 border-rose-500/20 text-center flex flex-col justify-between h-full ${className}`}>
-        <h3 className="text-sm font-bold text-white mb-2">Solve Velocity</h3>
-        <p className="text-xs text-rose-400 mb-4">Unable to load trend trajectory.</p>
+      <div className={`panel p-6 border-danger/25 text-center flex flex-col justify-between h-full ${className}`}>
+        <h3 className="text-sm font-semibold text-text mb-2">Solve Velocity</h3>
+        <p className="text-xs text-danger mb-4">Unable to load trend trajectory.</p>
         {onRetry && (
-          <button onClick={onRetry} type="button" className="btn-ghost text-xs">
+          <button onClick={onRetry} type="button" className="btn-secondary text-xs">
             Retry
           </button>
         )}
@@ -190,55 +184,50 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
   return (
     <div
       className={`panel p-6 relative overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}
-      style={{
-        background: 'radial-gradient(ellipse 75% 65% at 85% 0%, rgba(249,115,22,0.12) 0%, transparent 60%), linear-gradient(180deg, rgba(22, 27, 39, 0.78) 0%, rgba(14, 17, 26, 0.88) 100%)',
-      }}
     >
       {/* ── Top Header & Interactive Scrubber ──────────────────────── */}
       <div className="space-y-3 mb-5">
-        {/* Tier 1: Title, Scrubber Badge, and Period Total */}
-        {/* Tier 1: Title, Scrubbing Indicator, Period Total & Subtitle */}
         <div>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
-              <h3 className="text-base font-bold text-white tracking-tight shrink-0">
+              <h3 className="text-base font-semibold text-text tracking-tight shrink-0">
                 Solve Velocity
               </h3>
 
               {/* Live Scrubbing Badge Indicator */}
               {hoveredPoint ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-[11px] animate-fadeIn">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-accent/12 border border-accent/25 text-accent text-xs animate-fadeIn font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   {formatFullDate(hoveredPoint.date)}
                 </span>
               ) : (
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-slate-400 shrink-0">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-surface-2 border border-line text-muted shrink-0">
                   <span className="sm:hidden">{displayData.length} pts</span>
                   <span className="hidden sm:inline">{displayData.length} timeline points</span>
                 </span>
               )}
 
               {hoveredPoint?.isPeak && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold shrink-0">
-                  <Flame className="w-3 h-3 text-amber-400 fill-amber-400/20" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/12 text-accent border border-accent/25 text-xs font-semibold shrink-0">
+                  <Flame className="w-3 h-3 text-accent fill-accent/20" />
                   Peak
                 </span>
               )}
             </div>
 
             {/* Period Total */}
-            <div className="flex items-baseline gap-1.5 shrink-0 font-mono">
-              <span className="text-[10px] uppercase text-slate-500 font-semibold">Total</span>
-              <span className="text-lg font-bold text-[#E07A38] leading-none">
+            <div className="flex items-baseline gap-1.5 shrink-0">
+              <span className="text-xs uppercase text-muted font-medium">Total</span>
+              <span className="text-lg font-bold text-accent leading-none tabular-nums">
                 {totalPeriodSolved}
               </span>
             </div>
           </div>
 
-          <p className="text-xs text-slate-400 font-mono leading-relaxed mt-1">
+          <p className="text-xs text-muted leading-relaxed mt-1">
             {hoveredPoint ? (
               <span>
-                Scrubbing: <strong className="text-white">+{hoveredPoint.solved} solves</strong> · <strong className="text-emerald-400">{hoveredPoint.cumulative} cumulative</strong>
+                Scrubbing: <strong className="text-text">+{hoveredPoint.solved} solves</strong> · <strong className="text-success">{hoveredPoint.cumulative} cumulative</strong>
               </span>
             ) : chartMode === 'hybrid' ? (
               'Daily output bars grounded with trajectory curve'
@@ -251,18 +240,17 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
         </div>
 
         {/* Tier 2: Control Toggles (Mode + Range) */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06] flex-wrap">
-          {/* Controls: Mode + Range */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-line flex-wrap">
           <div className="flex items-center justify-between gap-2 w-full flex-wrap">
             {/* View mode toggle */}
-            <div className="flex items-center p-0.5 rounded-lg bg-black/30 border border-white/[0.08]">
+            <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line">
               <button
                 type="button"
                 onClick={() => setChartMode('hybrid')}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   chartMode === 'hybrid'
-                    ? 'bg-primary text-primary-foreground font-bold shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-surface text-text border border-line shadow-xs'
+                    : 'text-muted hover:text-text'
                 }`}
               >
                 <Zap className="w-3 h-3" />
@@ -271,10 +259,10 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
               <button
                 type="button"
                 onClick={() => setChartMode('cumulative')}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   chartMode === 'cumulative'
-                    ? 'bg-primary text-primary-foreground font-bold shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-surface text-text border border-line shadow-xs'
+                    : 'text-muted hover:text-text'
                 }`}
               >
                 <TrendingUp className="w-3 h-3" />
@@ -283,10 +271,10 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
               <button
                 type="button"
                 onClick={() => setChartMode('daily')}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
                   chartMode === 'daily'
-                    ? 'bg-primary text-primary-foreground font-bold shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-surface text-text border border-line shadow-xs'
+                    : 'text-muted hover:text-text'
                 }`}
               >
                 <BarChart3 className="w-3 h-3" />
@@ -295,16 +283,16 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
             </div>
 
             {/* Time horizon pills */}
-            <div className="flex items-center p-0.5 rounded-lg bg-black/30 border border-white/[0.08] font-mono text-xs">
+            <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line text-xs">
               {['14D', '30D', 'all'].map((r) => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => setRange(r)}
-                  className={`px-2 py-1 text-xs font-semibold rounded-md transition-all uppercase ${
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all uppercase ${
                     range === r
-                      ? 'bg-white/[0.12] text-white font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-surface text-text font-semibold border border-line'
+                      : 'text-muted hover:text-text'
                   }`}
                 >
                   {r}
@@ -317,9 +305,9 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
       {/* ── Chart Rendering Canvas ─────────────────────────────────── */}
       {displayData.length === 0 ? (
-        <div className="h-60 flex flex-col items-center justify-center text-center border border-dashed border-white/[0.08] rounded-2xl">
-          <TrendingUp className="w-8 h-8 text-[#E07A38] mb-2" />
-          <p className="text-xs text-[#6B7280]">No solved activity recorded in this period.</p>
+        <div className="h-60 flex flex-col items-center justify-center text-center border border-dashed border-line rounded-xl">
+          <TrendingUp className="w-8 h-8 text-accent mb-2" />
+          <p className="text-xs text-muted">No solved activity recorded in this period.</p>
         </div>
       ) : (
         <div className="h-64 sm:h-72 w-full">
@@ -332,34 +320,17 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 onMouseLeave={handleMouseLeave}
               >
                 <defs>
-                  {/* Radiant warm ember glow underfill */}
                   <linearGradient id="growthGradPremium" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#E07A38" stopOpacity={0.4} />
-                    <stop offset="60%" stopColor="#E07A38" stopOpacity={0.08} />
-                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor={THEME_COLORS.accent} stopOpacity={0.25} />
+                    <stop offset="100%" stopColor={THEME_COLORS.accent} stopOpacity={0.0} />
                   </linearGradient>
-
-                  {/* Grounded dual volume bar gradient */}
-                  <linearGradient id="hybridBarGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#E88B4B" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.15} />
-                  </linearGradient>
-
-                  {/* Active node glow filter */}
-                  <filter id="areaGlowFilter" x="-25%" y="-25%" width="150%" height="150%">
-                    <feGaussianBlur stdDeviation="3.5" result="glowBlur" />
-                    <feMerge>
-                      <feMergeNode in="glowBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
 
                 <CartesianGrid
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke={THEME_COLORS.line}
                   strokeDasharray="3 3"
                   vertical={false}
-                  strokeOpacity={0.7}
+                  strokeOpacity={0.6}
                 />
 
                 <XAxis
@@ -370,7 +341,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   axisLine={false}
                   tickFormatter={formatDateTick}
                   dy={10}
-                  tick={{ fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                  tick={{ fill: THEME_COLORS.muted, fontSize: 10 }}
                   minTickGap={45}
                 />
 
@@ -382,11 +353,11 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
-                  tick={{ fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                  tick={{ fill: THEME_COLORS.muted, fontSize: 10 }}
                   domain={[0, 'auto']}
                 />
 
-                {/* Secondary Hidden Y-Axis for Volume Bars (anchored low in the bottom 35%) */}
+                {/* Secondary Hidden Y-Axis for Volume Bars */}
                 <YAxis
                   yAxisId="daily"
                   orientation="right"
@@ -396,35 +367,34 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
                 <Tooltip
                   content={<CustomTooltip />}
-                  cursor={{ stroke: 'rgba(255,255,255,0.15)', strokeDasharray: '3 3', strokeWidth: 1 }}
+                  cursor={{ stroke: THEME_COLORS.line, strokeDasharray: '3 3', strokeWidth: 1 }}
                 />
 
                 {/* Volume Columns in Background */}
                 <Bar
                   yAxisId="daily"
                   dataKey="solved"
-                  fill="url(#hybridBarGrad)"
+                  fill={THEME_COLORS.surface2}
                   radius={[3, 3, 0, 0]}
                   maxBarSize={18}
                   animationDuration={700}
                 />
 
-                {/* Cumulative Glowing Trajectory Spline */}
+                {/* Cumulative Trajectory Spline */}
                 <Area
                   yAxisId="cumulative"
                   type="monotone"
                   dataKey="cumulative"
-                  stroke="#E07A38"
-                  strokeWidth={2.5}
+                  stroke={THEME_COLORS.accent}
+                  strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#growthGradPremium)"
                   dot={<CustomPeakDot maxVal={maxDaySolved} />}
                   activeDot={{
-                    r: 6,
-                    fill: '#E07A38',
-                    stroke: '#0D0F13',
-                    strokeWidth: 3,
-                    filter: 'url(#areaGlowFilter)',
+                    r: 5,
+                    fill: THEME_COLORS.accent,
+                    stroke: THEME_COLORS.surface,
+                    strokeWidth: 2,
                   }}
                   animationDuration={900}
                 />
@@ -438,24 +408,16 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
               >
                 <defs>
                   <linearGradient id="growthGradPremium" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#E07A38" stopOpacity={0.45} />
-                    <stop offset="50%" stopColor="#E07A38" stopOpacity={0.12} />
-                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor={THEME_COLORS.accent} stopOpacity={0.25} />
+                    <stop offset="100%" stopColor={THEME_COLORS.accent} stopOpacity={0.0} />
                   </linearGradient>
-                  <filter id="areaGlowFilter" x="-25%" y="-25%" width="150%" height="150%">
-                    <feGaussianBlur stdDeviation="3.5" result="glowBlur" />
-                    <feMerge>
-                      <feMergeNode in="glowBlur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
 
                 <CartesianGrid
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke={THEME_COLORS.line}
                   strokeDasharray="3 3"
                   vertical={false}
-                  strokeOpacity={0.7}
+                  strokeOpacity={0.6}
                 />
 
                 <XAxis
@@ -466,7 +428,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   axisLine={false}
                   tickFormatter={formatDateTick}
                   dy={10}
-                  tick={{ fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                  tick={{ fill: THEME_COLORS.muted, fontSize: 10 }}
                   minTickGap={45}
                 />
 
@@ -476,29 +438,28 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
-                  tick={{ fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                  tick={{ fill: THEME_COLORS.muted, fontSize: 10 }}
                   domain={[0, 'auto']}
                 />
 
                 <Tooltip
                   content={<CustomTooltip />}
-                  cursor={{ stroke: 'rgba(255,255,255,0.15)', strokeDasharray: '3 3', strokeWidth: 1 }}
+                  cursor={{ stroke: THEME_COLORS.line, strokeDasharray: '3 3', strokeWidth: 1 }}
                 />
 
                 <Area
                   type="monotone"
                   dataKey="cumulative"
-                  stroke="#E07A38"
-                  strokeWidth={2.5}
+                  stroke={THEME_COLORS.accent}
+                  strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#growthGradPremium)"
                   dot={<CustomPeakDot maxVal={maxDaySolved} />}
                   activeDot={{
-                    r: 6,
-                    fill: '#E07A38',
-                    stroke: '#0D0F13',
-                    strokeWidth: 3,
-                    filter: 'url(#areaGlowFilter)',
+                    r: 5,
+                    fill: THEME_COLORS.accent,
+                    stroke: THEME_COLORS.surface,
+                    strokeWidth: 2,
                   }}
                   animationDuration={900}
                 />
@@ -510,18 +471,11 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
-                <defs>
-                  <linearGradient id="barGradPremium" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#E88B4B" stopOpacity={1} />
-                    <stop offset="100%" stopColor="#E07A38" stopOpacity={0.75} />
-                  </linearGradient>
-                </defs>
-
                 <CartesianGrid
-                  stroke="rgba(255,255,255,0.06)"
+                  stroke={THEME_COLORS.line}
                   strokeDasharray="3 3"
                   vertical={false}
-                  strokeOpacity={0.7}
+                  strokeOpacity={0.6}
                 />
 
                 <XAxis
@@ -532,7 +486,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   axisLine={false}
                   tickFormatter={formatDateTick}
                   dy={10}
-                  tick={{ fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                  tick={{ fill: THEME_COLORS.muted, fontSize: 10 }}
                   minTickGap={45}
                 />
 
@@ -542,17 +496,16 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
-                  tick={{ fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+                  tick={{ fill: THEME_COLORS.muted, fontSize: 10 }}
                   domain={[0, Math.max(maxDaySolved + 1, 3)]}
                 />
 
-                {/* Subtle Velocity Average Baseline */}
                 {Number(avgDailySolved) > 0 && (
                   <ReferenceLine
                     y={Number(avgDailySolved)}
-                    stroke="#E07A38"
+                    stroke={THEME_COLORS.accent}
                     strokeDasharray="4 4"
-                    strokeOpacity={0.4}
+                    strokeOpacity={0.5}
                   />
                 )}
 
@@ -563,7 +516,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
                 <Bar
                   dataKey="solved"
-                  fill="url(#barGradPremium)"
+                  fill={THEME_COLORS.accent}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={28}
                   animationDuration={800}
@@ -576,11 +529,11 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
       {/* ── Footer KPI Strip ──────────────────────────────────────── */}
       {displayData.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 mt-auto pt-3.5 border-t border-white/[0.08] text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-auto pt-3.5 border-t border-line text-xs">
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#E07A38] shadow-[0_0_8px_rgba(224,122,56,0.5)]" />
-              <span className="font-mono text-[#9CA3AF]">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <span className="text-muted font-medium">
                 {chartMode === 'hybrid'
                   ? 'Dual Mode'
                   : chartMode === 'cumulative'
@@ -589,18 +542,18 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 font-mono">
-              <span className="text-[#6B7280]">Velocity:</span>
-              <span className="font-bold text-[#F3F4F6]">{avgDailySolved} / day</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-muted font-medium">Velocity:</span>
+              <span className="font-semibold text-text tabular-nums">{avgDailySolved} / day</span>
             </div>
 
             {maxDaySolved > 0 && (
-              <div className="flex items-center gap-1.5 font-mono">
-                <span className="text-[#6B7280]">Peak:</span>
-                <span className="font-bold text-amber-400">
+              <div className="flex items-center gap-1.5">
+                <span className="text-muted font-medium">Peak:</span>
+                <span className="font-semibold text-accent tabular-nums">
                   {maxDaySolved} solves
                   {peakPoint?.date && (
-                    <span className="text-[10px] text-[#6B7280] font-normal ml-1">
+                    <span className="text-xs text-muted font-normal ml-1">
                       ({formatDateTick(peakPoint.date)})
                     </span>
                   )}
@@ -609,7 +562,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
             )}
           </div>
 
-          <div className="font-mono text-[11px] text-[#6B7280]">
+          <div className="text-xs text-muted">
             Range: {formatDateTick(displayData[0]?.date)} — {formatDateTick(displayData[displayData.length - 1]?.date)}
           </div>
         </div>

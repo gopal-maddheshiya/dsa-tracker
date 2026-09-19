@@ -114,20 +114,14 @@ const DashboardPage = () => {
     <div className="space-y-6 pb-24 sm:pb-16 animate-fade-up">
       {/* Clean Minimalist Hero Greeting & Quick Actions */}
       <Reveal delay={0} y={16}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/[0.08] relative">
-          {/* Subtle ambient bloom behind greeting */}
-          <div
-            className="absolute -top-6 -left-6 w-48 h-24 rounded-full pointer-events-none opacity-30"
-            style={{ background: 'radial-gradient(circle, rgba(249, 115, 22, 0.25), transparent 70%)', filter: 'blur(30px)' }}
-          />
-
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-line relative">
           <div className="relative z-10">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-text">
                 {greeting}, {firstName}
               </h1>
               <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium border"
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border"
                 style={{
                   color: rank.color,
                   borderColor: `${rank.color}44`,
@@ -138,7 +132,7 @@ const DashboardPage = () => {
                 {rank.label}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-muted mt-1">
               Here is your daily momentum overview and recall priority.
             </p>
           </div>
@@ -169,7 +163,6 @@ const DashboardPage = () => {
               icon={Code2}
               isLoading={loadingSummary}
               badge={`${summary?.difficultyBreakdown?.find((d) => d.difficulty === 'hard')?.count || 0} Hard`}
-              glowColor="rgba(249,115,22,0.18)"
             />
           </TiltCard>
         </Reveal>
@@ -181,10 +174,9 @@ const DashboardPage = () => {
               value={summary?.solvedProblems || 0}
               subtitle={`${solvedPct}% solve progress`}
               icon={CheckCircle2}
-              valueColor="text-emerald-400"
+              valueColor="text-success"
               isLoading={loadingSummary}
               badge={`${solvedPct}%`}
-              glowColor="rgba(16,185,129,0.18)"
               progressPercent={solvedPct}
             />
           </TiltCard>
@@ -197,10 +189,9 @@ const DashboardPage = () => {
               value={summary?.totalAttempts || 0}
               subtitle={`${summary?.solvedAttempts || 0} successful`}
               icon={Zap}
-              valueColor="text-amber-400"
+              valueColor="text-medium"
               isLoading={loadingSummary}
               badge={`${solveRate}% accuracy`}
-              glowColor="rgba(245,158,11,0.18)"
             />
           </TiltCard>
         </Reveal>
@@ -212,10 +203,9 @@ const DashboardPage = () => {
               value={`${summary?.currentStreak || 0} Days`}
               subtitle={`Best: ${summary?.longestStreak || summary?.currentStreak || 0} days`}
               icon={Flame}
-              valueColor="text-[#E07A38]"
+              valueColor="text-accent"
               isLoading={loadingSummary}
               badge={summary?.currentStreak > 0 ? '🔥 Active' : 'Ready'}
-              glowColor="rgba(224,122,56,0.22)"
             />
           </TiltCard>
         </Reveal>
@@ -224,15 +214,15 @@ const DashboardPage = () => {
       {/* Zero state vs Asymmetric Dashboard Grid */}
       {hasZeroData ? (
         <Reveal delay={100}>
-          <div className="bg-[#141824]/70 backdrop-blur-xl rounded-2xl border border-dashed border-white/[0.12] p-12 text-center shadow-lg">
-            <div className="w-12 h-12 rounded-2xl bg-[#E07A38]/10 border border-[#E07A38]/20 flex items-center justify-center mx-auto mb-4">
-              <BarChart3 className="w-6 h-6 text-[#E07A38]" />
+          <div className="bg-surface rounded-xl border border-dashed border-line p-12 text-center">
+            <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4 text-accent">
+              <BarChart3 className="w-6 h-6" />
             </div>
-            <h2 className="text-base font-semibold text-white">Nothing to show yet</h2>
-            <p className="text-sm text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed">
+            <h2 className="text-base font-semibold text-text">Nothing to show yet</h2>
+            <p className="text-xs text-muted mt-2 max-w-sm mx-auto leading-relaxed">
               Add your first problem and log practice sessions to unlock analytics.
             </p>
-            <Link to="/problems?new=1" className="btn-primary inline-flex mt-5 text-sm">
+            <Link to="/problems?new=1" className="btn-primary inline-flex mt-5 text-xs">
               Add your first problem
             </Link>
           </div>

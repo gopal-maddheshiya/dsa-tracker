@@ -23,22 +23,22 @@ import {
 
 /* ── Platform styling constants ────────────────────────────────────── */
 const PLATFORMS = {
-  leetcode:   { label: 'LeetCode',   bg: 'rgba(254,159,10,0.12)', border: 'rgba(254,159,10,0.3)', text: '#FE9F0A' },
-  gfg:        { label: 'GFG',        bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', text: '#34D399' },
-  hackerrank: { label: 'HackerRank', bg: 'rgba(46,189,89,0.12)',  border: 'rgba(46,189,89,0.3)',  text: '#2EBD59' },
-  codeforces: { label: 'Codeforces', bg: 'rgba(56,189,248,0.12)', border: 'rgba(56,189,248,0.3)', text: '#38BDF8' },
-  codechef:   { label: 'CodeChef',   bg: 'rgba(192,132,252,0.12)',border: 'rgba(192,132,252,0.3)',text: '#C084FC' },
-  other:      { label: 'Custom',     bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.2)',text: '#9CA3AF' },
+  leetcode:   { label: 'LeetCode',   style: 'bg-accent/12 border-accent/25 text-accent' },
+  gfg:        { label: 'GFG',        style: 'bg-easy/12 border-easy/25 text-easy' },
+  hackerrank: { label: 'HackerRank', style: 'bg-success/12 border-success/25 text-success' },
+  codeforces: { label: 'Codeforces', style: 'bg-surface-2 border-line text-text' },
+  codechef:   { label: 'CodeChef',   style: 'bg-medium/12 border-medium/25 text-medium' },
+  other:      { label: 'Custom',     style: 'bg-surface-2 border-line text-muted' },
 };
 
 /* ── Difficulty styling constants ──────────────────────────────────── */
 const DIFFICULTY_CONFIG = {
-  easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
-  medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',     dot: 'bg-amber-400' },
-  hard:   { text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25',       dot: 'bg-rose-400' },
-  Easy:   { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', dot: 'bg-emerald-400' },
-  Medium: { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',     dot: 'bg-amber-400' },
-  Hard:   { text: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/25',       dot: 'bg-rose-400' },
+  easy:   { text: 'text-easy',   bg: 'bg-easy/12 border-easy/25',     dot: 'bg-easy' },
+  medium: { text: 'text-medium', bg: 'bg-medium/12 border-medium/25', dot: 'bg-medium' },
+  hard:   { text: 'text-hard',   bg: 'bg-hard/12 border-hard/25',     dot: 'bg-hard' },
+  Easy:   { text: 'text-easy',   bg: 'bg-easy/12 border-easy/25',     dot: 'bg-easy' },
+  Medium: { text: 'text-medium', bg: 'bg-medium/12 border-medium/25', dot: 'bg-medium' },
+  Hard:   { text: 'text-hard',   bg: 'bg-hard/12 border-hard/25',     dot: 'bg-hard' },
 };
 
 const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
@@ -168,7 +168,6 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
   const filteredProblems = useMemo(() => {
     if (!problems.length) return [];
     if (!query.trim()) {
-      // Return top 6 recent problems when no query is typed
       return problems.slice(0, 6);
     }
     const q = query.toLowerCase().trim();
@@ -239,28 +238,25 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-3 sm:px-4 bg-black/75 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-3 sm:px-4 bg-black/70 animate-fadeIn"
       onClick={onClose}
     >
       <div
         data-lenis-prevent
-        className="relative w-full max-w-2xl rounded-2xl bg-[#101216] border border-white/[0.14] shadow-[0_24px_64px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden flex flex-col max-h-[80vh] transition-all"
+        className="relative w-full max-w-2xl rounded-xl bg-surface border border-line shadow-modal overflow-hidden flex flex-col max-h-[80vh] transition-all"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
-        {/* ── Top Ambient Light Gradient ──────────────────────────── */}
-        <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#E07A38]/70 to-transparent pointer-events-none" />
-
         {/* ── Search Input Header ─────────────────────────────────── */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08] bg-[#14171D]/90">
-          <Search className="w-5 h-5 text-[#E07A38] shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line bg-surface-2">
+          <Search className="w-5 h-5 text-accent shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search problems, topics, difficulty, or run actions..."
-            className="flex-1 bg-transparent text-sm sm:text-base text-[#F3F4F6] placeholder-[#6B7280] focus:outline-none font-medium"
+            className="flex-1 bg-transparent text-sm text-text placeholder:text-muted focus:outline-none font-medium"
           />
           {query && (
             <button
@@ -268,12 +264,12 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="p-1 rounded-md text-[#6B7280] hover:text-[#9CA3AF] hover:bg-white/[0.06] transition-colors"
+              className="p-1 rounded-md text-muted hover:text-text hover:bg-surface transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 text-[11px] font-mono text-[#9CA3AF] bg-white/[0.06] border border-white/[0.1] rounded-md">
+          <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 text-xs font-mono text-muted bg-surface border border-line rounded-md">
             ESC
           </kbd>
         </div>
@@ -282,23 +278,23 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
         <div ref={listRef} className="flex-1 overflow-y-auto p-2 space-y-4 scroll-smooth">
           {isLoading && !problems.length ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
-              <div className="w-6 h-6 border-2 border-[#E07A38] border-t-transparent rounded-full animate-spin" />
-              <p className="text-xs text-[#9CA3AF]">Scanning problem database...</p>
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-muted">Scanning problem database...</p>
             </div>
           ) : allSelectableItems.length === 0 ? (
             <div className="py-12 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mx-auto mb-3 text-[#6B7280]">
+              <div className="w-12 h-12 rounded-xl bg-surface-2 border border-line flex items-center justify-center mx-auto mb-3 text-muted">
                 <Search className="w-6 h-6" />
               </div>
-              <p className="text-sm font-medium text-[#D1D5DB]">No matching results</p>
-              <p className="text-xs text-[#6B7280] mt-1">Try searching by problem title, topic tag (e.g. "DP", "Graph"), or platform.</p>
+              <p className="text-sm font-medium text-text">No matching results</p>
+              <p className="text-xs text-muted mt-1">Try searching by problem title, topic tag (e.g. "DP", "Graph"), or platform.</p>
             </div>
           ) : (
             <>
               {/* ── Section: Quick Actions ──────────────────────────── */}
               {filteredActions.length > 0 && (
                 <div>
-                  <div className="px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#6B7280]">
+                  <div className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-secondary">
                     Quick Actions
                   </div>
                   <div className="space-y-1 mt-1">
@@ -315,28 +311,28 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                           data-active={isSelected}
                           onClick={() => action.action()}
                           onMouseEnter={() => setSelectedIndex(itemGlobalIndex)}
-                          className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
+                          className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
                             isSelected
-                              ? 'bg-gradient-to-r from-[#E07A38]/15 to-transparent border-l-2 border-[#E07A38] text-[#F3F4F6]'
-                              : 'text-[#9CA3AF] hover:bg-white/[0.04] hover:text-[#D1D5DB]'
+                              ? 'bg-surface-2 border-l-2 border-accent text-text'
+                              : 'text-text-secondary hover:bg-surface-2 hover:text-text'
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`p-2 rounded-xl border shrink-0 transition-colors ${
+                            <div className={`p-2 rounded-lg border shrink-0 transition-colors ${
                               isSelected
-                                ? 'bg-[#E07A38]/20 border-[#E07A38]/40 text-[#E07A38]'
-                                : 'bg-white/[0.04] border-white/[0.08] text-[#9CA3AF]'
+                                ? 'bg-accent/15 border-accent/30 text-accent'
+                                : 'bg-surface-2 border-line text-muted'
                             }`}>
                               <Icon className="w-4 h-4" />
                             </div>
                             <div className="min-w-0">
-                              <div className="text-xs font-semibold text-[#F3F4F6] flex items-center gap-2">
+                              <div className="text-xs font-semibold text-text flex items-center gap-2">
                                 <span>{action.title}</span>
-                                <span className="text-[10px] font-mono font-normal px-1.5 py-0.2 rounded bg-white/[0.06] text-[#9CA3AF]">
+                                <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-surface border border-line text-text-secondary">
                                   {action.badge}
                                 </span>
                               </div>
-                              <div className="text-[11px] text-[#6B7280] truncate mt-0.5">
+                              <div className="text-xs text-muted truncate mt-0.5">
                                 {action.subtitle}
                               </div>
                             </div>
@@ -344,11 +340,11 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
                           <div className="flex items-center gap-2 shrink-0">
                             {action.shortcut && (
-                              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-[#6B7280] bg-[#0E1013] border border-white/[0.08] rounded">
+                              <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-mono text-muted bg-surface border border-line rounded">
                                 {action.shortcut}
                               </kbd>
                             )}
-                            <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'translate-x-0.5 text-[#E07A38]' : 'text-[#4B5563]'}`} />
+                            <ChevronRight className={`w-4 h-4 transition-transform ${isSelected ? 'translate-x-0.5 text-accent' : 'text-muted'}`} />
                           </div>
                         </div>
                       );
@@ -360,9 +356,9 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
               {/* ── Section: Problems ───────────────────────────────── */}
               {filteredProblems.length > 0 && (
                 <div>
-                  <div className="px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#6B7280] flex items-center justify-between">
+                  <div className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-text-secondary flex items-center justify-between">
                     <span>{query.trim() ? 'Problem Results' : 'Recent Cataloged Problems'}</span>
-                    <span className="text-[10px] font-mono text-[#6B7280]">{filteredProblems.length} {filteredProblems.length === 1 ? 'item' : 'items'}</span>
+                    <span className="text-xs text-muted">{filteredProblems.length} {filteredProblems.length === 1 ? 'item' : 'items'}</span>
                   </div>
                   <div className="space-y-1 mt-1">
                     {filteredProblems.map((prob) => {
@@ -385,37 +381,30 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                             navigate(`/problems/${probId}`);
                           }}
                           onMouseEnter={() => setSelectedIndex(itemGlobalIndex)}
-                          className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
+                          className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
                             isSelected
-                              ? 'bg-gradient-to-r from-[#E07A38]/15 to-transparent border-l-2 border-[#E07A38] text-[#F3F4F6]'
-                              : 'text-[#9CA3AF] hover:bg-white/[0.04] hover:text-[#D1D5DB]'
+                              ? 'bg-surface-2 border-l-2 border-accent text-text'
+                              : 'text-text-secondary hover:bg-surface-2 hover:text-text'
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
-                            {/* Platform icon badge */}
-                            <div
-                              className="px-2 py-1 rounded-lg text-[10px] font-mono font-bold shrink-0 border"
-                              style={{
-                                backgroundColor: platCfg.bg,
-                                borderColor: platCfg.border,
-                                color: platCfg.text,
-                              }}
-                            >
+                            {/* Platform badge */}
+                            <div className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 border ${platCfg.style}`}>
                               {platCfg.label}
                             </div>
 
                             {/* Title & tags */}
                             <div className="min-w-0">
-                              <div className="text-xs font-semibold text-[#F3F4F6] truncate flex items-center gap-2">
+                              <div className="text-xs font-semibold text-text truncate flex items-center gap-2">
                                 <span className="truncate">{prob.title}</span>
                                 {latestStatus === 'solved' && (
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" title="Solved" />
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" title="Solved" />
                                 )}
                                 {(latestStatus === 'revisit_needed' || latestStatus === 'revisit') && (
-                                  <RotateCcw className="w-3.5 h-3.5 text-amber-400 shrink-0" title="Needs Revisit" />
+                                  <RotateCcw className="w-3.5 h-3.5 text-medium shrink-0" title="Needs Revisit" />
                                 )}
                                 {latestStatus === 'struggled' && (
-                                  <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" title="Struggled" />
+                                  <AlertCircle className="w-3.5 h-3.5 text-danger shrink-0" title="Struggled" />
                                 )}
                               </div>
 
@@ -423,13 +412,13 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                                 {Array.isArray(prob.topics) && prob.topics.slice(0, 2).map((t, idx) => (
                                   <span
                                     key={idx}
-                                    className="text-[10px] font-mono text-[#9CA3AF] bg-white/[0.05] px-1.5 py-0.2 rounded border border-white/[0.06] shrink-0"
+                                    className="text-xs font-mono text-text-secondary bg-surface px-1.5 py-0.5 rounded border border-line shrink-0"
                                   >
                                     #{t}
                                   </span>
                                 ))}
                                 {Array.isArray(prob.topics) && prob.topics.length > 2 && (
-                                  <span className="text-[10px] font-mono text-[#6B7280]">
+                                  <span className="text-xs font-mono text-muted">
                                     +{prob.topics.length - 2}
                                   </span>
                                 )}
@@ -439,12 +428,12 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
                           {/* Difficulty pill + Jump arrow */}
                           <div className="flex items-center gap-2.5 shrink-0">
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-lg border ${diffCfg.text} ${diffCfg.bg}`}>
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${diffCfg.text} ${diffCfg.bg}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
                               <span>{prob.difficulty}</span>
                             </span>
 
-                            <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isSelected ? 'translate-x-1 text-[#E07A38]' : 'text-[#4B5563]'}`} />
+                            <ArrowRight className={`w-3.5 h-3.5 transition-transform ${isSelected ? 'translate-x-1 text-accent' : 'text-muted'}`} />
                           </div>
                         </div>
                       );
@@ -457,24 +446,24 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
         </div>
 
         {/* ── Keyboard Hints Footer Ribbon ────────────────────────── */}
-        <div className="px-4 py-2.5 border-t border-white/[0.08] bg-[#0D0F13] flex items-center justify-between text-[11px] text-[#6B7280] font-mono">
+        <div className="px-4 py-2.5 border-t border-line bg-surface-2 flex items-center justify-between text-xs text-text-secondary">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#9CA3AF]">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#9CA3AF]">↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-surface border border-line text-text-secondary">↑</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-surface border border-line text-text-secondary">↓</kbd>
               <span>to navigate</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#9CA3AF]">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-surface border border-line text-text-secondary">↵</kbd>
               <span>to select</span>
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-1.5 text-[#9CA3AF]">
+          <div className="hidden sm:flex items-center gap-1.5 text-text-secondary">
             <span>Tip: Press</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#E07A38] font-semibold">Ctrl</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface border border-line text-accent font-semibold">Ctrl</kbd>
             <span>+</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[#E07A38] font-semibold">K</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface border border-line text-accent font-semibold">K</kbd>
             <span>anytime</span>
           </div>
         </div>

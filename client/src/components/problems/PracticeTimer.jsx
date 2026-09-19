@@ -100,20 +100,20 @@ const PracticeTimer = ({ onLogWithTime }) => {
   };
 
   return (
-    <div className="panel overflow-hidden border-white/[0.09] bg-[#101217] transition-all duration-200">
+    <div className="panel overflow-hidden border-line bg-surface rounded-xl transition-all duration-200">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-[#0C0E13]">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-line bg-surface-2/40">
         <div className="flex items-center gap-2.5">
           <div className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
             isRunning
-              ? 'bg-[#E07A38]/20 border-[#E07A38]/40 text-[#E07A38] shadow-[0_0_12px_rgba(224,122,56,0.2)]'
-              : 'bg-white/[0.04] border-white/[0.08] text-slate-400'
+              ? 'bg-accent/15 border-accent/30 text-accent'
+              : 'bg-surface-2 border-line text-muted'
           }`}>
-            <Clock className={`w-3.5 h-3.5 ${isRunning ? 'animate-pulse text-[#E07A38]' : ''}`} />
+            <Clock className={`w-3.5 h-3.5 ${isRunning ? 'animate-pulse text-accent' : ''}`} />
           </div>
           <div>
-            <span className="text-xs font-bold text-slate-200 tracking-tight">Practice Stopwatch & Timer</span>
-            <span className="text-[10px] text-slate-500 ml-2 font-mono hidden sm:inline">
+            <span className="text-xs font-semibold text-text tracking-tight">Practice Stopwatch & Timer</span>
+            <span className="text-xs text-muted ml-2 hidden sm:inline">
               {isRunning ? '• Session in progress' : '• Ready to practice'}
             </span>
           </div>
@@ -121,7 +121,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
 
         <div className="flex items-center gap-2">
           {/* Mode switch */}
-          <div className="flex rounded-lg bg-[#151821] p-0.5 border border-white/[0.06] text-[11px] font-medium font-mono">
+          <div className="flex rounded-lg bg-surface-2 p-0.5 border border-line text-xs font-medium">
             <button
               type="button"
               onClick={() => {
@@ -131,8 +131,8 @@ const PracticeTimer = ({ onLogWithTime }) => {
               }}
               className={`px-2.5 py-1 rounded-md transition-all ${
                 mode === 'stopwatch'
-                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-surface text-text font-semibold border border-line shadow-xs'
+                  : 'text-muted hover:text-text'
               }`}
             >
               Stopwatch
@@ -146,8 +146,8 @@ const PracticeTimer = ({ onLogWithTime }) => {
               }}
               className={`px-2.5 py-1 rounded-md transition-all ${
                 mode === 'countdown'
-                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-surface text-text font-semibold border border-line shadow-xs'
+                  : 'text-muted hover:text-text'
               }`}
             >
               Countdown
@@ -157,7 +157,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors"
             title={isCollapsed ? 'Expand timer' : 'Collapse timer'}
           >
             {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
@@ -171,18 +171,18 @@ const PracticeTimer = ({ onLogWithTime }) => {
           {/* Left: Clock Display & Presets */}
           <div className="space-y-2">
             <div className="flex items-baseline gap-3">
-              <span className={`font-mono text-3xl sm:text-4xl font-black tracking-wider transition-colors ${
+              <span className={`font-mono text-3xl sm:text-4xl font-bold tracking-wider transition-colors ${
                 isFinished
-                  ? 'text-rose-400 animate-pulse'
+                  ? 'text-danger animate-pulse'
                   : isRunning
-                    ? 'text-[#E07A38]'
-                    : 'text-slate-200'
+                    ? 'text-accent'
+                    : 'text-text'
               }`}>
                 {formatTime(seconds)}
               </span>
 
               {isFinished && (
-                <span className="text-xs font-mono font-bold text-rose-400 px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/25">
+                <span className="text-xs font-bold text-danger px-2 py-0.5 rounded-md bg-danger/12 border border-danger/25">
                   TIME'S UP!
                 </span>
               )}
@@ -190,16 +190,16 @@ const PracticeTimer = ({ onLogWithTime }) => {
 
             {mode === 'countdown' && (
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider mr-1">Target:</span>
+                <span className="text-xs text-muted uppercase tracking-wider mr-1">Target:</span>
                 {PRESETS.map((p) => (
                   <button
                     key={p.minutes}
                     type="button"
                     onClick={() => handleSelectPreset(p.minutes)}
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-mono transition-all ${
+                    className={`px-2 py-0.5 rounded-md text-xs transition-all ${
                       targetMinutes === p.minutes
-                        ? 'bg-[#E07A38]/20 text-[#E07A38] border border-[#E07A38]/35 font-semibold'
-                        : 'bg-white/[0.03] text-slate-400 hover:text-slate-200 border border-white/[0.06]'
+                        ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
+                        : 'bg-surface-2 text-muted hover:text-text border border-line'
                     }`}
                   >
                     {p.label}
@@ -215,9 +215,9 @@ const PracticeTimer = ({ onLogWithTime }) => {
             <button
               type="button"
               onClick={handleTogglePlay}
-              className={`px-4 h-10 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer ${
+              className={`px-4 h-10 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                 isRunning
-                  ? 'bg-amber-400 hover:bg-amber-500 text-slate-950 shadow-soft'
+                  ? 'bg-accent text-bg hover:bg-accent-hover'
                   : 'btn-primary'
               }`}
             >
@@ -239,7 +239,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
               type="button"
               onClick={handleReset}
               disabled={seconds === 0 && !isFinished}
-              className="p-2.5 h-10 rounded-xl border border-white/[0.08] hover:border-white/[0.18] bg-white/[0.03] hover:bg-white/[0.07] text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-30 cursor-pointer"
+              className="p-2.5 h-10 rounded-lg border border-line hover:border-line bg-surface-2 text-muted hover:text-text transition-colors disabled:opacity-30 cursor-pointer"
               title="Reset Timer"
             >
               <RotateCcw className="w-4 h-4" />
@@ -250,7 +250,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
               <button
                 type="button"
                 onClick={handleLogAttempt}
-                className="px-3.5 h-10 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 text-xs font-semibold font-mono transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                className="px-3.5 h-10 rounded-lg bg-success/12 hover:bg-success/20 border border-success/30 text-success text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Log ({elapsedMinutes}m)</span>

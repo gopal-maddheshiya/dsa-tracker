@@ -23,33 +23,30 @@ const DIFFICULTY_CONFIG = {
 const STATUS_CONFIG = {
   solved: {
     label: 'Solved',
-    text: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/25',
-    dot: 'bg-emerald-400',
-    glow: 'shadow-[0_0_8px_rgba(16,185,129,0.15)]',
+    text: 'text-success',
+    bg: 'bg-success/12 border-success/25',
+    dot: 'bg-success',
   },
   struggled: {
     label: 'Struggled',
-    text: 'text-rose-400',
-    bg: 'bg-rose-500/10 border-rose-500/25',
-    dot: 'bg-rose-400',
-    glow: 'shadow-[0_0_8px_rgba(244,63,94,0.15)]',
+    text: 'text-danger',
+    bg: 'bg-danger/12 border-danger/25',
+    dot: 'bg-danger',
   },
   revisit_needed: {
     label: 'Revisit Needed',
-    text: 'text-amber-400',
-    bg: 'bg-amber-500/10 border-amber-500/25',
-    dot: 'bg-amber-400',
-    glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]',
+    text: 'text-medium',
+    bg: 'bg-medium/12 border-medium/25',
+    dot: 'bg-medium',
   },
 };
 
 const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-amber-400 bg-amber-500/10 border-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.08)]', dot: 'bg-amber-400' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25 shadow-[0_0_8px_rgba(16,185,129,0.08)]', dot: 'bg-emerald-400' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-amber-300 bg-amber-600/10 border-amber-600/25 shadow-[0_0_8px_rgba(217,119,6,0.08)]', dot: 'bg-amber-300' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-green-400 bg-green-500/10 border-green-500/25 shadow-[0_0_8px_rgba(34,197,94,0.08)]', dot: 'bg-green-400' },
-  other:      { label: 'External', short: 'Ext', style: 'text-[#9CA3AF] bg-white/[0.04] border-white/[0.08]', dot: 'bg-[#9CA3AF]' },
+  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/12 border-accent/25', dot: 'bg-accent' },
+  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/12 border-easy/25', dot: 'bg-easy' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-medium bg-medium/12 border-medium/25', dot: 'bg-medium' },
+  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/12 border-success/25', dot: 'bg-success' },
+  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
 };
 
 const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd, onLog, startIndex = 0 }) => {
@@ -107,24 +104,24 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
   const renderSortIndicator = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="w-3 h-3 text-[#4B5563] opacity-0 group-hover:opacity-70 transition-opacity" />;
+      return <ArrowUpDown className="w-3 h-3 text-muted opacity-0 group-hover:opacity-70 transition-opacity" />;
     }
     return sortAsc ? (
-      <ArrowUp className="w-3 h-3 text-[#E07A38]" />
+      <ArrowUp className="w-3 h-3 text-accent" />
     ) : (
-      <ArrowDown className="w-3 h-3 text-[#E07A38]" />
+      <ArrowDown className="w-3 h-3 text-accent" />
     );
   };
 
   if (isLoading) {
     return (
-      <div className="panel overflow-hidden animate-pulse border-white/[0.08] rounded-2xl">
-        <div className="flex gap-4 px-6 py-4 bg-[#0F1114] border-b border-white/[0.08]">
+      <div className="panel overflow-hidden animate-pulse border-line rounded-xl">
+        <div className="flex gap-4 px-6 py-4 bg-surface-2/40 border-b border-line">
           {[40, 220, 140, 90, 80, 90, 60, 100].map((w, i) => (
             <div key={i} className="h-3 shimmer rounded-md" style={{ width: w }} />
           ))}
         </div>
-        <div className="divide-y divide-white/[0.04]">
+        <div className="divide-y divide-line">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="flex gap-4 px-6 py-4 items-center">
               <div className="h-3.5 w-8 shimmer rounded-md" />
@@ -144,21 +141,21 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
   if (error) {
     return (
-      <div className="panel p-8 text-center border-rose-500/20 rounded-2xl bg-rose-500/[0.03]">
-        <p className="text-sm font-semibold text-rose-300">Unable to load problems</p>
-        <p className="text-xs text-rose-400 mt-1">{error}</p>
+      <div className="panel p-8 text-center border-danger/25 rounded-xl bg-danger/5">
+        <p className="text-sm font-semibold text-danger">Unable to load problems</p>
+        <p className="text-xs text-muted mt-1">{error}</p>
       </div>
     );
   }
 
   if (!problems || problems.length === 0) {
     return (
-      <div className="panel border-dashed p-14 text-center border-white/[0.1] bg-[#121418] rounded-2xl">
-        <div className="w-12 h-12 rounded-2xl bg-[#181B20] border border-white/[0.08] flex items-center justify-center mx-auto mb-4 shadow-sm">
-          <FolderOpen className="w-6 h-6 text-[#9CA3AF]" />
+      <div className="panel border-dashed p-14 text-center border-line bg-surface rounded-xl">
+        <div className="w-12 h-12 rounded-xl bg-surface-2 border border-line flex items-center justify-center mx-auto mb-4">
+          <FolderOpen className="w-6 h-6 text-muted" />
         </div>
-        <h3 className="text-base font-bold text-[#F3F4F6] tracking-tight">No problems found</h3>
-        <p className="text-xs text-[#9CA3AF] mt-1 max-w-xs mx-auto leading-relaxed">
+        <h3 className="text-base font-semibold text-text tracking-tight">No problems found</h3>
+        <p className="text-xs text-muted mt-1 max-w-xs mx-auto leading-relaxed">
           No problems match your search or filters. Catalog your first problem to get started.
         </p>
         <button onClick={onOpenAdd} type="button" className="btn-primary text-xs mt-5">
@@ -169,15 +166,15 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
   }
 
   return (
-    <div className="panel overflow-hidden border-white/[0.08] rounded-2xl bg-[#0E1013]/90 shadow-xl">
+    <div className="panel overflow-hidden border-line rounded-xl bg-surface">
       <div className="overflow-x-auto">
         <table className="data-table min-w-[760px] w-full text-left">
           <thead>
-            <tr className="border-b border-white/[0.08] bg-[#14171C]/60 text-[#6B7280] text-xs font-mono tracking-wider">
+            <tr className="border-b border-line bg-surface-2/40 text-muted text-xs tracking-wider">
               <th className="w-12 text-center py-3.5 px-3">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Problem</span>
@@ -187,7 +184,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               <th className="py-3.5 px-3">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Difficulty</span>
@@ -197,7 +194,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               <th className="py-3.5 px-3">Platform</th>
               <th
                 onClick={() => handleSort('status')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Status</span>
@@ -206,7 +203,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               </th>
               <th
                 onClick={() => handleSort('sessions')}
-                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-[#F3F4F6] transition-colors group"
+                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
               >
                 <div className="flex items-center justify-center gap-1.5">
                   <span>Sessions</span>
@@ -216,7 +213,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               <th className="text-right py-3.5 px-4">Actions</th>
             </tr>
           </thead>
-          <tbody ref={tbodyRef} className="divide-y divide-white/[0.04]">
+          <tbody ref={tbodyRef} className="divide-y divide-line">
             {sortedProblems.map((problem, idx) => {
               const diff = DIFFICULTY_CONFIG[problem.difficulty] || { variant: 'default', label: problem.difficulty };
               const latestStatus = problem.latestAttempt?.status;
@@ -226,11 +223,11 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               return (
                 <tr
                   key={problem.id || problem._id || idx}
-                  className="hover:bg-[#14171D] transition-colors duration-150 group relative"
+                  className="hover:bg-surface-2 transition-colors duration-150 group relative"
                 >
                   {/* # Index Column with subtle hover accent */}
-                  <td className="text-center font-mono text-[11px] text-[#6B7280] py-3.5 px-3 relative">
-                    <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-[#E07A38] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <td className="text-center text-xs tabular-nums text-muted py-3.5 px-3 relative">
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
 
@@ -239,7 +236,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     <div className="flex items-center gap-2 max-w-sm sm:max-w-md">
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
-                        className="font-semibold text-[#F3F4F6] group-hover:text-[#E07A38] transition-colors line-clamp-2 text-[13px] tracking-tight leading-snug"
+                        className="font-semibold text-text group-hover:text-accent transition-colors line-clamp-2 text-xs tracking-tight leading-snug"
                         title={problem.title}
                       >
                         {problem.title}
@@ -250,7 +247,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           target="_blank"
                           rel="noreferrer"
                           title="Open original problem in new tab"
-                          className="text-[#6B7280] hover:text-[#E07A38] transition-colors shrink-0 p-1 -m-1 rounded hover:bg-white/[0.05]"
+                          className="text-muted hover:text-accent transition-colors shrink-0 p-1 -m-1 rounded hover:bg-surface-2"
                         >
                           <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
                         </a>
@@ -265,14 +262,14 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         {problem.topics.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#9CA3AF] group-hover:border-white/[0.14] transition-colors"
+                            className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary group-hover:border-line transition-colors"
                           >
                             {t}
                           </span>
                         ))}
                         {problem.topics.length > 2 && (
                           <span
-                            className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.08] text-[#6B7280]"
+                            className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted"
                             title={problem.topics.slice(2).join(', ')}
                           >
                             +{problem.topics.length - 2}
@@ -280,11 +277,11 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         )}
                       </div>
                     ) : (
-                      <span className="text-xs text-[#6B7280] font-mono">—</span>
+                      <span className="text-xs text-muted">—</span>
                     )}
                   </td>
 
-                  {/* Difficulty Badge with pulsing dot */}
+                  {/* Difficulty Badge with dot */}
                   <td className="py-3.5 px-3">
                     <Badge variant={diff.variant} dot size="sm">
                       {diff.label}
@@ -294,7 +291,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   {/* Brand Platform Badge */}
                   <td className="py-3.5 px-3">
                     <span
-                      className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg border ${platformCfg.style}`}
+                      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border ${platformCfg.style}`}
                       title={platformCfg.label}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
@@ -305,12 +302,12 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   {/* Status Indicator */}
                   <td className="py-3.5 px-3">
                     {statusCfg ? (
-                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-lg border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.glow}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                         <span>{statusCfg.label}</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center text-[10px] font-mono text-[#6B7280] px-2 py-0.5 rounded-md bg-[#0D0F13] border border-white/[0.06]">
+                      <span className="inline-flex items-center text-xs text-muted px-2.5 py-0.5 rounded-full bg-surface-2 border border-line">
                         Unattempted
                       </span>
                     )}
@@ -318,12 +315,12 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
                   {/* Session Count */}
                   <td className="text-center py-3.5 px-3">
-                    <span className="inline-block font-mono text-xs font-semibold text-[#9CA3AF] px-2.5 py-0.5 rounded-lg bg-[#0D0F13] border border-white/[0.08] group-hover:border-white/[0.14] transition-colors">
+                    <span className="inline-block text-xs font-medium tabular-nums text-muted px-2.5 py-0.5 rounded-md bg-surface-2 border border-line group-hover:border-line transition-colors">
                       {problem.attemptCount || 0}
                     </span>
                   </td>
 
-                  {/* Enhanced Icon Actions */}
+                  {/* Icon Actions */}
                   <td className="text-right py-3.5 px-4">
                     <div className="flex items-center justify-end gap-1.5 text-xs">
                       {/* 1-Click Quick Log Attempt */}
@@ -332,7 +329,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           type="button"
                           onClick={() => onLog(problem)}
                           title={`Log attempt for "${problem.title}"`}
-                          className="h-7.5 px-2.5 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 transition-all font-mono text-[11px] font-semibold flex items-center gap-1 shrink-0 shadow-sm active:scale-95 mr-1 cursor-pointer"
+                          className="h-7.5 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 transition-all text-xs font-semibold flex items-center gap-1 shrink-0 active:scale-95 mr-1 cursor-pointer"
                         >
                           <Plus className="w-3 h-3 stroke-[2.5]" />
                           <span>Log</span>
@@ -343,7 +340,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
                         title="View problem details"
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-[#F3F4F6] hover:bg-white/[0.08] border border-white/[0.08] bg-[#0E1014] transition-all"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
@@ -353,7 +350,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         type="button"
                         onClick={() => onEdit(problem)}
                         title="Edit problem details"
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-amber-400 hover:bg-amber-500/10 border border-white/[0.08] bg-[#0E1014] hover:border-amber-500/25 transition-all cursor-pointer"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-accent/12 border border-line bg-surface hover:border-accent/25 transition-all cursor-pointer"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
@@ -363,7 +360,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         type="button"
                         onClick={() => onDelete(problem)}
                         title="Delete problem"
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-[#9CA3AF] hover:text-rose-400 hover:bg-rose-500/10 border border-white/[0.08] bg-[#0E1014] hover:border-rose-500/25 transition-all cursor-pointer"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/12 border border-line bg-surface hover:border-danger/25 transition-all cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
