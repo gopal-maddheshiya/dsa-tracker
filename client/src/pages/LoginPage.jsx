@@ -91,7 +91,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-dvh flex bg-bg relative overflow-hidden">
       {/* ── Left: Interactive 3D Stage Panel ── */}
-      <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden flex-col justify-between p-8 xl:p-10 bg-surface border-r border-line z-10">
+      <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden flex-col justify-between p-6 xl:p-10 [@media(max-height:800px)]:p-4 [@media(max-height:800px)]:py-3 bg-surface border-r border-line z-10">
         
         {/* Top Brand Header */}
         <div className="relative z-10 flex items-center justify-between">
@@ -104,7 +104,7 @@ const LoginPage = () => {
         </div>
 
         {/* Center 3D Stage */}
-        <div className="relative z-10 flex items-center justify-center my-auto py-4 w-full">
+        <div className="relative z-10 flex items-center justify-center my-auto py-2 [@media(max-height:800px)]:py-0 w-full">
           <Rotating3DCube />
         </div>
 
