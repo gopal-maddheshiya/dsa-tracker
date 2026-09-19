@@ -1,101 +1,101 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Flame, Brain, CheckCircle2, Target, Sparkles, Trophy, GitCommit, Cpu, Terminal } from 'lucide-react';
+import { Flame, Brain, CheckCircle2, Target, Sparkles, Cpu, Terminal } from 'lucide-react';
 import { colors } from '../../theme/colors';
 
 /**
- * Authentic DSA Concept Data for the 4 Interactive Cube Stages.
- * Every stage represents a core capability of the DSA Tracker platform.
+ * Clean DSA Stage Data for the 4 Cube Stages.
+ * All metrics clearly formatted with honest labels and real spaced-repetition intervals.
  */
 const CUBE_STAGES = [
   {
     id: 0,
-    faceTitle: 'RECENT SOLVES • LEETCODE',
-    badge: 'OPTIMAL O(1)',
+    faceTitle: 'RECENT SOLVES • SAMPLE',
+    badge: 'DESIGN',
     badgeColor: 'text-easy bg-easy/12 border-easy/25',
     accentColor: colors.easy,
     stageLabel: 'Solves',
     hero: {
-      kicker: 'LEETCODE VERIFIED',
+      kicker: 'SYSTEM DESIGN',
       kickerIcon: CheckCircle2,
       kickerColor: 'text-easy',
-      statusText: '3 SOLVED',
+      statusText: 'SAMPLE',
       statusColor: 'text-easy',
       num: '146',
       title: 'LRU Cache Design',
       sub: 'Doubly-Linked List + Hash Map',
       pill: 'Optimal O(1)',
       pillColor: 'bg-easy/12 text-easy',
-      company: 'Amazon SDE-2',
+      company: 'System Architecture',
       tag: 'DESIGN',
     },
     terminal: {
       tag: 'RUNTIME BOUND',
       pill: 'O(1) Access',
-      message: 'Verifying LRU Cache: Doubly-linked list achieves guaranteed O(1) eviction.',
-      subLeft: 'Live Queue',
-      subRight: 'Active Recall',
+      message: 'Sample verification: Doubly-linked list achieves O(1) eviction for LRU cache.',
+      subLeft: 'Sample Queue',
+      subRight: 'Active',
       subRightDot: 'bg-easy text-easy',
     },
     insight: {
       tag: 'ALGORITHM PATTERN',
-      pill: '98.4% Efficiency',
+      pill: 'Sample',
       title: 'Sliding Window & Pointers',
-      sub: 'Verified across 35 LeetCode test suites',
-      footerLeft: 'Pattern Verified',
+      sub: 'Sample benchmark across problem sets',
+      footerLeft: 'Pattern Category',
       footerRight: 'O(1) Aux Space',
       tagColor: 'text-easy',
     },
     problems: [
-      { title: '146. LRU Cache', platform: 'Doubly-Linked + HashMap', diff: 'Med', time: '18m', color: 'text-medium bg-medium/12 border-medium/25' },
-      { title: '42. Trapping Rain Water', platform: 'Two Pointers Optimal', diff: 'Hard', time: '32m', color: 'text-hard bg-hard/12 border-hard/25' },
-      { title: '23. Merge k Sorted Lists', platform: 'Min-Heap Priority Queue', diff: 'Hard', time: '25m', color: 'text-hard bg-hard/12 border-hard/25' },
+      { title: '146. LRU Cache', platform: 'Doubly-Linked + HashMap', diff: 'Med', time: 'Sample', color: 'text-medium bg-medium/12 border-medium/25' },
+      { title: '42. Trapping Rain Water', platform: 'Two Pointers Optimal', diff: 'Hard', time: 'Sample', color: 'text-hard bg-hard/12 border-hard/25' },
+      { title: '23. Merge k Sorted Lists', platform: 'Min-Heap Priority Queue', diff: 'Hard', time: 'Sample', color: 'text-hard bg-hard/12 border-hard/25' },
     ],
-    footer: 'Amortized O(1) runtime verified without locks',
+    footer: 'Sample problems illustrating LRU cache design',
   },
   {
     id: 1,
     faceTitle: 'SPACED REPETITION ENGINE',
-    badge: 'R = e^(-t/S)',
+    badge: 'INTERVALS',
     badgeColor: 'text-accent bg-accent/12 border-accent/25',
     accentColor: colors.accent,
     stageLabel: 'Spaced',
     hero: {
-      kicker: 'ACTIVE RECALL QUEUE',
+      kicker: 'REVISION INTERVALS',
       kickerIcon: Brain,
       kickerColor: 'text-accent',
-      statusText: 'DUE TODAY',
+      statusText: '2d • 5d • 14d',
       statusColor: 'text-accent',
       num: '210',
       title: 'Course Schedule II',
       sub: "Kahn's Topological Sort (DAG)",
-      pill: 'Recall: 24h',
+      pill: 'Due in 2d',
       pillColor: 'bg-accent/12 text-accent',
-      company: 'Uber Technologies',
+      company: 'Graph Algorithms',
       tag: 'GRAPH',
     },
     terminal: {
-      tag: 'FORGETTING CURVE',
-      pill: 'R = e^(-t/S)',
-      message: 'Forgetting curve active: Escalating Course Schedule II interval to 3-day recall.',
-      subLeft: 'Recall Interval',
-      subRight: '94.2% Retention',
+      tag: 'SPACED RECALL',
+      pill: '2d / 5d / 14d',
+      message: 'Adaptive queue: 2-day interval for struggled, 5-day for review, 14-day for solved.',
+      subLeft: 'Revision Cadence',
+      subRight: 'Active Queue',
       subRightDot: 'bg-accent text-accent',
     },
     insight: {
-      tag: 'DETERMINISTIC QUEUE',
-      pill: '18 Scheduled',
-      title: 'Adaptive Decay Scheduling',
-      sub: 'Dynamically scales revision intervals',
-      footerLeft: 'Queue Health',
-      footerRight: 'Zero Guesswork',
+      tag: 'SCHEDULE MATRIX',
+      pill: 'Sample Queue',
+      title: 'Adaptive Revision Scheduling',
+      sub: 'Urgency scored by days elapsed divided by status interval',
+      footerLeft: 'Schedule Rule',
+      footerRight: '2d • 5d • 14d',
       tagColor: 'text-accent',
     },
     problems: [
-      { title: '210. Course Schedule II', platform: "Kahn's Topological Sort", diff: 'Due: 24h', time: 'Recall', color: 'text-accent bg-accent/12 border-accent/25' },
-      { title: '139. Word Break', platform: 'Dynamic Programming', diff: 'Due: 3d', time: 'Recall', color: 'text-medium bg-medium/12 border-medium/25' },
-      { title: '4. Median of Two Arrays', platform: 'Binary Search Partition', diff: 'Due: 7d', time: 'Review', color: 'text-hard bg-hard/12 border-hard/25' },
+      { title: '210. Course Schedule II', platform: 'Struggled Attempt', diff: '2d Interval', time: 'Sample', color: 'text-accent bg-accent/12 border-accent/25' },
+      { title: '139. Word Break', platform: 'Revisit Needed', diff: '5d Interval', time: 'Sample', color: 'text-medium bg-medium/12 border-medium/25' },
+      { title: '146. LRU Cache', platform: 'Solved Attempt', diff: '14d Interval', time: 'Sample', color: 'text-easy bg-easy/12 border-easy/25' },
     ],
-    footer: 'Active recall scheduling via forgetting curve',
+    footer: 'Real server intervals: 2d struggled, 5d review, 14d solved',
   },
   {
     id: 2,
@@ -105,194 +105,215 @@ const CUBE_STAGES = [
     accentColor: colors.medium,
     stageLabel: 'Topics',
     hero: {
-      kicker: 'WEAKNESS RADAR SCAN',
+      kicker: 'WEAKNESS RADAR',
       kickerIcon: Target,
       kickerColor: 'text-medium',
-      statusText: '42% GAP',
+      statusText: 'SAMPLE GAP',
       statusColor: 'text-danger',
       num: 'DP',
       title: 'Dynamic Programming',
       sub: '0/1 Knapsack & Subproblems',
-      pill: 'Priority #1',
+      pill: 'Sample Focus',
       pillColor: 'bg-danger/12 text-danger',
-      company: 'Google Core',
-      tag: 'ALGO',
+      company: 'Memoization & DP',
+      tag: 'DP',
     },
     terminal: {
       tag: 'TOPIC MATRIX',
-      pill: 'Gap: 42%',
-      message: 'Topic matrix alert: Dynamic Programming struggle at 42% - Knapsack prioritized.',
-      subLeft: 'Weakness Radar',
-      subRight: 'Radar Active',
+      pill: 'Sample Scan',
+      message: 'Topic matrix scan: Identifies struggle ratio by topic to prioritize problem queues.',
+      subLeft: 'Topic Priority',
+      subRight: 'Sample Active',
       subRightDot: 'bg-danger text-danger',
     },
     insight: {
-      tag: 'SYLLABUS RADAR',
-      pill: 'Realtime Scan',
-      title: 'Knapsack & Subproblems',
-      sub: 'Aggregation pipelines mapping readiness',
-      footerLeft: 'Focus Area',
-      footerRight: 'High Priority',
+      tag: 'TOPIC BREAKDOWN',
+      pill: 'Sample',
+      title: 'Subproblem Analysis',
+      sub: 'Aggregates attempts to highlight areas needing extra practice',
+      footerLeft: 'Priority Area',
+      footerRight: 'Sample Focus',
       tagColor: 'text-medium',
     },
     problems: [
-      { title: 'Dynamic Programming', platform: '14 Recorded Solves', diff: '42% Gap', time: 'Rank #1', color: 'text-hard bg-hard/12 border-hard/25' },
-      { title: 'Graph Traversal (BFS/DFS)', platform: '12 Recorded Solves', diff: '28% Gap', time: 'Rank #2', color: 'text-medium bg-medium/12 border-medium/25' },
-      { title: 'Binary Search Trees', platform: '18 Recorded Solves', diff: '92% Rate', time: 'Mastered', color: 'text-easy bg-easy/12 border-easy/25' },
+      { title: 'Dynamic Programming', platform: 'Sample Topic', diff: 'Focus #1', time: 'Sample', color: 'text-hard bg-hard/12 border-hard/25' },
+      { title: 'Graph Traversal', platform: 'Sample Topic', diff: 'Focus #2', time: 'Sample', color: 'text-medium bg-medium/12 border-medium/25' },
+      { title: 'Binary Search Trees', platform: 'Sample Topic', diff: 'Mastered', time: 'Sample', color: 'text-easy bg-easy/12 border-easy/25' },
     ],
-    footer: 'MongoDB aggregation groups attempts by struggle ratio',
+    footer: 'Aggregation groups problem attempts by topic struggle ratio',
   },
   {
     id: 3,
-    faceTitle: 'PREPARATION VELOCITY',
-    badge: '365D HEATMAP',
+    faceTitle: 'PREPARATION CADENCE',
+    badge: 'SAMPLE HEATMAP',
     badgeColor: 'text-easy bg-easy/12 border-easy/25',
     accentColor: colors.easy,
     stageLabel: 'Velocity',
     hero: {
-      kicker: 'VELOCITY PULSE 365D',
+      kicker: 'CADENCE PULSE',
       kickerIcon: Flame,
       kickerColor: 'text-accent',
-      statusText: 'TOP 3.8%',
+      statusText: 'SAMPLE',
       statusColor: 'text-accent',
-      num: '36d',
-      title: '36-Day Streak',
-      sub: 'Daily Engineering Cadence',
-      pill: '2.4 / Day',
+      num: '30d',
+      title: 'Activity Cadence',
+      sub: 'Daily Practice Consistency',
+      pill: 'Sample Trend',
       pillColor: 'bg-accent/12 text-accent',
-      company: 'Meta Platforms',
+      company: 'Practice Cadence',
       tag: 'CADENCE',
     },
     terminal: {
-      tag: 'VELOCITY CADENCE',
-      pill: 'Top 3.8%',
-      message: 'Velocity pulse: 36-day streak with 2.4 daily solves in top tier consistency bracket.',
-      subLeft: 'Active Days',
-      subRight: '55 / 140d Logged',
+      tag: 'ACTIVITY LOG',
+      pill: 'Sample',
+      message: 'Cadence monitor: Tracks daily practice sessions and streaks across problem categories.',
+      subLeft: 'Consistency',
+      subRight: 'Sample Log',
       subRightDot: 'bg-accent text-accent',
     },
     insight: {
-      tag: 'PRACTICE MOMENTUM',
-      pill: '96.7% Consistency',
-      title: '35 Problems Solved',
-      sub: 'High consistency matches 94% pass rate',
-      footerLeft: 'Benchmark',
-      footerRight: 'Blind 75 Ready',
+      tag: 'PRACTICE CADENCE',
+      pill: 'Sample',
+      title: 'Consistency Tracking',
+      sub: 'Regular daily cadence builds long-term algorithmic recall',
+      footerLeft: 'Practice Focus',
+      footerRight: 'Curated Set',
       tagColor: 'text-easy',
     },
     problems: [
-      { title: '30-Day Activity Cadence', platform: 'Daily Timestamp Log', diff: '29 Active', time: '96.7%', color: 'text-easy bg-easy/12 border-easy/25' },
-      { title: 'Tier Mix (11E / 17M / 7H)', platform: '35 Total Problems', diff: 'Balanced', time: 'Optimal', color: 'text-accent bg-accent/12 border-accent/25' },
-      { title: 'Target Benchmark', platform: 'Blind 75 & NeetCode 150', diff: 'On Track', time: 'Top Tier', color: 'text-accent bg-accent/12 border-accent/25' },
+      { title: '30-Day Activity Log', platform: 'Sample Calendar', diff: 'Daily Log', time: 'Sample', color: 'text-easy bg-easy/12 border-easy/25' },
+      { title: 'Difficulty Distribution', platform: 'Sample Problem Mix', diff: 'Balanced', time: 'Sample', color: 'text-accent bg-accent/12 border-accent/25' },
+      { title: 'Curated Topic Roadmap', platform: 'Sample Progress', diff: 'In Progress', time: 'Sample', color: 'text-accent bg-accent/12 border-accent/25' },
     ],
-    footer: 'Contribution grid and daily velocity tracker',
+    footer: 'Activity heatmap and daily problem solving cadence',
   },
 ];
 
-const Rotating3DCube = () => {
-  const [currentFace, setCurrentFace] = useState(0);
-  const [animationState, setAnimationState] = useState('emerged');
-  const [rollId, setRollId] = useState(0);
+/**
+ * Isolated memoized typewriter component to prevent full-tree re-renders every 18ms.
+ */
+const TypewriterText = React.memo(({ text, reducedMotion }) => {
+  const [displayed, setDisplayed] = useState(reducedMotion ? text : '');
 
-  // Synchronized typewriter state
-  const [typedText, setTypedText] = useState('');
-  const typingTimerRef = useRef(null);
-  const cycleTimeoutRef = useRef(null);
-  const animTimeoutRef = useRef(null);
-
-  const triggerRollTo = useCallback((nextFace) => {
-    if (cycleTimeoutRef.current) clearTimeout(cycleTimeoutRef.current);
-    if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current);
-
-    setAnimationState('collapsing');
-
-    animTimeoutRef.current = setTimeout(() => {
-      setRollId((prev) => prev + 1);
-      setAnimationState('rolling');
-
-      animTimeoutRef.current = setTimeout(() => {
-        setCurrentFace(nextFace);
-        setAnimationState('emerged');
-      }, 1050);
-    }, 150);
-  }, []);
-
-  const rotateToFace = (targetFace) => {
-    if (currentFace === targetFace && animationState === 'emerged') return;
-    triggerRollTo(targetFace);
-  };
-
-  // Automatic cycle through stages (every 5.8s after emerging)
   useEffect(() => {
-    if (animationState !== 'emerged') return;
+    if (reducedMotion) {
+      setDisplayed(text);
+      return;
+    }
 
-    cycleTimeoutRef.current = setTimeout(() => {
-      triggerRollTo((currentFace + 1) % CUBE_STAGES.length);
-    }, 5800);
-
-    return () => {
-      if (cycleTimeoutRef.current) clearTimeout(cycleTimeoutRef.current);
-    };
-  }, [currentFace, animationState, triggerRollTo]);
-
-  // Clean up all timers on unmount
-  useEffect(() => {
-    return () => {
-      if (cycleTimeoutRef.current) clearTimeout(cycleTimeoutRef.current);
-      if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current);
-      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-    };
-  }, []);
-
-  // Typewriter effect synchronized directly with the active stage
-  useEffect(() => {
-    const targetMessage = CUBE_STAGES[currentFace].terminal.message;
-    setTypedText('');
-    let charIdx = 0;
-
-    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-
-    typingTimerRef.current = setInterval(() => {
-      if (charIdx < targetMessage.length) {
-        setTypedText(targetMessage.slice(0, charIdx + 1));
-        charIdx++;
+    setDisplayed('');
+    let idx = 0;
+    const timer = setInterval(() => {
+      if (idx < text.length) {
+        setDisplayed(text.slice(0, idx + 1));
+        idx++;
       } else {
-        clearInterval(typingTimerRef.current);
+        clearInterval(timer);
       }
     }, 18);
 
-    return () => {
-      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-    };
-  }, [currentFace]);
-
-  const stage = CUBE_STAGES[currentFace];
-  const isEmerged = animationState === 'emerged';
-  const isRolling = animationState === 'rolling';
+    return () => clearInterval(timer);
+  }, [text, reducedMotion]);
 
   return (
-    <div className="relative w-full max-w-[660px] flex flex-col items-center select-none py-2">
-      {/* Subtle Radial Glow Backdrop */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
-        <div
-          className="w-72 h-72 rounded-full opacity-20 blur-3xl transition-all duration-1000"
-          style={{ background: stage.accentColor }}
-        />
-      </div>
+    <span>
+      {displayed}
+      {!reducedMotion && (
+        <span className="inline-block w-1 h-3 bg-accent ml-0.5 animate-pulse shrink-0 align-middle" />
+      )}
+    </span>
+  );
+});
+TypewriterText.displayName = 'TypewriterText';
 
-      {/* ── 3D STAGE CONTAINER (GUARANTEED ZERO-OVERLAP GEOMETRY) ── */}
-      <div className="relative w-full h-[370px] flex items-center justify-center">
+/**
+ * Helper to compute the shortest rotation delta (-1, +1, or +2)
+ */
+const getShortestDelta = (target, current) => {
+  let delta = ((target - current + 6) % 4) - 2;
+  if (delta === -2) delta = 2;
+  return delta;
+};
 
+const Rotating3DCube = () => {
+  const [step, setStep] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isDocHidden, setIsDocHidden] = useState(false);
+
+  // Accessible reduced motion detection
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleChange = (e) => setReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  // Listen to document visibility changes to pause/resume auto-rotation
+  useEffect(() => {
+    const handleVisibility = () => {
+      setIsDocHidden(document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
+  const activeStage = ((step % 4) + 4) % 4;
+
+  // Rotation callback using shortest path
+  const rotateToStage = useCallback((targetStage) => {
+    const current = ((step % 4) + 4) % 4;
+    if (targetStage === current) return;
+    const delta = getShortestDelta(targetStage, current);
+    setStep((prev) => prev + delta);
+  }, [step]);
+
+  // Auto-advance every ~5800ms unless paused by hover, focus, tab hidden or reduced motion
+  useEffect(() => {
+    if (reducedMotion || isHovered || isFocused || isDocHidden) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setStep((prev) => prev + 1);
+    }, 5800);
+
+    return () => clearInterval(timer);
+  }, [step, reducedMotion, isHovered, isFocused, isDocHidden]);
+
+  const stage = CUBE_STAGES[activeStage];
+
+  return (
+    <div
+      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-2"
+      style={{ '--s': 'clamp(150px, 22vw, 210px)' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setIsFocused(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setIsFocused(false);
+        }
+      }}
+    >
+      {/* ── 3D STAGE CONTAINER (DECORATIVE) ── */}
+      <div
+        className="relative w-full flex items-center justify-center overflow-visible"
+        style={{ height: 'calc(var(--s) * 1.65)' }}
+        aria-hidden="true"
+      >
         {/* ── CARD 1 (TOP-LEFT): SYNCHRONIZED RUNTIME TERMINAL ── */}
         <div
-          className="absolute top-2 left-0 z-20 w-[205px] transition-all duration-500 ease-out"
-          style={{
-            transform: isEmerged ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(0.95)',
-            opacity: isEmerged ? 1 : 0.45,
-            filter: isRolling ? 'blur(0.5px)' : 'none',
-          }}
+          className="hidden sm:block absolute top-2 left-0 z-20 transition-all duration-300 ease-out"
+          style={{ width: 'calc(var(--s) * 0.93)' }}
         >
-          <div className="p-3 rounded-xl border border-line bg-surface/90 backdrop-blur-sm shadow-card hover:border-line transition-colors">
+          <div className="p-3 rounded-xl border border-line bg-surface shadow-card transition-colors">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 text-accent">
                 <Terminal className="w-3.5 h-3.5 shrink-0" />
@@ -303,10 +324,9 @@ const Rotating3DCube = () => {
               </span>
             </div>
 
-            <div className="min-h-[44px] flex items-start">
+            <div className="min-h-[46px] flex items-start">
               <p className="text-xs font-mono text-text leading-snug break-words">
-                <span>{typedText}</span>
-                <span className="inline-block w-1 h-3 bg-accent ml-0.5 animate-pulse shrink-0 align-middle" />
+                <TypewriterText text={stage.terminal.message} reducedMotion={reducedMotion} />
               </p>
             </div>
 
@@ -322,14 +342,10 @@ const Rotating3DCube = () => {
 
         {/* ── CARD 2 (BOTTOM-RIGHT): ALGORITHM PATTERN & INSIGHT ── */}
         <div
-          className="absolute bottom-2 right-0 z-20 w-[205px] transition-all duration-500 ease-out"
-          style={{
-            transform: isEmerged ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.95)',
-            opacity: isEmerged ? 1 : 0.45,
-            filter: isRolling ? 'blur(0.5px)' : 'none',
-          }}
+          className="hidden sm:block absolute bottom-2 right-0 z-20 transition-all duration-300 ease-out"
+          style={{ width: 'calc(var(--s) * 0.93)' }}
         >
-          <div className="p-3 rounded-xl border border-line bg-surface/90 backdrop-blur-sm shadow-card hover:border-line transition-colors">
+          <div className="p-3 rounded-xl border border-line bg-surface shadow-card transition-colors">
             <div className="flex items-center justify-between mb-1.5">
               <span className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 ${stage.insight.tagColor}`}>
                 <Sparkles className="w-3.5 h-3.5 shrink-0" />
@@ -358,172 +374,120 @@ const Rotating3DCube = () => {
 
         {/* ── CENTRAL 3D CUBE STAGE ── */}
         <div
-          className="relative flex items-center justify-center z-10"
+          className={`relative flex items-center justify-center z-10 ${
+            reducedMotion ? '' : 'animate-cube-subtle-float'
+          }`}
           style={{ perspective: '1100px' }}
         >
           <div
-            key={`ludo-die-${rollId}`}
-            className={`relative w-[220px] h-[220px] ${
-              isRolling ? 'animate-pure-smooth-2s-tumble' : 'animate-cube-subtle-float'
-            }`}
+            className="relative"
             style={{
+              width: 'var(--s)',
+              height: 'var(--s)',
               transformStyle: 'preserve-3d',
               transformOrigin: '50% 50% 0px',
+              transform: `rotateX(-14deg) rotateY(${-90 * step}deg)`,
+              transition: reducedMotion ? 'none' : 'transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
               willChange: 'transform',
-              transition: isEmerged ? 'transform 0.75s cubic-bezier(0.19, 1, 0.22, 1)' : 'none',
             }}
           >
-            {/* 4 Lateral Faces */}
-            {[0, 1, 2, 3].map((offset) => {
-              const stageIndex = (currentFace + offset) % 4;
-              const face = CUBE_STAGES[stageIndex];
-              const faceRotations = [
-                'rotateY(0deg) translateZ(110px)',
-                'rotateY(90deg) translateZ(110px)',
-                'rotateY(180deg) translateZ(110px)',
-                'rotateY(270deg) translateZ(110px)',
-              ];
-
-              // Active front-facing card: Render dynamic stage hero!
-              if (offset === 0) {
-                const HeroIcon = face.hero.kickerIcon;
-                return (
-                  <div
-                    key={`${face.id}-front`}
-                    className="absolute inset-0 rounded-xl p-3 flex flex-col justify-between overflow-hidden select-none bg-surface border border-line shadow-card"
-                    style={{
-                      transform: faceRotations[0],
-                      backfaceVisibility: 'visible',
-                    }}
-                  >
-                    {/* Top Status Header */}
-                    <div className="flex items-center justify-between border-b border-line pb-1.5">
-                      <span className={`text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 ${face.hero.kickerColor}`}>
-                        <HeroIcon className="w-3.5 h-3.5 shrink-0" />
-                        {face.hero.kicker}
-                      </span>
-                      <span className={`text-[11px] font-bold font-mono ${face.hero.statusColor}`}>
-                        {face.hero.statusText}
-                      </span>
-                    </div>
-
-                    {/* Middle Problem Box */}
-                    <div className="p-2.5 rounded-lg bg-surface-2 border border-line flex flex-col justify-between my-1 flex-1">
-                      {/* Top Row: Number & Pill */}
-                      <div className="flex items-center justify-between">
-                        <span className="px-2 py-0.5 rounded bg-surface border border-line text-text font-mono font-bold text-xs">
-                          #{face.hero.num}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold font-mono ${face.hero.pillColor}`}>
-                          {face.hero.pill}
-                        </span>
-                      </div>
-
-                      {/* Middle Row: Full Problem Title & Subtitle - Zero Truncation */}
-                      <div className="my-1">
-                        <h4 className="text-xs font-bold text-text tracking-tight leading-snug">
-                          {face.hero.title}
-                        </h4>
-                        <p className="text-[11px] text-text-secondary leading-snug mt-0.5">
-                          {face.hero.sub}
-                        </p>
-                      </div>
-
-                      {/* Bottom Row: Company & Domain Tag */}
-                      <div className="pt-1.5 border-t border-line/60 flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1.5 text-text-secondary font-mono">
-                          <Terminal className="w-3 h-3 text-accent shrink-0" />
-                          {face.hero.company}
-                        </span>
-                        <span className="text-[10px] font-bold text-accent font-mono tracking-wider">
-                          {face.hero.tag}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              // Other 3 lateral faces: Render detailed problem lists
+            {/* 4 Lateral Faces: fixed content, rotateY(i*90deg) translateZ(var(--s)/2) */}
+            {[0, 1, 2, 3].map((i) => {
+              const face = CUBE_STAGES[i];
+              const HeroIcon = face.hero.kickerIcon;
               return (
                 <div
-                  key={`${face.id}-${offset}`}
-                  className="absolute inset-0 rounded-xl p-3 flex flex-col justify-between overflow-hidden select-none bg-surface border border-line"
+                  key={face.id}
+                  className="absolute inset-0 rounded-xl p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden select-none bg-surface border border-line shadow-card"
                   style={{
-                    transform: faceRotations[offset],
-                    backfaceVisibility: 'visible',
+                    transform: `rotateY(${i * 90}deg) translateZ(calc(var(--s) / 2))`,
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
                   }}
                 >
-                  <div className="flex items-center justify-between border-b border-line pb-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-text truncate max-w-[125px]">
-                      {face.faceTitle}
+                  {/* Top Status Header */}
+                  <div className="flex items-center justify-between border-b border-line pb-1 sm:pb-1.5">
+                    <span className={`text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 sm:gap-1.5 ${face.hero.kickerColor}`}>
+                      <HeroIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                      {face.hero.kicker}
                     </span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${face.badgeColor}`}>
-                      {face.badge}
+                    <span className={`text-[10px] sm:text-[11px] font-bold font-mono ${face.hero.statusColor}`}>
+                      {face.hero.statusText}
                     </span>
                   </div>
 
-                  <div className="space-y-1.5 py-1">
-                    {face.problems.map((p, pIdx) => (
-                      <div
-                        key={pIdx}
-                        className="flex items-center justify-between p-1.5 rounded-lg bg-surface-2 border border-line"
-                      >
-                        <div className="min-w-0 pr-1.5">
-                          <p className="text-xs font-semibold text-text truncate">{p.title}</p>
-                          <p className="text-xs text-text-secondary truncate">{p.platform}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full border ${p.color}`}>
-                            {p.diff}
-                          </span>
-                          <p className="text-xs text-muted tabular-nums mt-0.5">{p.time}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Middle Problem Box */}
+                  <div className="p-2 sm:p-2.5 rounded-lg bg-surface-2 border border-line flex flex-col justify-between my-1 flex-1">
+                    {/* Top Row: Number & Pill */}
+                    <div className="flex items-center justify-between">
+                      <span className="px-1.5 py-0.5 rounded bg-surface border border-line text-text font-mono font-bold text-[11px] sm:text-xs">
+                        #{face.hero.num}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold font-mono ${face.hero.pillColor}`}>
+                        {face.hero.pill}
+                      </span>
+                    </div>
 
-                  <div className="pt-1.5 text-xs text-text-secondary border-t border-line truncate flex items-center justify-between">
-                    <span className="truncate">{face.footer}</span>
-                    <span className="text-muted ml-1 shrink-0">●●●</span>
+                    {/* Middle Row: Full Problem Title & Subtitle - Zero Truncation */}
+                    <div className="my-0.5">
+                      <h4 className="text-[11px] sm:text-xs font-bold text-text tracking-tight leading-snug">
+                        {face.hero.title}
+                      </h4>
+                      <p className="text-[10px] sm:text-[11px] text-text-secondary leading-snug mt-0.5">
+                        {face.hero.sub}
+                      </p>
+                    </div>
+
+                    {/* Bottom Row: Company & Domain Tag */}
+                    <div className="pt-1.5 border-t border-line/60 flex items-center justify-between text-[10px] sm:text-[11px]">
+                      <span className="flex items-center gap-1.5 text-text-secondary font-mono truncate">
+                        <Terminal className="w-3 h-3 text-accent shrink-0" />
+                        {face.hero.company}
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] font-bold text-accent font-mono tracking-wider shrink-0">
+                        {face.hero.tag}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
             })}
 
-            {/* Top Face */}
+            {/* Top Face - visible due to -14deg rotateX tilt */}
             <div
-              className="absolute inset-0 rounded-xl p-3.5 flex flex-col items-center justify-center overflow-hidden select-none bg-surface border border-line"
+              className="absolute inset-0 rounded-xl p-2.5 sm:p-3 flex flex-col items-center justify-center overflow-hidden select-none bg-surface border border-line"
               style={{
-                transform: 'rotateX(90deg) translateZ(110px)',
-                backfaceVisibility: 'visible',
+                transform: 'rotateX(90deg) translateZ(calc(var(--s) / 2))',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
               }}
             >
-              <div className="w-10 h-10 rounded-lg bg-surface-2 border border-line flex items-center justify-center">
-                <Cpu className="w-5 h-5 text-accent" />
+              <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center">
+                <Cpu className="w-4 h-4 text-accent" />
               </div>
-              <span className="text-xs font-semibold tracking-wide text-text uppercase mt-2">
-                DSA ENGINE CORE
+              <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-text uppercase mt-1.5 text-center">
+                DSA Engine Core
               </span>
-              <span className="text-xs text-easy mt-0.5 flex items-center gap-1 font-mono">
+              <span className="text-[9px] sm:text-[10px] text-easy mt-0.5 flex items-center gap-1 font-mono">
                 <span className="w-1.5 h-1.5 rounded-full bg-easy" />
-                ACTIVE PIPELINE
+                Active Pipeline
               </span>
             </div>
 
             {/* Bottom Face */}
             <div
-              className="absolute inset-0 rounded-xl p-3.5 flex flex-col items-center justify-center overflow-hidden select-none bg-surface border border-line"
+              className="absolute inset-0 rounded-xl p-2.5 sm:p-3 flex flex-col items-center justify-center overflow-hidden select-none bg-surface border border-line"
               style={{
-                transform: 'rotateX(-90deg) translateZ(110px)',
-                backfaceVisibility: 'visible',
+                transform: 'rotateX(-90deg) translateZ(calc(var(--s) / 2))',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
               }}
             >
-              <div className="w-10 h-10 rounded-full border border-accent/30 flex items-center justify-center bg-accent/12">
-                <Flame className="w-5 h-5 text-accent" />
+              <div className="w-8 h-8 rounded-full border border-accent/30 flex items-center justify-center bg-accent/12">
+                <Flame className="w-4 h-4 text-accent" />
               </div>
-              <span className="text-xs font-semibold tracking-wide text-text-secondary uppercase mt-2 font-mono">
-                REVISION QUEUE
+              <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-text-secondary uppercase mt-1.5 font-mono text-center">
+                Revision Queue
               </span>
             </div>
           </div>
@@ -531,25 +495,40 @@ const Rotating3DCube = () => {
       </div>
 
       {/* ── INTERACTIVE STAGE SWITCHER CONTROLS ── */}
-      <div className="mt-2 flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-line shadow-sm">
+      <div
+        role="group"
+        aria-label="3D Cube Stage Controls"
+        className="mt-3 flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-line shadow-sm"
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            rotateToStage((activeStage + 3) % 4);
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            rotateToStage((activeStage + 1) % 4);
+          }
+        }}
+      >
         {CUBE_STAGES.map((s, idx) => {
-          const isActive = currentFace === idx;
+          const isActive = activeStage === idx;
           return (
             <button
               key={s.id}
-              onClick={() => rotateToFace(idx)}
+              onClick={() => rotateToStage(idx)}
               type="button"
+              aria-pressed={isActive}
+              aria-label={`Switch to stage ${idx + 1}: ${s.stageLabel}`}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                 isActive
                   ? 'bg-surface-2 text-text border border-line shadow-xs font-semibold'
                   : 'text-text-secondary hover:text-text hover:bg-surface-2/60 border border-transparent'
               }`}
-              title={`Switch to ${s.stageLabel}`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
                   isActive ? 'bg-accent' : 'bg-muted'
                 }`}
+                aria-hidden="true"
               />
               <span>{idx + 1} {s.stageLabel}</span>
             </button>
@@ -557,31 +536,22 @@ const Rotating3DCube = () => {
         })}
       </div>
 
+      <p className="text-[11px] text-muted text-center mt-1.5 select-none">
+        Sample data
+      </p>
+
       <style>{`
         @keyframes cubeSubtleFloat {
           0%, 100% {
-            transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            transform: translateY(0px);
           }
           50% {
-            transform: translate3d(0, -6px, 0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            transform: translateY(-6px);
           }
         }
 
         .animate-cube-subtle-float {
           animation: cubeSubtleFloat 4.4s ease-in-out infinite;
-        }
-
-        @keyframes pureSmooth2sTumble {
-          0% {
-            transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-          }
-          100% {
-            transform: translate3d(0, 0, 0) rotateX(1080deg) rotateY(1440deg) rotateZ(720deg);
-          }
-        }
-
-        .animate-pure-smooth-2s-tumble {
-          animation: pureSmooth2sTumble 1.6s cubic-bezier(0.35, 0.05, 0.2, 1) forwards;
         }
       `}</style>
     </div>
