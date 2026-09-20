@@ -71,7 +71,7 @@ const CUBE_STAGES = [
   },
 ];
 
-export const DWELL_TIME_MS = 1100;
+export const DWELL_TIME_MS = 3500;
 export const MOVE_DURATION_MS = 450;
 
 /**

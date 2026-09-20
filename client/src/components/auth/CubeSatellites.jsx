@@ -297,7 +297,7 @@ const CubeSatellites = ({
           </div>
 
           <div
-            className={`flex flex-col gap-1 p-2.5 rounded-xl bg-surface/92 backdrop-blur-xl border border-line/90 max-w-[195px] ${floatClass1}`}
+            className={`flex flex-col gap-1 p-2.5 rounded-xl bg-surface/92 backdrop-blur-md will-change-transform border border-line/90 max-w-[195px] ${floatClass1}`}
             style={{
               borderColor: data.accentGlow,
               boxShadow: `0 16px 36px -4px rgba(0, 0, 0, 0.72), 0 0 20px -2px ${data.accentGlow}, inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
@@ -370,7 +370,7 @@ const CubeSatellites = ({
           </div>
 
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/92 backdrop-blur-xl border border-line text-[10px] font-mono whitespace-nowrap ${shard.textClass} ${floatClass3}`}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/92 backdrop-blur-md will-change-transform border border-line text-[10px] font-mono whitespace-nowrap ${shard.textClass} ${floatClass3}`}
             style={{
               boxShadow: `0 10px 24px -2px rgba(0, 0, 0, 0.65), 0 0 12px -2px ${data.accentGlow}, inset 0 1px 0 rgba(255, 255, 255, 0.1)`,
             }}
@@ -416,7 +416,7 @@ const CubeSatellites = ({
           </div>
 
           <div
-            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface/92 backdrop-blur-xl border border-line/90 whitespace-nowrap ${floatClass2}`}
+            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface/92 backdrop-blur-md will-change-transform border border-line/90 whitespace-nowrap ${floatClass2}`}
             style={{
               boxShadow: '0 14px 28px -2px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
             }}

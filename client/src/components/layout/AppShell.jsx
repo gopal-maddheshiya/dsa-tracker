@@ -200,7 +200,7 @@ const AppShell = ({ children }) => {
   // Command Palette spotlight modal state
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
-  // Live streak & revision count fetch on mount and route change
+  // Live streak & revision count fetch on mount/auth (and event-driven upon problem updates)
   useEffect(() => {
     if (isAuthenticated) {
       fetchProfileAnalytics()
@@ -219,7 +219,7 @@ const AppShell = ({ children }) => {
         })
         .catch(() => { });
     }
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated]);
 
   const toggleCollapsed = () => {
     setCollapsed(prev => {

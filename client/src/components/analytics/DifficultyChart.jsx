@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { easy, medium, hard, surface } from '../../theme/colors';
+import { easy, medium, hard, surface, text } from '../../theme/colors';
 
 const DIFFICULTY_CONFIG = [
   {
