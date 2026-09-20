@@ -644,6 +644,7 @@ const ProfilePage = () => {
   const memberSince = user?.createdAt ? fmtMonthYear(user.createdAt) : null;
 
   const toast = useToast();
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'milestones' | 'activity' | 'settings'
   const [isExporting, setIsExporting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -785,7 +786,7 @@ const ProfilePage = () => {
                       {rank.Icon && <rank.Icon className="w-3 h-3" />}
                       {rank.label}
                     </span>
-                    <Badge variant="online" dot size="sm">Active</Badge>
+                    <Badge variant="online" size="sm">Active</Badge>
                   </div>
 
                   <p className="text-xs text-secondary truncate">
@@ -881,315 +882,440 @@ const ProfilePage = () => {
         </div>
       </Reveal>
 
-      {/* ── KPI Grid ────────────────────────────────────────────── */}
-      <Reveal delay={40} y={15}>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatBlock label="Total Cataloged"   value={profile?.totalProblems ?? 0}  sub="problems"          icon={FolderGit2}   color={colors.muted} isNumber />
-          <StatBlock label="Total Solved"       value={profile?.totalSolved ?? 0}     sub="unique problems"   icon={CheckCircle2} color={colors.easy} isNumber />
-          <StatBlock label="Sessions Logged"    value={profile?.totalAttempts ?? 0}   sub="total attempts"    icon={History}      color={colors.accent} isNumber />
-          <StatBlock label="Current Streak"     value={`${profile?.currentStreak ?? 0}d`} sub={`best: ${profile?.longestStreak ?? 0}d`} icon={Flame} color={colors.medium} />
+      {/* ── Workspace Tab Strip ─────────────────────────────────── */}
+      <Reveal delay={20} y={10}>
+        <div className="flex items-center gap-1.5 p-1.5 bg-surface border border-line rounded-xl overflow-x-auto no-scrollbar">
+          <button
+            type="button"
+            onClick={() => setActiveTab('overview')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'overview'
+                ? 'bg-accent text-white shadow-xs'
+                : 'text-secondary hover:text-text hover:bg-surface-2'
+            }`}
+          >
+            <Target className="w-3.5 h-3.5" />
+            <span>Overview & Goals</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('milestones')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'milestones'
+                ? 'bg-accent text-white shadow-xs'
+                : 'text-secondary hover:text-text hover:bg-surface-2'
+            }`}
+          >
+            <Trophy className="w-3.5 h-3.5" />
+            <span>Milestones & Badges</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'milestones' ? 'bg-white/20 text-white' : 'bg-surface-2 text-secondary'
+            }`}>
+              {profile?.badges?.length ?? 0}/{ALL_MILESTONES.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('activity')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'activity'
+                ? 'bg-accent text-white shadow-xs'
+                : 'text-secondary hover:text-text hover:bg-surface-2'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Activity & Analytics</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'activity' ? 'bg-white/20 text-white' : 'bg-surface-2 text-secondary'
+            }`}>
+              {heatmap.length}d
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'settings'
+                ? 'bg-accent text-white shadow-xs'
+                : 'text-secondary hover:text-text hover:bg-surface-2'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Data & Settings</span>
+          </button>
         </div>
       </Reveal>
 
-      {/* ── Target Goals & Interview Readiness ──────────────────── */}
-      <Reveal delay={70} y={15}>
-        <TargetGoalsCard />
-      </Reveal>
-
-      {/* ── Solve Pace & Insights ─────────────────────────────── */}
-      <Reveal delay={100} y={15}>
-        <div className="bg-surface border border-line rounded-xl p-5">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h2 className="text-sm font-semibold text-text flex items-center gap-2">
-                Solve Pace
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
-                  Weekly Velocity
-                </span>
-              </h2>
-              <p className="text-xs text-muted mt-0.5">Your practice rhythm & difficulty split</p>
+      {/* ── Tab 1: Overview & Goals ──────────────────────────────── */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6 animate-fade-up">
+          {/* KPI Grid */}
+          <Reveal delay={40} y={15}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <StatBlock label="Total Cataloged"   value={profile?.totalProblems ?? 0}  sub="problems"          icon={FolderGit2}   color={colors.muted} isNumber />
+              <StatBlock label="Total Solved"       value={profile?.totalSolved ?? 0}     sub="unique problems"   icon={CheckCircle2} color={colors.easy} isNumber />
+              <StatBlock label="Sessions Logged"    value={profile?.totalAttempts ?? 0}   sub="total attempts"    icon={History}      color={colors.accent} isNumber />
+              <StatBlock label="Current Streak"     value={`${profile?.currentStreak ?? 0}d`} sub={`best: ${profile?.longestStreak ?? 0}d`} icon={Flame} color={colors.medium} />
             </div>
-            <Link
-              to="/problems"
-              className="text-xs text-accent hover:text-accent-hover transition-colors shrink-0 whitespace-nowrap flex items-center gap-1 group"
-            >
-              <span>View all</span>
-              <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {(() => {
-              const pace = profile?.activeDays > 0
-                ? (profile.totalSolved / profile.activeDays * 7).toFixed(1)
-                : '0';
-              const attPerSolve = profile?.totalSolved > 0
-                ? (profile.totalAttempts / profile.totalSolved).toFixed(1)
-                : '—';
-              const easy = profile?.solvedByDifficulty?.easy ?? 0;
-              const med = profile?.solvedByDifficulty?.medium ?? 0;
-              const hard = profile?.solvedByDifficulty?.hard ?? 0;
-              const total = profile?.totalSolved || 1;
-              const medHardPct = Math.round(((med + hard) / total) * 100);
-              return (
-                <>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Solve Rate</span>
-                      <TrendingUp className="w-3.5 h-3.5 text-easy" />
-                    </div>
-                    <span className="text-xl font-semibold tabular-nums text-text leading-none my-0.5">{pace}</span>
-                    <span className="text-xs text-muted">problems/week</span>
-                  </div>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Attempts/Solve</span>
-                      <History className="w-3.5 h-3.5 text-accent" />
-                    </div>
-                    <span className="text-xl font-semibold tabular-nums text-accent leading-none my-0.5">{attPerSolve}</span>
-                    <span className="text-xs text-muted">avg attempts</span>
-                  </div>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Med+Hard %</span>
-                      <Brain className={`w-3.5 h-3.5 ${medHardPct >= 65 ? 'text-easy' : 'text-medium'}`} />
-                    </div>
-                    <span className={`text-xl font-semibold tabular-nums leading-none my-0.5 ${medHardPct >= 65 ? 'text-easy' : 'text-medium'}`}>{medHardPct}%</span>
-                    <span className="text-xs text-muted">{medHardPct >= 65 ? 'interview ready' : 'need more hard'}</span>
-                  </div>
-                  <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs uppercase tracking-wider text-secondary font-medium">Active Ratio</span>
-                      <Zap className="w-3.5 h-3.5 text-medium" />
-                    </div>
-                    <span className="text-xl font-semibold tabular-nums text-medium leading-none my-0.5">
-                      {profile?.activeDays > 0 && memberSince ? `${profile.activeDays}d` : `${profile?.activeDays ?? 0}d`}
+          </Reveal>
+
+          {/* Target Goals & Interview Readiness */}
+          <Reveal delay={70} y={15}>
+            <TargetGoalsCard />
+          </Reveal>
+
+          {/* Solve Pace & Insights */}
+          <Reveal delay={100} y={15}>
+            <div className="bg-surface border border-line rounded-xl p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-text flex items-center gap-2">
+                    Solve Pace
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
+                      Weekly Velocity
                     </span>
-                    <span className="text-xs text-muted">active days</span>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      </Reveal>
-
-      {/* ── Yearly Heatmap ──────────────────────────────────────── */}
-      <Reveal delay={120} y={15}>
-        <div className="bg-surface border border-line rounded-xl p-5">
-          <div className="flex items-start justify-between mb-5">
-            <div>
-              <h2 className="text-sm font-semibold text-text">Activity Heatmap</h2>
-              <p className="text-xs text-muted mt-0.5">365-day practice history</p>
-            </div>
-            <Badge variant="default" size="xs">{heatmap.length} active days</Badge>
-          </div>
-          <YearlyHeatmap heatmapData={heatmap} />
-        </div>
-      </Reveal>
-
-      {/* ── Difficulty Distribution + Weekly Momentum ────────────── */}
-      <Reveal delay={140} y={15}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="bg-surface border border-line rounded-xl p-5">
-            <div className="flex items-start justify-between mb-5">
-              <div>
-                <h2 className="text-sm font-semibold text-text">Difficulty Distribution</h2>
-                <p className="text-xs text-muted mt-0.5">Your solve breakdown by difficulty</p>
+                  </h2>
+                  <p className="text-xs text-muted mt-0.5">Your practice rhythm & difficulty split</p>
+                </div>
+                <Link
+                  to="/problems"
+                  className="text-xs text-accent hover:text-accent-hover transition-colors shrink-0 whitespace-nowrap flex items-center gap-1 group"
+                >
+                  <span>View all</span>
+                  <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </Link>
               </div>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-easy/12 border border-easy/25">
-                <Layers className="w-3.5 h-3.5 text-easy" />
-              </div>
-            </div>
-            <DifficultyDistribution profile={profile} />
-          </div>
-
-          <div className="bg-surface border border-line rounded-xl p-5">
-            <div className="flex items-start justify-between mb-5">
-              <div>
-                <h2 className="text-sm font-semibold text-text">Weekly Momentum</h2>
-                <p className="text-xs text-muted mt-0.5">Sessions per week · last 8 weeks</p>
-              </div>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-accent/12 border border-accent/25">
-                <BarChart3 className="w-3.5 h-3.5 text-accent" />
-              </div>
-            </div>
-            <WeeklyMomentum heatmapData={heatmap} />
-          </div>
-        </div>
-      </Reveal>
-
-      {/* ── Milestone Hall of Fame ─────────────────────────────── */}
-      <Reveal delay={160} y={15}>
-        <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold text-text">Milestone Hall of Fame</h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/12 border border-accent/25 text-accent">
-                  {profile?.badges?.length ?? 0} / {ALL_MILESTONES.length} Unlocked
-                </span>
-              </div>
-              <p className="text-xs text-muted mt-0.5">Click any milestone badge to inspect unlock criteria & your progress</p>
-            </div>
-
-            {/* Segmented Filter Pills */}
-            <div className="flex items-center p-1 bg-surface-2 border border-line rounded-lg text-xs shrink-0 self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => setMilestoneFilter('all')}
-                className={`px-3 py-1 rounded-md font-medium transition-all ${
-                  milestoneFilter === 'all'
-                    ? 'bg-surface text-text shadow-xs'
-                    : 'text-muted hover:text-text'
-                }`}
-              >
-                All ({ALL_MILESTONES.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setMilestoneFilter('earned')}
-                className={`px-3 py-1 rounded-md font-medium transition-all ${
-                  milestoneFilter === 'earned'
-                    ? 'bg-surface text-text shadow-xs'
-                    : 'text-muted hover:text-text'
-                }`}
-              >
-                Earned ({profile?.badges?.length ?? 0})
-              </button>
-            </div>
-          </div>
-
-          {milestoneFilter === 'earned' && (!profile?.badges || profile.badges.length === 0) ? (
-            <div className="border border-dashed border-line rounded-xl p-10 text-center">
-              <Target className="w-8 h-8 text-muted mx-auto mb-2" />
-              <p className="text-xs text-muted">No badges earned yet. Solve your first problem to kickstart your journey!</p>
-              <Link to="/problems" className="btn-primary inline-flex mt-4 text-xs">
-                + Catalog a Problem
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                {(milestoneFilter === 'earned'
-                  ? ALL_MILESTONES.filter(m => m.check(profile || {}))
-                  : ALL_MILESTONES
-                ).map((m, idx) => {
-                  const isUnlocked = m.check ? m.check(profile || {}) : false;
-                  const currentMetric = m.metric ? m.metric(profile || {}) : 0;
-                  const pct = Math.min(100, Math.round((currentMetric / m.target) * 100));
-                  const conf = MILESTONE_CONFIG[m.id] || { Icon: Award, color: colors.accent, bg: `${colors.accent}1f`, border: `${colors.accent}40` };
-
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {(() => {
+                  const pace = profile?.activeDays > 0
+                    ? (profile.totalSolved / profile.activeDays * 7).toFixed(1)
+                    : '0';
+                  const attPerSolve = profile?.totalSolved > 0
+                    ? (profile.totalAttempts / profile.totalSolved).toFixed(1)
+                    : '—';
+                  const easy = profile?.solvedByDifficulty?.easy ?? 0;
+                  const med = profile?.solvedByDifficulty?.medium ?? 0;
+                  const hard = profile?.solvedByDifficulty?.hard ?? 0;
+                  const total = profile?.totalSolved || 1;
+                  const medHardPct = Math.round(((med + hard) / total) * 100);
                   return (
-                    <Reveal key={m.id} delay={Math.min(idx * 25, 250)} y={10} className="h-full">
-                      <TiltCard maxTilt={6} className="h-full">
-                        <div
-                          onClick={() => setSelectedMilestone({ ...m, iconComponent: conf.Icon, ...conf })}
-                          className={`badge-card h-full flex flex-col items-center p-3.5 rounded-xl border transition-all duration-200 text-center cursor-pointer group select-none relative ${
-                            isUnlocked
-                              ? 'border-line bg-surface hover:bg-surface-2'
-                              : 'border-line/60 bg-surface/60 opacity-60 hover:opacity-90'
-                          }`}
-                        >
-                          {/* Top Mini Lock / Check Icon */}
-                          <div className="absolute top-2.5 right-2.5">
-                            {isUnlocked ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-easy" />
-                            ) : (
-                              <Lock className="w-3 h-3 text-muted" />
-                            )}
-                          </div>
-
-                          <MilestoneBadgeIcon
-                            id={m.id}
-                            size={20}
-                            className={`mb-2.5 ${!isUnlocked ? 'grayscale opacity-50' : ''}`}
-                          />
-
-                          <p className="text-xs font-semibold text-text truncate w-full">{m.label}</p>
-                          <p className="text-xs text-muted line-clamp-2 h-[32px] mt-0.5 leading-snug w-full">
-                            {m.desc}
-                          </p>
-
-                          {/* Progress indicator for locked milestones */}
-                          {!isUnlocked && (
-                            <div className="w-full mt-2.5">
-                              <div className="h-1 rounded-full overflow-hidden bg-surface-2">
-                                <div
-                                  className="h-full rounded-full"
-                                  style={{ width: `${pct}%`, backgroundColor: conf.color }}
-                                />
-                              </div>
-                              <span className="text-xs tabular-nums text-muted block mt-1">
-                                {currentMetric}/{m.target} ({pct}%)
-                              </span>
-                            </div>
-                          )}
+                    <>
+                      <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs uppercase tracking-wider text-secondary font-medium">Solve Rate</span>
+                          <TrendingUp className="w-3.5 h-3.5 text-easy" />
                         </div>
-                      </TiltCard>
-                    </Reveal>
+                        <span className="text-xl font-semibold tabular-nums text-text leading-none my-0.5">{pace}</span>
+                        <span className="text-xs text-muted">problems/week</span>
+                      </div>
+                      <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs uppercase tracking-wider text-secondary font-medium">Attempts/Solve</span>
+                          <History className="w-3.5 h-3.5 text-accent" />
+                        </div>
+                        <span className="text-xl font-semibold tabular-nums text-accent leading-none my-0.5">{attPerSolve}</span>
+                        <span className="text-xs text-muted">avg attempts</span>
+                      </div>
+                      <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs uppercase tracking-wider text-secondary font-medium">Med+Hard %</span>
+                          <Brain className={`w-3.5 h-3.5 ${medHardPct >= 65 ? 'text-easy' : 'text-medium'}`} />
+                        </div>
+                        <span className={`text-xl font-semibold tabular-nums leading-none my-0.5 ${medHardPct >= 65 ? 'text-easy' : 'text-medium'}`}>{medHardPct}%</span>
+                        <span className="text-xs text-muted">{medHardPct >= 65 ? 'interview ready' : 'need more hard'}</span>
+                      </div>
+                      <div className="flex flex-col gap-1 p-3.5 rounded-xl bg-surface-2/40 border border-line hover:border-line/80 transition-all cursor-default">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs uppercase tracking-wider text-secondary font-medium">Active Ratio</span>
+                          <Zap className="w-3.5 h-3.5 text-medium" />
+                        </div>
+                        <span className="text-xl font-semibold tabular-nums text-medium leading-none my-0.5">
+                          {profile?.activeDays > 0 && memberSince ? `${profile.activeDays}d` : `${profile?.activeDays ?? 0}d`}
+                        </span>
+                        <span className="text-xs text-muted">active days</span>
+                      </div>
+                    </>
                   );
-                })}
+                })()}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      )}
+
+      {/* ── Tab 2: Milestones & Badges ───────────────────────────── */}
+      {activeTab === 'milestones' && (
+        <div className="space-y-6 animate-fade-up">
+          <Reveal delay={40} y={15}>
+            <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-semibold text-text">Milestone Hall of Fame</h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent/12 border border-accent/25 text-accent">
+                      {profile?.badges?.length ?? 0} / {ALL_MILESTONES.length} Unlocked
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mt-0.5">Click any milestone badge to inspect unlock criteria & your progress</p>
+                </div>
+
+                {/* Segmented Filter Pills */}
+                <div className="flex items-center p-1 bg-surface-2 border border-line rounded-lg text-xs shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setMilestoneFilter('all')}
+                    className={`px-3 py-1 rounded-md font-medium transition-all ${
+                      milestoneFilter === 'all'
+                        ? 'bg-surface text-text shadow-xs'
+                        : 'text-muted hover:text-text'
+                    }`}
+                  >
+                    All ({ALL_MILESTONES.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMilestoneFilter('earned')}
+                    className={`px-3 py-1 rounded-md font-medium transition-all ${
+                      milestoneFilter === 'earned'
+                        ? 'bg-surface text-text shadow-xs'
+                        : 'text-muted hover:text-text'
+                    }`}
+                  >
+                    Earned ({profile?.badges?.length ?? 0})
+                  </button>
+                </div>
               </div>
 
-              {/* Next badge teaser */}
-              <NextBadgeTeaser profile={profile} />
-            </>
-          )}
-        </div>
-      </Reveal>
+              {milestoneFilter === 'earned' && (!profile?.badges || profile.badges.length === 0) ? (
+                <div className="border border-dashed border-line rounded-xl p-10 text-center">
+                  <Target className="w-8 h-8 text-muted mx-auto mb-2" />
+                  <p className="text-xs text-muted">No badges earned yet. Solve your first problem to kickstart your journey!</p>
+                  <Link to="/problems" className="btn-primary inline-flex mt-4 text-xs">
+                    + Catalog a Problem
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    {(milestoneFilter === 'earned'
+                      ? ALL_MILESTONES.filter(m => m.check(profile || {}))
+                      : ALL_MILESTONES
+                    ).map((m, idx) => {
+                      const isUnlocked = m.check ? m.check(profile || {}) : false;
+                      const currentMetric = m.metric ? m.metric(profile || {}) : 0;
+                      const pct = Math.min(100, Math.round((currentMetric / m.target) * 100));
+                      const conf = MILESTONE_CONFIG[m.id] || { Icon: Award, color: colors.accent, bg: `${colors.accent}1f`, border: `${colors.accent}40` };
 
-      {/* ── Data Portability & Backup ─────────────────────── */}
-      <Reveal delay={180} y={15}>
-        <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold text-text">Data Portability & Backup</h2>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
-                  OFFLINE BACKUP
-                </span>
-              </div>
-              <p className="text-xs text-muted mt-0.5">
-                Export all your cataloged problems, topics, and practice records.
-              </p>
+                      return (
+                        <Reveal key={m.id} delay={Math.min(idx * 25, 250)} y={10} className="h-full">
+                          <TiltCard maxTilt={6} className="h-full">
+                            <div
+                              onClick={() => setSelectedMilestone({ ...m, iconComponent: conf.Icon, ...conf })}
+                              className={`badge-card h-full flex flex-col items-center p-3.5 rounded-xl border transition-all duration-200 text-center cursor-pointer group select-none relative ${
+                                isUnlocked
+                                  ? 'border-line bg-surface hover:bg-surface-2'
+                                  : 'border-line/60 bg-surface/60 opacity-60 hover:opacity-90'
+                              }`}
+                            >
+                              {/* Top Mini Lock / Check Icon */}
+                              <div className="absolute top-2.5 right-2.5">
+                                {isUnlocked ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-easy" />
+                                ) : (
+                                  <Lock className="w-3 h-3 text-muted" />
+                                )}
+                              </div>
+
+                              <MilestoneBadgeIcon
+                                id={m.id}
+                                size={20}
+                                className={`mb-2.5 ${!isUnlocked ? 'grayscale opacity-50' : ''}`}
+                              />
+
+                              <p className="text-xs font-semibold text-text truncate w-full">{m.label}</p>
+                              <p className="text-xs text-muted line-clamp-2 h-[32px] mt-0.5 leading-snug w-full">
+                                {m.desc}
+                              </p>
+
+                              {/* Progress indicator for locked milestones */}
+                              {!isUnlocked && (
+                                <div className="w-full mt-2.5">
+                                  <div className="h-1 rounded-full overflow-hidden bg-surface-2">
+                                    <div
+                                      className="h-full rounded-full"
+                                      style={{ width: `${pct}%`, backgroundColor: conf.color }}
+                                    />
+                                  </div>
+                                  <span className="text-xs tabular-nums text-muted block mt-1">
+                                    {currentMetric}/{m.target} ({pct}%)
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </TiltCard>
+                        </Reveal>
+                      );
+                    })}
+                  </div>
+
+                  {/* Next badge teaser */}
+                  <NextBadgeTeaser profile={profile} />
+                </>
+              )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setIsImportModalOpen(true)}
-                className="btn-secondary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-              >
-                <Upload className="w-3.5 h-3.5 text-easy" />
-                <span>Import Backup</span>
-              </button>
-              <button
-                type="button"
-                disabled={isExporting}
-                onClick={() => handleExportData('json')}
-                className="btn-secondary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
-              >
-                <FileJson className="w-3.5 h-3.5 text-medium" />
-                <span>Export JSON</span>
-              </button>
-              <button
-                type="button"
-                disabled={isExporting}
-                onClick={() => handleExportData('csv')}
-                className="btn-primary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5" />
-                <span>Export CSV</span>
-              </button>
-            </div>
-          </div>
-          <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex items-center gap-3 text-xs text-muted">
-            <Database className="w-4 h-4 text-muted shrink-0" />
-            <p className="leading-relaxed text-xs">
-              Your data belongs to you. Backups include full problem descriptions, difficulty ratings, tags, attempt timestamps, and review statuses.
-            </p>
-          </div>
+          </Reveal>
         </div>
-      </Reveal>
+      )}
+
+      {/* ── Tab 3: Activity & Analytics ─────────────────────────── */}
+      {activeTab === 'activity' && (
+        <div className="space-y-6 animate-fade-up">
+          {/* Yearly Heatmap */}
+          <Reveal delay={40} y={15}>
+            <div className="bg-surface border border-line rounded-xl p-5">
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <h2 className="text-sm font-semibold text-text">Activity Heatmap</h2>
+                  <p className="text-xs text-muted mt-0.5">365-day practice history</p>
+                </div>
+                <Badge variant="default" size="xs">{heatmap.length} active days</Badge>
+              </div>
+              <YearlyHeatmap heatmapData={heatmap} />
+            </div>
+          </Reveal>
+
+          {/* Difficulty Distribution + Weekly Momentum */}
+          <Reveal delay={70} y={15}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="bg-surface border border-line rounded-xl p-5">
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <h2 className="text-sm font-semibold text-text">Difficulty Distribution</h2>
+                    <p className="text-xs text-muted mt-0.5">Your solve breakdown by difficulty</p>
+                  </div>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-easy/12 border border-easy/25">
+                    <Layers className="w-3.5 h-3.5 text-easy" />
+                  </div>
+                </div>
+                <DifficultyDistribution profile={profile} />
+              </div>
+
+              <div className="bg-surface border border-line rounded-xl p-5">
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <h2 className="text-sm font-semibold text-text">Weekly Momentum</h2>
+                    <p className="text-xs text-muted mt-0.5">Sessions per week · last 8 weeks</p>
+                  </div>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-accent/12 border border-accent/25">
+                    <BarChart3 className="w-3.5 h-3.5 text-accent" />
+                  </div>
+                </div>
+                <WeeklyMomentum heatmapData={heatmap} />
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      )}
+
+      {/* ── Tab 4: Data & Settings ──────────────────────────────── */}
+      {activeTab === 'settings' && (
+        <div className="space-y-6 animate-fade-up">
+          {/* Account Preferences & Security */}
+          <Reveal delay={40} y={15}>
+            <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-semibold text-text">Account & Security</h2>
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
+                      PROFILE SETTINGS
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mt-0.5">
+                    Manage your profile details, avatar, and password credentials.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="btn-primary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Edit Profile & Password</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-line">
+                <div className="p-3 rounded-lg bg-surface-2/40 border border-line">
+                  <span className="text-xs text-muted block">Display Name</span>
+                  <span className="text-xs font-semibold text-text mt-0.5 block truncate">{user?.name || 'DSA Coder'}</span>
+                </div>
+                <div className="p-3 rounded-lg bg-surface-2/40 border border-line">
+                  <span className="text-xs text-muted block">Email Address</span>
+                  <span className="text-xs font-semibold text-text mt-0.5 block truncate">{user?.email || '—'}</span>
+                </div>
+                <div className="p-3 rounded-lg bg-surface-2/40 border border-line">
+                  <span className="text-xs text-muted block">Account Status</span>
+                  <span className="text-xs font-semibold text-easy mt-0.5 block">Verified & Active</span>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Data Portability & Backup */}
+          <Reveal delay={70} y={15}>
+            <div className="bg-surface border border-line rounded-xl p-5 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-semibold text-text">Data Portability & Backup</h2>
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-secondary border border-line">
+                      OFFLINE BACKUP
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mt-0.5">
+                    Export all your cataloged problems, topics, and practice records.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setIsImportModalOpen(true)}
+                    className="btn-secondary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-easy" />
+                    <span>Import Backup</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isExporting}
+                    onClick={() => handleExportData('json')}
+                    className="btn-secondary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    <FileJson className="w-3.5 h-3.5 text-medium" />
+                    <span>Export JSON</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isExporting}
+                    onClick={() => handleExportData('csv')}
+                    className="btn-primary min-h-[40px] px-4 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5" />
+                    <span>Export CSV</span>
+                  </button>
+                </div>
+              </div>
+              <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex items-center gap-3 text-xs text-muted">
+                <Database className="w-4 h-4 text-muted shrink-0" />
+                <p className="leading-relaxed text-xs">
+                  Your data belongs to you. Backups include full problem descriptions, difficulty ratings, tags, attempt timestamps, and review statuses.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      )}
 
       {/* Edit Profile & Security Modal */}
       <EditProfileModal
