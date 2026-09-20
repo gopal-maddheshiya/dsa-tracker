@@ -11,7 +11,7 @@ import {
 import { getErrorMessage } from '../utils/errorHandler';
 import { getRank } from '../utils/profileUtils';
 
-import StatCard from '../components/analytics/StatCard';
+import UnifiedMetricBar from '../components/analytics/UnifiedMetricBar';
 import DifficultyChart from '../components/analytics/DifficultyChart';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
@@ -20,8 +20,7 @@ import RevisionPreview from '../components/analytics/RevisionPreview';
 import IntelligentRecommender from '../components/dashboard/IntelligentRecommender';
 import Badge from '../components/ui/Badge';
 import Reveal from '../components/common/Reveal';
-import TiltCard from '../components/common/TiltCard';
-import { BarChart3, Code2, CheckCircle2, Zap, Flame } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -153,64 +152,15 @@ const DashboardPage = () => {
         </div>
       </Reveal>
 
-      {/* KPI Metric Stat Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-        <Reveal delay={0} y={20} className="h-full">
-          <TiltCard maxTilt={8} className="h-full">
-            <StatCard
-              title="Total Cataloged"
-              value={summary?.totalProblems || 0}
-              subtitle="Problems in repository"
-              icon={Code2}
-              isLoading={loadingSummary}
-              badge={`${summary?.difficultyBreakdown?.find((d) => d.difficulty === 'hard')?.count || 0} Hard`}
-            />
-          </TiltCard>
-        </Reveal>
-
-        <Reveal delay={70} y={20} className="h-full">
-          <TiltCard maxTilt={8} className="h-full">
-            <StatCard
-              title="Problems Solved"
-              value={summary?.solvedProblems || 0}
-              subtitle={`${solvedPct}% solve progress`}
-              icon={CheckCircle2}
-              valueColor="text-success"
-              isLoading={loadingSummary}
-              badge={`${solvedPct}%`}
-              progressPercent={solvedPct}
-            />
-          </TiltCard>
-        </Reveal>
-
-        <Reveal delay={140} y={20} className="h-full">
-          <TiltCard maxTilt={8} className="h-full">
-            <StatCard
-              title="Practice Sessions"
-              value={summary?.totalAttempts || 0}
-              subtitle={`${summary?.solvedAttempts || 0} successful`}
-              icon={Zap}
-              valueColor="text-medium"
-              isLoading={loadingSummary}
-              badge={`${solveRate}% accuracy`}
-            />
-          </TiltCard>
-        </Reveal>
-
-        <Reveal delay={210} y={20} className="h-full">
-          <TiltCard maxTilt={8} className="h-full">
-            <StatCard
-              title="Practice Streak"
-              value={`${summary?.currentStreak || 0} Days`}
-              subtitle={`Best: ${summary?.longestStreak || summary?.currentStreak || 0} days`}
-              icon={Flame}
-              valueColor="text-accent"
-              isLoading={loadingSummary}
-              badge={summary?.currentStreak > 0 ? '🔥 Active' : 'Ready'}
-            />
-          </TiltCard>
-        </Reveal>
-      </div>
+      {/* Unified Segmented Metric Bar */}
+      <Reveal delay={50} y={15}>
+        <UnifiedMetricBar
+          summary={summary}
+          isLoading={loadingSummary}
+          solvedPct={solvedPct}
+          solveRate={solveRate}
+        />
+      </Reveal>
 
       {/* Zero state vs Asymmetric Dashboard Grid */}
       {hasZeroData ? (
