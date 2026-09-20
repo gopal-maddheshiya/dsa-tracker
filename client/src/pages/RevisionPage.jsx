@@ -382,7 +382,6 @@ const RevisionPage = () => {
                       : 'text-danger/80 hover:text-danger'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-danger" />
                   <span>Struggled</span>
                   <span className="text-xs px-1.5 py-0.2 rounded bg-danger/15 tabular-nums">{summaryMetrics.struggled}</span>
                 </button>
@@ -396,7 +395,6 @@ const RevisionPage = () => {
                       : 'text-medium/80 hover:text-medium'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-medium" />
                   <span>Revisit</span>
                   <span className="text-xs px-1.5 py-0.2 rounded bg-medium/15 tabular-nums">{summaryMetrics.revisit}</span>
                 </button>
@@ -410,7 +408,6 @@ const RevisionPage = () => {
                       : 'text-success/80 hover:text-success'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-success" />
                   <span>Solved</span>
                   <span className="text-xs px-1.5 py-0.2 rounded bg-success/15 tabular-nums">{summaryMetrics.solved}</span>
                 </button>

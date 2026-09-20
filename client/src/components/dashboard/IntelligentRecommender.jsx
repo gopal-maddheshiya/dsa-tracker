@@ -125,8 +125,7 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
         <div className="space-y-2">
           {/* Subtle Tag */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-surface-2 border border-line/60 text-text-secondary">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-surface-2 border border-line/60 text-text-secondary">
               <span>{dailyFocus.badge || 'Priority Drill'}</span>
             </span>
           </div>
@@ -144,12 +143,11 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
           {/* Clean Inline Metadata Line (No bulky pill soup) */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
             {/* Difficulty */}
-            <span className={`inline-flex items-center gap-1.5 font-semibold ${diffCfg.text}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
+            <span className={`inline-flex items-center font-semibold ${diffCfg.text}`}>
               <span className="capitalize">{dailyFocus.difficulty}</span>
             </span>
 
-            <span className="text-line">•</span>
+            <span className="text-line/60">/</span>
 
             {/* Platform */}
             <span className="text-text-secondary font-medium">
@@ -158,7 +156,7 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
 
             {topicList && (
               <>
-                <span className="text-line">•</span>
+                <span className="text-line/60">/</span>
                 <span className="text-muted truncate">
                   {topicList}
                 </span>

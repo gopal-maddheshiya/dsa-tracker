@@ -101,18 +101,18 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         <span className={`inline-flex items-center font-semibold ${diff.text}`}>
           <span className="capitalize">{problem.difficulty}</span>
         </span>
-        <span className="text-line">•</span>
+        <span className="text-line/60">/</span>
         <span className="font-medium text-text-secondary">{platform.short}</span>
         {problem.topics?.length > 0 && (
           <>
-            <span className="text-line">•</span>
+            <span className="text-line/60">/</span>
             <span className="text-muted truncate max-w-[140px] font-mono text-[10px]">
               #{problem.topics[0]}
               {problem.topics.length > 1 ? ` +${problem.topics.length - 1}` : ''}
             </span>
           </>
         )}
-        <span className="text-line">•</span>
+        <span className="text-line/60">/</span>
         <span className="text-[10px] tabular-nums">
           {problem.attemptCount > 0 ? `${problem.attemptCount} att.` : '0 att.'}
         </span>

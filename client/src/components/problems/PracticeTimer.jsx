@@ -114,7 +114,7 @@ const PracticeTimer = ({ onLogWithTime }) => {
           <div>
             <span className="text-xs font-semibold text-text tracking-tight">Practice Stopwatch & Timer</span>
             <span className="text-xs text-muted ml-2 hidden sm:inline">
-              {isRunning ? '• Session in progress' : '• Ready to practice'}
+              {isRunning ? '— Session in progress' : '— Ready to practice'}
             </span>
           </div>
         </div>

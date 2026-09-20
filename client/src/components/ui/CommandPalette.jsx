@@ -428,8 +428,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
                           {/* Difficulty pill + Jump arrow */}
                           <div className="flex items-center gap-2.5 shrink-0">
-                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${diffCfg.text} ${diffCfg.bg}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
+                            <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border ${diffCfg.text} ${diffCfg.bg}`}>
                               <span>{prob.difficulty}</span>
                             </span>
 

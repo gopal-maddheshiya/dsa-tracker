@@ -538,9 +538,8 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
                         type="button"
                         onClick={() => setDifficulty(d.value)}
                         disabled={isSubmitting}
-                        className={`h-full flex items-center justify-center gap-1.5 px-2 rounded-md text-xs transition-all border cursor-pointer ${activeClasses}`}
+                        className={`h-full flex items-center justify-center px-2 rounded-md text-xs transition-all border cursor-pointer ${activeClasses}`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? dotColor : 'bg-transparent'} transition-colors`} />
                         <span>{d.label}</span>
                       </button>
                     );

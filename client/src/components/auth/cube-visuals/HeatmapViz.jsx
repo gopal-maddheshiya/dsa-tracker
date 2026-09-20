@@ -59,8 +59,7 @@ const HeatmapViz = ({ active, settled, reducedMotion }) => {
           transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 350ms ease-out',
         }}
       >
-        <span className="flex items-center gap-1.5 text-easy font-bold">
-          <span className="w-1.5 h-1.5 rounded-full bg-easy" />
+        <span className="flex items-center text-easy font-bold">
           <span>Active Streak</span>
         </span>
         <span className="font-bold text-text px-1.5 py-0.5 rounded bg-surface border border-line">

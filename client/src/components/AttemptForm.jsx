@@ -174,7 +174,6 @@ const AttemptForm = ({
                       : 'border-line bg-surface-2 text-text-secondary hover:text-text hover:border-line'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${opt.dot} shrink-0`} />
                   <span>{opt.label}</span>
                 </button>
               ))}

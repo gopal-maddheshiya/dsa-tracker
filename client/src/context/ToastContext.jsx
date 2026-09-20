@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { X } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 const ToastContext = createContext(null);
 
@@ -35,10 +35,12 @@ export const ToastProvider = ({ children }) => {
         {toasts.map(({ id, message, type }) => {
           const config =
             type === 'success'
-              ? { dot: 'bg-success', border: 'border-success/30', bg: 'bg-surface' }
+              ? { icon: CheckCircle2, iconClass: 'text-success', border: 'border-success/30', bg: 'bg-surface' }
               : type === 'error'
-              ? { dot: 'bg-danger', border: 'border-danger/30', bg: 'bg-surface' }
-              : { dot: 'bg-accent', border: 'border-line', bg: 'bg-surface' };
+              ? { icon: AlertCircle, iconClass: 'text-danger', border: 'border-danger/30', bg: 'bg-surface' }
+              : { icon: Info, iconClass: 'text-accent', border: 'border-line', bg: 'bg-surface' };
+
+          const IconComponent = config.icon;
 
           return (
             <div
@@ -46,7 +48,7 @@ export const ToastProvider = ({ children }) => {
               role={type === 'error' ? 'alert' : 'status'}
               className={`pointer-events-auto bg-surface border ${config.border} rounded-xl p-3.5 shadow-modal flex items-start gap-2.5`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${config.dot} mt-1.5 shrink-0`} />
+              <IconComponent className={`w-4 h-4 ${config.iconClass} shrink-0 mt-0.5`} />
               <div className="flex-1 text-xs text-text leading-relaxed">
                 {message}
               </div>

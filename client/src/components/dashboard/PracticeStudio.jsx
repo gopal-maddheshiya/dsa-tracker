@@ -138,8 +138,7 @@ const PracticeStudio = ({
             {/* Tag & Title */}
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-surface-2 border border-line/60 text-text-secondary">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-surface-2 border border-line/60 text-text-secondary">
                   <span>{dailyFocus.badge || 'Priority Recall'}</span>
                 </span>
               </div>
@@ -156,12 +155,11 @@ const PracticeStudio = ({
 
             {/* Inline Metadata Line */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-              <span className={`inline-flex items-center gap-1 font-semibold ${diffCfg.text}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
+              <span className={`inline-flex items-center font-semibold ${diffCfg.text}`}>
                 <span>{diffCfg.label}</span>
               </span>
 
-              <span className="text-line">•</span>
+              <span className="text-line/60">/</span>
 
               <span className="text-text-secondary font-medium">
                 {PLATFORM_LABELS[dailyFocus.platform] || dailyFocus.platform}
@@ -169,7 +167,7 @@ const PracticeStudio = ({
 
               {topicList && (
                 <>
-                  <span className="text-line">•</span>
+                  <span className="text-line/60">/</span>
                   <span className="text-muted truncate max-w-xs">{topicList}</span>
                 </>
               )}
@@ -265,21 +263,20 @@ const PracticeStudio = ({
                     <span className="text-xs font-semibold text-text group-hover:text-accent line-clamp-1 transition-colors">
                       {item.title}
                     </span>
-                    <span className="text-line hidden sm:inline">•</span>
+                    <span className="text-line/60 hidden sm:inline">/</span>
                     <span className={`text-[11px] font-medium hidden sm:inline ${itemDiffCfg.text}`}>
                       {itemDiffCfg.label}
                     </span>
                     {itemTopic && (
                       <span className="text-[11px] text-muted truncate hidden md:inline">
-                        · {itemTopic}
+                        / {itemTopic}
                       </span>
                     )}
                   </div>
 
                   {/* Right Status */}
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${statusCfg.text} ${statusCfg.bg}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${statusCfg.text} ${statusCfg.bg}`}>
                       <span>{statusCfg.label}</span>
                     </span>
                     <ArrowRight className="w-3 h-3 text-muted/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />

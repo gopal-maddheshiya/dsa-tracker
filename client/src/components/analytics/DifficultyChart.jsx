@@ -134,7 +134,7 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
               </span>
             </div>
             <p className="text-xs text-text-secondary mt-1">
-              Hover to inspect • Click row to filter problems
+              Hover to inspect / Click row to filter problems
             </p>
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-2 border border-line text-text tabular-nums">

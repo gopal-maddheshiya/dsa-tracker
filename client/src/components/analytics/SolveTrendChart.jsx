@@ -237,8 +237,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
               {/* Live Scrubbing Badge Indicator */}
               {hoveredPoint ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-accent/12 border border-accent/25 text-accent text-xs animate-fadeIn font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-accent/12 border border-accent/25 text-accent text-xs animate-fadeIn font-medium">
                   {formatFullDate(hoveredPoint.date)}
                 </span>
               ) : (

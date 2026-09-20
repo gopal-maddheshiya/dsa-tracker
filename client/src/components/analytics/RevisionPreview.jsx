@@ -131,13 +131,12 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry,
                           {item.title}
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-muted truncate">
-                          {/* Difficulty with dot */}
-                          <span className={`inline-flex items-center gap-1 shrink-0 font-medium ${diffCfg.text}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
+                          {/* Difficulty */}
+                          <span className={`inline-flex items-center shrink-0 font-medium ${diffCfg.text}`}>
                             <span>{diffCfg.label}</span>
                           </span>
 
-                          <span className="text-line shrink-0">•</span>
+                          <span className="text-line/60 shrink-0">/</span>
 
                           {/* Platform pill */}
                           <span className="text-[10px] font-mono uppercase tracking-wide shrink-0 px-1.5 py-0.2 rounded bg-surface-2/80 border border-line/50 text-text-secondary">
@@ -146,7 +145,7 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry,
 
                           {topicStr && (
                             <>
-                              <span className="text-line shrink-0">•</span>
+                              <span className="text-line/60 shrink-0">/</span>
                               <span className="truncate text-text-secondary">
                                 {topicStr}
                               </span>
@@ -158,8 +157,7 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry,
 
                     {/* Right: Clean Unified Status Pill + Hover arrow */}
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusCfg.text} ${statusCfg.bg}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusCfg.text} ${statusCfg.bg}`}>
                         <span>{statusCfg.label}</span>
                       </span>
                       <ArrowRight className="w-3.5 h-3.5 text-muted/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all hidden sm:block" />

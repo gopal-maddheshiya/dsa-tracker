@@ -233,8 +233,7 @@ const LeetCodeStatsConsole = ({
             {/* Easy */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-easy flex items-center gap-1.5 text-[11px]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-easy shadow-[0_0_4px_rgba(0,184,163,0.5)]" />
+                <span className="font-semibold text-easy text-[11px]">
                   Easy
                 </span>
                 <div className="flex items-center gap-1 text-[11px] tabular-nums">
@@ -254,8 +253,7 @@ const LeetCodeStatsConsole = ({
             {/* Medium */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-medium flex items-center gap-1.5 text-[11px]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-medium shadow-[0_0_4px_rgba(255,192,30,0.5)]" />
+                <span className="font-semibold text-medium text-[11px]">
                   Med.
                 </span>
                 <div className="flex items-center gap-1 text-[11px] tabular-nums">
@@ -275,8 +273,7 @@ const LeetCodeStatsConsole = ({
             {/* Hard */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-hard flex items-center gap-1.5 text-[11px]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-hard shadow-[0_0_4px_rgba(255,55,95,0.5)]" />
+                <span className="font-semibold text-hard text-[11px]">
                   Hard
                 </span>
                 <div className="flex items-center gap-1 text-[11px] tabular-nums">
