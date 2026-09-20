@@ -159,6 +159,7 @@ const DashboardPage = () => {
           isLoading={loadingSummary}
           solveRate={solveRate}
           revisionCount={revisionQueue.length}
+          isLoadingRevision={loadingRevision}
         />
       </Reveal>
 
