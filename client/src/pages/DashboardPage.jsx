@@ -11,8 +11,8 @@ import {
 import { getErrorMessage } from '../utils/errorHandler';
 import { getRank } from '../utils/profileUtils';
 
-import LeetCodeProgressConsole from '../components/analytics/LeetCodeProgressConsole';
-import DifficultyChart from '../components/analytics/DifficultyChart';
+import LeetCodeSolvedCard from '../components/analytics/LeetCodeSolvedCard';
+import ActivityTelemetryCard from '../components/analytics/ActivityTelemetryCard';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
@@ -152,14 +152,25 @@ const DashboardPage = () => {
         </div>
       </Reveal>
 
-      {/* LeetCode-style Progress & Activity Console */}
+      {/* Top Section: LeetCode Solved Card & Activity Momentum Strip */}
       <Reveal delay={50} y={15}>
-        <LeetCodeProgressConsole
-          summary={summary}
-          isLoading={loadingSummary}
-          solvedPct={solvedPct}
-          solveRate={solveRate}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+          <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
+            <LeetCodeSolvedCard
+              summary={summary}
+              isLoading={loadingSummary}
+              className="h-full"
+            />
+          </div>
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
+            <ActivityTelemetryCard
+              summary={summary}
+              isLoading={loadingSummary}
+              solveRate={solveRate}
+              className="h-full"
+            />
+          </div>
+        </div>
       </Reveal>
 
       {/* Zero state vs Asymmetric Dashboard Grid */}
@@ -210,27 +221,15 @@ const DashboardPage = () => {
             </div>
           </Reveal>
 
-          {/* Row 3: Performance Analytics - Solve Velocity & Difficulty Split (Matched Heights) */}
+          {/* Row 3: Solve Velocity Timeline (Full-Width, Non-Repetitive) */}
           <Reveal delay={140} y={20}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <div className="flex flex-col h-full">
-                <SolveTrendChart
-                  className="h-full flex-1"
-                  trendData={trend}
-                  isLoading={loadingTrend}
-                  error={trendError}
-                  onRetry={loadTrend}
-                />
-              </div>
-              <div className="flex flex-col h-full">
-                <DifficultyChart
-                  className="h-full flex-1"
-                  breakdown={summary?.difficultyBreakdown}
-                  isLoading={loadingSummary}
-                  error={summaryError}
-                  onRetry={loadSummary}
-                />
-              </div>
+            <div className="w-full">
+              <SolveTrendChart
+                trendData={trend}
+                isLoading={loadingTrend}
+                error={trendError}
+                onRetry={loadTrend}
+              />
             </div>
           </Reveal>
 
