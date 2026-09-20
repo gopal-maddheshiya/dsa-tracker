@@ -30,7 +30,7 @@ const TABS = [
   },
 ];
 
-const NextUpViz = ({ active, reducedMotion }) => {
+const NextUpViz = ({ active, settled, reducedMotion }) => {
   const activeTabIdx = useTicker({
     active,
     intervalMs: 1600,
@@ -41,7 +41,7 @@ const NextUpViz = ({ active, reducedMotion }) => {
   const activeItem = TABS[activeTabIdx] || TABS[0];
 
   return (
-    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0">
+    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0" style={{ transformStyle: 'preserve-3d' }}>
       {/* 1. 3 Cycling Queue Tabs */}
       <div className="relative grid grid-cols-3 w-full p-1 rounded-lg bg-surface-2/80 border border-line mb-1.5 shrink-0">
         {/* Sliding Highlight Pill */}
@@ -75,8 +75,16 @@ const NextUpViz = ({ active, reducedMotion }) => {
         })}
       </div>
 
-      {/* 2. Active Problem Card */}
-      <div className="flex-1 w-full rounded-lg border border-line bg-surface-2/40 p-2.5 flex flex-col justify-between overflow-hidden min-h-0">
+      {/* 2. Active Problem Card - Elevated 3D */}
+      <div
+        className="flex-1 w-full rounded-lg border border-line bg-surface-2/95 p-2.5 flex flex-col justify-between overflow-hidden min-h-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(38px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          boxShadow: settled && !reducedMotion ? '0 16px 24px -2px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 350ms ease-out',
+        }}
+      >
         <div className="flex items-start justify-between gap-1.5">
           <div className="min-w-0 flex-1">
             <h4
@@ -103,10 +111,17 @@ const NextUpViz = ({ active, reducedMotion }) => {
           </span>
         </div>
 
-        {/* Action Row */}
+        {/* Action Row with elevated button */}
         <div className="flex items-center justify-between pt-1.5 border-t border-line/50 text-[12px] font-mono">
           <span className="text-muted">Queue Item</span>
-          <span className="flex items-center gap-1 font-semibold text-accent">
+          <span
+            className="flex items-center gap-1 font-semibold text-accent px-1.5 py-0.5 rounded bg-accent/10 border border-accent/25"
+            style={{
+              transform: settled && !reducedMotion ? 'translateZ(12px)' : 'translateZ(0px)',
+              transformStyle: 'preserve-3d',
+              transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+            }}
+          >
             <span>Solve & Log</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </span>

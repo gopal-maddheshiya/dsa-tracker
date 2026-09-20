@@ -6,8 +6,6 @@ import {
   PieChart,
   Flame,
   Sparkles,
-  Pause,
-  Play,
 } from 'lucide-react';
 import { colors } from '../../theme/colors';
 import SlidingWindowViz from './cube-visuals/SlidingWindowViz';
@@ -72,6 +70,9 @@ const CUBE_STAGES = [
   },
 ];
 
+export const DWELL_TIME_MS = 1200;
+export const MOVE_DURATION_MS = 500;
+
 /**
  * Tour sequences:
  * Forward: 0 (Solves) -> 1 (Spaced) -> 2 (Topics) -> 4 (Levels) -> 3 (Velocity) -> 5 (Next up) -> 0
@@ -80,18 +81,6 @@ const CUBE_STAGES = [
 export const TOUR_FORWARD = [0, 1, 2, 4, 3, 5];
 export const TOUR_REVERSE = [0, 5, 3, 4, 2, 1];
 export const TOUR_SEQUENCE = TOUR_FORWARD;
-
-/**
- * Switcher Segment Configuration matching Tour Order strictly from left to right.
- */
-const TOUR_SEGMENTS = [
-  { stageId: 0, label: 'Solves', icon: Code2 },
-  { stageId: 1, label: 'Spaced', icon: CalendarClock },
-  { stageId: 2, label: 'Topics', icon: Radar },
-  { stageId: 4, label: 'Levels', icon: PieChart },
-  { stageId: 3, label: 'Velocity', icon: Flame },
-  { stageId: 5, label: 'Next up', icon: Sparkles },
-];
 
 /**
  * 6 Canonical Upright Poses represented as Unit Quaternions [x, y, z, w].
@@ -243,7 +232,7 @@ const Rotating3DCube = () => {
     startQuat: CANONICAL_POSES[0],
     targetQuat: CANONICAL_POSES[0],
     startTime: 0,
-    duration: 1100,
+    duration: MOVE_DURATION_MS,
     targetStage: 0,
   });
 
@@ -326,8 +315,8 @@ const Rotating3DCube = () => {
     return () => observer.disconnect();
   }, []);
 
-  // ── Orientation Engine: Slerp to Target Stage with Scale Dip (1100ms) ──
-  const rotateToStage = useCallback((targetStage, customDuration = 1100, trigger = 'auto') => {
+  // ── Orientation Engine: Slerp to Target Stage with Scale Dip (500ms) ──
+  const rotateToStage = useCallback((targetStage, customDuration = MOVE_DURATION_MS, trigger = 'auto') => {
     if (typeof window !== 'undefined') {
       window.__cubeMoves = window.__cubeMoves || [];
       window.__cubeMoves.push({
@@ -465,7 +454,7 @@ const Rotating3DCube = () => {
     entrancePhase !== 'settled';
 
   // ── Auto-Advance Tour Engine with Alternating Direction ──
-  // Dwell 3600ms + Move 1100ms
+  // Dwell 1200ms + Move 500ms
   const advanceTour = useCallback(() => {
     const isForward = tourDirectionRef.current === 'forward';
     const seq = isForward ? TOUR_FORWARD : TOUR_REVERSE;
@@ -478,11 +467,11 @@ const Rotating3DCube = () => {
       tourDirectionRef.current = isForward ? 'reverse' : 'forward';
     }
 
-    rotateToStage(nextStage, 1100, 'auto');
+    rotateToStage(nextStage, MOVE_DURATION_MS, 'auto');
   }, [activeStage, rotateToStage]);
 
-  // Soft Delay Function: Resets dwell timer to 4000ms grace period on user interactions
-  const delayTour = useCallback((graceMs = 4000) => {
+  // Soft Delay Function: Resets dwell timer to 2500ms grace period on user interactions
+  const delayTour = useCallback((graceMs = 2500) => {
     if (autoAdvanceTimerRef.current) {
       clearTimeout(autoAdvanceTimerRef.current);
       autoAdvanceTimerRef.current = null;
@@ -509,7 +498,7 @@ const Rotating3DCube = () => {
 
     autoAdvanceTimerRef.current = setTimeout(() => {
       advanceTour();
-    }, 3600);
+    }, DWELL_TIME_MS);
 
     return () => {
       if (autoAdvanceTimerRef.current) {
@@ -518,19 +507,6 @@ const Rotating3DCube = () => {
       }
     };
   }, [activeStage, isHardPaused, isAnimating, advanceTour]);
-
-  // Direct segment button click handler
-  const handleStageButtonClick = useCallback((targetStage) => {
-    delayTour(4000);
-    if (targetStage === activeStage && !isAnimating) return;
-    rotateToStage(targetStage, 1100, 'click');
-  }, [activeStage, isAnimating, rotateToStage, delayTour]);
-
-  // User pause toggle
-  const toggleUserPause = useCallback(() => {
-    setIsUserPaused((prev) => !prev);
-    setProgressKey((k) => k + 1);
-  }, []);
 
   // ── Mouse Parallax Handlers (Fine pointers only, rAF-driven) ──
   const handleParallaxMove = useCallback((e) => {
@@ -600,7 +576,9 @@ const Rotating3DCube = () => {
     };
 
     if (e.currentTarget.setPointerCapture) {
-      e.currentTarget.setPointerCapture(e.pointerId);
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (_) {}
     }
   };
 
@@ -681,14 +659,14 @@ const Rotating3DCube = () => {
 
     // Tap on visible non-active face sliver: rotate directly to that face
     if (!wasDragging && downTargetStage !== null && downTargetStage !== activeStage) {
-      delayTour(4000);
-      rotateToStage(downTargetStage, 1100, 'tap');
+      delayTour(2500);
+      rotateToStage(downTargetStage, MOVE_DURATION_MS, 'tap');
       return;
     }
 
     // Drag release resolution
     if (wasDragging) {
-      delayTour(4000);
+      delayTour(2500);
       const history = dragInfoRef.current.history;
       let flickVelocity = 0;
       if (history.length >= 2) {
@@ -709,35 +687,35 @@ const Rotating3DCube = () => {
         currentQ.x * targetQ.x + currentQ.y * targetQ.y + currentQ.z * targetQ.z + currentQ.w * targetQ.w
       );
       const angleRemaining = 2 * Math.acos(Math.max(-1, Math.min(1, remainingDot)));
-      const snapDuration = Math.max(250, Math.min(700, (angleRemaining / (Math.PI / 2)) * 600));
+      const snapDuration = Math.max(200, Math.min(MOVE_DURATION_MS, (angleRemaining / (Math.PI / 2)) * 400));
 
       rotateToStage(finalStage, snapDuration, 'drag');
     }
   };
 
-  // Keyboard navigation on switcher: ArrowLeft/Right/Up/Down
+  // Keyboard navigation: ArrowLeft/Right/Up/Down
   const handleKeyDown = (e) => {
     const currentSeq = tourDirectionRef.current === 'forward' ? TOUR_FORWARD : TOUR_REVERSE;
     const curIdx = currentSeq.indexOf(activeStage);
 
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      delayTour(4000);
+      delayTour(2500);
       const nextIdx = (curIdx + 1) % currentSeq.length;
-      rotateToStage(currentSeq[nextIdx], 1100, 'keyboard');
+      rotateToStage(currentSeq[nextIdx], MOVE_DURATION_MS, 'keyboard');
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      delayTour(4000);
+      delayTour(2500);
       const prevIdx = (curIdx - 1 + currentSeq.length) % currentSeq.length;
-      rotateToStage(currentSeq[prevIdx], 1100, 'keyboard');
+      rotateToStage(currentSeq[prevIdx], MOVE_DURATION_MS, 'keyboard');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      delayTour(4000);
-      rotateToStage(activeStage === 4 ? 0 : 4, 1100, 'keyboard');
+      delayTour(2500);
+      rotateToStage(activeStage === 4 ? 0 : 4, MOVE_DURATION_MS, 'keyboard');
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      delayTour(4000);
-      rotateToStage(activeStage === 5 ? 0 : 5, 1100, 'keyboard');
+      delayTour(2500);
+      rotateToStage(activeStage === 5 ? 0 : 5, MOVE_DURATION_MS, 'keyboard');
     }
   };
 
@@ -750,7 +728,7 @@ const Rotating3DCube = () => {
 
   return (
     <div
-      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-1 [--s:clamp(200px,48vw,240px)] sm:[--s:clamp(220px,32vw,260px)] lg:[--s:clamp(240px,min(44vh,34vw),420px)]"
+      className="relative w-full max-w-[480px] flex flex-col items-center select-none py-1 [--s:clamp(200px,50vw,230px)] sm:[--s:clamp(220px,28vw,250px)] lg:[--s:clamp(240px,min(32vh,26vw),280px)]"
       onKeyDown={handleKeyDown}
     >
       {/* ── 3D STAGE CONTAINER ── */}
@@ -760,7 +738,7 @@ const Rotating3DCube = () => {
           isDragging ? 'cursor-grabbing' : canHover ? 'cursor-grab' : 'cursor-default'
         }`}
         style={{
-          height: 'calc(var(--s) * 1.28)',
+          height: 'calc(var(--s) * 1.35)',
           touchAction: 'pan-y',
         }}
         aria-hidden="true"
@@ -863,30 +841,59 @@ const Rotating3DCube = () => {
                         <div
                           key={i}
                           data-stage={i}
-                          className={`absolute inset-0 rounded-2xl overflow-hidden select-none bg-surface shadow-card ${lightingClass} ${
-                            isFaceActive ? 'border border-accent' : 'border border-line/60'
-                          }`}
+                          className={`absolute inset-0 select-none ${lightingClass}`}
                           style={{
                             transform: faceTransform,
+                            transformStyle: 'preserve-3d',
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
-                            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
                             transition: reducedMotion
                               ? 'none'
-                              : 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), border-color 300ms ease-out',
+                              : 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
                           }}
                         >
-                          {/* Face Material Lighting: Diagonal Sheen & Edge Vignette */}
+                          {/* Face Base Surface with border, sheen, corner ticks, and inactive overlay */}
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className={`absolute inset-0 rounded-2xl bg-surface shadow-card pointer-events-none transition-colors duration-300 ${
+                              isFaceActive ? 'border border-accent' : 'border border-line/60'
+                            }`}
                             style={{
-                              background:
-                                'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%), radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.1) 100%)',
+                              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
                             }}
-                            aria-hidden="true"
-                          />
+                          >
+                            {/* Diagonal Sheen & Edge Vignette */}
+                            <div
+                              className="absolute inset-0 rounded-2xl pointer-events-none"
+                              style={{
+                                background:
+                                  'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%), radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.1) 100%)',
+                              }}
+                              aria-hidden="true"
+                            />
 
-                          {/* Step 2: Inactive Face Pictogram (56px Lucide Icon at ~20% Opacity) */}
+                            {/* Active Face Viewfinder Camera Corner Ticks */}
+                            <div
+                              className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+                                isFaceActive ? 'opacity-100' : 'opacity-0'
+                              }`}
+                              aria-hidden="true"
+                            >
+                              <span className="absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-accent" />
+                              <span className="absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-accent" />
+                              <span className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-accent" />
+                              <span className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-accent" />
+                            </div>
+
+                            {/* Inactive Face Dark Overlay (~28% black) */}
+                            <div
+                              className={`absolute inset-0 rounded-2xl bg-black/28 pointer-events-none transition-opacity duration-300 ${
+                                isFaceActive ? 'opacity-0' : 'opacity-100'
+                              }`}
+                              aria-hidden="true"
+                            />
+                          </div>
+
+                          {/* Inactive Face Pictogram (56px Lucide Icon at ~20% Opacity) */}
                           <div
                             className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-250 ${
                               isFaceActive ? 'opacity-0 invisible' : 'opacity-100 visible'
@@ -896,7 +903,7 @@ const Rotating3DCube = () => {
                             <StageIcon className="w-14 h-14 text-text/20" />
                           </div>
 
-                          {/* Step 1: Fixed 240x240 Design Canvas (Scaled uniformly via --k = sizePx / 240) */}
+                          {/* Fixed 240x240 Design Canvas (Scaled uniformly via --k = sizePx / 240 with preserve-3d) */}
                           <div
                             className={`absolute top-0 left-0 transition-opacity duration-250 ${
                               isFaceActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
@@ -906,6 +913,7 @@ const Rotating3DCube = () => {
                               height: '240px',
                               transform: 'scale(var(--k, 1))',
                               transformOrigin: '0 0',
+                              transformStyle: 'preserve-3d',
                               padding: '14px',
                               display: 'grid',
                               gridTemplateRows: '28px 1fr',
@@ -924,37 +932,19 @@ const Rotating3DCube = () => {
                               </span>
                             </div>
 
-                            {/* 1fr Visualization Area (min-height 0, no collisions) */}
-                            <div className="w-full h-full min-h-0 min-w-0 overflow-hidden flex items-center justify-center">
-                              {i === 0 && <SlidingWindowViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                              {i === 1 && <RevisionLadderViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                              {i === 2 && <TopicRadarViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                              {i === 3 && <HeatmapViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                              {i === 4 && <DifficultySplitViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                              {i === 5 && <NextUpViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                            {/* 1fr Visualization Area with preserve-3d */}
+                            <div
+                              className="w-full h-full min-h-0 min-w-0 flex items-center justify-center relative"
+                              style={{ transformStyle: 'preserve-3d' }}
+                            >
+                              {i === 0 && <SlidingWindowViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 1 && <RevisionLadderViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 2 && <TopicRadarViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 3 && <HeatmapViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 4 && <DifficultySplitViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 5 && <NextUpViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
                             </div>
                           </div>
-
-                          {/* Active Face Viewfinder Camera Corner Ticks */}
-                          <div
-                            className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
-                              isFaceActive ? 'opacity-100' : 'opacity-0'
-                            }`}
-                            aria-hidden="true"
-                          >
-                            <span className="absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-accent" />
-                            <span className="absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-accent" />
-                            <span className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-accent" />
-                            <span className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-accent" />
-                          </div>
-
-                          {/* Inactive Face Dark Overlay (~28% black) */}
-                          <div
-                            className={`absolute inset-0 bg-black/28 pointer-events-none transition-opacity duration-300 ${
-                              isFaceActive ? 'opacity-0' : 'opacity-100'
-                            }`}
-                            aria-hidden="true"
-                          />
                         </div>
                       );
                     })}
@@ -966,103 +956,9 @@ const Rotating3DCube = () => {
         </div>
       </div>
 
-      {/* ── STEP 4: CLEAN UNDER-CUBE AREA ── */}
-      <div className="w-full flex flex-col items-center mt-5 max-w-[640px]">
-        {/* 1. Stage Title Line (18px font-semibold text token, cross-fading ~250ms, fixed height) */}
-        <div className="min-h-[28px] flex items-center justify-center text-center px-4">
-          <h3
-            key={stage.title}
-            className="text-base sm:text-lg font-semibold text-text tracking-tight animate-fade-in"
-          >
-            {stage.title}
-          </h3>
-        </div>
-
-        {/* Visually hidden aria-live polite region for screen readers */}
-        <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {`${stage.title}: ${stage.description}`}
-        </div>
-
-        {/* 2. Solid Surface Segmented Switcher + Pause/Play Button */}
-        <div className="mt-3.5 w-full flex items-center justify-center px-2">
-          <div
-            className="relative flex items-center bg-surface border border-line rounded-full p-1 shadow-sm w-full max-w-[620px]"
-            role="tablist"
-            aria-label="Cube Feature Stages"
-          >
-            {/* Sliding Indicator behind active segment */}
-            <div
-              className="absolute top-1 bottom-1 rounded-full bg-surface-2 border border-line/80 shadow-xs pointer-events-none transition-transform duration-250 ease-out"
-              style={{
-                width: 'calc((100% - 44px - 8px) / 6)',
-                transform: `translateX(calc(${activeTourIdx} * 100%))`,
-              }}
-            />
-
-            {/* 6 Tour Segments */}
-            {TOUR_SEGMENTS.map((seg, idx) => {
-              const Icon = seg.icon;
-              const isSegmentActive = currentDisplayedStage === seg.stageId;
-
-              return (
-                <button
-                  key={seg.stageId}
-                  type="button"
-                  role="tab"
-                  aria-selected={isSegmentActive}
-                  aria-pressed={isSegmentActive}
-                  aria-label={`Switch to stage ${idx + 1}: ${seg.label}`}
-                  tabIndex={0}
-                  onClick={() => handleStageButtonClick(seg.stageId)}
-                  className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1.5 min-h-[40px] sm:min-h-[36px] rounded-full text-xs font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                    isSegmentActive ? 'text-text font-semibold' : 'text-text-secondary hover:text-text'
-                  }`}
-                  style={{
-                    width: 'calc((100% - 44px - 8px) / 6)',
-                  }}
-                >
-                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isSegmentActive ? 'text-accent' : 'text-text-secondary'}`} />
-                  <span className="hidden sm:inline whitespace-nowrap text-xs">{seg.label}</span>
-
-                  {/* 2px Active Segment Progress Underline */}
-                  {isSegmentActive && !isUserPaused && !reducedMotion && (
-                    <span
-                      key={progressKey}
-                      className="absolute bottom-0 left-2.5 right-2.5 h-[2px] rounded-full overflow-hidden bg-transparent"
-                    >
-                      <span
-                        className="block h-full w-full bg-accent rounded-full origin-left animate-dwell-fill"
-                        style={{
-                          animationPlayState: isHardPaused ? 'paused' : 'running',
-                          animationDuration: '3600ms',
-                        }}
-                      />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-
-            {/* Vertical Hairline Divider */}
-            <div className="w-px h-5 bg-line mx-1 shrink-0" aria-hidden="true" />
-
-            {/* Accessible Pause / Play Button */}
-            <button
-              type="button"
-              onClick={toggleUserPause}
-              aria-label={isUserPaused ? 'Resume auto-rotation' : 'Pause auto-rotation'}
-              aria-pressed={isUserPaused}
-              title={isUserPaused ? 'Resume auto-rotation' : 'Pause auto-rotation'}
-              className="relative z-10 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-text-secondary hover:text-text hover:bg-surface-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              {isUserPaused ? (
-                <Play className="w-3.5 h-3.5 text-accent fill-accent" />
-              ) : (
-                <Pause className="w-3.5 h-3.5 text-text-secondary" />
-              )}
-            </button>
-          </div>
-        </div>
+      {/* Visually hidden aria-live polite region for screen readers */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {`${stage.title}: ${stage.description}`}
       </div>
 
       {/* Embedded Keyframes for Smooth Motion */}

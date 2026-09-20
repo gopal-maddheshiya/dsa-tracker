@@ -27,7 +27,7 @@ const WINDOW_STEPS = (() => {
   return steps;
 })();
 
-const SlidingWindowViz = ({ active, reducedMotion }) => {
+const SlidingWindowViz = ({ active, settled, reducedMotion }) => {
   const stepIndex = useTicker({
     active,
     intervalMs: 900,
@@ -51,18 +51,26 @@ const SlidingWindowViz = ({ active, reducedMotion }) => {
   const bestWindowX = startX + bestWindowIndex * (cellW + gap);
 
   return (
-    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0">
-      {/* 1. Dynamic Calculation Stats (12px HTML) */}
-      <div className="flex items-center justify-between px-1 mb-1 text-[12px] font-mono whitespace-nowrap shrink-0">
+    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0" style={{ transformStyle: 'preserve-3d' }}>
+      {/* 1. Dynamic Calculation Stats - Elevated 3D Layer */}
+      <div
+        className="flex items-center justify-between px-2 py-1 mb-1.5 rounded-lg bg-surface-2/95 border border-line text-[12px] font-mono whitespace-nowrap shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(36px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          boxShadow: settled && !reducedMotion ? '0 12px 20px -2px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 350ms ease-out',
+        }}
+      >
         <div className="flex items-center gap-1.5 text-text-secondary shrink-0">
           <span>Window Sum:</span>
-          <span className="font-bold text-accent px-1.5 py-0.5 rounded bg-surface-2 border border-line">
+          <span className="font-bold text-accent px-1.5 py-0.5 rounded bg-surface border border-line tabular-nums">
             {currentSum}
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-text-secondary shrink-0">
           <span>Best:</span>
-          <span className="font-bold text-easy px-1.5 py-0.5 rounded bg-easy/15 border border-easy/30">
+          <span className="font-bold text-easy px-1.5 py-0.5 rounded bg-easy/15 border border-easy/30 tabular-nums">
             {bestSoFar}
           </span>
         </div>

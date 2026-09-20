@@ -41,19 +41,38 @@ const GRID_CELLS = (() => {
   return cols;
 })();
 
-const HeatmapViz = ({ active, reducedMotion }) => {
+const HeatmapViz = ({ active, settled, reducedMotion }) => {
   const cellSize = 7.5;
   const cellGap = 2.4;
   const startX = 6;
   const startY = 10;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0">
-      {/* 1. SVG Grid Visualization */}
+    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0" style={{ transformStyle: 'preserve-3d' }}>
+      {/* 1. Elevated 3D Streak Pill */}
+      <div
+        className="flex items-center justify-between px-2 py-1 mb-1 rounded-lg bg-surface-2/95 border border-line text-[11px] font-mono shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(34px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          boxShadow: settled && !reducedMotion ? '0 12px 20px -2px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 350ms ease-out',
+        }}
+      >
+        <span className="flex items-center gap-1.5 text-easy font-bold">
+          <span className="w-1.5 h-1.5 rounded-full bg-easy" />
+          <span>Active Streak</span>
+        </span>
+        <span className="font-bold text-text px-1.5 py-0.5 rounded bg-surface border border-line">
+          14 Days
+        </span>
+      </div>
+
+      {/* 2. SVG Grid Visualization */}
       <div className="flex-1 w-full flex items-center justify-center min-h-0">
         <svg
           viewBox="0 0 210 85"
-          className="w-full h-full max-h-[105px] overflow-visible"
+          className="w-full h-full max-h-[95px] overflow-visible"
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
@@ -95,11 +114,18 @@ const HeatmapViz = ({ active, reducedMotion }) => {
         </svg>
       </div>
 
-      {/* 2. Legend Row (12px HTML text) */}
-      <div className="w-full flex items-center justify-between px-2 pt-1 border-t border-line/50 text-[12px] font-mono text-text-secondary shrink-0">
+      {/* 3. Legend Row */}
+      <div
+        className="w-full flex items-center justify-between px-2 pt-1 border-t border-line/50 text-[11px] font-mono text-text-secondary shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(20px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}
+      >
         <span>Cadence</span>
         <div className="flex items-center gap-1.5">
-          <span className="text-[12px] text-muted">Less</span>
+          <span className="text-[10px] text-muted">Less</span>
           {COLOR_LEVELS.map((c, i) => (
             <span
               key={i}
@@ -107,7 +133,7 @@ const HeatmapViz = ({ active, reducedMotion }) => {
               style={{ backgroundColor: c.fill, border: `1px solid ${c.stroke}` }}
             />
           ))}
-          <span className="text-[12px] text-muted">More</span>
+          <span className="text-[10px] text-muted">More</span>
         </div>
       </div>
     </div>

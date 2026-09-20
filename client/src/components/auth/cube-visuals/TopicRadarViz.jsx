@@ -35,7 +35,7 @@ const DATA_POINTS = TOPICS.map((t, i) => {
 
 const POLYGON_POINTS_STR = DATA_POINTS.map((p) => p.str).join(' ');
 
-const TopicRadarViz = ({ active, reducedMotion }) => {
+const TopicRadarViz = ({ active, settled, reducedMotion }) => {
   const [isGrown, setIsGrown] = useState(reducedMotion);
 
   useEffect(() => {
@@ -58,13 +58,31 @@ const TopicRadarViz = ({ active, reducedMotion }) => {
   }, [active, reducedMotion]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center select-none py-1 min-h-0">
-      <svg
-        viewBox="0 0 210 160"
-        className="w-full h-full max-h-[160px] overflow-visible"
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden="true"
+    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0" style={{ transformStyle: 'preserve-3d' }}>
+      {/* 1. Elevated 3D Focus Pill */}
+      <div
+        className="flex items-center justify-between px-2 py-1 mb-1 rounded-lg bg-surface-2/95 border border-line text-[11px] font-mono shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(38px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          boxShadow: settled && !reducedMotion ? '0 12px 20px -2px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 350ms ease-out',
+        }}
       >
+        <span className="text-text-secondary">Weakest Category</span>
+        <span className="font-bold text-hard px-1.5 py-0.5 rounded bg-hard/15 border border-hard/30">
+          DP · 82% Gap
+        </span>
+      </div>
+
+      {/* 2. Scalable Radar SVG */}
+      <div className="flex-1 w-full flex items-center justify-center min-h-0">
+        <svg
+          viewBox="0 0 210 150"
+          className="w-full h-full max-h-[125px] overflow-visible"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
         {/* 3 Concentric Grid Rings */}
         {RINGS.map((ringFrac, idx) => (
           <polygon
@@ -155,6 +173,7 @@ const TopicRadarViz = ({ active, reducedMotion }) => {
           );
         })}
       </svg>
+      </div>
     </div>
   );
 };

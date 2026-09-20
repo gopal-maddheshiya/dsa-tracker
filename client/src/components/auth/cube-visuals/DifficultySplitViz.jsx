@@ -14,7 +14,7 @@ const EASY_LEN = (EASY_COUNT / TOTAL_COUNT) * CIRCUMFERENCE;
 const MEDIUM_LEN = (MEDIUM_COUNT / TOTAL_COUNT) * CIRCUMFERENCE;
 const HARD_LEN = (HARD_COUNT / TOTAL_COUNT) * CIRCUMFERENCE;
 
-const DifficultySplitViz = ({ active, reducedMotion }) => {
+const DifficultySplitViz = ({ active, settled, reducedMotion }) => {
   const [animKey, setAnimKey] = useState(0);
 
   useEffect(() => {
@@ -28,9 +28,9 @@ const DifficultySplitViz = ({ active, reducedMotion }) => {
   const hardAngle = -90 + ((EASY_COUNT + MEDIUM_COUNT) / TOTAL_COUNT) * 360;
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between select-none py-1 min-h-0">
-      {/* 1. Main Donut Graphic */}
-      <div className="flex-1 w-full flex items-center justify-center min-h-0">
+    <div className="w-full h-full flex flex-col items-center justify-between select-none py-1 min-h-0" style={{ transformStyle: 'preserve-3d' }}>
+      {/* 1. Main Donut Graphic with Floating Center 3D Badge */}
+      <div className="flex-1 w-full flex items-center justify-center min-h-0 relative" style={{ transformStyle: 'preserve-3d' }}>
         <svg
           key={animKey}
           viewBox="0 0 160 110"
@@ -107,37 +107,39 @@ const DifficultySplitViz = ({ active, reducedMotion }) => {
             }}
             className={active && !reducedMotion ? 'arc-hard-anim' : ''}
           />
-
-          {/* Center Total Count (20px monospace) */}
-          <text
-            x="80"
-            y="52"
-            textAnchor="middle"
-            fill={text}
-            fontSize="20"
-            fontWeight="bold"
-            fontFamily="monospace"
-            className="tabular-nums"
-          >
-            {TOTAL_COUNT}
-          </text>
-          {/* Label (10px SVG internal) */}
-          <text
-            x="80"
-            y="66"
-            textAnchor="middle"
-            fill={muted}
-            fontSize="10"
-            fontWeight="600"
-            letterSpacing="0.08em"
-          >
-            SOLVED
-          </text>
         </svg>
+
+        {/* Center 3D Floating Pill Badge */}
+        <div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{
+            transform: settled && !reducedMotion ? 'translateZ(44px)' : 'translateZ(0px)',
+            transformStyle: 'preserve-3d',
+            transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        >
+          <div
+            className="w-14 h-14 rounded-full bg-surface border border-line flex flex-col items-center justify-center"
+            style={{
+              boxShadow: settled && !reducedMotion ? '0 16px 24px -2px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1)' : 'none',
+              transition: 'box-shadow 350ms ease-out',
+            }}
+          >
+            <span className="text-[17px] font-bold font-mono text-text leading-tight tabular-nums">35</span>
+            <span className="text-[8.5px] font-bold text-muted tracking-wider uppercase">SOLVED</span>
+          </div>
+        </div>
       </div>
 
-      {/* 2. Legend Row (HTML text 12px) */}
-      <div className="w-full flex items-center justify-around px-2 pt-1 border-t border-line/50 text-[12px] font-mono shrink-0">
+      {/* 2. Legend Row (HTML text 12px) - Elevated 3D */}
+      <div
+        className="w-full flex items-center justify-around px-2 pt-1 border-t border-line/50 text-[12px] font-mono shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(26px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}
+      >
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: easy }} />
           <span className="text-text-secondary">Easy</span>
