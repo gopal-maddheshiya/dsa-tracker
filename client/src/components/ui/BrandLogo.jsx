@@ -2,8 +2,8 @@ import React from 'react';
 
 const BrandLogo = ({ size = 'md', showText = true, className = '', textClassName = '' }) => {
   const sizeMap = {
-    sm: { box: 'w-7 h-7', icon: 16, text: 'text-sm' },
-    md: { box: 'w-8 h-8', icon: 18, text: 'text-base' },
+    sm: { box: 'w-8 h-8', icon: 18, text: 'text-sm' },
+    md: { box: 'w-9 h-9', icon: 20, text: 'text-base' },
     lg: { box: 'w-10 h-10', icon: 22, text: 'text-lg' },
   };
 
@@ -13,7 +13,7 @@ const BrandLogo = ({ size = 'md', showText = true, className = '', textClassName
     <div className={`flex items-center gap-2.5 group cursor-pointer ${className}`}>
       {/* Clean Emblem */}
       <div
-        className={`relative ${currentSize.box} rounded-lg bg-surface-2 border border-line p-1 flex items-center justify-center transition-colors duration-150 group-hover:border-accent`}
+        className={`relative ${currentSize.box} rounded-xl bg-surface-2 border border-line/80 p-1.5 flex items-center justify-center transition-all duration-150 group-hover:border-accent group-hover:shadow-[0_0_10px_rgba(255,161,22,0.2)] shrink-0`}
       >
         <svg
           viewBox="0 0 32 32"

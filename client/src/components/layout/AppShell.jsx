@@ -18,6 +18,7 @@ import {
   Flame,
   Search,
   Plus,
+  X,
 } from 'lucide-react';
 import { scrollToTop } from '../common/SmoothScroll';
 
@@ -28,7 +29,7 @@ const NAV_LINKS = [
   { to: '/profile', label: 'Profile', Icon: User },
 ];
 
-/* ── User Profile Popover Menu (Desktop/Tablet) ───────────────────── */
+/* ── User Profile Popover Menu (Desktop & Mobile) ───────────────────── */
 const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCount, onLogout }) => {
   const dropdownRef = useRef(null);
 
@@ -46,9 +47,11 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
@@ -56,105 +59,135 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
   if (!isOpen) return null;
 
   return (
-    <div
-      ref={dropdownRef}
-      className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-surface/95 backdrop-blur-xl border border-line/80 shadow-2xl p-2.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150 select-none"
-    >
-      {/* User Info Header */}
-      <div className="flex items-center gap-3 p-2.5 rounded-xl bg-surface-2/60 border border-line/50 mb-2">
-        {user?.avatar ? (
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-10 h-10 rounded-xl object-cover border border-line shrink-0"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-line flex items-center justify-center text-sm font-bold text-accent shrink-0">
-            {initials}
+    <>
+      {/* Clickable Backdrop: Soft blur & dim on mobile, transparent click-catcher on desktop */}
+      <div
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs sm:bg-black/10 transition-opacity animate-in fade-in duration-150"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Floating Popover Card */}
+      <div
+        ref={dropdownRef}
+        className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-80 rounded-2xl bg-surface/98 backdrop-blur-2xl border border-line shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150 select-none max-w-sm mx-auto sm:mx-0"
+      >
+        {/* User Info Header with Close (X) button */}
+        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-surface-2/60 border border-line/50 mb-2.5">
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-10 h-10 rounded-xl object-cover border border-line shrink-0"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-surface-2 border border-line flex items-center justify-center text-sm font-bold text-accent shrink-0">
+              {initials}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-text truncate">
+              {user?.name || 'DSA Learner'}
+            </p>
+            <p className="text-xs text-muted truncate">{user?.email}</p>
           </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-text truncate">
-            {user?.name || 'DSA Learner'}
-          </p>
-          <p className="text-xs text-muted truncate">{user?.email}</p>
+          {/* Explicit Close Button for Mobile & Desktop */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-1.5 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer shrink-0"
+            aria-label="Close menu"
+            title="Close menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Quick Metrics Bar */}
+        <div className="grid grid-cols-2 gap-2 mb-2.5">
+          <NavLink
+            to="/profile"
+            onClick={onClose}
+            className="flex items-center gap-2 p-2 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/15 transition-colors"
+          >
+            <Flame className="w-4 h-4 text-accent shrink-0" />
+            <div className="min-w-0">
+              <span className="block text-[10px] uppercase tracking-wider text-muted font-medium">Streak</span>
+              <span className="block text-xs font-bold text-accent tabular-nums">
+                {streak != null && streak > 0 ? `${streak} Days` : '1 Day'}
+              </span>
+            </div>
+          </NavLink>
+
+          <NavLink
+            to="/revision"
+            onClick={onClose}
+            className="flex items-center gap-2 p-2 rounded-xl bg-surface-2/80 border border-line/60 hover:bg-surface-2 transition-colors"
+          >
+            <Repeat className="w-4 h-4 text-easy shrink-0" />
+            <div className="min-w-0">
+              <span className="block text-[10px] uppercase tracking-wider text-muted font-medium">Revision</span>
+              <span className="block text-xs font-bold text-text tabular-nums">
+                {revisionCount > 0 ? `${revisionCount} Due` : 'Caught Up'}
+              </span>
+            </div>
+          </NavLink>
+        </div>
+
+        {/* Menu Links */}
+        <div className="space-y-1 border-t border-line/60 pt-2 mb-2">
+          <NavLink
+            to="/profile"
+            onClick={onClose}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors active:scale-98"
+          >
+            <User className="w-4 h-4 text-muted" />
+            <span>Profile & Analytics</span>
+          </NavLink>
+          <NavLink
+            to="/problems"
+            onClick={onClose}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors active:scale-98"
+          >
+            <Code2 className="w-4 h-4 text-muted" />
+            <span>Problem Catalog</span>
+          </NavLink>
+          <NavLink
+            to="/revision"
+            onClick={onClose}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors active:scale-98"
+          >
+            <Repeat className="w-4 h-4 text-muted" />
+            <span>Spaced Repetition Queue</span>
+          </NavLink>
+        </div>
+
+        {/* Sign Out Button */}
+        <div className="border-t border-line/60 pt-2">
+          <button
+            onClick={() => {
+              onClose();
+              onLogout();
+            }}
+            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer active:scale-98"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
-
-      {/* Quick Metrics Bar */}
-      <div className="grid grid-cols-2 gap-2 mb-2">
-        <NavLink
-          to="/profile"
-          onClick={onClose}
-          className="flex items-center gap-2 p-2 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/15 transition-colors"
-        >
-          <Flame className="w-4 h-4 text-accent shrink-0" />
-          <div className="min-w-0">
-            <span className="block text-[10px] uppercase tracking-wider text-muted font-medium">Streak</span>
-            <span className="block text-xs font-bold text-accent tabular-nums">
-              {streak != null && streak > 0 ? `${streak} Days` : '1 Day'}
-            </span>
-          </div>
-        </NavLink>
-
-        <NavLink
-          to="/revision"
-          onClick={onClose}
-          className="flex items-center gap-2 p-2 rounded-xl bg-surface-2/80 border border-line/60 hover:bg-surface-2 transition-colors"
-        >
-          <Repeat className="w-4 h-4 text-easy shrink-0" />
-          <div className="min-w-0">
-            <span className="block text-[10px] uppercase tracking-wider text-muted font-medium">Revision</span>
-            <span className="block text-xs font-bold text-text tabular-nums">
-              {revisionCount > 0 ? `${revisionCount} Due` : 'Caught Up'}
-            </span>
-          </div>
-        </NavLink>
-      </div>
-
-      {/* Menu Links */}
-      <div className="space-y-0.5 border-t border-line/60 pt-2 mb-2">
-        <NavLink
-          to="/profile"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors"
-        >
-          <User className="w-4 h-4 text-muted" />
-          <span>Profile & Analytics</span>
-        </NavLink>
-        <NavLink
-          to="/problems"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors"
-        >
-          <Code2 className="w-4 h-4 text-muted" />
-          <span>Problem Catalog</span>
-        </NavLink>
-        <NavLink
-          to="/revision"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors"
-        >
-          <Repeat className="w-4 h-4 text-muted" />
-          <span>Spaced Repetition Queue</span>
-        </NavLink>
-      </div>
-
-      {/* Sign Out Button */}
-      <div className="border-t border-line/60 pt-1.5">
-        <button
-          onClick={() => {
-            onClose();
-            onLogout();
-          }}
-          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 
@@ -564,8 +597,8 @@ const AppShell = ({ children }) => {
 
           {/* Left: Mobile Brand Logo OR Desktop Breadcrumbs */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <NavLink to="/dashboard" className="flex items-center lg:hidden shrink-0" title="DSA Tracker">
-              <BrandLogo size="sm" showText={true} textClassName="hidden min-[420px]:inline" />
+            <NavLink to="/dashboard" className="flex items-center gap-2 lg:hidden shrink-0 select-none" title="DSA Tracker">
+              <BrandLogo size="md" showText={true} textClassName="text-sm font-bold tracking-tight inline" />
             </NavLink>
 
             {/* Desktop Breadcrumbs (Dot-free & clean) */}
@@ -610,39 +643,39 @@ const AppShell = ({ children }) => {
           </div>
 
           {/* Right: Actions & User Profile */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Mobile search trigger button */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* Mobile search trigger button (uniform 36x36 h-9 w-9) */}
             <button
               type="button"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="md:hidden p-2 rounded-xl text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors cursor-pointer"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-surface-2/70 hover:bg-surface-2 border border-line/70 text-text-secondary hover:text-text transition-all active:scale-95 cursor-pointer"
               aria-label="Search problems and actions"
               title="Search problems"
             >
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Practice Streak Badge */}
+            {/* Practice Streak Badge (h-9 on mobile & desktop) */}
             {streak != null && streak > 0 && (
               <NavLink
                 to="/profile"
-                className="hidden min-[380px]:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/12 hover:bg-accent/20 border border-accent/30 text-xs font-semibold tabular-nums text-accent transition-all duration-150 shadow-xs hover:shadow-[0_0_10px_rgba(255,161,22,0.2)]"
+                className="hidden min-[380px]:flex items-center gap-1.5 h-9 px-2.5 rounded-xl bg-accent/12 hover:bg-accent/20 border border-accent/30 text-xs font-semibold tabular-nums text-accent transition-all duration-150 shadow-xs hover:shadow-[0_0_10px_rgba(255,161,22,0.2)] active:scale-95"
                 title={`${streak} day practice streak`}
               >
-                <Flame className="w-3.5 h-3.5 text-accent animate-pulse" />
+                <Flame className="w-4 h-4 text-accent animate-pulse" />
                 <span>{streak}d</span>
               </NavLink>
             )}
 
-            {/* Quick Add Problem Button */}
+            {/* Quick Add Problem Button: 36x36 icon square on mobile, styled button on sm+ */}
             <button
               type="button"
               onClick={() => setIsQuickAddOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-accent to-[#ffb84d] hover:brightness-105 active:scale-95 text-bg text-xs font-semibold transition-all duration-150 cursor-pointer shadow-sm shadow-accent/25"
+              className="flex items-center justify-center w-9 h-9 sm:w-auto sm:px-3 rounded-xl bg-gradient-to-r from-accent to-[#ffb84d] hover:brightness-105 active:scale-95 text-bg text-xs font-semibold transition-all duration-150 cursor-pointer shadow-sm shadow-accent/25 gap-1.5"
               aria-label="Create new problem"
               title="Create new problem"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span className="hidden sm:inline">New Problem</span>
             </button>
 
@@ -650,8 +683,11 @@ const AppShell = ({ children }) => {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setIsUserMenuOpen(prev => !prev)}
-                className="flex items-center gap-2 p-1 rounded-xl hover:bg-surface-2/80 border border-transparent hover:border-line/70 transition-all cursor-pointer group"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUserMenuOpen(prev => !prev);
+                }}
+                className="flex items-center gap-2 p-0.5 sm:p-1 rounded-xl hover:bg-surface-2/80 border border-transparent hover:border-line/70 transition-all cursor-pointer group active:scale-95"
                 aria-label="User menu"
                 title={user?.name || 'Account'}
               >
@@ -660,11 +696,11 @@ const AppShell = ({ children }) => {
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-8 h-8 rounded-lg object-cover border border-line/80 group-hover:border-accent transition-colors"
+                      className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl object-cover border border-line/80 group-hover:border-accent transition-colors"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line/80 flex items-center justify-center text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
+                    <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-surface-2 border border-line/80 flex items-center justify-center text-xs font-bold text-accent group-hover:border-accent transition-colors">
                       {initials}
                     </div>
                   )}
