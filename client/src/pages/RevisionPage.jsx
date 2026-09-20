@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import Badge from '../components/ui/Badge';
 import AttemptForm from '../components/AttemptForm';
 import RevisionTable from '../components/RevisionTable';
+import PaginationBar from '../components/ui/PaginationBar';
 import Reveal from '../components/common/Reveal';
 import TiltCard from '../components/common/TiltCard';
 import {
@@ -185,6 +186,24 @@ const RevisionPage = () => {
       return true;
     });
   }, [queue, statusFilter, searchQuery, topicFilter]);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // 10 | 25 | 50 | 'all'
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchQuery, topicFilter]);
+
+  const totalItems = filteredQueue.length;
+  const paginatedQueue = useMemo(() => {
+    if (pageSize === 'all') return filteredQueue;
+    const start = (currentPage - 1) * pageSize;
+    return filteredQueue.slice(start, start + pageSize);
+  }, [filteredQueue, currentPage, pageSize]);
+
+  const startIndex = pageSize === 'all' ? 0 : (currentPage - 1) * pageSize;
 
   const handleOpenLog = (item) => {
     setLoggingProblem({
@@ -528,22 +547,22 @@ const RevisionPage = () => {
           {/* DESKTOP TABLE VIEW */}
           <div className="hidden md:block">
             <RevisionTable
-              queue={filteredQueue}
+              queue={paginatedQueue}
               onOpenLog={handleOpenLog}
               onQuickLog={handleQuickLog}
-              startIndex={0}
+              startIndex={startIndex}
             />
           </div>
 
           {/* MOBILE CARDS VIEW */}
           <div className="block md:hidden space-y-3">
-            {filteredQueue.map((item, index) => {
+            {paginatedQueue.map((item, index) => {
               const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
               const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
               const diffCfg = DIFFICULTY_CONFIG[item.difficulty] || { variant: 'default', label: item.difficulty };
               const platformCfg = PLATFORM_CONFIG[item.platform] || PLATFORM_CONFIG.other;
               const urgency = getUrgencyBadge(item.priorityScore);
-              const rankStr = String(index + 1).padStart(2, '0');
+              const rankStr = String(startIndex + index + 1).padStart(2, '0');
               const daysFormatted = formatDaysAgo(item.daysSinceLastAttempt);
 
               return (
@@ -655,6 +674,16 @@ const RevisionPage = () => {
               );
             })}
           </div>
+
+          {/* ── Smart Responsive Pagination Footer ── */}
+          <PaginationBar
+            currentPage={currentPage}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            itemLabel="problems"
+          />
         </div>
       )}
 

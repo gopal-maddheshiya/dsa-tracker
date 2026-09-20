@@ -9,6 +9,7 @@ import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
 import AttemptForm from '../components/AttemptForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import PaginationBar from '../components/ui/PaginationBar';
 import Reveal from '../components/common/Reveal';
 import TiltCard from '../components/common/TiltCard';
 
@@ -868,120 +869,14 @@ const ProblemsPage = () => {
 
       {/* ── Smart Responsive Pagination Footer ── */}
       {!isLoading && !error && totalProblems > 0 && (
-        <div className="p-3 sm:px-4 sm:py-3 border border-line bg-surface rounded-xl space-y-2.5 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4 overflow-hidden">
-          {/* Mobile Top Row / Desktop Left: Range Info & Mobile Page Size */}
-          <div className="flex items-center justify-between sm:justify-start gap-3">
-            <div className="text-muted text-xs flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
-              <span className="text-muted">
-                <span className="hidden sm:inline">Showing </span>
-                <strong className="text-text font-semibold tabular-nums">
-                  {pageSize === 'all' ? 1 : Math.min((currentPage - 1) * pageSize + 1, totalProblems)}–{pageSize === 'all' ? totalProblems : Math.min(currentPage * pageSize, totalProblems)}
-                </strong>
-                <span className="text-muted"> of </span>
-                <strong className="text-text font-semibold tabular-nums">{totalProblems}</strong>
-                <span className="hidden md:inline text-muted"> problems</span>
-              </span>
-            </div>
-
-            {/* Mobile-only compact Page Size selector */}
-            <div className="sm:hidden flex items-center p-0.5 rounded-lg bg-surface-2 border border-line shrink-0">
-              {[10, 25, 50, 'all'].map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => {
-                    setPageSize(size);
-                    setCurrentPage(1);
-                  }}
-                  className={`h-6 px-2 flex items-center justify-center text-xs rounded-md transition-all cursor-pointer ${
-                    pageSize === size
-                      ? 'bg-surface text-text font-semibold border border-line shadow-xs'
-                      : 'text-muted hover:text-text'
-                  }`}
-                >
-                  {size === 'all' ? 'All' : size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation Controls: Mobile Thumb-Friendly Action Bar / Desktop Center */}
-          {totalPages > 1 && (
-            <div className="grid grid-cols-[1fr_auto_1fr] sm:flex items-center gap-1.5 sm:gap-2">
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}
-                className="btn-secondary h-8 px-3 rounded-lg disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold"
-                title="Previous Page"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Prev</span>
-              </button>
-
-              {/* Desktop: Numeric Page Pills */}
-              <div className="hidden md:flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setCurrentPage(p)}
-                    className={`w-7 h-7 rounded-lg text-xs tabular-nums flex items-center justify-center transition-all cursor-pointer ${
-                      currentPage === p
-                        ? 'bg-accent text-bg font-semibold'
-                        : 'bg-surface-2 border border-line text-muted hover:text-text hover:bg-surface-2/80'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-
-              {/* Mobile / Tablet: Prominent Page Counter */}
-              <div className="md:hidden px-3.5 h-8 flex items-center justify-center text-xs font-semibold text-text bg-surface-2 border border-line rounded-lg min-w-[70px] tabular-nums">
-                <span className="text-text">{currentPage}</span>
-                <span className="text-muted mx-1.5 font-normal">of</span>
-                <span className="text-muted">{totalPages}</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="btn-secondary h-8 px-3 rounded-lg disabled:opacity-25 disabled:pointer-events-none transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold"
-                title="Next Page"
-              >
-                <span>Next</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* Desktop Right: Per page selector */}
-          <div className="hidden sm:flex items-center gap-2 shrink-0">
-            <span className="text-xs text-muted uppercase tracking-wide hidden lg:inline">Per page:</span>
-            <div className="h-8 flex items-center p-0.5 rounded-lg bg-surface-2 border border-line">
-              {[10, 25, 50, 'all'].map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => {
-                    setPageSize(size);
-                    setCurrentPage(1);
-                  }}
-                  className={`h-7 px-2 sm:px-2.5 flex items-center justify-center text-xs rounded-md transition-all cursor-pointer ${
-                    pageSize === size
-                      ? 'bg-surface text-text font-semibold border border-line shadow-xs'
-                      : 'text-muted hover:text-text'
-                  }`}
-                >
-                  {size === 'all' ? 'All' : size}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <PaginationBar
+          currentPage={currentPage}
+          totalItems={totalProblems}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          itemLabel="problems"
+        />
       )}
 
       <ProblemForm
