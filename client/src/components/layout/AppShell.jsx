@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchProfileAnalytics, fetchRevisionQueue } from '../../api/analytics';
@@ -31,43 +32,31 @@ const NAV_LINKS = [
 
 /* ── User Profile Popover Menu (Desktop & Mobile) ───────────────────── */
 const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCount, onLogout }) => {
-  const dropdownRef = useRef(null);
-
   useEffect(() => {
     if (!isOpen) return;
-
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside, { passive: true });
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return (
-    <>
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex flex-col justify-start">
       {/* Clickable Backdrop: Soft blur & dim on mobile, transparent click-catcher on desktop */}
       <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs sm:bg-black/10 transition-opacity animate-in fade-in duration-150"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs sm:bg-black/15 transition-opacity animate-in fade-in duration-150 cursor-pointer"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           onClose();
         }}
-        onTouchStart={(e) => {
+        onTouchEnd={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           onClose();
         }}
@@ -76,8 +65,9 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
 
       {/* Floating Popover Card */}
       <div
-        ref={dropdownRef}
-        className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-80 rounded-2xl bg-surface/98 backdrop-blur-2xl border border-line shadow-2xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150 select-none max-w-sm mx-auto sm:mx-0"
+        onClick={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        className="relative z-50 mx-3 mt-16 sm:mx-0 sm:mt-[62px] sm:self-end sm:mr-4 w-auto sm:w-80 rounded-2xl bg-surface/98 backdrop-blur-2xl border border-line shadow-2xl p-3 animate-in fade-in zoom-in-95 duration-150 select-none max-w-sm"
       >
         {/* User Info Header with Close (X) button */}
         <div className="flex items-center gap-3 p-2.5 rounded-xl bg-surface-2/60 border border-line/50 mb-2.5">
@@ -103,6 +93,7 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
           <button
             type="button"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onClose();
             }}
@@ -187,7 +178,8 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
           </button>
         </div>
       </div>
-    </>
+    </div>,
+    document.body
   );
 };
 
@@ -644,22 +636,22 @@ const AppShell = ({ children }) => {
 
           {/* Right: Actions & User Profile */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Mobile search trigger button (uniform 36x36 h-9 w-9) */}
+            {/* Mobile search trigger button: frosted circular lens */}
             <button
               type="button"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-surface-2/70 hover:bg-surface-2 border border-line/70 text-text-secondary hover:text-text transition-all active:scale-95 cursor-pointer"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-surface-2/90 hover:bg-surface-2 border border-line/90 hover:border-accent/40 text-text-secondary hover:text-accent shadow-xs active:scale-90 transition-all cursor-pointer group"
               aria-label="Search problems and actions"
               title="Search problems"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 transition-transform duration-150 group-hover:scale-110" />
             </button>
 
-            {/* Practice Streak Badge (h-9 on mobile & desktop) */}
+            {/* Practice Streak Badge */}
             {streak != null && streak > 0 && (
               <NavLink
                 to="/profile"
-                className="hidden min-[380px]:flex items-center gap-1.5 h-9 px-2.5 rounded-xl bg-accent/12 hover:bg-accent/20 border border-accent/30 text-xs font-semibold tabular-nums text-accent transition-all duration-150 shadow-xs hover:shadow-[0_0_10px_rgba(255,161,22,0.2)] active:scale-95"
+                className="hidden min-[380px]:flex items-center gap-1.5 h-9 px-2.5 rounded-full bg-accent/12 hover:bg-accent/20 border border-accent/30 text-xs font-semibold tabular-nums text-accent transition-all duration-150 shadow-xs hover:shadow-[0_0_10px_rgba(255,161,22,0.2)] active:scale-95"
                 title={`${streak} day practice streak`}
               >
                 <Flame className="w-4 h-4 text-accent animate-pulse" />
@@ -667,16 +659,16 @@ const AppShell = ({ children }) => {
               </NavLink>
             )}
 
-            {/* Quick Add Problem Button: 36x36 icon square on mobile, styled button on sm+ */}
+            {/* Quick Add Problem Button: glowing circular beacon on mobile, pill on sm+ */}
             <button
               type="button"
               onClick={() => setIsQuickAddOpen(true)}
-              className="flex items-center justify-center w-9 h-9 sm:w-auto sm:px-3 rounded-xl bg-gradient-to-r from-accent to-[#ffb84d] hover:brightness-105 active:scale-95 text-bg text-xs font-semibold transition-all duration-150 cursor-pointer shadow-sm shadow-accent/25 gap-1.5"
+              className="flex items-center justify-center w-9 h-9 sm:w-auto sm:px-3.5 sm:py-1.5 rounded-full sm:rounded-xl bg-gradient-to-tr from-accent via-[#ffaa2b] to-[#ffb84d] hover:brightness-105 active:scale-90 text-[#1a1a1a] text-xs font-bold transition-all duration-150 cursor-pointer shadow-[0_2px_10px_rgba(255,161,22,0.3)] hover:shadow-[0_2px_14px_rgba(255,161,22,0.45)] gap-1.5 border border-accent/50 group"
               aria-label="Create new problem"
               title="Create new problem"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span className="hidden sm:inline">New Problem</span>
+              <Plus className="w-4 h-4 stroke-[3] transition-transform duration-200 group-hover:rotate-90" />
+              <span className="hidden sm:inline font-semibold">New Problem</span>
             </button>
 
             {/* User Profile Avatar & Dropdown Trigger */}
@@ -684,10 +676,15 @@ const AppShell = ({ children }) => {
               <button
                 type="button"
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   setIsUserMenuOpen(prev => !prev);
                 }}
-                className="flex items-center gap-2 p-0.5 sm:p-1 rounded-xl hover:bg-surface-2/80 border border-transparent hover:border-line/70 transition-all cursor-pointer group active:scale-95"
+                className={`flex items-center gap-2 p-0.5 sm:p-1 rounded-full sm:rounded-xl transition-all duration-150 cursor-pointer group active:scale-90 border ${
+                  isUserMenuOpen
+                    ? 'border-accent bg-accent/15 ring-2 ring-accent/30'
+                    : 'border-transparent hover:border-line/70 hover:bg-surface-2/80'
+                }`}
                 aria-label="User menu"
                 title={user?.name || 'Account'}
               >
@@ -696,11 +693,11 @@ const AppShell = ({ children }) => {
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl object-cover border border-line/80 group-hover:border-accent transition-colors"
+                      className="w-8 h-8 rounded-full sm:rounded-xl object-cover border border-line/80 group-hover:border-accent transition-colors"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-xl bg-surface-2 border border-line/80 flex items-center justify-center text-xs font-bold text-accent group-hover:border-accent transition-colors">
+                    <div className="w-8 h-8 rounded-full sm:rounded-xl bg-surface-2 border border-line/80 flex items-center justify-center text-xs font-bold text-accent group-hover:border-accent transition-colors">
                       {initials}
                     </div>
                   )}
