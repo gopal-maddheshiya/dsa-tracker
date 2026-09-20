@@ -145,9 +145,13 @@ const DashboardPage = () => {
                 </Badge>
               </Link>
             )}
-            <Link to="/problems?new=1" className="btn-primary text-xs sm:text-sm">
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
+              className="btn-primary text-xs sm:text-sm lg:hidden cursor-pointer"
+            >
               + Add Problem
-            </Link>
+            </button>
           </div>
         </div>
       </Reveal>

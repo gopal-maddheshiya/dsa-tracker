@@ -46,8 +46,8 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
     <NavLink
       to={to}
       className={({ isActive }) => `
-        group flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm
-        transition-colors relative select-none
+        group relative flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-sm
+        transition-colors select-none
         ${isActive
           ? 'bg-surface-2 text-accent border border-line font-medium'
           : 'text-text-secondary hover:text-text hover:bg-surface-2 border border-transparent'
@@ -62,7 +62,13 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
           <span className={`shrink-0 ${isActive ? 'text-accent' : 'text-text-secondary group-hover:text-text'} transition-colors`}>
             <NavIcon className="w-4 h-4" />
           </span>
-          {!collapsed && <span className="truncate">{label}</span>}
+          {!collapsed ? (
+            <span className="truncate">{label}</span>
+          ) : (
+            <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
+              {label}
+            </span>
+          )}
         </>
       )}
     </NavLink>
@@ -72,8 +78,8 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
     <aside
       className={`
         flex flex-col h-full bg-surface border-r border-line
-        transition-all duration-200 ease-in-out overflow-hidden select-none
-        ${collapsed ? 'w-[64px]' : 'w-[240px]'}
+        transition-all duration-200 ease-in-out select-none
+        ${collapsed ? 'w-[64px] overflow-visible' : 'w-[240px] overflow-hidden'}
       `}
     >
       {/* ── Logo ──────────────────────────────── */}
@@ -93,14 +99,17 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
       </div>
 
       {/* ── Nav ───────────────────────────────── */}
-      <nav className="flex-1 p-2.5 space-y-1 overflow-y-auto">
+      <nav className={`flex-1 p-2.5 space-y-1 ${collapsed ? 'overflow-visible' : 'overflow-y-auto'}`}>
         {collapsed ? (
           <button
             onClick={onToggle}
-            className="w-full flex items-center justify-center p-2 mb-2 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors"
-            title="Expand sidebar"
+            className="group relative w-full flex items-center justify-center p-2 mb-2 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+            aria-label="Expand sidebar"
           >
             <ChevronRight className="w-4 h-4" />
+            <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
+              Expand sidebar
+            </span>
           </button>
         ) : (
           <p className="px-3 pb-1.5 pt-1 text-xs font-semibold uppercase tracking-wide text-text-secondary">
@@ -113,7 +122,7 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
       </nav>
 
       {/* ── Streak strip ──────────────────────── */}
-      {!collapsed && (
+      {!collapsed ? (
         <NavLink
           to="/profile"
           className="mx-2.5 mb-2 px-3 py-2.5 rounded-lg bg-surface-2 border border-line hover:border-accent transition-colors block group shrink-0"
@@ -130,25 +139,50 @@ const Sidebar = ({ collapsed, onToggle, streak }) => {
             </div>
           </div>
         </NavLink>
+      ) : (
+        streak != null && streak > 0 && (
+          <NavLink
+            to="/profile"
+            className="group relative mx-auto mb-2 w-9 h-9 rounded-lg bg-accent/12 border border-accent/25 flex items-center justify-center text-accent hover:bg-accent/20 transition-colors shrink-0"
+            aria-label={`${streak} day streak`}
+          >
+            <Flame className="w-4 h-4 text-accent" />
+            <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
+              {streak} day streak
+            </span>
+          </NavLink>
+        )
       )}
 
       {/* ── User footer ───────────────────────── */}
       <div className={`shrink-0 border-t border-line p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
         {collapsed ? (
           <>
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-lg object-cover border border-line" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center">
-                <span className="text-xs font-semibold text-text-secondary">{initials}</span>
-              </div>
-            )}
+            <NavLink
+              to="/profile"
+              className="group relative cursor-pointer"
+              aria-label="View Profile"
+            >
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-lg object-cover border border-line group-hover:border-accent transition-colors" referrerPolicy="no-referrer" />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
+                  {initials}
+                </div>
+              )}
+              <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
+                {user?.name || 'Profile'}
+              </span>
+            </NavLink>
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
-              title="Sign out"
+              className="group relative p-2 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
+              aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
+              <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
+                Sign out
+              </span>
             </button>
           </>
         ) : (
@@ -250,6 +284,13 @@ const AppShell = ({ children }) => {
     };
     window.addEventListener('problem-created', handleProblemCreated);
     return () => window.removeEventListener('problem-created', handleProblemCreated);
+  }, []);
+
+  // Listen to open-quick-add custom event from anywhere in the app
+  useEffect(() => {
+    const handleOpenQuickAdd = () => setIsQuickAddOpen(true);
+    window.addEventListener('open-quick-add', handleOpenQuickAdd);
+    return () => window.removeEventListener('open-quick-add', handleOpenQuickAdd);
   }, []);
 
   // Derive initials for avatar
@@ -362,8 +403,8 @@ const AppShell = ({ children }) => {
 
           {/* Left: Mobile Brand Logo OR Desktop Breadcrumbs */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <NavLink to="/dashboard" className="flex items-center lg:hidden" title="DSA Tracker">
-              <BrandLogo size="sm" showText={true} />
+            <NavLink to="/dashboard" className="flex items-center lg:hidden shrink-0" title="DSA Tracker">
+              <BrandLogo size="sm" showText={true} textClassName="hidden min-[420px]:inline" />
             </NavLink>
 
             {/* Desktop Breadcrumbs */}
@@ -388,16 +429,16 @@ const AppShell = ({ children }) => {
           </div>
 
           {/* Center: Command / Search Pill (Desktop/Tablet only) */}
-          <div className="hidden md:flex items-center justify-center">
+          <div className="hidden md:flex items-center justify-center flex-1 max-w-md mx-4">
             <button
               type="button"
               onClick={handleSearchPillClick}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface border border-line hover:border-accent text-text-secondary hover:text-text transition-colors group w-52 sm:w-64 lg:w-72 text-xs cursor-pointer"
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface border border-line hover:border-accent text-text-secondary hover:text-text transition-colors group w-full text-xs cursor-pointer"
               title="Search problems and topics (Press / or Ctrl+K)"
             >
-              <Search className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors" />
-              <span className="truncate flex-1 text-left">Search problems, tags...</span>
-              <div className="flex items-center gap-1">
+              <Search className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors shrink-0" />
+              <span className="truncate flex-1 text-left">Search problems, tags, topics...</span>
+              <div className="flex items-center gap-1 shrink-0">
                 <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-xs font-mono text-muted bg-surface border border-line rounded">
                   Ctrl K
                 </kbd>
@@ -409,7 +450,7 @@ const AppShell = ({ children }) => {
           </div>
 
           {/* Right: Actions & User Avatar */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Mobile search trigger button */}
             <button
               type="button"
@@ -425,7 +466,7 @@ const AppShell = ({ children }) => {
             {streak != null && streak > 0 && (
               <NavLink
                 to="/profile"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/12 border border-accent/25 text-xs font-medium tabular-nums text-accent transition-colors"
+                className="hidden min-[380px]:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/12 border border-accent/25 text-xs font-medium tabular-nums text-accent transition-colors"
                 title={`${streak} day practice streak`}
               >
                 <Flame className="w-3.5 h-3.5 text-accent" />
@@ -437,7 +478,7 @@ const AppShell = ({ children }) => {
             <button
               type="button"
               onClick={() => setIsQuickAddOpen(true)}
-              className="flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-bg text-xs font-semibold transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-bg text-xs font-semibold transition-colors cursor-pointer shadow-sm"
               aria-label="Create new problem"
               title="Create new problem"
             >
@@ -482,7 +523,7 @@ const AppShell = ({ children }) => {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-28 lg:pb-8 max-w-7xl w-full mx-auto outline-none focus:outline-none"
+          className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-28 lg:pb-8 max-w-7xl w-full mx-auto outline-none focus:outline-none"
         >
           {children}
         </main>
@@ -490,7 +531,7 @@ const AppShell = ({ children }) => {
         {/* ── Fixed Bottom Tab Bar Navigation (< lg) ── */}
         <nav
           aria-label="Bottom Tab Navigation"
-          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface border-t border-line pb-safe"
+          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface/95 backdrop-blur-md border-t border-line pb-safe"
         >
           <div className="grid grid-cols-4 items-center w-full max-w-lg mx-auto">
 

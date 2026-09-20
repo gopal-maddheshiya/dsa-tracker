@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BrandLogo = ({ size = 'md', showText = true, className = '' }) => {
+const BrandLogo = ({ size = 'md', showText = true, className = '', textClassName = '' }) => {
   const sizeMap = {
     sm: { box: 'w-7 h-7', icon: 16, text: 'text-sm' },
     md: { box: 'w-8 h-8', icon: 18, text: 'text-base' },
@@ -52,7 +52,7 @@ const BrandLogo = ({ size = 'md', showText = true, className = '' }) => {
 
       {/* Brand Typography */}
       {showText && (
-        <span className={`font-bold tracking-tight text-text ${currentSize.text}`}>
+        <span className={`font-bold tracking-tight text-text ${currentSize.text} ${textClassName}`}>
           DSA<span className="text-accent">Tracker</span>
         </span>
       )}

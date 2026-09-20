@@ -56,7 +56,7 @@ const InstallAppBanner = () => {
   if (!showBanner || isInstalled) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 max-w-sm w-[calc(100vw-40px)] animate-fade-up">
+    <div className="fixed bottom-20 lg:bottom-5 right-4 sm:right-5 z-50 max-w-sm w-[calc(100vw-32px)] sm:w-[calc(100vw-40px)] animate-fade-up mb-safe">
       <div className="p-4 rounded-xl bg-surface border border-line shadow-dropdown flex items-start gap-3.5 relative overflow-hidden">
         <div className="w-9 h-9 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-accent shrink-0">
           <Download className="w-4 h-4" />
