@@ -171,30 +171,30 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
         <table className="data-table min-w-[760px] w-full text-left">
           <thead>
             <tr className="border-b border-line bg-surface-2/40 text-muted text-xs tracking-wider">
-              <th className="w-12 text-center py-3.5 px-3">#</th>
+              <th className="w-12 text-center py-3.5 px-3 whitespace-nowrap">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Problem</span>
                   {renderSortIndicator('title')}
                 </div>
               </th>
-              <th className="py-3.5 px-3">Topics</th>
+              <th className="py-3.5 px-3 whitespace-nowrap">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Difficulty</span>
                   {renderSortIndicator('difficulty')}
                 </div>
               </th>
-              <th className="py-3.5 px-3">Platform</th>
+              <th className="py-3.5 px-3 whitespace-nowrap">Platform</th>
               <th
                 onClick={() => handleSort('status')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Status</span>
@@ -203,14 +203,14 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               </th>
               <th
                 onClick={() => handleSort('sessions')}
-                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group"
+                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center justify-center gap-1.5">
                   <span>Sessions</span>
                   {renderSortIndicator('sessions')}
                 </div>
               </th>
-              <th className="text-right py-3.5 px-4">Actions</th>
+              <th className="text-right py-3.5 px-4 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef} className="divide-y divide-line">
@@ -226,7 +226,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   className="hover:bg-surface-2 transition-colors duration-150 group relative"
                 >
                   {/* # Index Column with subtle hover accent */}
-                  <td className="text-center text-xs tabular-nums text-muted py-3.5 px-3 relative">
+                  <td className="text-center text-xs tabular-nums text-muted py-3.5 px-3 whitespace-nowrap relative">
                     <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
@@ -236,7 +236,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     <div className="flex items-center gap-2 max-w-sm sm:max-w-md">
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
-                        className="font-semibold text-text group-hover:text-accent transition-colors line-clamp-2 text-xs tracking-tight leading-snug"
+                        className="font-semibold text-text group-hover:text-accent transition-colors line-clamp-1 text-xs tracking-tight leading-snug"
                         title={problem.title}
                       >
                         {problem.title}
@@ -256,20 +256,20 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   </td>
 
                   {/* Topic Pills */}
-                  <td className="py-3.5 px-3">
+                  <td className="py-3.5 px-3 whitespace-nowrap">
                     {problem.topics?.length > 0 ? (
-                      <div className="flex flex-wrap gap-1 max-w-[220px]">
+                      <div className="flex items-center gap-1 whitespace-nowrap">
                         {problem.topics.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary group-hover:border-line transition-colors"
+                            className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary group-hover:border-line transition-colors whitespace-nowrap"
                           >
                             {t}
                           </span>
                         ))}
                         {problem.topics.length > 2 && (
                           <span
-                            className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted"
+                            className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted whitespace-nowrap"
                             title={problem.topics.slice(2).join(', ')}
                           >
                             +{problem.topics.length - 2}
@@ -282,16 +282,16 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   </td>
 
                   {/* Difficulty Badge with dot */}
-                  <td className="py-3.5 px-3">
+                  <td className="py-3.5 px-3 whitespace-nowrap">
                     <Badge variant={diff.variant} dot size="sm">
                       {diff.label}
                     </Badge>
                   </td>
 
                   {/* Brand Platform Badge */}
-                  <td className="py-3.5 px-3">
+                  <td className="py-3.5 px-3 whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border ${platformCfg.style}`}
+                      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${platformCfg.style}`}
                       title={platformCfg.label}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
@@ -299,29 +299,29 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     </span>
                   </td>
 
-                  {/* Status Indicator */}
-                  <td className="py-3.5 px-3">
+                  {/* Status Indicator (Always single-line, expands into empty space) */}
+                  <td className="py-3.5 px-3 whitespace-nowrap">
                     {statusCfg ? (
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                        <span>{statusCfg.label}</span>
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusCfg.dot}`} />
+                        <span className="whitespace-nowrap">{statusCfg.label}</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center text-xs text-muted px-2.5 py-0.5 rounded-full bg-surface-2 border border-line">
+                      <span className="inline-flex items-center text-xs text-muted px-2.5 py-0.5 rounded-full bg-surface-2 border border-line whitespace-nowrap">
                         Unattempted
                       </span>
                     )}
                   </td>
 
                   {/* Session Count */}
-                  <td className="text-center py-3.5 px-3">
-                    <span className="inline-block text-xs font-medium tabular-nums text-muted px-2.5 py-0.5 rounded-md bg-surface-2 border border-line group-hover:border-line transition-colors">
+                  <td className="text-center py-3.5 px-3 whitespace-nowrap">
+                    <span className="inline-block text-xs font-medium tabular-nums text-muted px-2.5 py-0.5 rounded-md bg-surface-2 border border-line group-hover:border-line transition-colors whitespace-nowrap">
                       {problem.attemptCount || 0}
                     </span>
                   </td>
 
                   {/* Icon Actions */}
-                  <td className="text-right py-3.5 px-4">
+                  <td className="text-right py-3.5 px-4 whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5 text-xs">
                       {/* 1-Click Quick Log Attempt */}
                       {onLog && (

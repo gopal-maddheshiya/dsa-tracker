@@ -29,7 +29,7 @@ const sizeMap = {
 const Badge = ({ variant = 'default', size = 'sm', dot = false, className = '', children, ...props }) => {
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-full border
+      className={`inline-flex items-center font-medium rounded-full border whitespace-nowrap
         ${variantMap[variant] ?? variantMap.default}
         ${sizeMap[size] ?? sizeMap.sm}
         ${className}`}
