@@ -14,6 +14,7 @@ import TopicRadarViz from './cube-visuals/TopicRadarViz';
 import HeatmapViz from './cube-visuals/HeatmapViz';
 import DifficultySplitViz from './cube-visuals/DifficultySplitViz';
 import NextUpViz from './cube-visuals/NextUpViz';
+import CubeSatellites from './CubeSatellites';
 
 /**
  * 6 Stage Metadata for the 6 Cube Faces.
@@ -70,8 +71,8 @@ const CUBE_STAGES = [
   },
 ];
 
-export const DWELL_TIME_MS = 1200;
-export const MOVE_DURATION_MS = 500;
+export const DWELL_TIME_MS = 1100;
+export const MOVE_DURATION_MS = 450;
 
 /**
  * Tour sequences:
@@ -238,6 +239,7 @@ const Rotating3DCube = () => {
 
   const parallaxRafRef = useRef(null);
   const autoAdvanceTimerRef = useRef(null);
+  const entranceRafRef = useRef(null);
 
   // Pointer drag tracking ref
   const dragInfoRef = useRef({
@@ -330,6 +332,12 @@ const Rotating3DCube = () => {
     if (animEngineRef.current.rafId) {
       cancelAnimationFrame(animEngineRef.current.rafId);
       animEngineRef.current.rafId = null;
+    }
+
+    if (entranceRafRef.current) {
+      cancelAnimationFrame(entranceRafRef.current);
+      entranceRafRef.current = null;
+      setEntrancePhase('settled');
     }
 
     const startQuat = currentQuatRef.current;
@@ -431,8 +439,9 @@ const Rotating3DCube = () => {
       }
 
       if (progress < 1) {
-        requestAnimationFrame(entranceTick);
+        entranceRafRef.current = requestAnimationFrame(entranceTick);
       } else {
+        entranceRafRef.current = null;
         currentQuatRef.current = targetQuat;
         if (cubeRef.current) {
           cubeRef.current.style.transform = quatToMatrix3d(targetQuat);
@@ -441,7 +450,13 @@ const Rotating3DCube = () => {
       }
     };
 
-    requestAnimationFrame(entranceTick);
+    entranceRafRef.current = requestAnimationFrame(entranceTick);
+    return () => {
+      if (entranceRafRef.current) {
+        cancelAnimationFrame(entranceRafRef.current);
+        entranceRafRef.current = null;
+      }
+    };
   }, [reducedMotion]);
 
   // Hard STOP conditions for Auto-Advance
@@ -470,8 +485,8 @@ const Rotating3DCube = () => {
     rotateToStage(nextStage, MOVE_DURATION_MS, 'auto');
   }, [activeStage, rotateToStage]);
 
-  // Soft Delay Function: Resets dwell timer to 2500ms grace period on user interactions
-  const delayTour = useCallback((graceMs = 2500) => {
+  // Soft Delay Function: Resets dwell timer to 1800ms grace period on user interactions
+  const delayTour = useCallback((graceMs = 1800) => {
     if (autoAdvanceTimerRef.current) {
       clearTimeout(autoAdvanceTimerRef.current);
       autoAdvanceTimerRef.current = null;
@@ -507,6 +522,39 @@ const Rotating3DCube = () => {
       }
     };
   }, [activeStage, isHardPaused, isAnimating, advanceTour]);
+
+  // Expose test hooks on window for automated verification
+  useEffect(() => {
+    window.__setCubeStage = (st) => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+      rotateToStage(st, 0, 'test');
+    };
+    window.__rotateToStageSmooth = (st) => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+      rotateToStage(st, MOVE_DURATION_MS, 'test-smooth');
+    };
+    window.__pauseTour = () => {
+      setIsUserPaused(true);
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+    };
+    window.__resumeTour = () => {
+      setIsUserPaused(false);
+    };
+    window.__cubeState = {
+      activeStage,
+      isAnimating,
+      isDragging,
+    };
+  }, [activeStage, isAnimating, isDragging, rotateToStage]);
 
   // ── Mouse Parallax Handlers (Fine pointers only, rAF-driven) ──
   const handleParallaxMove = useCallback((e) => {
@@ -728,7 +776,7 @@ const Rotating3DCube = () => {
 
   return (
     <div
-      className="relative w-full max-w-[480px] flex flex-col items-center select-none py-1 [--s:clamp(200px,50vw,230px)] sm:[--s:clamp(220px,28vw,250px)] lg:[--s:clamp(240px,min(32vh,26vw),280px)]"
+      className="relative w-full max-w-[450px] flex flex-col items-center select-none py-1 [--s:clamp(195px,46vw,215px)] sm:[--s:clamp(210px,25vw,235px)] lg:[--s:clamp(230px,min(28vh,22vw),250px)]"
       onKeyDown={handleKeyDown}
     >
       {/* ── 3D STAGE CONTAINER ── */}
@@ -945,6 +993,26 @@ const Rotating3DCube = () => {
                               {i === 5 && <NextUpViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
                             </div>
                           </div>
+
+                          {/* 3D Pop-Out Satellite Content Layer (Scaled uniformly via --k with preserve-3d) */}
+                          <div
+                            className="absolute top-0 left-0 pointer-events-none"
+                            style={{
+                              width: '240px',
+                              height: '240px',
+                              transform: 'scale(var(--k, 1))',
+                              transformOrigin: '0 0',
+                              transformStyle: 'preserve-3d',
+                            }}
+                          >
+                            <CubeSatellites
+                              stageId={i}
+                              active={isFaceActive}
+                              settled={isFaceActive && !isAnimating && !isDragging && entrancePhase === 'settled'}
+                              reducedMotion={reducedMotion}
+                              isExploded={isExploded}
+                            />
+                          </div>
                         </div>
                       );
                     })}
@@ -1010,6 +1078,39 @@ const Rotating3DCube = () => {
           }
         }
 
+        @keyframes satelliteFloat1 {
+          0% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-4px) rotate(0.5deg);
+          }
+          100% {
+            transform: translateY(2px) rotate(-0.5deg);
+          }
+        }
+
+        @keyframes satelliteFloat2 {
+          0% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(3px) rotate(-0.5deg);
+          }
+          100% {
+            transform: translateY(-3px) rotate(0.4deg);
+          }
+        }
+
+        @keyframes satelliteFloat3 {
+          0% {
+            transform: translateY(0px) scale(0.98);
+          }
+          100% {
+            transform: translateY(-4px) scale(1.02);
+          }
+        }
+
         .animate-cube-subtle-float {
           animation: cubeSubtleFloat 5.4s ease-in-out infinite;
         }
@@ -1028,6 +1129,18 @@ const Rotating3DCube = () => {
 
         .animate-fade-in {
           animation: titleFade 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .animate-satellite-float-1 {
+          animation: satelliteFloat1 4.2s ease-in-out infinite alternate;
+        }
+
+        .animate-satellite-float-2 {
+          animation: satelliteFloat2 4.8s ease-in-out infinite alternate;
+        }
+
+        .animate-satellite-float-3 {
+          animation: satelliteFloat3 3.6s ease-in-out infinite alternate;
         }
       `}</style>
     </div>
