@@ -76,13 +76,43 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
     return compactMode ? weeks.slice(-12) : weeks;
   }, [weeks, compactMode]);
 
-  const displayMonthLabels = useMemo(() => {
-    if (!compactMode) return monthLabels;
-    const startIndex = Math.max(0, weeks.length - 12);
-    return monthLabels
-      .filter((m) => m.weekIndex >= startIndex)
-      .map((m) => ({ ...m, weekIndex: m.weekIndex - startIndex }));
-  }, [monthLabels, weeks.length, compactMode]);
+  // Derive Month Groups with exact week clustering for unambiguous month identification
+  const monthGroups = useMemo(() => {
+    const groups = [];
+    let currentGroup = null;
+
+    displayWeeks.forEach((week, wIdx) => {
+      // Find the month that occurs most frequently in this week
+      const monthFreq = {};
+      week.forEach((day) => {
+        if (day.date) {
+          const m = parseInt(day.date.slice(5, 7), 10) - 1;
+          monthFreq[m] = (monthFreq[m] || 0) + 1;
+        }
+      });
+      let bestMonth = 0;
+      let maxCount = -1;
+      Object.entries(monthFreq).forEach(([m, count]) => {
+        if (count > maxCount) {
+          maxCount = count;
+          bestMonth = parseInt(m, 10);
+        }
+      });
+
+      if (!currentGroup || currentGroup.monthIdx !== bestMonth) {
+        currentGroup = {
+          monthIdx: bestMonth,
+          monthName: MONTH_NAMES[bestMonth],
+          weeks: [{ week, wIdx }],
+        };
+        groups.push(currentGroup);
+      } else {
+        currentGroup.weeks.push({ week, wIdx });
+      }
+    });
+
+    return groups;
+  }, [displayWeeks]);
 
   // Telemetry in current view window
   const { totalAttemptsInView, activeDaysInView } = useMemo(() => {
@@ -252,71 +282,98 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
         {/* Left/Center: Heatmap Grid + Readout + Legend (8 cols) */}
         <div className="lg:col-span-8 min-w-0 flex flex-col justify-between">
           <div className={`w-full ${compactMode ? 'overflow-x-auto sm:overflow-x-visible' : 'overflow-x-auto'} pb-2`}>
-            <div className={compactMode ? 'min-w-0 max-w-full' : 'min-w-[540px]'}>
-              {/* Month Labels aligned to week columns */}
-              <div className="flex text-xs text-muted mb-2 pl-6 gap-1 sm:gap-1.5">
-                {displayWeeks.map((_, wIndex) => {
-                  const labelObj = displayMonthLabels.find((m) => m.weekIndex === wIndex && m.name);
-                  return (
-                    <div
-                      key={wIndex}
-                      className="w-3.5 sm:w-4 md:w-[17px] text-[11px] text-left shrink-0 overflow-visible font-medium text-text-secondary"
-                    >
-                      {labelObj ? labelObj.name : ''}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Day Labels + Heatmap Grid */}
-              <div className="flex gap-2">
+            <div className={compactMode ? 'min-w-0 max-w-full' : 'min-w-[580px]'}>
+              {/* Day Labels + Heatmap Month Clusters */}
+              <div className="flex gap-2 sm:gap-2.5">
                 {/* Day rows: Sun to Sat, displaying M, W, F with exact row-height matching */}
-                <div className="flex flex-col gap-1 sm:gap-1.5 text-[11px] text-muted select-none w-4 shrink-0 text-right pr-1 font-medium">
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">S</span>
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none">M</span>
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">T</span>
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none">W</span>
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">T</span>
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none">F</span>
-                  <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">S</span>
+                <div className="flex flex-col text-[11px] text-muted select-none w-4 shrink-0 text-right pr-1 font-medium">
+                  {/* Top height spacer matching Month Header height exactly */}
+                  <div className="h-6 mb-2" />
+
+                  {/* 7 day labels */}
+                  <div className="flex flex-col gap-1 sm:gap-1.5">
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">S</span>
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none">M</span>
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">T</span>
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none">W</span>
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">T</span>
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none">F</span>
+                    <span className="h-3.5 sm:h-4 md:h-[17px] flex items-center justify-end leading-none opacity-0">S</span>
+                  </div>
                 </div>
 
-                {/* Week Columns */}
-                <div className="flex gap-1 sm:gap-1.5 overflow-visible">
-                  {displayWeeks.map((week, wIdx) => (
-                    <div key={wIdx} className="flex flex-col gap-1 sm:gap-1.5 shrink-0">
-                      {week.map((day, dIdx) => {
-                        const isHovered = hoveredCell?.date === day.date;
-                        const isToday = day.date === todayStr;
+                {/* Month Clusters: Visually distinct & bounded with dividers */}
+                <div className="flex gap-2 sm:gap-3 overflow-visible">
+                  {monthGroups.map((group, gIdx) => {
+                    const isHoveredMonth =
+                      hoveredCell && parseInt(hoveredCell.date.slice(5, 7), 10) - 1 === group.monthIdx;
 
-                        if (day.isFuture) {
-                          return (
-                            <div
-                              key={dIdx}
-                              className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[17px] md:h-[17px] rounded-[3px] bg-transparent"
-                            />
-                          );
-                        }
+                    return (
+                      <div
+                        key={gIdx}
+                        className={`flex flex-col shrink-0 ${
+                          gIdx > 0 ? 'pl-2 sm:pl-2.5 border-l border-line/60' : ''
+                        }`}
+                      >
+                        {/* Month Header Label with hairline underline */}
+                        <div className="h-6 mb-2 flex items-center justify-between px-0.5 border-b border-line/40 select-none">
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                                isHoveredMonth ? 'text-accent font-black' : 'text-text-secondary'
+                              }`}
+                            >
+                              {group.monthName}
+                            </span>
+                            <span className="text-[10px] text-muted/80 font-normal">
+                              {group.weeks.length}w
+                            </span>
+                          </div>
+                          {isHoveredMonth && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                          )}
+                        </div>
 
-                        return (
-                          <div
-                            key={dIdx}
-                            onMouseEnter={() => setHoveredCell(day)}
-                            onMouseLeave={() => setHoveredCell(null)}
-                            onClick={() => setHoveredCell(day)}
-                            title={day.count !== null ? `${formatDisplayDate(day.date)}: ${day.count} solves` : ''}
-                            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[17px] md:h-[17px] rounded-[3px] border transition-all duration-150 cursor-pointer ${getCellColor(
-                              day.count
-                            )} ${
-                              isHovered
-                                ? 'ring-2 ring-accent scale-110 z-10'
-                                : ''
-                            } ${isToday && !isHovered ? 'ring-1.5 ring-accent shadow-[0_0_8px_rgba(255,161,22,0.35)]' : ''}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
+                        {/* Week Columns belonging to this month */}
+                        <div className="flex gap-1 sm:gap-1.5">
+                          {group.weeks.map(({ week, wIdx }) => (
+                            <div key={wIdx} className="flex flex-col gap-1 sm:gap-1.5 shrink-0">
+                              {week.map((day, dIdx) => {
+                                const isHovered = hoveredCell?.date === day.date;
+                                const isToday = day.date === todayStr;
+
+                                if (day.isFuture) {
+                                  return (
+                                    <div
+                                      key={dIdx}
+                                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[17px] md:h-[17px] rounded-[3px] bg-transparent"
+                                    />
+                                  );
+                                }
+
+                                return (
+                                  <div
+                                    key={dIdx}
+                                    onMouseEnter={() => setHoveredCell(day)}
+                                    onMouseLeave={() => setHoveredCell(null)}
+                                    onClick={() => setHoveredCell(day)}
+                                    title={day.count !== null ? `${formatDisplayDate(day.date)}: ${day.count} solves` : ''}
+                                    className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[17px] md:h-[17px] rounded-[3px] border transition-all duration-150 cursor-pointer ${getCellColor(
+                                      day.count
+                                    )} ${
+                                      isHovered
+                                        ? 'ring-2 ring-accent scale-110 z-10'
+                                        : ''
+                                    } ${isToday && !isHovered ? 'ring-1.5 ring-accent shadow-[0_0_8px_rgba(255,161,22,0.35)]' : ''}`}
+                                  />
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -341,9 +398,12 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                     {hoveredCell.count === 0 ? '0' : hoveredCell.count} solve{hoveredCell.count !== 1 ? 's' : ''}
                   </span>
                   <span className="text-muted">·</span>
-                  <span className="text-text font-medium">{formatDisplayDate(hoveredCell.date)}</span>
+                  <span className="text-text font-semibold">{formatDisplayDate(hoveredCell.date)}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-surface-3 border border-line text-accent">
+                    {MONTH_NAMES[parseInt(hoveredCell.date.slice(5, 7), 10) - 1]}
+                  </span>
                   <span className="text-muted">·</span>
-                  <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${hoveredCell.count > 0 ? 'text-easy bg-easy/10' : 'text-muted bg-surface-3'}`}>
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${hoveredCell.count > 0 ? 'text-easy bg-easy/10' : 'text-muted bg-surface-3'}`}>
                     {hoveredCell.count > 0 ? 'Active' : 'Rest'}
                   </span>
                 </span>
