@@ -40,7 +40,7 @@ const getSummary = async (req, res, next) => {
     ]);
     const solvedProblems = solvedProblemsAgg.length > 0 ? solvedProblemsAgg[0].count : 0;
 
-    // Difficulty breakdown of user problems
+    // Difficulty breakdown of user problems (total per difficulty)
     const diffAgg = await Problem.aggregate([
       { $match: { userId } },
       { $group: { _id: '$difficulty', count: { $sum: 1 } } },
@@ -53,10 +53,33 @@ const getSummary = async (req, res, next) => {
       }
     });
 
+    // Unique solved problems breakdown by difficulty
+    const solvedDiffAgg = await Attempt.aggregate([
+      { $match: { userId, status: 'solved' } },
+      { $group: { _id: '$problemId' } },
+      {
+        $lookup: {
+          from: 'problems',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'problem',
+        },
+      },
+      { $unwind: '$problem' },
+      { $group: { _id: '$problem.difficulty', count: { $sum: 1 } } },
+    ]);
+
+    const solvedDiffMap = { easy: 0, medium: 0, hard: 0 };
+    solvedDiffAgg.forEach((d) => {
+      if (d._id && solvedDiffMap[d._id] !== undefined) {
+        solvedDiffMap[d._id] = d.count;
+      }
+    });
+
     const difficultyBreakdown = [
-      { difficulty: 'easy', count: diffMap.easy },
-      { difficulty: 'medium', count: diffMap.medium },
-      { difficulty: 'hard', count: diffMap.hard },
+      { difficulty: 'easy', count: diffMap.easy, solved: solvedDiffMap.easy },
+      { difficulty: 'medium', count: diffMap.medium, solved: solvedDiffMap.medium },
+      { difficulty: 'hard', count: diffMap.hard, solved: solvedDiffMap.hard },
     ];
 
     // Calculate practice streaks safely

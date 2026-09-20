@@ -11,7 +11,7 @@ import {
 import { getErrorMessage } from '../utils/errorHandler';
 import { getRank } from '../utils/profileUtils';
 
-import UnifiedMetricBar from '../components/analytics/UnifiedMetricBar';
+import LeetCodeProgressConsole from '../components/analytics/LeetCodeProgressConsole';
 import DifficultyChart from '../components/analytics/DifficultyChart';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
@@ -152,9 +152,9 @@ const DashboardPage = () => {
         </div>
       </Reveal>
 
-      {/* Unified Segmented Metric Bar */}
+      {/* LeetCode-style Progress & Activity Console */}
       <Reveal delay={50} y={15}>
-        <UnifiedMetricBar
+        <LeetCodeProgressConsole
           summary={summary}
           isLoading={loadingSummary}
           solvedPct={solvedPct}
