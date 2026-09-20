@@ -288,7 +288,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                 {/* Day rows: Sun to Sat, displaying M, W, F with exact row-height matching */}
                 <div className="flex flex-col text-[11px] text-muted select-none w-4 shrink-0 text-right pr-1 font-medium">
                   {/* Top height spacer matching Month Header height exactly */}
-                  <div className="h-6 mb-2" />
+                  <div className="h-5 mb-1.5" />
 
                   {/* 7 day labels */}
                   <div className="flex flex-col gap-1 sm:gap-1.5">
@@ -302,36 +302,23 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
                   </div>
                 </div>
 
-                {/* Month Clusters: Visually distinct & bounded with dividers */}
-                <div className="flex gap-2 sm:gap-3 overflow-visible">
+                {/* Month Clusters: Natural spacing between months like LeetCode (no lines/dividers) */}
+                <div className="flex gap-2.5 sm:gap-3.5 overflow-visible">
                   {monthGroups.map((group, gIdx) => {
                     const isHoveredMonth =
                       hoveredCell && parseInt(hoveredCell.date.slice(5, 7), 10) - 1 === group.monthIdx;
 
                     return (
-                      <div
-                        key={gIdx}
-                        className={`flex flex-col shrink-0 ${
-                          gIdx > 0 ? 'pl-2 sm:pl-2.5 border-l border-line/60' : ''
-                        }`}
-                      >
-                        {/* Month Header Label with hairline underline */}
-                        <div className="h-6 mb-2 flex items-center justify-between px-0.5 border-b border-line/40 select-none">
-                          <div className="flex items-center gap-1">
-                            <span
-                              className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${
-                                isHoveredMonth ? 'text-accent font-black' : 'text-text-secondary'
-                              }`}
-                            >
-                              {group.monthName}
-                            </span>
-                            <span className="text-[10px] text-muted/80 font-normal">
-                              {group.weeks.length}w
-                            </span>
-                          </div>
-                          {isHoveredMonth && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                          )}
+                      <div key={gIdx} className="flex flex-col shrink-0">
+                        {/* Month Header Label (Clean text like LeetCode) */}
+                        <div className="h-5 mb-1.5 flex items-center select-none">
+                          <span
+                            className={`text-xs font-medium transition-colors ${
+                              isHoveredMonth ? 'text-accent font-semibold' : 'text-text-secondary'
+                            }`}
+                          >
+                            {group.monthName}
+                          </span>
                         </div>
 
                         {/* Week Columns belonging to this month */}
