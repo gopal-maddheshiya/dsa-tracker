@@ -310,6 +310,9 @@ const Rotating3DCube = () => {
           if (cubeRef.current) {
             cubeRef.current.style.setProperty('--k', k.toFixed(4));
           }
+          if (parallaxRef.current) {
+            parallaxRef.current.style.setProperty('--k', k.toFixed(4));
+          }
         }
       }
     });
@@ -848,6 +851,7 @@ const Rotating3DCube = () => {
                 {/* ── LAYER 2: PARALLAX WRAPPER (MOUSE TILT, 150ms EASE-OUT) ── */}
                 <div
                   ref={parallaxRef}
+                  className="relative"
                   style={{
                     perspective: '1200px',
                     transformStyle: 'preserve-3d',
@@ -993,29 +997,38 @@ const Rotating3DCube = () => {
                               {i === 5 && <NextUpViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
                             </div>
                           </div>
-
-                          {/* 3D Pop-Out Satellite Content Layer (Scaled uniformly via --k with preserve-3d) */}
-                          <div
-                            className="absolute top-0 left-0 pointer-events-none"
-                            style={{
-                              width: '240px',
-                              height: '240px',
-                              transform: 'scale(var(--k, 1))',
-                              transformOrigin: '0 0',
-                              transformStyle: 'preserve-3d',
-                            }}
-                          >
-                            <CubeSatellites
-                              stageId={i}
-                              active={isFaceActive}
-                              settled={isFaceActive && !isAnimating && !isDragging && entrancePhase === 'settled'}
-                              reducedMotion={reducedMotion}
-                              isExploded={isExploded}
-                            />
-                          </div>
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* ── 3D Pop-Out Satellite Content Layer (Front-facing telemetry constellation) ── */}
+                  <div
+                    className="absolute top-0 left-0 pointer-events-none"
+                    style={{
+                      width: 'var(--s)',
+                      height: 'var(--s)',
+                      transform: 'translateZ(calc(var(--s) / 2 + 12px))',
+                      transformStyle: 'preserve-3d',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '240px',
+                        height: '240px',
+                        transform: 'scale(var(--k, 1))',
+                        transformOrigin: '0 0',
+                        transformStyle: 'preserve-3d',
+                      }}
+                    >
+                      <CubeSatellites
+                        stageId={currentDisplayedStage}
+                        active={true}
+                        settled={!isAnimating && !isDragging && entrancePhase === 'settled'}
+                        reducedMotion={reducedMotion}
+                        isExploded={isExploded}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
