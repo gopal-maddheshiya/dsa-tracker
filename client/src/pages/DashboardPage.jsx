@@ -15,8 +15,7 @@ import LeetCodeStatsConsole from '../components/analytics/LeetCodeStatsConsole';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
-import RevisionPreview from '../components/analytics/RevisionPreview';
-import IntelligentRecommender from '../components/dashboard/IntelligentRecommender';
+import PracticeStudio from '../components/dashboard/PracticeStudio';
 import Badge from '../components/ui/Badge';
 import Reveal from '../components/common/Reveal';
 import { BarChart3 } from 'lucide-react';
@@ -47,7 +46,6 @@ const DashboardPage = () => {
   const [revisionQueue, setRevisionQueue] = useState([]);
   const [loadingRevision, setLoadingRevision] = useState(true);
   const [revisionError, setRevisionError] = useState(null);
-  const [spotlightId, setSpotlightId] = useState(null);
 
   const loadSummary = useCallback(async () => {
     setLoadingSummary(true); setSummaryError(null);
@@ -152,18 +150,7 @@ const DashboardPage = () => {
         </div>
       </Reveal>
 
-      {/* Top Section: LeetCode Pro Split Console */}
-      <Reveal delay={50} y={15}>
-        <LeetCodeStatsConsole
-          summary={summary}
-          isLoading={loadingSummary}
-          solveRate={solveRate}
-          revisionCount={revisionQueue.length}
-          isLoadingRevision={loadingRevision}
-        />
-      </Reveal>
-
-      {/* Zero state vs Asymmetric Dashboard Grid */}
+      {/* Zero state vs Unified Dashboard Grid */}
       {hasZeroData ? (
         <Reveal delay={100}>
           <div className="bg-surface rounded-xl border border-dashed border-line p-12 text-center">
@@ -181,23 +168,25 @@ const DashboardPage = () => {
         </Reveal>
       ) : (
         <div className="space-y-6">
-          {/* Row 1: Priority Action Spotlight & Recall Queue (Balanced & Non-Repetitive) */}
-          <Reveal delay={100} y={20}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          {/* Row 1: The Studio Split — Left: Practice Studio | Right: LeetCode Console */}
+          <Reveal delay={60} y={16}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+              {/* Left Pillar (col-span-7): Unified Practice Studio */}
               <div className="lg:col-span-7 xl:col-span-7 flex flex-col h-full">
-                <IntelligentRecommender
-                  className="h-full flex-1"
-                  onFocusLoaded={setSpotlightId}
+                <PracticeStudio
+                  queue={revisionQueue}
+                  isLoadingQueue={loadingRevision}
+                  queueError={revisionError}
+                  onRetryQueue={loadRevision}
                 />
               </div>
+
+              {/* Right Pillar (col-span-5): LeetCode Solved & Momentum Console */}
               <div className="lg:col-span-5 xl:col-span-5 flex flex-col h-full">
-                <RevisionPreview
-                  className="h-full flex-1"
-                  queue={revisionQueue}
-                  isLoading={loadingRevision}
-                  error={revisionError}
-                  onRetry={loadRevision}
-                  excludeProblemId={spotlightId}
+                <LeetCodeStatsConsole
+                  summary={summary}
+                  isLoading={loadingSummary}
+                  solveRate={solveRate}
                 />
               </div>
             </div>

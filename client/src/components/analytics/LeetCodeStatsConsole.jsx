@@ -1,27 +1,29 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Flame, Zap, RotateCcw, ArrowRight } from 'lucide-react';
+import { Flame, Zap, Trophy } from 'lucide-react';
 import AnimatedNumber from '../ui/AnimatedNumber';
 import { easy, medium, hard } from '../../theme/colors';
 
 /**
- * LeetCode Pro Split Console (Dense & Ergonomic).
+ * LeetCodeStatsConsole: Dedicated LeetCode Solved & Momentum Console.
+ * Symmetrically pairs with PracticeStudio on laptop viewports.
  *
- * Left: Authentic LeetCode Solved Card (Donut + Easy/Med/Hard bars).
- * Right: 3 High-Density Telemetry Cards with micro-meters & zero wasted space.
+ * Top Zone: Solved Problems Donut (112px) + Stacked Easy/Med/Hard Bars.
+ * Bottom Zone: Active Streak (with personal record rail) & Practice Output (with accuracy meter).
  */
 const LeetCodeStatsConsole = ({
   summary,
   isLoading = false,
   solveRate = 0,
-  revisionCount = 0,
-  isLoadingRevision = false,
+  className = '',
 }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch animate-pulse">
-        <div className="lg:col-span-5 panel p-4 border-line space-y-3">
-          <div className="h-4 w-28 shimmer rounded" />
+      <div className={`panel p-4 sm:p-5 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
+        <div className="space-y-3 pb-4 border-b border-line/40">
+          <div className="flex justify-between">
+            <div className="h-4 w-28 shimmer rounded" />
+            <div className="h-4 w-20 shimmer rounded" />
+          </div>
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-full bg-surface-2 shrink-0" />
             <div className="flex-1 space-y-2">
@@ -31,10 +33,9 @@ const LeetCodeStatsConsole = ({
             </div>
           </div>
         </div>
-        <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="panel p-4 h-32 shimmer rounded-xl" />
-          <div className="panel p-4 h-32 shimmer rounded-xl" />
-          <div className="col-span-2 sm:col-span-1 panel p-4 h-24 sm:h-32 shimmer rounded-xl" />
+        <div className="pt-4 grid grid-cols-2 gap-3">
+          <div className="h-24 bg-surface-2 rounded-xl" />
+          <div className="h-24 bg-surface-2 rounded-xl" />
         </div>
       </div>
     );
@@ -65,16 +66,12 @@ const LeetCodeStatsConsole = ({
   const medPct = medTotal > 0 ? Math.min(100, Math.round((medSolved / medTotal) * 100)) : 0;
   const hardPct = hardTotal > 0 ? Math.min(100, Math.round((hardSolved / hardTotal) * 100)) : 0;
 
-  // Streak calculation for progress rail
   const streakPct = longestStreak > 0 ? Math.min(100, Math.round((currentStreak / longestStreak) * 100)) : 0;
-
-  // Solved vs struggled sessions
   const solvedSessions = Math.round((totalAttempts * solveRate) / 100);
-  const struggledSessions = Math.max(0, totalAttempts - solvedSessions);
 
-  // Compact donut geometry (100px diameter)
-  const size = 100;
-  const strokeWidth = 8;
+  // Donut geometry (108px diameter)
+  const size = 108;
+  const strokeWidth = 9;
   const center = size / 2;
   const radius = center - strokeWidth - 1;
   const circumference = 2 * Math.PI * radius;
@@ -88,22 +85,25 @@ const LeetCodeStatsConsole = ({
   const hardOffset = -(easyArc + medArc);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
+    <div className={`panel p-4 sm:p-5 flex flex-col justify-between h-full transition-all shadow-sm ${className}`}>
       
-      {/* ── Left Pillar: Authentic LeetCode Solved Card (col-span-5) ── */}
-      <div className="lg:col-span-5 panel p-3.5 sm:p-4 flex flex-col justify-between shadow-sm hover:border-line transition-colors">
-        {/* Card Header */}
-        <div className="flex items-center justify-between pb-2.5 border-b border-line/50">
-          <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">
-            Problems Solved
-          </span>
+      {/* ── ZONE 1: Solved Problems Donut + Difficulty Stack ──────────── */}
+      <div>
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-line/50">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-accent shrink-0" />
+            <h2 className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+              Problems Solved
+            </h2>
+          </div>
           <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-surface-2 border border-line text-accent">
             {overallPct}% cataloged
           </span>
         </div>
 
-        {/* Donut + Stacked Bars */}
-        <div className="flex items-center gap-3 sm:gap-4 pt-2.5">
+        {/* Donut + Difficulty Bars */}
+        <div className="flex items-center gap-4 sm:gap-5 py-3.5">
           
           {/* Multi-Segment Donut Ring */}
           <div className="relative shrink-0 flex items-center justify-center" style={{ width: size, height: size }}>
@@ -187,7 +187,7 @@ const LeetCodeStatsConsole = ({
             </div>
           </div>
 
-          {/* Compact 3-Row Difficulty Bars */}
+          {/* Stacked Difficulty Bars */}
           <div className="flex-1 min-w-0 space-y-2">
             {/* Easy */}
             <div className="space-y-0.5">
@@ -251,120 +251,80 @@ const LeetCodeStatsConsole = ({
                 />
               </div>
             </div>
-
           </div>
+
         </div>
       </div>
 
-      {/* ── Right Pillar: 3 Dense Telemetry Cards (col-span-7) ───────── */}
-      <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 items-stretch">
-        
-        {/* 1. Active Streak Card (Dense, with streak progress rail) */}
-        <div className="panel p-3.5 sm:p-4 flex flex-col justify-between hover:border-line transition-all shadow-sm group">
-          {/* Top Line: Label + Icon */}
-          <div className="flex items-center justify-between gap-1.5">
-            <span className="text-[11px] font-semibold text-text-secondary tracking-tight">
-              Active Streak
-            </span>
-            <div className="p-1.5 rounded-lg bg-accent/15 border border-accent/25 text-accent shrink-0">
-              <Flame className="w-3.5 h-3.5" />
-            </div>
-          </div>
-
-          {/* Core Metric: Big Number */}
-          <div className="my-1.5">
-            <div className="text-2xl font-black text-text tabular-nums tracking-tight leading-tight">
-              <AnimatedNumber value={currentStreak} />
-              <span className="text-xs font-normal text-muted ml-1">days</span>
-            </div>
-          </div>
-
-          {/* Micro Telemetry Rail: Progress towards best record */}
-          <div className="space-y-1 pt-1 border-t border-line/40">
-            <div className="flex items-center justify-between text-[10px] text-muted">
-              <span>Best: {longestStreak}d</span>
-              <span className="font-mono text-accent font-semibold">{streakPct}%</span>
-            </div>
-            <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden border border-line/40">
-              <div
-                className="h-full rounded-full bg-accent transition-all duration-700 ease-out"
-                style={{ width: `${Math.max(streakPct, currentStreak > 0 ? 5 : 0)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 2. Practice Volume Card (Dense, with solve vs struggle breakdown) */}
-        <div className="panel p-3.5 sm:p-4 flex flex-col justify-between hover:border-line transition-all shadow-sm group">
-          {/* Top Line: Label + Icon */}
-          <div className="flex items-center justify-between gap-1.5">
-            <span className="text-[11px] font-semibold text-text-secondary tracking-tight">
-              Practice Volume
-            </span>
-            <div className="p-1.5 rounded-lg bg-easy/15 border border-easy/25 text-easy shrink-0">
-              <Zap className="w-3.5 h-3.5" />
-            </div>
-          </div>
-
-          {/* Core Metric: Big Number */}
-          <div className="my-1.5">
-            <div className="text-2xl font-black text-text tabular-nums tracking-tight leading-tight">
-              <AnimatedNumber value={totalAttempts} />
-              <span className="text-xs font-normal text-muted ml-1">sessions</span>
-            </div>
-          </div>
-
-          {/* Micro Telemetry Rail: Solve Rate Bar */}
-          <div className="space-y-1 pt-1 border-t border-line/40">
-            <div className="flex items-center justify-between text-[10px]">
-              <span className="text-muted">{solvedSessions} solved</span>
-              <span className="font-mono font-semibold text-easy">{solveRate}% acc</span>
-            </div>
-            <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden border border-line/40">
-              <div
-                className="h-full rounded-full bg-easy transition-all duration-700 ease-out"
-                style={{ width: `${Math.max(solveRate, totalAttempts > 0 ? 5 : 0)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Revision Queue Card (col-span-2 on mobile, col-span-1 on sm+) */}
-        <Link
-          to="/revision"
-          className="col-span-2 sm:col-span-1 panel p-3.5 sm:p-4 flex flex-col justify-between hover:border-accent/40 transition-all shadow-sm group cursor-pointer"
-        >
-          {/* Top Line: Label + Icon */}
-          <div className="flex items-center justify-between gap-1.5">
-            <span className="text-[11px] font-semibold text-text-secondary tracking-tight">
-              Revision Queue
-            </span>
-            <div className="p-1.5 rounded-lg bg-accent/15 border border-accent/25 text-accent shrink-0">
-              <RotateCcw className="w-3.5 h-3.5" />
-            </div>
-          </div>
-
-          {/* Core Metric: Big Number */}
-          <div className="my-1.5">
-            {isLoadingRevision ? (
-              <div className="h-7 w-16 shimmer rounded my-0.5" />
-            ) : (
-              <div className="text-2xl font-black text-accent tabular-nums tracking-tight leading-tight">
-                <AnimatedNumber value={revisionCount} />
-                <span className="text-xs font-normal text-muted ml-1">due</span>
+      {/* ── ZONE 2: Activity Momentum Tiles (Streak & Volume) ────────── */}
+      <div className="pt-3 border-t border-line/50 mt-auto">
+        <div className="grid grid-cols-2 gap-3">
+          
+          {/* Active Streak Tile */}
+          <div className="p-3 rounded-lg bg-surface-2/30 hover:bg-surface-2/60 border border-line/40 transition-colors flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[11px] font-semibold text-text-secondary">
+                Streak
+              </span>
+              <div className="p-1 rounded bg-accent/15 border border-accent/25 text-accent shrink-0">
+                <Flame className="w-3.5 h-3.5" />
               </div>
-            )}
+            </div>
+
+            <div className="my-1">
+              <div className="text-xl font-black text-text tabular-nums leading-tight">
+                <AnimatedNumber value={currentStreak} />
+                <span className="text-xs font-normal text-muted ml-1">days</span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[10px] text-muted">
+                <span>Best: {longestStreak}d</span>
+                <span className="font-mono text-accent font-semibold">{streakPct}%</span>
+              </div>
+              <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden border border-line/40">
+                <div
+                  className="h-full rounded-full bg-accent transition-all duration-700 ease-out"
+                  style={{ width: `${Math.max(streakPct, currentStreak > 0 ? 5 : 0)}%` }}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Micro Action Strip */}
-          <div className="pt-1 border-t border-line/40 flex items-center justify-between text-[10px]">
-            <span className="text-text-secondary group-hover:text-accent font-semibold transition-colors">
-              Review Backlog
-            </span>
-            <ArrowRight className="w-3.5 h-3.5 text-accent group-hover:translate-x-0.5 transition-transform" />
-          </div>
-        </Link>
+          {/* Practice Volume Tile */}
+          <div className="p-3 rounded-lg bg-surface-2/30 hover:bg-surface-2/60 border border-line/40 transition-colors flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[11px] font-semibold text-text-secondary">
+                Activity
+              </span>
+              <div className="p-1 rounded bg-easy/15 border border-easy/25 text-easy shrink-0">
+                <Zap className="w-3.5 h-3.5" />
+              </div>
+            </div>
 
+            <div className="my-1">
+              <div className="text-xl font-black text-text tabular-nums leading-tight">
+                <AnimatedNumber value={totalAttempts} />
+                <span className="text-xs font-normal text-muted ml-1">att.</span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-muted">{solvedSessions} solved</span>
+                <span className="font-mono font-semibold text-easy">{solveRate}%</span>
+              </div>
+              <div className="w-full h-1 rounded-full bg-surface-2 overflow-hidden border border-line/40">
+                <div
+                  className="h-full rounded-full bg-easy transition-all duration-700 ease-out"
+                  style={{ width: `${Math.max(solveRate, totalAttempts > 0 ? 5 : 0)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
     </div>
