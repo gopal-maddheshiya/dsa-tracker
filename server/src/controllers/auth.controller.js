@@ -152,7 +152,10 @@ const googleAuth = async (req, res, next) => {
     }
     let googleId, email, name, picture;
 
-    if (credential) {
+    // Check if credential is a valid 3-part JWT
+    const isJwt = credential && typeof credential === 'string' && credential.split('.').length === 3;
+
+    if (isJwt) {
       const client = new OAuth2Client(clientId);
       const ticket = await client.verifyIdToken({
         idToken: credential,
@@ -169,9 +172,11 @@ const googleAuth = async (req, res, next) => {
       email = payload.email;
       name = payload.name;
       picture = payload.picture;
-    } else if (accessToken) {
+    } else {
+      // Access token (or non-JWT token passed in credential/accessToken)
+      const tokenToUse = accessToken || credential;
       const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${tokenToUse}` },
       });
       if (!userInfoRes.ok) {
         return res.status(401).json({
