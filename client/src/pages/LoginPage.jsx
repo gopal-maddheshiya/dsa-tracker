@@ -91,7 +91,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-dvh flex bg-bg relative overflow-hidden">
       {/* ── Left: Interactive 3D Stage Panel ── */}
-      <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden flex-col justify-between p-8 xl:p-10 bg-surface border-r border-line z-10">
+      <div className="hidden lg:flex lg:w-[58%] relative overflow-hidden flex-col justify-between p-5 xl:p-8 bg-surface border-r border-line z-10">
         
         {/* Top Brand Header */}
         <div className="relative z-10 flex items-center justify-between">
@@ -104,12 +104,12 @@ const LoginPage = () => {
         </div>
 
         {/* Center 3D Stage */}
-        <div className="relative z-10 flex items-center justify-center my-auto py-4 w-full">
+        <div className="relative z-10 flex items-center justify-center my-auto w-full">
           <Rotating3DCube />
         </div>
 
         {/* Bottom Platform Ribbon */}
-        <div className="relative z-10 pt-4 border-t border-line flex items-center justify-between text-xs text-text-secondary">
+        <div className="relative z-10 pt-3 border-t border-line flex items-center justify-between text-xs text-text-secondary">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
             {['LeetCode', 'GeeksforGeeks', 'Codeforces', 'HackerRank', 'CodeChef', 'InterviewBit'].map((brand) => (
               <span
@@ -125,7 +125,7 @@ const LoginPage = () => {
       </div>
 
       {/* ── Right: Auth Panel ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-10 relative z-10 bg-bg">
+      <div className="flex-1 flex items-center justify-center px-6 py-4 relative z-10 bg-bg">
         <div className="w-full max-w-[408px] relative animate-fade-up">
 
           {/* Mobile brand (hidden on lg) */}
@@ -134,9 +134,9 @@ const LoginPage = () => {
           </div>
 
           {/* Flat Auth Card */}
-          <div className="relative p-7 sm:p-8 rounded-xl bg-surface border border-line shadow-modal overflow-hidden">
+          <div className="relative p-6 sm:p-7 rounded-xl bg-surface border border-line shadow-modal overflow-hidden">
             {/* Header */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-5">
               <h1 className="text-2xl font-semibold text-text tracking-tight">
                 Welcome back
               </h1>
@@ -146,7 +146,7 @@ const LoginPage = () => {
             </div>
 
             {apiError && (
-              <div className="mb-4 flex items-start gap-2.5 p-3 rounded-lg bg-danger/10 border border-danger/25">
+              <div className="mb-3.5 flex items-start gap-2.5 p-3 rounded-lg bg-danger/10 border border-danger/25">
                 <span className="w-1.5 h-1.5 rounded-full bg-danger mt-1 shrink-0" />
                 <p className="text-xs text-danger leading-tight">{apiError}</p>
               </div>
@@ -161,7 +161,7 @@ const LoginPage = () => {
             />
 
             {/* Hairline Divider */}
-            <div className="relative my-5 text-center">
+            <div className="relative my-4 text-center">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-line" />
               </div>
@@ -171,7 +171,7 @@ const LoginPage = () => {
             </div>
 
             {/* Email & Password Form */}
-            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
               <div>
                 <label htmlFor="email" className="block text-xs font-medium text-text-secondary mb-1.5">
                   Email address

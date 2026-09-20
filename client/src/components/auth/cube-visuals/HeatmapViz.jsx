@@ -1,16 +1,9 @@
 import React from 'react';
-import { Flame } from 'lucide-react';
-import { accent, easy, line, surface2 } from '../../../theme/colors';
+import { accent, easy, line, surface2, textSecondary } from '../../../theme/colors';
 
 const WEEKS = 20;
 const DAYS = 7;
 
-// Color scale matching PracticeHeatmap.jsx:
-// count === 0: bg-surface-2 border-line
-// count === 1: bg-easy/25 border-easy/35
-// count <= 2: bg-easy/45 border-easy/55
-// count <= 4: bg-easy/70 border-easy/80
-// count > 4: bg-easy border-easy text-bg
 const COLOR_LEVELS = [
   { fill: surface2, stroke: line },
   { fill: 'rgba(0, 184, 163, 0.25)', stroke: 'rgba(0, 184, 163, 0.35)' },
@@ -19,7 +12,6 @@ const COLOR_LEVELS = [
   { fill: easy, stroke: easy },
 ];
 
-// Seeded PRNG for deterministic 140 cells (no Math.random during render)
 const GRID_CELLS = (() => {
   let s = 987654321;
   const nextRand = () => {
@@ -38,7 +30,6 @@ const GRID_CELLS = (() => {
       else if (r > 0.50) level = 2;
       else if (r > 0.26) level = 1;
 
-      // Higher density in the most recent 4 weeks to reflect active consistency
       if (col >= 15 && level === 0 && nextRand() > 0.35) {
         level = 2;
       }
@@ -46,36 +37,43 @@ const GRID_CELLS = (() => {
     }
     cols.push(days);
   }
-  // Ensure the latest cell (today) is active
   cols[WEEKS - 1][DAYS - 1] = 3;
   return cols;
 })();
 
-const HeatmapViz = ({ active, reducedMotion }) => {
-  // SVG Geometry: 20 cols x 7 rows
-  const cellSize = 6.2;
+const HeatmapViz = ({ active, settled, reducedMotion }) => {
+  const cellSize = 7.5;
   const cellGap = 2.4;
-  const startX = 14;
-  const startY = 13;
+  const startX = 6;
+  const startY = 10;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between select-none">
-      {/* 1. Header Row */}
-      <div className="flex items-center justify-between border-b border-line pb-1 sm:pb-1.5 shrink-0">
-        <span className="text-[10px] sm:text-[11px] font-bold tracking-wider uppercase flex items-center gap-1 sm:gap-1.5 text-accent whitespace-nowrap shrink-0">
-          <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-easy" />
-          PRACTICE CADENCE
+    <div className="w-full h-full flex flex-col justify-between select-none py-1 min-h-0" style={{ transformStyle: 'preserve-3d' }}>
+      {/* 1. Elevated 3D Streak Pill */}
+      <div
+        className="flex items-center justify-between px-2 py-1 mb-1 rounded-lg bg-surface-2/95 border border-line text-[11px] font-mono shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(34px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          boxShadow: settled && !reducedMotion ? '0 12px 20px -2px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 350ms ease-out',
+        }}
+      >
+        <span className="flex items-center gap-1.5 text-easy font-bold">
+          <span className="w-1.5 h-1.5 rounded-full bg-easy" />
+          <span>Active Streak</span>
         </span>
-        <span className="text-[9px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-2 text-text-secondary border border-line whitespace-nowrap shrink-0">
-          140 DAYS
+        <span className="font-bold text-text px-1.5 py-0.5 rounded bg-surface border border-line">
+          14 Days
         </span>
       </div>
 
-      {/* 2. Main Visualization Area (>= 60% of face) */}
-      <div className="flex-1 flex flex-col justify-center py-1 min-h-0">
+      {/* 2. SVG Grid Visualization */}
+      <div className="flex-1 w-full flex items-center justify-center min-h-0">
         <svg
-          viewBox="0 0 200 85"
-          className="w-full h-auto max-h-[90px] overflow-visible"
+          viewBox="0 0 210 85"
+          className="w-full h-full max-h-[95px] overflow-visible"
+          preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
           {GRID_CELLS.map((colDays, colIdx) => {
@@ -86,7 +84,7 @@ const HeatmapViz = ({ active, reducedMotion }) => {
                 style={{
                   animation:
                     active && !reducedMotion
-                      ? `heatmapColFadeIn 320ms cubic-bezier(0.16, 1, 0.3, 1) ${colIdx * 55}ms both`
+                      ? `heatmapColFadeIn 320ms cubic-bezier(0.16, 1, 0.3, 1) ${colIdx * 40}ms both`
                       : 'none',
                 }}
               >
@@ -102,10 +100,10 @@ const HeatmapViz = ({ active, reducedMotion }) => {
                       y={y}
                       width={cellSize}
                       height={cellSize}
-                      rx={1.2}
+                      rx={1.5}
                       fill={styling.fill}
                       stroke={isToday ? accent : styling.stroke}
-                      strokeWidth={isToday ? 1.2 : 0.6}
+                      strokeWidth={isToday ? 1.4 : 0.7}
                       className="transition-colors duration-150"
                     />
                   );
@@ -116,31 +114,28 @@ const HeatmapViz = ({ active, reducedMotion }) => {
         </svg>
       </div>
 
-      {/* 3. One-line Caption */}
-      <p className="text-[10px] text-text-secondary text-center truncate pt-1 border-t border-line/60">
-        140-day practice window · sample
-      </p>
-
-      {/* 4. Small Verdict / Status Chip at Bottom */}
-      <div className="mt-1 flex items-center justify-center">
-        <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-medium bg-easy/12 text-easy border border-easy/25 flex items-center gap-1 font-mono">
-          <span className="w-1.5 h-1.5 rounded-full bg-easy" />
-          Streak view
-        </span>
+      {/* 3. Legend Row */}
+      <div
+        className="w-full flex items-center justify-between px-2 pt-1 border-t border-line/50 text-[11px] font-mono text-text-secondary shrink-0"
+        style={{
+          transform: settled && !reducedMotion ? 'translateZ(20px)' : 'translateZ(0px)',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}
+      >
+        <span>Cadence</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-muted">Less</span>
+          {COLOR_LEVELS.map((c, i) => (
+            <span
+              key={i}
+              className="w-2.5 h-2.5 rounded-xs shrink-0"
+              style={{ backgroundColor: c.fill, border: `1px solid ${c.stroke}` }}
+            />
+          ))}
+          <span className="text-[10px] text-muted">More</span>
+        </div>
       </div>
-
-      <style>{`
-        @keyframes heatmapColFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(3px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 };

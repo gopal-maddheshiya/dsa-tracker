@@ -1,157 +1,183 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Flame, Cpu, Terminal, Sparkles } from 'lucide-react';
+import {
+  Code2,
+  CalendarClock,
+  Radar,
+  PieChart,
+  Flame,
+  Sparkles,
+} from 'lucide-react';
 import { colors } from '../../theme/colors';
 import SlidingWindowViz from './cube-visuals/SlidingWindowViz';
 import RevisionLadderViz from './cube-visuals/RevisionLadderViz';
 import TopicRadarViz from './cube-visuals/TopicRadarViz';
 import HeatmapViz from './cube-visuals/HeatmapViz';
+import DifficultySplitViz from './cube-visuals/DifficultySplitViz';
+import NextUpViz from './cube-visuals/NextUpViz';
+import CubeSatellites from './CubeSatellites';
 
 /**
- * Clean Stage Metadata for the 4 Cube Stages.
- * Synchronized with the 4 live face visualizations.
+ * 6 Stage Metadata for the 6 Cube Faces.
+ * Synchronized with the 6 live face visualizations.
  */
 const CUBE_STAGES = [
   {
     id: 0,
     stageLabel: 'Solves',
+    title: 'Sliding Window Pattern',
+    description: 'Maintains running subarray state across linear sequences with dual pointers to avoid redundant passes.',
     accentColor: colors.easy,
-    terminal: {
-      tag: 'RUNTIME BOUND',
-      pill: 'O(N) Time',
-      message: 'Sliding window maintains maximum sum across size-3 subarray in a single pass.',
-      subLeft: 'Window Size',
-      subRight: 'k = 3',
-      subRightDot: 'bg-easy text-easy',
-    },
-    insight: {
-      tag: 'ALGORITHM PATTERN',
-      pill: 'Two Pointers',
-      title: 'Sliding Window Technique',
-      sub: 'Reuses previous subarray sum by adding right and removing left',
-      footerLeft: 'Time Complexity',
-      footerRight: 'O(N) Runtime',
-      tagColor: 'text-easy',
-    },
+    icon: Code2,
   },
   {
     id: 1,
     stageLabel: 'Spaced',
+    title: 'Adaptive Revision Ladder',
+    description: 'Schedules 2-day recall for struggled problems and dynamically scales intervals up to 14 days upon mastery.',
     accentColor: colors.accent,
-    terminal: {
-      tag: 'SPACED RECALL',
-      pill: '2d / 5d / 14d',
-      message: 'Adaptive intervals: 2-day recall for struggled, 5-day for review, 14-day for solved.',
-      subLeft: 'Schedule Rule',
-      subRight: 'Active Intervals',
-      subRightDot: 'bg-accent text-accent',
-    },
-    insight: {
-      tag: 'REVISION LADDER',
-      pill: 'Due Engine',
-      title: 'Outcome-Based Scheduling',
-      sub: 'Next review date dynamically scales based on attempt performance',
-      footerLeft: 'Interval Tiers',
-      footerRight: '2d · 5d · 14d',
-      tagColor: 'text-accent',
-    },
+    icon: CalendarClock,
   },
   {
     id: 2,
     stageLabel: 'Topics',
+    title: 'Topic Struggle Radar',
+    description: 'Surfaces highest friction categories across data structures so practice stays focused on high-yield gaps.',
     accentColor: colors.medium,
-    terminal: {
-      tag: 'TOPIC RADAR',
-      pill: 'Radar Scan',
-      message: 'Topic analysis ranks categories by struggle ratio to target high-priority revision.',
-      subLeft: 'Focus Priority',
-      subRight: 'Dynamic Prog',
-      subRightDot: 'bg-danger text-danger',
-    },
-    insight: {
-      tag: 'TOPIC MATRIX',
-      pill: 'Multi-Axis',
-      title: '6-Axis Struggle Ratio',
-      sub: 'Surfaces highest friction topics so you spend practice time effectively',
-      footerLeft: 'Weakest Category',
-      footerRight: 'DP (0.80)',
-      tagColor: 'text-medium',
-    },
+    icon: Radar,
   },
   {
     id: 3,
     stageLabel: 'Velocity',
+    title: 'Practice Cadence Heatmap',
+    description: 'Tracks daily problem-solving consistency across 20 weeks to build durable pattern recognition habits.',
     accentColor: colors.easy,
-    terminal: {
-      tag: 'PRACTICE CADENCE',
-      pill: '140 Days',
-      message: 'Heatmap visualization tracks 20 weeks of practice consistency across daily sessions.',
-      subLeft: 'Cadence Window',
-      subRight: '20 Weeks',
-      subRightDot: 'bg-easy text-easy',
-    },
-    insight: {
-      tag: 'ACTIVITY LOG',
-      pill: 'Consistency',
-      title: 'Daily Engineering Cadence',
-      sub: 'Persistent daily problem solving builds durable pattern recognition',
-      footerLeft: 'Cadence View',
-      footerRight: 'Active Streak',
-      tagColor: 'text-easy',
-    },
+    icon: Flame,
+  },
+  {
+    id: 4,
+    stageLabel: 'Levels',
+    title: 'Curated Difficulty Curve',
+    description: 'Maintains a balanced split of Easy, Medium, and Hard challenges to prevent premature plateauing.',
+    accentColor: colors.medium,
+    icon: PieChart,
+  },
+  {
+    id: 5,
+    stageLabel: 'Next up',
+    title: 'Dynamic Practice Queue',
+    description: 'Prioritizes scheduled reviews, weak spots, and fresh patterns based on cadence and decay signals.',
+    accentColor: colors.accent,
+    icon: Sparkles,
   },
 ];
 
-/**
- * Isolated memoized typewriter component to prevent full-tree re-renders every 18ms.
- */
-const TypewriterText = React.memo(({ text, reducedMotion }) => {
-  const [displayed, setDisplayed] = useState(reducedMotion ? text : '');
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setDisplayed(text);
-      return;
-    }
-
-    setDisplayed('');
-    let idx = 0;
-    const timer = setInterval(() => {
-      if (idx < text.length) {
-        setDisplayed(text.slice(0, idx + 1));
-        idx++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 18);
-
-    return () => clearInterval(timer);
-  }, [text, reducedMotion]);
-
-  return (
-    <span>
-      {displayed}
-      {!reducedMotion && (
-        <span className="inline-block w-1 h-3 bg-accent ml-0.5 animate-pulse shrink-0 align-middle" />
-      )}
-    </span>
-  );
-});
-TypewriterText.displayName = 'TypewriterText';
+export const DWELL_TIME_MS = 1100;
+export const MOVE_DURATION_MS = 450;
 
 /**
- * Helper to compute the shortest rotation delta (-1, +1, or +2)
+ * Tour sequences:
+ * Forward: 0 (Solves) -> 1 (Spaced) -> 2 (Topics) -> 4 (Levels) -> 3 (Velocity) -> 5 (Next up) -> 0
+ * Reverse: 0 -> 5 -> 3 -> 4 -> 2 -> 1 -> 0
  */
-const getShortestDelta = (target, current) => {
-  let delta = ((target - current + 6) % 4) - 2;
-  if (delta === -2) delta = 2;
-  return delta;
+export const TOUR_FORWARD = [0, 1, 2, 4, 3, 5];
+export const TOUR_REVERSE = [0, 5, 3, 4, 2, 1];
+export const TOUR_SEQUENCE = TOUR_FORWARD;
+
+/**
+ * 6 Canonical Upright Poses represented as Unit Quaternions [x, y, z, w].
+ */
+const SQRT1_2 = Math.SQRT1_2; // ~0.70710678
+
+export const CANONICAL_POSES = [
+  { x: 0, y: 0, z: 0, w: 1 },
+  { x: 0, y: -SQRT1_2, z: 0, w: SQRT1_2 },
+  { x: 0, y: -1, z: 0, w: 0 },
+  { x: 0, y: SQRT1_2, z: 0, w: SQRT1_2 },
+  { x: SQRT1_2, y: 0, z: 0, w: SQRT1_2 },
+  { x: -SQRT1_2, y: 0, z: 0, w: SQRT1_2 },
+];
+
+const ENTRANCE_START_QUAT = {
+  x: 0.1826,
+  y: -0.3473,
+  z: 0.0696,
+  w: 0.9172,
 };
 
+/**
+ * Convert unit quaternion {x, y, z, w} to standard CSS 3D 4x4 matrix3d string.
+ */
+export function quatToMatrix3d(q) {
+  const { x, y, z, w } = q;
+  const m11 = 1 - 2 * (y * y + z * z);
+  const m12 = 2 * (x * y + z * w);
+  const m13 = 2 * (x * z - y * w);
+  const m21 = 2 * (x * y - z * w);
+  const m22 = 1 - 2 * (x * x + z * z);
+  const m23 = 2 * (y * z + x * w);
+  const m31 = 2 * (x * z + y * w);
+  const m32 = 2 * (y * z - x * w);
+  const m33 = 1 - 2 * (x * x + y * y);
+
+  return `matrix3d(${m11.toFixed(6)}, ${m12.toFixed(6)}, ${m13.toFixed(6)}, 0, ${m21.toFixed(6)}, ${m22.toFixed(6)}, ${m23.toFixed(6)}, 0, ${m31.toFixed(6)}, ${m32.toFixed(6)}, ${m33.toFixed(6)}, 0, 0, 0, 0, 1)`;
+}
+
+/**
+ * Spherical linear interpolation between two unit quaternions with shortest arc check.
+ */
+export function slerpQuat(qA, qB, t) {
+  let dot = qA.x * qB.x + qA.y * qB.y + qA.z * qB.z + qA.w * qB.w;
+  let bx = qB.x;
+  let by = qB.y;
+  let bz = qB.z;
+  let bw = qB.w;
+
+  if (dot < 0) {
+    dot = -dot;
+    bx = -bx;
+    by = -by;
+    bz = -bz;
+    bw = -bw;
+  }
+
+  if (dot > 0.9995) {
+    const rx = qA.x + t * (bx - qA.x);
+    const ry = qA.y + t * (by - qA.y);
+    const rz = qA.z + t * (bz - qA.z);
+    const rw = qA.w + t * (bw - qA.w);
+    const len = Math.hypot(rx, ry, rz, rw) || 1;
+    return { x: rx / len, y: ry / len, z: rz / len, w: rw / len };
+  }
+
+  const theta0 = Math.acos(Math.max(-1, Math.min(1, dot)));
+  const theta = theta0 * t;
+  const sinTheta0 = Math.sin(theta0);
+  const sinTheta = Math.sin(theta);
+
+  const s1 = Math.cos(theta) - (dot * sinTheta) / sinTheta0;
+  const s2 = sinTheta / sinTheta0;
+
+  return {
+    x: s1 * qA.x + s2 * bx,
+    y: s1 * qA.y + s2 * by,
+    z: s1 * qA.z + s2 * bz,
+    w: s1 * qA.w + s2 * bw,
+  };
+}
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+let hasCompletedEntranceOnce = false;
+
 const Rotating3DCube = () => {
-  const [step, setStep] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const [activeStage, setActiveStage] = useState(0);
+  const [isStageHovered, setIsStageHovered] = useState(false);
   const [isDocHidden, setIsDocHidden] = useState(false);
+  const [isOffscreen, setIsOffscreen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Accessible reduced motion detection
   const [reducedMotion, setReducedMotion] = useState(() => {
@@ -159,15 +185,110 @@ const Rotating3DCube = () => {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 
+  // User pause control (accessibility button; starts paused with reduced motion)
+  const [isUserPaused, setIsUserPaused] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  // Discrete in-flight active face for drag/scrub
+  const [dragActiveStage, setDragActiveStage] = useState(null);
+
+  // Key to restart 2px progress bar fill animation
+  const [progressKey, setProgressKey] = useState(0);
+
+  // Entrance animation state
+  const [entrancePhase, setEntrancePhase] = useState(() => {
+    if (typeof window === 'undefined') return 'settled';
+    return hasCompletedEntranceOnce ? 'settled' : 'starting';
+  });
+
+  // Current tour lap direction: 'forward' or 'reverse'
+  const tourDirectionRef = useRef('forward');
+
+  // Fine pointer / hover capability detection
+  const [canHover, setCanHover] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  });
+
+  // Touch device detection
+  const [isTouchDevice, setIsTouchDevice] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+  });
+
+  const stageRef = useRef(null);
+  const parallaxRef = useRef(null);
+  const cubeRef = useRef(null);
+
+  // Current cube orientation quaternion
+  const currentQuatRef = useRef(
+    hasCompletedEntranceOnce || reducedMotion ? CANONICAL_POSES[0] : ENTRANCE_START_QUAT
+  );
+
+  // Animation engine state ref
+  const animEngineRef = useRef({
+    rafId: null,
+    startQuat: CANONICAL_POSES[0],
+    targetQuat: CANONICAL_POSES[0],
+    startTime: 0,
+    duration: MOVE_DURATION_MS,
+    targetStage: 0,
+  });
+
+  const parallaxRafRef = useRef(null);
+  const autoAdvanceTimerRef = useRef(null);
+  const entranceRafRef = useRef(null);
+
+  // Pointer drag tracking ref
+  const dragInfoRef = useRef({
+    isDown: false,
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    cubeWidth: 240,
+    history: [],
+    scrubCurrentStage: 0,
+    scrubNextStage: 1,
+    scrubPrevStage: 5,
+    scrubTargetStage: 0,
+    scrubProgress: 0,
+    downTargetStage: null,
+    rafId: null,
+  });
+
+  // ── Master Component Unmount Cleanup ──
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = (e) => setReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    return () => {
+      if (animEngineRef.current?.rafId) cancelAnimationFrame(animEngineRef.current.rafId);
+      if (dragInfoRef.current?.rafId) cancelAnimationFrame(dragInfoRef.current.rafId);
+      if (parallaxRafRef.current) cancelAnimationFrame(parallaxRafRef.current);
+      if (entranceRafRef.current) cancelAnimationFrame(entranceRafRef.current);
+      if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    };
   }, []);
 
-  // Listen to document visibility changes to pause/resume auto-rotation
+  // ── Media Queries & Visibility Listeners ──
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mediaQueryMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleMotionChange = (e) => {
+      setReducedMotion(e.matches);
+      if (e.matches) setIsUserPaused(true);
+    };
+    mediaQueryMotion.addEventListener('change', handleMotionChange);
+
+    const mediaQueryHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const handleHoverChange = (e) => setCanHover(e.matches);
+    mediaQueryHover.addEventListener('change', handleHoverChange);
+
+    return () => {
+      mediaQueryMotion.removeEventListener('change', handleMotionChange);
+      mediaQueryHover.removeEventListener('change', handleHoverChange);
+    };
+  }, []);
+
   useEffect(() => {
     const handleVisibility = () => {
       setIsDocHidden(document.hidden);
@@ -176,240 +297,780 @@ const Rotating3DCube = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
-  const activeStage = ((step % 4) + 4) % 4;
-
-  // Rotation callback using shortest path
-  const rotateToStage = useCallback((targetStage) => {
-    const current = ((step % 4) + 4) % 4;
-    if (targetStage === current) return;
-    const delta = getShortestDelta(targetStage, current);
-    setStep((prev) => prev + delta);
-  }, [step]);
-
-  // Auto-advance every ~5800ms unless paused by hover, focus, tab hidden or reduced motion
+  // IntersectionObserver to pause auto-advance when offscreen (threshold ~0.15)
   useEffect(() => {
-    if (reducedMotion || isHovered || isFocused || isDocHidden) {
+    if (!stageRef.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsOffscreen(!entry.isIntersecting);
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(stageRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // ── ResizeObserver for Fixed 240x240 Canvas Scaling: --k = sizePx / 240 ──
+  useEffect(() => {
+    if (!cubeRef.current || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        if (width > 0) {
+          const k = width / 240;
+          if (cubeRef.current) {
+            cubeRef.current.style.setProperty('--k', k.toFixed(4));
+          }
+          if (parallaxRef.current) {
+            parallaxRef.current.style.setProperty('--k', k.toFixed(4));
+          }
+        }
+      }
+    });
+    observer.observe(cubeRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // ── Orientation Engine: Slerp to Target Stage with Scale Dip (500ms) ──
+  const rotateToStage = useCallback((targetStage, customDuration = MOVE_DURATION_MS, trigger = 'auto') => {
+    if (typeof window !== 'undefined') {
+      window.__cubeMoves = window.__cubeMoves || [];
+      window.__cubeMoves.push({
+        timestamp: Date.now(),
+        from: activeStage,
+        to: targetStage,
+        trigger,
+      });
+    }
+
+    if (animEngineRef.current.rafId) {
+      cancelAnimationFrame(animEngineRef.current.rafId);
+      animEngineRef.current.rafId = null;
+    }
+
+    if (entranceRafRef.current) {
+      cancelAnimationFrame(entranceRafRef.current);
+      entranceRafRef.current = null;
+      setEntrancePhase('settled');
+    }
+
+    const startQuat = currentQuatRef.current;
+    const targetQuat = CANONICAL_POSES[targetStage];
+
+    // Reduced motion or 0ms duration: instant arrival
+    if (reducedMotion || customDuration <= 0) {
+      currentQuatRef.current = targetQuat;
+      if (cubeRef.current) {
+        cubeRef.current.style.transform = quatToMatrix3d(targetQuat);
+      }
+      setActiveStage(targetStage);
+      setDragActiveStage(null);
+      setIsAnimating(false);
+      setProgressKey((k) => k + 1);
       return;
     }
 
-    const timer = setInterval(() => {
-      setStep((prev) => prev + 1);
-    }, 5800);
+    setIsAnimating(true);
+    const startTime = performance.now();
+    let hasCrossedHalf = false;
 
-    return () => clearInterval(timer);
-  }, [step, reducedMotion, isHovered, isFocused, isDocHidden]);
+    animEngineRef.current = {
+      rafId: null,
+      startQuat,
+      targetQuat,
+      startTime,
+      duration: customDuration,
+      targetStage,
+    };
 
-  const stage = CUBE_STAGES[activeStage];
+    const tick = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / customDuration);
+      const easedT = easeInOutCubic(progress);
+
+      const q = slerpQuat(startQuat, targetQuat, easedT);
+      currentQuatRef.current = q;
+
+      // Scale dip at mid-move (scale = 1 - 0.06 * sin(pi * progress))
+      const scaleDip = 1 - 0.06 * Math.sin(Math.PI * progress);
+
+      if (cubeRef.current) {
+        cubeRef.current.style.transform = `${quatToMatrix3d(q)} scale3d(${scaleDip.toFixed(4)}, ${scaleDip.toFixed(4)}, ${scaleDip.toFixed(4)})`;
+      }
+
+      // Discrete active stage updates when animation crosses 50%
+      if (!hasCrossedHalf && progress >= 0.5) {
+        hasCrossedHalf = true;
+        setActiveStage(targetStage);
+        setDragActiveStage(null);
+      }
+
+      if (progress < 1) {
+        animEngineRef.current.rafId = requestAnimationFrame(tick);
+      } else {
+        currentQuatRef.current = targetQuat;
+        if (cubeRef.current) {
+          cubeRef.current.style.transform = quatToMatrix3d(targetQuat);
+        }
+        setActiveStage(targetStage);
+        setDragActiveStage(null);
+        setIsAnimating(false);
+        setProgressKey((k) => k + 1);
+        animEngineRef.current.rafId = null;
+      }
+    };
+
+    animEngineRef.current.rafId = requestAnimationFrame(tick);
+  }, [activeStage, reducedMotion]);
+
+  // Entrance Animation on First Mount
+  useEffect(() => {
+    if (hasCompletedEntranceOnce || reducedMotion) {
+      setEntrancePhase('settled');
+      return;
+    }
+
+    hasCompletedEntranceOnce = true;
+    setEntrancePhase('entering');
+
+    const startTime = performance.now();
+    const duration = 1100;
+    const startQuat = ENTRANCE_START_QUAT;
+    const targetQuat = CANONICAL_POSES[0];
+
+    const entranceTick = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      const easedT = easeInOutCubic(progress);
+
+      const q = slerpQuat(startQuat, targetQuat, easedT);
+      currentQuatRef.current = q;
+
+      const entranceScale = 0.92 + 0.08 * easedT;
+
+      if (cubeRef.current) {
+        cubeRef.current.style.transform = `${quatToMatrix3d(q)} scale3d(${entranceScale.toFixed(4)}, ${entranceScale.toFixed(4)}, ${entranceScale.toFixed(4)})`;
+      }
+
+      if (progress < 1) {
+        entranceRafRef.current = requestAnimationFrame(entranceTick);
+      } else {
+        entranceRafRef.current = null;
+        currentQuatRef.current = targetQuat;
+        if (cubeRef.current) {
+          cubeRef.current.style.transform = quatToMatrix3d(targetQuat);
+        }
+        setEntrancePhase('settled');
+      }
+    };
+
+    entranceRafRef.current = requestAnimationFrame(entranceTick);
+    return () => {
+      if (entranceRafRef.current) {
+        cancelAnimationFrame(entranceRafRef.current);
+        entranceRafRef.current = null;
+      }
+    };
+  }, [reducedMotion]);
+
+  // Hard STOP conditions for Auto-Advance
+  const isHardPaused =
+    isUserPaused ||
+    isDocHidden ||
+    isOffscreen ||
+    isDragging ||
+    reducedMotion ||
+    entrancePhase !== 'settled';
+
+  // ── Auto-Advance Tour Engine with Alternating Direction ──
+  // Dwell 1200ms + Move 500ms
+  const advanceTour = useCallback(() => {
+    const isForward = tourDirectionRef.current === 'forward';
+    const seq = isForward ? TOUR_FORWARD : TOUR_REVERSE;
+    const currentIdx = seq.indexOf(activeStage);
+    const nextIdx = (currentIdx + 1) % seq.length;
+    const nextStage = seq[nextIdx];
+
+    // If lap completed, switch direction for next lap
+    if (nextIdx === 0) {
+      tourDirectionRef.current = isForward ? 'reverse' : 'forward';
+    }
+
+    rotateToStage(nextStage, MOVE_DURATION_MS, 'auto');
+  }, [activeStage, rotateToStage]);
+
+  // Soft Delay Function: Resets dwell timer to 1800ms grace period on user interactions
+  const delayTour = useCallback((graceMs = 1800) => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+    setProgressKey((k) => k + 1);
+
+    if (isHardPaused) return;
+
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      advanceTour();
+    }, graceMs);
+  }, [advanceTour, isHardPaused]);
+
+  // Standard Auto-Advance Timer Effect
+  useEffect(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+
+    if (isHardPaused || isAnimating) {
+      return;
+    }
+
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      advanceTour();
+    }, DWELL_TIME_MS);
+
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+    };
+  }, [activeStage, isHardPaused, isAnimating, advanceTour]);
+
+  // Expose test hooks on window for automated verification
+  useEffect(() => {
+    window.__setCubeStage = (st) => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+      rotateToStage(st, 0, 'test');
+    };
+    window.__rotateToStageSmooth = (st) => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+      rotateToStage(st, MOVE_DURATION_MS, 'test-smooth');
+    };
+    window.__pauseTour = () => {
+      setIsUserPaused(true);
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+    };
+    window.__resumeTour = () => {
+      setIsUserPaused(false);
+    };
+    window.__cubeState = {
+      activeStage,
+      isAnimating,
+      isDragging,
+    };
+  }, [activeStage, isAnimating, isDragging, rotateToStage]);
+
+  // ── Mouse Parallax Handlers (Fine pointers only, rAF-driven) ──
+  const handleParallaxMove = useCallback((e) => {
+    if (!stageRef.current || !parallaxRef.current) return;
+    const rect = stageRef.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const nx = (e.clientX - cx) / (rect.width / 2);
+    const ny = (e.clientY - cy) / (rect.height / 2);
+
+    const clampedX = Math.max(-1, Math.min(1, nx));
+    const clampedY = Math.max(-1, Math.min(1, ny));
+
+    const targetRotY = clampedX * 6; // +/- 6 deg on Y
+    const targetRotX = -clampedY * 4; // +/- 4 deg on X
+
+    if (parallaxRafRef.current) cancelAnimationFrame(parallaxRafRef.current);
+    parallaxRafRef.current = requestAnimationFrame(() => {
+      if (parallaxRef.current) {
+        parallaxRef.current.style.setProperty('--px', `${targetRotX.toFixed(2)}deg`);
+        parallaxRef.current.style.setProperty('--py', `${targetRotY.toFixed(2)}deg`);
+      }
+      parallaxRafRef.current = null;
+    });
+  }, []);
+
+  const resetParallax = useCallback(() => {
+    if (parallaxRafRef.current) {
+      cancelAnimationFrame(parallaxRafRef.current);
+      parallaxRafRef.current = null;
+    }
+    if (parallaxRef.current) {
+      parallaxRef.current.style.setProperty('--px', '0deg');
+      parallaxRef.current.style.setProperty('--py', '0deg');
+    }
+  }, []);
+
+  // ── Scrub-Drag Tracking & Tap Detection ──
+  const handlePointerDown = (e) => {
+    if (isAnimating) return;
+    const cubeWidth = cubeRef.current ? cubeRef.current.getBoundingClientRect().width : 240;
+
+    const clickedStageEl = e.target.closest('[data-stage]');
+    const downTargetStage = clickedStageEl
+      ? parseInt(clickedStageEl.getAttribute('data-stage'), 10)
+      : null;
+
+    const currentSeq = tourDirectionRef.current === 'forward' ? TOUR_FORWARD : TOUR_REVERSE;
+    const curIdx = currentSeq.indexOf(activeStage);
+    const nextIdx = (curIdx + 1) % currentSeq.length;
+    const prevIdx = (curIdx - 1 + currentSeq.length) % currentSeq.length;
+
+    dragInfoRef.current = {
+      isDown: true,
+      isDragging: false,
+      startX: e.clientX,
+      startY: e.clientY,
+      cubeWidth,
+      history: [{ x: e.clientX, y: e.clientY, time: performance.now() }],
+      scrubCurrentStage: activeStage,
+      scrubNextStage: currentSeq[nextIdx],
+      scrubPrevStage: currentSeq[prevIdx],
+      scrubTargetStage: activeStage,
+      scrubProgress: 0,
+      downTargetStage,
+      rafId: null,
+    };
+
+    if (e.currentTarget.setPointerCapture) {
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (canHover && !dragInfoRef.current.isDown) {
+      handleParallaxMove(e);
+      delayTour(4000);
+    }
+
+    if (!dragInfoRef.current.isDown) return;
+
+    const dx = e.clientX - dragInfoRef.current.startX;
+    const dy = e.clientY - dragInfoRef.current.startY;
+    const dist = Math.hypot(dx, dy);
+
+    if (!dragInfoRef.current.isDragging && dist > 5) {
+      dragInfoRef.current.isDragging = true;
+      setIsDragging(true);
+      delayTour(4000);
+    }
+
+    if (!dragInfoRef.current.isDragging) return;
+
+    const now = performance.now();
+    dragInfoRef.current.history.push({ x: e.clientX, y: e.clientY, time: now });
+    if (dragInfoRef.current.history.length > 6) {
+      dragInfoRef.current.history.shift();
+    }
+
+    const { cubeWidth, scrubCurrentStage, scrubNextStage, scrubPrevStage } = dragInfoRef.current;
+    const rawProgress = -dx / cubeWidth;
+    const clampedProgress = Math.max(-1, Math.min(1, rawProgress));
+
+    const targetStage = clampedProgress >= 0 ? scrubNextStage : scrubPrevStage;
+    const t = Math.abs(clampedProgress);
+
+    dragInfoRef.current.scrubTargetStage = targetStage;
+    dragInfoRef.current.scrubProgress = clampedProgress;
+
+    const startQuat = CANONICAL_POSES[scrubCurrentStage];
+    const destQuat = CANONICAL_POSES[targetStage];
+
+    if (dragInfoRef.current.rafId) cancelAnimationFrame(dragInfoRef.current.rafId);
+    dragInfoRef.current.rafId = requestAnimationFrame(() => {
+      const q = slerpQuat(startQuat, destQuat, t);
+      currentQuatRef.current = q;
+      if (cubeRef.current) {
+        cubeRef.current.style.transform = quatToMatrix3d(q);
+      }
+      if (t >= 0.5) {
+        setDragActiveStage(targetStage);
+      } else {
+        setDragActiveStage(scrubCurrentStage);
+      }
+      dragInfoRef.current.rafId = null;
+    });
+  };
+
+  const handlePointerUp = (e) => {
+    if (!dragInfoRef.current.isDown) return;
+    const wasDragging = dragInfoRef.current.isDragging;
+    const { scrubTargetStage, scrubCurrentStage, scrubProgress, downTargetStage } = dragInfoRef.current;
+
+    dragInfoRef.current.isDown = false;
+    dragInfoRef.current.isDragging = false;
+    setIsDragging(false);
+
+    if (dragInfoRef.current.rafId) {
+      cancelAnimationFrame(dragInfoRef.current.rafId);
+      dragInfoRef.current.rafId = null;
+    }
+
+    if (e.currentTarget.releasePointerCapture && e.pointerId !== undefined) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+
+    // Tap on visible non-active face sliver: rotate directly to that face
+    if (!wasDragging && downTargetStage !== null && downTargetStage !== activeStage) {
+      delayTour(2500);
+      rotateToStage(downTargetStage, MOVE_DURATION_MS, 'tap');
+      return;
+    }
+
+    // Drag release resolution
+    if (wasDragging) {
+      delayTour(2500);
+      const history = dragInfoRef.current.history;
+      let flickVelocity = 0;
+      if (history.length >= 2) {
+        const first = history[0];
+        const last = history[history.length - 1];
+        const dt = last.time - first.time;
+        if (dt > 10) {
+          flickVelocity = -(last.x - first.x) / dt;
+        }
+      }
+
+      const shouldCommit = Math.abs(scrubProgress) > 0.35 || Math.abs(flickVelocity) > 0.45;
+      const finalStage = shouldCommit ? scrubTargetStage : scrubCurrentStage;
+
+      const currentQ = currentQuatRef.current;
+      const targetQ = CANONICAL_POSES[finalStage];
+      const remainingDot = Math.abs(
+        currentQ.x * targetQ.x + currentQ.y * targetQ.y + currentQ.z * targetQ.z + currentQ.w * targetQ.w
+      );
+      const angleRemaining = 2 * Math.acos(Math.max(-1, Math.min(1, remainingDot)));
+      const snapDuration = Math.max(200, Math.min(MOVE_DURATION_MS, (angleRemaining / (Math.PI / 2)) * 400));
+
+      rotateToStage(finalStage, snapDuration, 'drag');
+    }
+  };
+
+  // Keyboard navigation: ArrowLeft/Right/Up/Down
+  const handleKeyDown = useCallback((e) => {
+    const currentSeq = tourDirectionRef.current === 'forward' ? TOUR_FORWARD : TOUR_REVERSE;
+    const curIdx = currentSeq.indexOf(activeStage);
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      delayTour(2500);
+      const nextIdx = (curIdx + 1) % currentSeq.length;
+      rotateToStage(currentSeq[nextIdx], MOVE_DURATION_MS, 'keyboard');
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      delayTour(2500);
+      const prevIdx = (curIdx - 1 + currentSeq.length) % currentSeq.length;
+      rotateToStage(currentSeq[prevIdx], MOVE_DURATION_MS, 'keyboard');
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      delayTour(2500);
+      rotateToStage(activeStage === 4 ? 0 : 4, MOVE_DURATION_MS, 'keyboard');
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      delayTour(2500);
+      rotateToStage(activeStage === 5 ? 0 : 5, MOVE_DURATION_MS, 'keyboard');
+    }
+  }, [activeStage, delayTour, rotateToStage]);
+
+  // Global window listener for arrow keys when user is not typing in a form input
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+        return;
+      }
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+        handleKeyDown(e);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [handleKeyDown]);
+
+  const currentDisplayedStage = dragActiveStage !== null ? dragActiveStage : activeStage;
+  const stage = CUBE_STAGES[currentDisplayedStage];
+  const activeTourIdx = TOUR_FORWARD.indexOf(currentDisplayedStage);
+
+  // Exploded view state
+  const isExploded = canHover && isStageHovered && !isDragging && !isAnimating && !reducedMotion;
 
   return (
     <div
-      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-2 [--s:clamp(180px,48vw,220px)] sm:[--s:clamp(180px,23vw,220px)]"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onFocus={() => setIsFocused(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-          setIsFocused(false);
-        }
-      }}
+      tabIndex={0}
+      role="region"
+      aria-label="3D Interactive Cube Showcase. Use arrow keys to explore feature stages."
+      className="relative w-full max-w-[450px] flex flex-col items-center select-none py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent/30 rounded-2xl [--s:clamp(195px,46vw,215px)] sm:[--s:clamp(210px,25vw,235px)] lg:[--s:clamp(230px,min(28vh,22vw),250px)]"
+      onKeyDown={handleKeyDown}
     >
-      {/* ── 3D STAGE CONTAINER (DECORATIVE) ── */}
+      {/* ── 3D STAGE CONTAINER ── */}
       <div
-        className="relative w-full flex items-center justify-center overflow-visible"
-        style={{ height: 'calc(var(--s) * 1.65)' }}
+        ref={stageRef}
+        className={`relative w-full flex items-center justify-center overflow-visible select-none ${
+          isDragging ? 'cursor-grabbing' : canHover ? 'cursor-grab' : 'cursor-default'
+        }`}
+        style={{
+          height: 'calc(var(--s) * 1.35)',
+          touchAction: 'pan-y',
+        }}
         aria-hidden="true"
+        onMouseEnter={() => setIsStageHovered(true)}
+        onMouseLeave={() => {
+          setIsStageHovered(false);
+          resetParallax();
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
-        {/* ── CARD 1 (TOP-LEFT): SYNCHRONIZED RUNTIME TERMINAL ── */}
+        {/* Step 4: Flat Neutral Floor Shadow directly under cube bottom */}
         <div
-          className="hidden sm:block absolute top-2 left-0 z-20 transition-all duration-300 ease-out"
-          style={{ width: 'calc(var(--s) * 0.93)' }}
+          className="absolute -bottom-5 pointer-events-none flex items-center justify-center z-0"
+          style={{
+            width: 'calc(var(--s) * 0.82)',
+            height: '22px',
+          }}
         >
-          <div className="p-3 rounded-xl border border-line bg-surface shadow-card transition-colors">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 text-accent">
-                <Terminal className="w-3.5 h-3.5 shrink-0" />
-                {stage.terminal.tag}
-              </span>
-              <span className="text-xs font-mono px-1.5 py-0.5 rounded-full bg-surface-2 text-text-secondary border border-line">
-                {stage.terminal.pill}
-              </span>
-            </div>
-
-            <div className="min-h-[46px] flex items-start">
-              <p className="text-xs font-mono text-text leading-snug break-words">
-                <TypewriterText text={stage.terminal.message} reducedMotion={reducedMotion} />
-              </p>
-            </div>
-
-            <div className="mt-2 pt-1.5 border-t border-line flex items-center justify-between text-xs text-text-secondary">
-              <span>{stage.terminal.subLeft}</span>
-              <span className="px-1.5 py-0.5 rounded bg-surface-2 border border-line flex items-center gap-1 text-xs">
-                <span className={`w-1.5 h-1.5 rounded-full ${stage.terminal.subRightDot.split(' ')[0]}`} />
-                <span className={stage.terminal.subRightDot.split(' ')[1]}>{stage.terminal.subRight}</span>
-              </span>
-            </div>
-          </div>
+          <div
+            className={`w-full h-full rounded-[50%] bg-black/32 blur-[8px] transition-opacity duration-300 ${
+              isAnimating ? 'opacity-20' : 'opacity-100'
+            }`}
+          />
         </div>
 
-        {/* ── CARD 2 (BOTTOM-RIGHT): ALGORITHM PATTERN & INSIGHT ── */}
-        <div
-          className="hidden sm:block absolute bottom-2 right-0 z-20 transition-all duration-300 ease-out"
-          style={{ width: 'calc(var(--s) * 0.93)' }}
-        >
-          <div className="p-3 rounded-xl border border-line bg-surface shadow-card transition-colors">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className={`text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5 ${stage.insight.tagColor}`}>
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                {stage.insight.tag}
-              </span>
-              <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-surface-2 border border-line text-text-secondary">
-                {stage.insight.pill}
-              </span>
-            </div>
-
-            <h4 className="text-xs font-semibold text-text tracking-tight leading-snug">
-              {stage.insight.title}
-            </h4>
-            <p className="text-xs text-text-secondary mt-0.5 leading-snug">
-              {stage.insight.sub}
-            </p>
-
-            <div className="mt-2 pt-1.5 border-t border-line flex items-center justify-between text-xs text-text-secondary">
-              <span>{stage.insight.footerLeft}</span>
-              <span className="text-easy font-medium text-xs">
-                {stage.insight.footerRight}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── CENTRAL 3D CUBE STAGE ── */}
+        {/* ── LAYER 1: OUTER FLOAT WRAPPER ── */}
         <div
           className={`relative flex items-center justify-center z-10 ${
             reducedMotion ? '' : 'animate-cube-subtle-float'
           }`}
-          style={{ perspective: '1100px' }}
+          style={{ transformStyle: 'preserve-3d' }}
         >
+          {/* ── LAYER 1.2: IDLE YAW DRIFT (+/- 8 deg, 9s alternate) ── */}
           <div
-            className="relative"
+            className={reducedMotion ? '' : 'animate-cube-yaw-drift'}
             style={{
-              width: 'var(--s)',
-              height: 'var(--s)',
               transformStyle: 'preserve-3d',
-              transformOrigin: '50% 50% 0px',
-              transform: `rotateX(-14deg) rotateY(${-90 * step}deg)`,
-              transition: reducedMotion ? 'none' : 'transform 900ms cubic-bezier(0.22, 1, 0.36, 1)',
-              willChange: 'transform',
+              animationPlayState: isDragging || isStageHovered ? 'paused' : 'running',
             }}
           >
-            {/* 4 Lateral Faces: each hosts its own dedicated visualization */}
-            {[0, 1, 2, 3].map((i) => {
-              const isFaceActive = activeStage === i;
-              return (
+            {/* ── LAYER 1.3: IDLE PITCH DRIFT (+/- 3 deg, 13s alternate) ── */}
+            <div
+              className={reducedMotion ? '' : 'animate-cube-pitch-drift'}
+              style={{
+                transformStyle: 'preserve-3d',
+                animationPlayState: isDragging || isStageHovered ? 'paused' : 'running',
+              }}
+            >
+              {/* ── LAYER 1.5: FIXED VIEWING TILT WRAPPER (-10deg on X) ── */}
+              <div
+                style={{
+                  transform: 'rotateX(-10deg)',
+                  transformStyle: 'preserve-3d',
+                }}
+              >
+                {/* ── LAYER 2: PARALLAX WRAPPER (MOUSE TILT, 150ms EASE-OUT) ── */}
                 <div
-                  key={i}
-                  className="absolute inset-0 rounded-xl p-2.5 sm:p-3 overflow-hidden select-none bg-surface border border-line shadow-card"
+                  ref={parallaxRef}
+                  className="relative"
                   style={{
-                    transform: `rotateY(${i * 90}deg) translateZ(calc(var(--s) / 2))`,
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden',
+                    perspective: '1200px',
+                    transformStyle: 'preserve-3d',
+                    transform: 'rotateX(var(--px, 0deg)) rotateY(var(--py, 0deg))',
+                    transition: isDragging ? 'none' : 'transform 150ms ease-out',
                   }}
                 >
-                  {i === 0 && <SlidingWindowViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                  {i === 1 && <RevisionLadderViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                  {i === 2 && <TopicRadarViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                  {i === 3 && <HeatmapViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                  {/* ── LAYER 3: CUBE ELEMENT ── */}
+                  <div
+                    ref={cubeRef}
+                    style={{
+                      width: 'var(--s)',
+                      height: 'var(--s)',
+                      transformStyle: 'preserve-3d',
+                      transformOrigin: '50% 50% 0px',
+                      transform: quatToMatrix3d(currentQuatRef.current),
+                      willChange: 'transform',
+                      '--gap': isExploded ? 'calc(var(--s) * 0.14)' : '0px',
+                    }}
+                  >
+                    {/* 6 Faces: 4 Lateral + 1 Top + 1 Bottom */}
+                    {[0, 1, 2, 3, 4, 5].map((i) => {
+                      const isFaceActive = currentDisplayedStage === i;
+                      const stageInfo = CUBE_STAGES[i];
+                      const StageIcon = stageInfo.icon;
+
+                      let faceTransform = '';
+                      if (i < 4) {
+                        faceTransform = `rotateY(${i * 90}deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))`;
+                      } else if (i === 4) {
+                        faceTransform = 'rotateX(-90deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))';
+                      } else {
+                        faceTransform = 'rotateX(90deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))';
+                      }
+
+                      const lightingClass = i === 4 ? 'brightness-105' : i === 5 ? 'brightness-90' : '';
+
+                      return (
+                        <div
+                          key={i}
+                          data-stage={i}
+                          className={`absolute inset-0 select-none ${lightingClass}`}
+                          style={{
+                            transform: faceTransform,
+                            transformStyle: 'preserve-3d',
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            transition: reducedMotion
+                              ? 'none'
+                              : 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+                          }}
+                        >
+                          {/* Face Base Surface with border, sheen, corner ticks, and inactive overlay */}
+                          <div
+                            className={`absolute inset-0 rounded-2xl bg-surface shadow-card pointer-events-none transition-colors duration-300 ${
+                              isFaceActive ? 'border border-accent' : 'border border-line/60'
+                            }`}
+                            style={{
+                              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                            }}
+                          >
+                            {/* Diagonal Sheen & Edge Vignette */}
+                            <div
+                              className="absolute inset-0 rounded-2xl pointer-events-none"
+                              style={{
+                                background:
+                                  'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%), radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.1) 100%)',
+                              }}
+                              aria-hidden="true"
+                            />
+
+                            {/* Active Face Viewfinder Camera Corner Ticks */}
+                            <div
+                              className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+                                isFaceActive ? 'opacity-100' : 'opacity-0'
+                              }`}
+                              aria-hidden="true"
+                            >
+                              <span className="absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-accent" />
+                              <span className="absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-accent" />
+                              <span className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-accent" />
+                              <span className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-accent" />
+                            </div>
+
+                            {/* Inactive Face Dark Overlay (~28% black) */}
+                            <div
+                              className={`absolute inset-0 rounded-2xl bg-black/28 pointer-events-none transition-opacity duration-300 ${
+                                isFaceActive ? 'opacity-0' : 'opacity-100'
+                              }`}
+                              aria-hidden="true"
+                            />
+                          </div>
+
+                          {/* Inactive Face Pictogram (56px Lucide Icon at ~20% Opacity) */}
+                          <div
+                            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-250 ${
+                              isFaceActive ? 'opacity-0 invisible' : 'opacity-100 visible'
+                            }`}
+                            aria-hidden="true"
+                          >
+                            <StageIcon className="w-14 h-14 text-text/20" />
+                          </div>
+
+                          {/* Fixed 240x240 Design Canvas (Scaled uniformly via --k = sizePx / 240 with preserve-3d) */}
+                          <div
+                            className={`absolute top-0 left-0 transition-opacity duration-250 ${
+                              isFaceActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+                            }`}
+                            style={{
+                              width: '240px',
+                              height: '240px',
+                              transform: 'scale(var(--k, 1))',
+                              transformOrigin: '0 0',
+                              transformStyle: 'preserve-3d',
+                              padding: '14px',
+                              display: 'grid',
+                              gridTemplateRows: '28px 1fr',
+                              minHeight: 0,
+                              minWidth: 0,
+                            }}
+                          >
+                            {/* Standardized 28px Header Row */}
+                            <div className="flex items-center justify-between border-b border-line pb-1.5 shrink-0 overflow-hidden">
+                              <span className="text-[12px] font-bold tracking-wider uppercase flex items-center gap-1.5 text-text-secondary whitespace-nowrap shrink-0">
+                                <StageIcon className="w-3.5 h-3.5 shrink-0 text-accent" />
+                                {stageInfo.stageLabel}
+                              </span>
+                              <span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-surface-2 text-muted border border-line whitespace-nowrap shrink-0">
+                                Sample
+                              </span>
+                            </div>
+
+                            {/* 1fr Visualization Area with preserve-3d */}
+                            <div
+                              className="w-full h-full min-h-0 min-w-0 flex items-center justify-center relative"
+                              style={{ transformStyle: 'preserve-3d' }}
+                            >
+                              {i === 0 && <SlidingWindowViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 1 && <RevisionLadderViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 2 && <TopicRadarViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 3 && <HeatmapViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 4 && <DifficultySplitViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                              {i === 5 && <NextUpViz active={isFaceActive} settled={isFaceActive && !isAnimating} reducedMotion={reducedMotion} />}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* ── 3D Pop-Out Satellite Content Layer (Front-facing telemetry constellation) ── */}
+                  <div
+                    className="absolute top-0 left-0 pointer-events-none"
+                    style={{
+                      width: 'var(--s)',
+                      height: 'var(--s)',
+                      transform: 'translateZ(calc(var(--s) / 2 + 12px))',
+                      transformStyle: 'preserve-3d',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '240px',
+                        height: '240px',
+                        transform: 'scale(var(--k, 1))',
+                        transformOrigin: '0 0',
+                        transformStyle: 'preserve-3d',
+                      }}
+                    >
+                      <CubeSatellites
+                        stageId={currentDisplayedStage}
+                        active={true}
+                        settled={!isAnimating && !isDragging && entrancePhase === 'settled'}
+                        reducedMotion={reducedMotion}
+                        isExploded={isExploded}
+                      />
+                    </div>
+                  </div>
                 </div>
-              );
-            })}
-
-            {/* Top Face - visible due to -14deg rotateX tilt */}
-            <div
-              className="absolute inset-0 rounded-xl p-2.5 sm:p-3 flex flex-col items-center justify-center overflow-hidden select-none bg-surface border border-line"
-              style={{
-                transform: 'rotateX(90deg) translateZ(calc(var(--s) / 2))',
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-              }}
-            >
-              <div className="w-8 h-8 rounded-lg bg-surface-2 border border-line flex items-center justify-center">
-                <Cpu className="w-4 h-4 text-accent" />
               </div>
-              <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-text uppercase mt-1.5 text-center">
-                DSA Engine Core
-              </span>
-              <span className="text-[9px] sm:text-[10px] text-easy mt-0.5 flex items-center gap-1 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-easy" />
-                Active Pipeline
-              </span>
-            </div>
-
-            {/* Bottom Face */}
-            <div
-              className="absolute inset-0 rounded-xl p-2.5 sm:p-3 flex flex-col items-center justify-center overflow-hidden select-none bg-surface border border-line"
-              style={{
-                transform: 'rotateX(-90deg) translateZ(calc(var(--s) / 2))',
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-              }}
-            >
-              <div className="w-8 h-8 rounded-full border border-accent/30 flex items-center justify-center bg-accent/12">
-                <Flame className="w-4 h-4 text-accent" />
-              </div>
-              <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-text-secondary uppercase mt-1.5 font-mono text-center">
-                Revision Queue
-              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── INTERACTIVE STAGE SWITCHER CONTROLS ── */}
-      <div
-        role="group"
-        aria-label="3D Cube Stage Controls"
-        className="mt-3 flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-line shadow-sm"
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            rotateToStage((activeStage + 3) % 4);
-          } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            rotateToStage((activeStage + 1) % 4);
-          }
-        }}
-      >
-        {CUBE_STAGES.map((s, idx) => {
-          const isActive = activeStage === idx;
-          return (
-            <button
-              key={s.id}
-              onClick={() => rotateToStage(idx)}
-              type="button"
-              aria-pressed={isActive}
-              aria-label={`Switch to stage ${idx + 1}: ${s.stageLabel}`}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                isActive
-                  ? 'bg-surface-2 text-text border border-line shadow-xs font-semibold'
-                  : 'text-text-secondary hover:text-text hover:bg-surface-2/60 border border-transparent'
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  isActive ? 'bg-accent' : 'bg-muted'
-                }`}
-                aria-hidden="true"
-              />
-              <span>{idx + 1} {s.stageLabel}</span>
-            </button>
-          );
-        })}
+      {/* Visually hidden aria-live polite region for screen readers */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {`${stage.title}: ${stage.description}`}
       </div>
 
-      <p className="text-[11px] text-muted text-center mt-1.5 select-none">
-        Sample data
-      </p>
-
+      {/* Embedded Keyframes for Smooth Motion */}
       <style>{`
         @keyframes cubeSubtleFloat {
           0%, 100% {
@@ -420,12 +1081,111 @@ const Rotating3DCube = () => {
           }
         }
 
+        @keyframes cubeYawDrift {
+          0% {
+            transform: rotateY(-8deg);
+          }
+          100% {
+            transform: rotateY(8deg);
+          }
+        }
+
+        @keyframes cubePitchDrift {
+          0% {
+            transform: rotateX(-3deg);
+          }
+          100% {
+            transform: rotateX(3deg);
+          }
+        }
+
+        @keyframes dwellFill {
+          0% {
+            transform: scaleX(0);
+          }
+          100% {
+            transform: scaleX(1);
+          }
+        }
+
+        @keyframes titleFade {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0px);
+          }
+        }
+
+        @keyframes satelliteFloat1 {
+          0% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-4px) rotate(0.5deg);
+          }
+          100% {
+            transform: translateY(2px) rotate(-0.5deg);
+          }
+        }
+
+        @keyframes satelliteFloat2 {
+          0% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(3px) rotate(-0.5deg);
+          }
+          100% {
+            transform: translateY(-3px) rotate(0.4deg);
+          }
+        }
+
+        @keyframes satelliteFloat3 {
+          0% {
+            transform: translateY(0px) scale(0.98);
+          }
+          100% {
+            transform: translateY(-4px) scale(1.02);
+          }
+        }
+
         .animate-cube-subtle-float {
-          animation: cubeSubtleFloat 4.4s ease-in-out infinite;
+          animation: cubeSubtleFloat 5.4s ease-in-out infinite;
+        }
+
+        .animate-cube-yaw-drift {
+          animation: cubeYawDrift 9s ease-in-out infinite alternate;
+        }
+
+        .animate-cube-pitch-drift {
+          animation: cubePitchDrift 13s ease-in-out infinite alternate;
+        }
+
+        .animate-dwell-fill {
+          animation: dwellFill linear forwards;
+        }
+
+        .animate-fade-in {
+          animation: titleFade 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .animate-satellite-float-1 {
+          animation: satelliteFloat1 4.2s ease-in-out infinite alternate;
+        }
+
+        .animate-satellite-float-2 {
+          animation: satelliteFloat2 4.8s ease-in-out infinite alternate;
+        }
+
+        .animate-satellite-float-3 {
+          animation: satelliteFloat3 3.6s ease-in-out infinite alternate;
         }
       `}</style>
     </div>
   );
 };
 
-export default Rotating3DCube;
+export default React.memo(Rotating3DCube);
