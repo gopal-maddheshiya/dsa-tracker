@@ -149,6 +149,7 @@ export const AuthProvider = ({ children }) => {
         login,
         signup,
         googleLogin,
+        googleAuth: googleLogin,
         logout,
         updateUser,
       }}

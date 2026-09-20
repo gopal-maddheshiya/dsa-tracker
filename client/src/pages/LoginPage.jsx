@@ -10,7 +10,8 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Zap } from 'lucide-re
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, googleAuth } = useAuth();
+  const { login, googleLogin, googleAuth } = useAuth();
+  const performGoogleAuth = googleLogin || googleAuth;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,39 +48,51 @@ const LoginPage = () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    const result = await login(email, password);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      navigate(from, { replace: true });
-    } else {
-      setApiError(result.message);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        navigate(from, { replace: true });
+      } else {
+        setApiError(result.message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleInstantDemoLogin = async () => {
     setApiError('');
     setIsSubmitting(true);
-    const result = await login('demo@dsa-tracker.local', 'DemoPassword123!');
-    setIsSubmitting(false);
-
-    if (result.success) {
-      navigate(from, { replace: true });
-    } else {
-      setApiError(result.message);
+    try {
+      const result = await login('demo@dsa-tracker.local', 'DemoPassword123!');
+      if (result.success) {
+        navigate(from, { replace: true });
+      } else {
+        setApiError(result.message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleGoogleSuccess = async (tokenPayload) => {
     setApiError('');
     setIsSubmitting(true);
-    const result = await googleAuth(tokenPayload);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      navigate(from, { replace: true });
-    } else {
-      setApiError(result.message);
+    try {
+      if (!performGoogleAuth) {
+        throw new Error('Google authentication service is not initialized');
+      }
+      const result = await performGoogleAuth(tokenPayload);
+      if (result.success) {
+        navigate(from, { replace: true });
+      } else {
+        setApiError(result.message);
+      }
+    } catch (err) {
+      console.error('Google Auth Execution Error:', err);
+      setApiError(err?.message || 'Google login encountered an unexpected error.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
