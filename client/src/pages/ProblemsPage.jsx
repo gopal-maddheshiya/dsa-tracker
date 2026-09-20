@@ -80,7 +80,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       <div className="flex items-start justify-between gap-2">
         <Link
           to={`/problems/${problem.id || problem._id}`}
-          className="text-xs sm:text-sm font-semibold text-text leading-snug line-clamp-1 hover:text-accent active:text-accent transition-colors flex-1"
+          className="text-sm font-semibold text-text leading-snug line-clamp-1 hover:text-accent active:text-accent transition-colors flex-1"
         >
           {problem.title}
         </Link>
@@ -699,29 +699,29 @@ const ProblemsPage = () => {
       <Reveal delay={50} y={12}>
         <div className="p-2.5 sm:p-3 border border-line bg-surface rounded-xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 shadow-xs">
           {/* Search Bar with Shortcut Badge */}
-          <div className="relative flex-1 min-w-[200px] max-w-full lg:max-w-md">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
-              <Search className="w-3.5 h-3.5" />
+          <div className="relative flex-1 min-w-[220px] max-w-full lg:max-w-md">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none flex items-center justify-center">
+              <Search className="w-4 h-4" />
             </span>
             <input
               ref={searchInputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search problems, topics, keywords... (/)"
-              className="input pl-8.5 pr-8 py-1.5 text-xs sm:text-sm w-full bg-surface-2 border border-line rounded-lg text-text placeholder:text-muted focus:border-accent"
+              placeholder="Search problems, topics, keywords..."
+              className="w-full h-9 pl-10 pr-9 text-sm bg-surface-2 border border-line rounded-lg text-text placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
             />
             {search ? (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-text p-0.5 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-text p-1 rounded hover:bg-surface-3 cursor-pointer transition-colors"
                 title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             ) : (
-              <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted bg-surface-3 px-1.5 py-0.2 rounded border border-line/60 pointer-events-none">
+              <kbd className="hidden sm:inline-flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-mono text-muted bg-surface-3 px-1.5 py-0.5 rounded border border-line pointer-events-none select-none">
                 /
               </kbd>
             )}
@@ -737,7 +737,7 @@ const ProblemsPage = () => {
               <select
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="input pl-7 pr-6 py-1 text-xs bg-surface-2 border border-line rounded-lg text-text focus:border-accent appearance-none cursor-pointer h-7.5"
+                className="pl-7 pr-6 py-1 text-xs bg-surface-2 border border-line rounded-lg text-text focus:border-accent focus:outline-none appearance-none cursor-pointer h-7.5"
               >
                 <option value="">All Topics ({(allTopics || []).length})</option>
                 {(allTopics || []).map((t) => (

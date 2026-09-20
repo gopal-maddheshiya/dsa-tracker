@@ -233,10 +233,10 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
 
                   {/* Problem Title & External Link */}
                   <td className="py-3.5 px-3">
-                    <div className="flex items-center gap-2 max-w-sm sm:max-w-md">
+                    <div className="flex items-center gap-2 max-w-md lg:max-w-xl">
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
-                        className="font-semibold text-text group-hover:text-accent transition-colors line-clamp-1 text-xs tracking-tight leading-snug"
+                        className="font-semibold text-text group-hover:text-accent transition-colors line-clamp-1 text-sm tracking-tight leading-snug"
                         title={problem.title}
                       >
                         {problem.title}
