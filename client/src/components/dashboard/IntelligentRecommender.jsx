@@ -24,7 +24,7 @@ const PLATFORM_LABELS = {
   other: 'External',
 };
 
-const IntelligentRecommender = ({ className = '' }) => {
+const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +34,9 @@ const IntelligentRecommender = ({ className = '' }) => {
       const res = await fetchProblemRecommendations();
       if (res?.success && res.data) {
         setData(res.data);
+        if (res.data.dailyFocus?.id && onFocusLoaded) {
+          onFocusLoaded(res.data.dailyFocus.id);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch recommendations:', err);

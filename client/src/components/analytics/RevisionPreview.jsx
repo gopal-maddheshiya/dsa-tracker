@@ -22,7 +22,7 @@ const PLATFORM_LABELS = {
   other: 'Ext',
 };
 
-const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry, className = '' }) => {
+const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry, className = '', excludeProblemId = null }) => {
   if (isLoading) {
     return (
       <div className={`panel overflow-hidden border border-line animate-pulse h-full flex flex-col justify-between ${className}`}>
@@ -62,7 +62,9 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry,
     );
   }
 
-  const previewItems = queue.slice(0, 4);
+  const previewItems = queue
+    .filter((item) => !excludeProblemId || item.problemId !== excludeProblemId)
+    .slice(0, 4);
 
   return (
     <div className={`panel overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}>
