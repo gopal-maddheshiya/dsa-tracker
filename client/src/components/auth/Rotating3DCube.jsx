@@ -6,6 +6,8 @@ import {
   PieChart,
   Flame,
   Sparkles,
+  Pause,
+  Play,
 } from 'lucide-react';
 import { colors } from '../../theme/colors';
 import SlidingWindowViz from './cube-visuals/SlidingWindowViz';
@@ -18,7 +20,6 @@ import NextUpViz from './cube-visuals/NextUpViz';
 /**
  * 6 Stage Metadata for the 6 Cube Faces.
  * Synchronized with the 6 live face visualizations.
- * Tight, honest copy fitting in <= 2 lines on desktop and <= 3 lines on mobile.
  */
 const CUBE_STAGES = [
   {
@@ -27,6 +28,7 @@ const CUBE_STAGES = [
     title: 'Sliding Window Pattern',
     description: 'Maintains running subarray state across linear sequences with dual pointers to avoid redundant passes.',
     accentColor: colors.easy,
+    icon: Code2,
   },
   {
     id: 1,
@@ -34,6 +36,7 @@ const CUBE_STAGES = [
     title: 'Adaptive Revision Ladder',
     description: 'Schedules 2-day recall for struggled problems and dynamically scales intervals up to 14 days upon mastery.',
     accentColor: colors.accent,
+    icon: CalendarClock,
   },
   {
     id: 2,
@@ -41,6 +44,7 @@ const CUBE_STAGES = [
     title: 'Topic Struggle Radar',
     description: 'Surfaces highest friction categories across data structures so practice stays focused on high-yield gaps.',
     accentColor: colors.medium,
+    icon: Radar,
   },
   {
     id: 3,
@@ -48,6 +52,7 @@ const CUBE_STAGES = [
     title: 'Practice Cadence Heatmap',
     description: 'Tracks daily problem-solving consistency across 20 weeks to build durable pattern recognition habits.',
     accentColor: colors.easy,
+    icon: Flame,
   },
   {
     id: 4,
@@ -55,6 +60,7 @@ const CUBE_STAGES = [
     title: 'Curated Difficulty Curve',
     description: 'Maintains a balanced split of Easy, Medium, and Hard challenges to prevent premature plateauing.',
     accentColor: colors.medium,
+    icon: PieChart,
   },
   {
     id: 5,
@@ -62,14 +68,18 @@ const CUBE_STAGES = [
     title: 'Dynamic Practice Queue',
     description: 'Prioritizes scheduled reviews, weak spots, and fresh patterns based on cadence and decay signals.',
     accentColor: colors.accent,
+    icon: Sparkles,
   },
 ];
 
 /**
- * Fixed deterministic tour visiting all 6 faces across all rotation axes:
- * 0 (Solves) -> 1 (Spaced) -> 2 (Topics) -> 4 (Levels) -> 3 (Velocity) -> 5 (Next up) -> 0
+ * Tour sequences:
+ * Forward: 0 (Solves) -> 1 (Spaced) -> 2 (Topics) -> 4 (Levels) -> 3 (Velocity) -> 5 (Next up) -> 0
+ * Reverse: 0 -> 5 -> 3 -> 4 -> 2 -> 1 -> 0
  */
-export const TOUR_SEQUENCE = [0, 1, 2, 4, 3, 5];
+export const TOUR_FORWARD = [0, 1, 2, 4, 3, 5];
+export const TOUR_REVERSE = [0, 5, 3, 4, 2, 1];
+export const TOUR_SEQUENCE = TOUR_FORWARD;
 
 /**
  * Switcher Segment Configuration matching Tour Order strictly from left to right.
@@ -85,13 +95,6 @@ const TOUR_SEGMENTS = [
 
 /**
  * 6 Canonical Upright Poses represented as Unit Quaternions [x, y, z, w].
- * In CSS coordinates (x right, y down, z out of screen):
- * - Stage 0: rotateY(0deg)   -> identity
- * - Stage 1: rotateY(-90deg) -> axis (0, 1, 0), angle -90deg
- * - Stage 2: rotateY(-180deg)-> axis (0, 1, 0), angle -180deg
- * - Stage 3: rotateY(-270deg)-> axis (0, 1, 0), angle -270deg (or +90deg)
- * - Stage 4: rotateX(-90deg) -> axis (1, 0, 0), angle -90deg (Top face upright)
- * - Stage 5: rotateX(90deg)  -> axis (1, 0, 0), angle +90deg (Bottom face upright)
  */
 const SQRT1_2 = Math.SQRT1_2; // ~0.70710678
 
@@ -100,51 +103,37 @@ export const CANONICAL_POSES = [
   { x: 0, y: -SQRT1_2, z: 0, w: SQRT1_2 },
   { x: 0, y: -1, z: 0, w: 0 },
   { x: 0, y: SQRT1_2, z: 0, w: SQRT1_2 },
-  { x: -SQRT1_2, y: 0, z: 0, w: SQRT1_2 },
   { x: SQRT1_2, y: 0, z: 0, w: SQRT1_2 },
+  { x: -SQRT1_2, y: 0, z: 0, w: SQRT1_2 },
 ];
 
-// Slightly off-axis initial quaternion for entrance animation on first mount
 const ENTRANCE_START_QUAT = {
-  x: 0.08,
-  y: 0.15,
-  z: 0.02,
-  w: 0.985,
+  x: 0.1826,
+  y: -0.3473,
+  z: 0.0696,
+  w: 0.9172,
 };
 
 /**
- * Converts a unit quaternion to a column-major CSS matrix3d() string.
- * Numerically verified to equal getComputedStyle(el).transform for all 6 canonical poses.
+ * Convert unit quaternion {x, y, z, w} to standard CSS 3D 4x4 matrix3d string.
  */
 export function quatToMatrix3d(q) {
   const { x, y, z, w } = q;
-  const m00 = 1 - 2 * (y * y + z * z);
-  const m01 = 2 * (x * y - z * w);
-  const m02 = 2 * (x * z + y * w);
+  const m11 = 1 - 2 * (y * y + z * z);
+  const m12 = 2 * (x * y + z * w);
+  const m13 = 2 * (x * z - y * w);
+  const m21 = 2 * (x * y - z * w);
+  const m22 = 1 - 2 * (x * x + z * z);
+  const m23 = 2 * (y * z + x * w);
+  const m31 = 2 * (x * z + y * w);
+  const m32 = 2 * (y * z - x * w);
+  const m33 = 1 - 2 * (x * x + y * y);
 
-  const m10 = 2 * (x * y + z * w);
-  const m11 = 1 - 2 * (x * x + z * z);
-  const m12 = 2 * (y * z - x * w);
-
-  const m20 = 2 * (x * z - y * w);
-  const m21 = 2 * (y * z + x * w);
-  const m22 = 1 - 2 * (x * x + y * y);
-
-  const c0 = m00.toFixed(6);
-  const c1 = m10.toFixed(6);
-  const c2 = m20.toFixed(6);
-  const c4 = m01.toFixed(6);
-  const c5 = m11.toFixed(6);
-  const c6 = m21.toFixed(6);
-  const c8 = m02.toFixed(6);
-  const c9 = m12.toFixed(6);
-  const c10 = m22.toFixed(6);
-
-  return `matrix3d(${c0}, ${c1}, ${c2}, 0, ${c4}, ${c5}, ${c6}, 0, ${c8}, ${c9}, ${c10}, 0, 0, 0, 0, 1)`;
+  return `matrix3d(${m11.toFixed(6)}, ${m12.toFixed(6)}, ${m13.toFixed(6)}, 0, ${m21.toFixed(6)}, ${m22.toFixed(6)}, ${m23.toFixed(6)}, 0, ${m31.toFixed(6)}, ${m32.toFixed(6)}, ${m33.toFixed(6)}, 0, 0, 0, 0, 1)`;
 }
 
 /**
- * Normalized spherical linear interpolation (slerp) taking the shortest geodesic path.
+ * Spherical linear interpolation between two unit quaternions with shortest arc check.
  */
 export function slerpQuat(qA, qB, t) {
   let dot = qA.x * qB.x + qA.y * qB.y + qA.z * qB.z + qA.w * qB.w;
@@ -170,10 +159,13 @@ export function slerpQuat(qA, qB, t) {
     return { x: rx / len, y: ry / len, z: rz / len, w: rw / len };
   }
 
-  const theta = Math.acos(Math.max(-1, Math.min(1, dot)));
+  const theta0 = Math.acos(Math.max(-1, Math.min(1, dot)));
+  const theta = theta0 * t;
+  const sinTheta0 = Math.sin(theta0);
   const sinTheta = Math.sin(theta);
-  const s1 = Math.sin((1 - t) * theta) / sinTheta;
-  const s2 = Math.sin(t * theta) / sinTheta;
+
+  const s1 = Math.cos(theta) - (dot * sinTheta) / sinTheta0;
+  const s2 = sinTheta / sinTheta0;
 
   return {
     x: s1 * qA.x + s2 * bx,
@@ -183,37 +175,46 @@ export function slerpQuat(qA, qB, t) {
   };
 }
 
-/**
- * Ease-in-out cubic timing function for ~1000ms engine transitions.
- */
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Global flag to ensure entrance animation triggers once per session mount
 let hasCompletedEntranceOnce = false;
 
 const Rotating3DCube = () => {
   const [activeStage, setActiveStage] = useState(0);
   const [isStageHovered, setIsStageHovered] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [isDocHidden, setIsDocHidden] = useState(false);
   const [isOffscreen, setIsOffscreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-
-  // In-flight active face for visuals during drag/scrub (discrete updates only)
-  const [dragActiveStage, setDragActiveStage] = useState(null);
-
-  // Orbit ring key to restart orbit dot animation from initial point after each move ends
-  const [orbitKey, setOrbitKey] = useState(0);
 
   // Accessible reduced motion detection
   const [reducedMotion, setReducedMotion] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
+
+  // User pause control (accessibility button; starts paused with reduced motion)
+  const [isUserPaused, setIsUserPaused] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  // Discrete in-flight active face for drag/scrub
+  const [dragActiveStage, setDragActiveStage] = useState(null);
+
+  // Key to restart 2px progress bar fill animation
+  const [progressKey, setProgressKey] = useState(0);
+
+  // Entrance animation state
+  const [entrancePhase, setEntrancePhase] = useState(() => {
+    if (typeof window === 'undefined') return 'settled';
+    return hasCompletedEntranceOnce ? 'settled' : 'starting';
+  });
+
+  // Current tour lap direction: 'forward' or 'reverse'
+  const tourDirectionRef = useRef('forward');
 
   // Fine pointer / hover capability detection
   const [canHover, setCanHover] = useState(() => {
@@ -225,12 +226,6 @@ const Rotating3DCube = () => {
   const [isTouchDevice, setIsTouchDevice] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
-  });
-
-  // Entrance animation state
-  const [entrancePhase, setEntrancePhase] = useState(() => {
-    if (typeof window === 'undefined') return 'settled';
-    return hasCompletedEntranceOnce ? 'settled' : 'starting';
   });
 
   const stageRef = useRef(null);
@@ -248,14 +243,11 @@ const Rotating3DCube = () => {
     startQuat: CANONICAL_POSES[0],
     targetQuat: CANONICAL_POSES[0],
     startTime: 0,
-    duration: 1000,
+    duration: 1100,
     targetStage: 0,
   });
 
-  // Parallax rAF ref
   const parallaxRafRef = useRef(null);
-
-  // Auto-advance timer ref
   const autoAdvanceTimerRef = useRef(null);
 
   // Pointer drag tracking ref
@@ -264,7 +256,7 @@ const Rotating3DCube = () => {
     isDragging: false,
     startX: 0,
     startY: 0,
-    cubeWidth: 220,
+    cubeWidth: 240,
     history: [],
     scrubCurrentStage: 0,
     scrubNextStage: 1,
@@ -279,7 +271,10 @@ const Rotating3DCube = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mediaQueryMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleMotionChange = (e) => setReducedMotion(e.matches);
+    const handleMotionChange = (e) => {
+      setReducedMotion(e.matches);
+      if (e.matches) setIsUserPaused(true);
+    };
     mediaQueryMotion.addEventListener('change', handleMotionChange);
 
     const mediaQueryHover = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -300,21 +295,49 @@ const Rotating3DCube = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
-  // IntersectionObserver to pause auto-advance when offscreen
+  // IntersectionObserver to pause auto-advance when offscreen (threshold ~0.15)
   useEffect(() => {
     if (!stageRef.current || typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsOffscreen(!entry.isIntersecting);
       },
-      { threshold: 0.1 }
+      { threshold: 0.15 }
     );
     observer.observe(stageRef.current);
     return () => observer.disconnect();
   }, []);
 
-  // ── Orientation Engine: Slerp to Target Stage with Scale Dip ──
-  const rotateToStage = useCallback((targetStage, customDuration = 1000) => {
+  // ── ResizeObserver for Fixed 240x240 Canvas Scaling: --k = sizePx / 240 ──
+  useEffect(() => {
+    if (!cubeRef.current || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        if (width > 0) {
+          const k = width / 240;
+          if (cubeRef.current) {
+            cubeRef.current.style.setProperty('--k', k.toFixed(4));
+          }
+        }
+      }
+    });
+    observer.observe(cubeRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // ── Orientation Engine: Slerp to Target Stage with Scale Dip (1100ms) ──
+  const rotateToStage = useCallback((targetStage, customDuration = 1100, trigger = 'auto') => {
+    if (typeof window !== 'undefined') {
+      window.__cubeMoves = window.__cubeMoves || [];
+      window.__cubeMoves.push({
+        timestamp: Date.now(),
+        from: activeStage,
+        to: targetStage,
+        trigger,
+      });
+    }
+
     if (animEngineRef.current.rafId) {
       cancelAnimationFrame(animEngineRef.current.rafId);
       animEngineRef.current.rafId = null;
@@ -332,7 +355,7 @@ const Rotating3DCube = () => {
       setActiveStage(targetStage);
       setDragActiveStage(null);
       setIsAnimating(false);
-      setOrbitKey((k) => k + 1);
+      setProgressKey((k) => k + 1);
       return;
     }
 
@@ -381,13 +404,13 @@ const Rotating3DCube = () => {
         setActiveStage(targetStage);
         setDragActiveStage(null);
         setIsAnimating(false);
-        setOrbitKey((k) => k + 1);
+        setProgressKey((k) => k + 1);
         animEngineRef.current.rafId = null;
       }
     };
 
     animEngineRef.current.rafId = requestAnimationFrame(tick);
-  }, [reducedMotion]);
+  }, [activeStage, reducedMotion]);
 
   // Entrance Animation on First Mount
   useEffect(() => {
@@ -399,7 +422,6 @@ const Rotating3DCube = () => {
     hasCompletedEntranceOnce = true;
     setEntrancePhase('entering');
 
-    // Ease from ENTRANCE_START_QUAT to CANONICAL_POSES[0] over 1100ms
     const startTime = performance.now();
     const duration = 1100;
     const startQuat = ENTRANCE_START_QUAT;
@@ -413,7 +435,6 @@ const Rotating3DCube = () => {
       const q = slerpQuat(startQuat, targetQuat, easedT);
       currentQuatRef.current = q;
 
-      // Scale up smoothly from 0.92 to 1.0
       const entranceScale = 0.92 + 0.08 * easedT;
 
       if (cubeRef.current) {
@@ -434,40 +455,61 @@ const Rotating3DCube = () => {
     requestAnimationFrame(entranceTick);
   }, [reducedMotion]);
 
-  // Direct segment button click handler
-  const handleStageButtonClick = useCallback((targetStage) => {
-    setHasInteracted(true);
-    if (targetStage === activeStage && !isAnimating) return;
-    rotateToStage(targetStage);
-  }, [activeStage, isAnimating, rotateToStage]);
+  // Hard STOP conditions for Auto-Advance
+  const isHardPaused =
+    isUserPaused ||
+    isDocHidden ||
+    isOffscreen ||
+    isDragging ||
+    reducedMotion ||
+    entrancePhase !== 'settled';
 
-  // ── Auto-Advance Tour in All Directions (0 -> 1 -> 2 -> 4 -> 3 -> 5 -> 0) ──
+  // ── Auto-Advance Tour Engine with Alternating Direction ──
+  // Dwell 3600ms + Move 1100ms
+  const advanceTour = useCallback(() => {
+    const isForward = tourDirectionRef.current === 'forward';
+    const seq = isForward ? TOUR_FORWARD : TOUR_REVERSE;
+    const currentIdx = seq.indexOf(activeStage);
+    const nextIdx = (currentIdx + 1) % seq.length;
+    const nextStage = seq[nextIdx];
+
+    // If lap completed, switch direction for next lap
+    if (nextIdx === 0) {
+      tourDirectionRef.current = isForward ? 'reverse' : 'forward';
+    }
+
+    rotateToStage(nextStage, 1100, 'auto');
+  }, [activeStage, rotateToStage]);
+
+  // Soft Delay Function: Resets dwell timer to 4000ms grace period on user interactions
+  const delayTour = useCallback((graceMs = 4000) => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+    setProgressKey((k) => k + 1);
+
+    if (isHardPaused) return;
+
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      advanceTour();
+    }, graceMs);
+  }, [advanceTour, isHardPaused]);
+
+  // Standard Auto-Advance Timer Effect
   useEffect(() => {
     if (autoAdvanceTimerRef.current) {
       clearTimeout(autoAdvanceTimerRef.current);
       autoAdvanceTimerRef.current = null;
     }
 
-    const isPaused =
-      reducedMotion ||
-      isStageHovered ||
-      isFocused ||
-      isDocHidden ||
-      isOffscreen ||
-      isDragging ||
-      isAnimating ||
-      entrancePhase !== 'settled';
-
-    if (isPaused) {
+    if (isHardPaused || isAnimating) {
       return;
     }
 
     autoAdvanceTimerRef.current = setTimeout(() => {
-      const currentTourIdx = TOUR_SEQUENCE.indexOf(activeStage);
-      const nextTourIdx = (currentTourIdx + 1) % TOUR_SEQUENCE.length;
-      const nextStage = TOUR_SEQUENCE[nextTourIdx];
-      rotateToStage(nextStage);
-    }, 5800);
+      advanceTour();
+    }, 3600);
 
     return () => {
       if (autoAdvanceTimerRef.current) {
@@ -475,20 +517,22 @@ const Rotating3DCube = () => {
         autoAdvanceTimerRef.current = null;
       }
     };
-  }, [
-    activeStage,
-    reducedMotion,
-    isStageHovered,
-    isFocused,
-    isDocHidden,
-    isOffscreen,
-    isDragging,
-    isAnimating,
-    entrancePhase,
-    rotateToStage,
-  ]);
+  }, [activeStage, isHardPaused, isAnimating, advanceTour]);
 
-  // ── Mouse Parallax Handlers (Fine pointers only, rAF-driven on Parallax Wrapper) ──
+  // Direct segment button click handler
+  const handleStageButtonClick = useCallback((targetStage) => {
+    delayTour(4000);
+    if (targetStage === activeStage && !isAnimating) return;
+    rotateToStage(targetStage, 1100, 'click');
+  }, [activeStage, isAnimating, rotateToStage, delayTour]);
+
+  // User pause toggle
+  const toggleUserPause = useCallback(() => {
+    setIsUserPaused((prev) => !prev);
+    setProgressKey((k) => k + 1);
+  }, []);
+
+  // ── Mouse Parallax Handlers (Fine pointers only, rAF-driven) ──
   const handleParallaxMove = useCallback((e) => {
     if (!stageRef.current || !parallaxRef.current) return;
     const rect = stageRef.current.getBoundingClientRect();
@@ -500,8 +544,8 @@ const Rotating3DCube = () => {
     const clampedX = Math.max(-1, Math.min(1, nx));
     const clampedY = Math.max(-1, Math.min(1, ny));
 
-    const targetRotY = clampedX * 7; // +/- 7 deg on Y
-    const targetRotX = -clampedY * 5; // +/- 5 deg on X
+    const targetRotY = clampedX * 6; // +/- 6 deg on Y
+    const targetRotX = -clampedY * 4; // +/- 4 deg on X
 
     if (parallaxRafRef.current) cancelAnimationFrame(parallaxRafRef.current);
     parallaxRafRef.current = requestAnimationFrame(() => {
@@ -524,248 +568,199 @@ const Rotating3DCube = () => {
     }
   }, []);
 
-  // ── Drag Gesture: Tour Scrubbing Engine (Pointer Events) ──
+  // ── Scrub-Drag Tracking & Tap Detection ──
   const handlePointerDown = (e) => {
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
-    if (e.target.closest('button') || e.target.closest('a')) return;
+    if (isAnimating) return;
+    const cubeWidth = cubeRef.current ? cubeRef.current.getBoundingClientRect().width : 240;
 
-    // Check if pointer hit a specific face element for tap-to-stage
-    const faceEl = e.target.closest('[data-stage]');
-    const downStageAttr = faceEl ? faceEl.getAttribute('data-stage') : null;
-    const downStage = downStageAttr !== null ? parseInt(downStageAttr, 10) : null;
+    const clickedStageEl = e.target.closest('[data-stage]');
+    const downTargetStage = clickedStageEl
+      ? parseInt(clickedStageEl.getAttribute('data-stage'), 10)
+      : null;
 
-    // Halt any running auto-advance or active rotation animation
-    if (animEngineRef.current.rafId) {
-      cancelAnimationFrame(animEngineRef.current.rafId);
-      animEngineRef.current.rafId = null;
-      setIsAnimating(false);
-    }
-    if (autoAdvanceTimerRef.current) {
-      clearTimeout(autoAdvanceTimerRef.current);
-      autoAdvanceTimerRef.current = null;
-    }
-
-    const cubeEl = cubeRef.current;
-    const width = cubeEl ? cubeEl.offsetWidth || 220 : 220;
-
-    const tourIdx = TOUR_SEQUENCE.indexOf(activeStage);
-    const nextStage = TOUR_SEQUENCE[(tourIdx + 1) % TOUR_SEQUENCE.length];
-    const prevStage = TOUR_SEQUENCE[(tourIdx - 1 + TOUR_SEQUENCE.length) % TOUR_SEQUENCE.length];
+    const currentSeq = tourDirectionRef.current === 'forward' ? TOUR_FORWARD : TOUR_REVERSE;
+    const curIdx = currentSeq.indexOf(activeStage);
+    const nextIdx = (curIdx + 1) % currentSeq.length;
+    const prevIdx = (curIdx - 1 + currentSeq.length) % currentSeq.length;
 
     dragInfoRef.current = {
       isDown: true,
       isDragging: false,
       startX: e.clientX,
       startY: e.clientY,
-      cubeWidth: width,
-      history: [{ x: e.clientX, t: performance.now() }],
+      cubeWidth,
+      history: [{ x: e.clientX, y: e.clientY, time: performance.now() }],
       scrubCurrentStage: activeStage,
-      scrubNextStage: nextStage,
-      scrubPrevStage: prevStage,
+      scrubNextStage: currentSeq[nextIdx],
+      scrubPrevStage: currentSeq[prevIdx],
       scrubTargetStage: activeStage,
       scrubProgress: 0,
-      downTargetStage: downStage,
+      downTargetStage,
       rafId: null,
     };
 
-    try {
+    if (e.currentTarget.setPointerCapture) {
       e.currentTarget.setPointerCapture(e.pointerId);
-    } catch (_) {}
+    }
   };
 
   const handlePointerMove = (e) => {
-    const d = dragInfoRef.current;
-
-    // Handle Parallax Tilt when idle (desktop fine pointer only)
-    if (canHover && !d.isDragging && !reducedMotion && stageRef.current) {
+    if (canHover && !dragInfoRef.current.isDown) {
       handleParallaxMove(e);
+      delayTour(4000);
     }
 
-    if (!d.isDown) return;
+    if (!dragInfoRef.current.isDown) return;
 
-    const dx = e.clientX - d.startX;
-    const dy = e.clientY - d.startY;
+    const dx = e.clientX - dragInfoRef.current.startX;
+    const dy = e.clientY - dragInfoRef.current.startY;
+    const dist = Math.hypot(dx, dy);
 
-    // 6px threshold check
-    if (!d.isDragging) {
-      if (Math.abs(dx) > 6) {
-        d.isDragging = true;
-        setIsDragging(true);
-        resetParallax();
-      } else if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
-        // Vertical page scroll priority on mobile touch
-        d.isDown = false;
-        return;
-      } else {
-        return;
-      }
+    if (!dragInfoRef.current.isDragging && dist > 5) {
+      dragInfoRef.current.isDragging = true;
+      setIsDragging(true);
+      delayTour(4000);
     }
 
-    // Record point in rolling velocity history buffer (~100ms)
+    if (!dragInfoRef.current.isDragging) return;
+
     const now = performance.now();
-    d.history.push({ x: e.clientX, t: now });
-    d.history = d.history.filter((p) => now - p.t < 110);
-
-    // Scrub calculation:
-    // Dragging LEFT (dx < 0) scrubs toward NEXT stage in tour
-    // Dragging RIGHT (dx > 0) scrubs toward PREVIOUS stage in tour
-    const scrubDist = d.cubeWidth * 1.1;
-    const rawT = Math.min(1, Math.max(0, Math.abs(dx) / scrubDist));
-    d.scrubProgress = rawT;
-
-    const targetStage = dx < 0 ? d.scrubNextStage : d.scrubPrevStage;
-    d.scrubTargetStage = targetStage;
-
-    const qFrom = CANONICAL_POSES[d.scrubCurrentStage];
-    const qTo = CANONICAL_POSES[targetStage];
-    const interpolatedQuat = slerpQuat(qFrom, qTo, rawT);
-    currentQuatRef.current = interpolatedQuat;
-
-    // Update style.transform in requestAnimationFrame (0 setState calls!)
-    if (!d.rafId) {
-      d.rafId = requestAnimationFrame(() => {
-        if (cubeRef.current) {
-          cubeRef.current.style.transform = quatToMatrix3d(currentQuatRef.current);
-        }
-        d.rafId = null;
-      });
+    dragInfoRef.current.history.push({ x: e.clientX, y: e.clientY, time: now });
+    if (dragInfoRef.current.history.length > 6) {
+      dragInfoRef.current.history.shift();
     }
 
-    // Discrete active stage projection when scrub progress crosses 0.5
-    const projected = rawT >= 0.5 ? targetStage : d.scrubCurrentStage;
-    setDragActiveStage((prev) => (prev !== projected ? projected : prev));
+    const { cubeWidth, scrubCurrentStage, scrubNextStage, scrubPrevStage } = dragInfoRef.current;
+    const rawProgress = -dx / cubeWidth;
+    const clampedProgress = Math.max(-1, Math.min(1, rawProgress));
+
+    const targetStage = clampedProgress >= 0 ? scrubNextStage : scrubPrevStage;
+    const t = Math.abs(clampedProgress);
+
+    dragInfoRef.current.scrubTargetStage = targetStage;
+    dragInfoRef.current.scrubProgress = clampedProgress;
+
+    const startQuat = CANONICAL_POSES[scrubCurrentStage];
+    const destQuat = CANONICAL_POSES[targetStage];
+
+    if (dragInfoRef.current.rafId) cancelAnimationFrame(dragInfoRef.current.rafId);
+    dragInfoRef.current.rafId = requestAnimationFrame(() => {
+      const q = slerpQuat(startQuat, destQuat, t);
+      currentQuatRef.current = q;
+      if (cubeRef.current) {
+        cubeRef.current.style.transform = quatToMatrix3d(q);
+      }
+      if (t >= 0.5) {
+        setDragActiveStage(targetStage);
+      } else {
+        setDragActiveStage(scrubCurrentStage);
+      }
+      dragInfoRef.current.rafId = null;
+    });
   };
 
   const handlePointerUp = (e) => {
-    const d = dragInfoRef.current;
-    if (!d.isDown) return;
-    d.isDown = false;
+    if (!dragInfoRef.current.isDown) return;
+    const wasDragging = dragInfoRef.current.isDragging;
+    const { scrubTargetStage, scrubCurrentStage, scrubProgress, downTargetStage } = dragInfoRef.current;
 
-    try {
-      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-        e.currentTarget.releasePointerCapture(e.pointerId);
-      }
-    } catch (_) {}
+    dragInfoRef.current.isDown = false;
+    dragInfoRef.current.isDragging = false;
+    setIsDragging(false);
 
-    if (d.rafId) {
-      cancelAnimationFrame(d.rafId);
-      d.rafId = null;
+    if (dragInfoRef.current.rafId) {
+      cancelAnimationFrame(dragInfoRef.current.rafId);
+      dragInfoRef.current.rafId = null;
     }
 
-    // Step 7: Tap (click without drag) on a visible non-active face brings that face to front
-    if (!d.isDragging) {
-      if (d.downTargetStage !== null) {
-        const faceEl = e.target.closest('[data-stage]');
-        const upStageAttr = faceEl ? faceEl.getAttribute('data-stage') : null;
-        const upStage = upStageAttr !== null ? parseInt(upStageAttr, 10) : null;
-        if (upStage !== null && upStage === d.downTargetStage && upStage !== activeStage) {
-          setHasInteracted(true);
-          rotateToStage(upStage);
-        }
-      }
+    if (e.currentTarget.releasePointerCapture && e.pointerId !== undefined) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+
+    // Tap on visible non-active face sliver: rotate directly to that face
+    if (!wasDragging && downTargetStage !== null && downTargetStage !== activeStage) {
+      delayTour(4000);
+      rotateToStage(downTargetStage, 1100, 'tap');
       return;
     }
 
-    d.isDragging = false;
-    setIsDragging(false);
-    setHasInteracted(true);
-
-    // Calculate release velocity in px/ms
-    let velocity = 0;
-    if (d.history.length >= 2) {
-      const first = d.history[0];
-      const last = d.history[d.history.length - 1];
-      const dt = last.t - first.t;
-      if (dt > 10) {
-        velocity = (last.x - first.x) / dt;
+    // Drag release resolution
+    if (wasDragging) {
+      delayTour(4000);
+      const history = dragInfoRef.current.history;
+      let flickVelocity = 0;
+      if (history.length >= 2) {
+        const first = history[0];
+        const last = history[history.length - 1];
+        const dt = last.time - first.time;
+        if (dt > 10) {
+          flickVelocity = -(last.x - first.x) / dt;
+        }
       }
+
+      const shouldCommit = Math.abs(scrubProgress) > 0.35 || Math.abs(flickVelocity) > 0.45;
+      const finalStage = shouldCommit ? scrubTargetStage : scrubCurrentStage;
+
+      const currentQ = currentQuatRef.current;
+      const targetQ = CANONICAL_POSES[finalStage];
+      const remainingDot = Math.abs(
+        currentQ.x * targetQ.x + currentQ.y * targetQ.y + currentQ.z * targetQ.z + currentQ.w * targetQ.w
+      );
+      const angleRemaining = 2 * Math.acos(Math.max(-1, Math.min(1, remainingDot)));
+      const snapDuration = Math.max(250, Math.min(700, (angleRemaining / (Math.PI / 2)) * 600));
+
+      rotateToStage(finalStage, snapDuration, 'drag');
     }
-
-    const dx = e.clientX - d.startX;
-    const rawT = d.scrubProgress;
-
-    // Decision rule:
-    // Commit if t > 0.35 or release velocity points in same direction above 0.3 px/ms
-    let commit = false;
-    if (dx < 0) {
-      commit = rawT > 0.35 || velocity < -0.3;
-    } else {
-      commit = rawT > 0.35 || velocity > 0.3;
-    }
-
-    const finalStage = commit ? d.scrubTargetStage : d.scrubCurrentStage;
-
-    // Finish motion with normal slerp animation from current orientation (no jumps)
-    const remainingFraction = commit ? 1 - rawT : rawT;
-    const finishDuration = reducedMotion ? 0 : Math.max(250, Math.round(750 * remainingFraction));
-
-    rotateToStage(finalStage, finishDuration);
   };
 
-  // Keyboard navigation on segmented switcher group
+  // Keyboard navigation on switcher: ArrowLeft/Right/Up/Down
   const handleKeyDown = (e) => {
-    const tourIdx = TOUR_SEQUENCE.indexOf(activeStage);
-    if (e.key === 'ArrowLeft') {
+    const currentSeq = tourDirectionRef.current === 'forward' ? TOUR_FORWARD : TOUR_REVERSE;
+    const curIdx = currentSeq.indexOf(activeStage);
+
+    if (e.key === 'ArrowRight') {
       e.preventDefault();
-      setHasInteracted(true);
-      const prevIdx = (tourIdx - 1 + TOUR_SEQUENCE.length) % TOUR_SEQUENCE.length;
-      rotateToStage(TOUR_SEQUENCE[prevIdx]);
-    } else if (e.key === 'ArrowRight') {
+      delayTour(4000);
+      const nextIdx = (curIdx + 1) % currentSeq.length;
+      rotateToStage(currentSeq[nextIdx], 1100, 'keyboard');
+    } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      setHasInteracted(true);
-      const nextIdx = (tourIdx + 1) % TOUR_SEQUENCE.length;
-      rotateToStage(TOUR_SEQUENCE[nextIdx]);
+      delayTour(4000);
+      const prevIdx = (curIdx - 1 + currentSeq.length) % currentSeq.length;
+      rotateToStage(currentSeq[prevIdx], 1100, 'keyboard');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setHasInteracted(true);
-      // Go to Levels (stage 4); if already there, return to Solves (0)
-      rotateToStage(activeStage === 4 ? 0 : 4);
+      delayTour(4000);
+      rotateToStage(activeStage === 4 ? 0 : 4, 1100, 'keyboard');
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setHasInteracted(true);
-      // Go to Next up (stage 5); if already there, return to Solves (0)
-      rotateToStage(activeStage === 5 ? 0 : 5);
+      delayTour(4000);
+      rotateToStage(activeStage === 5 ? 0 : 5, 1100, 'keyboard');
     }
   };
 
-  // Effective displayed active face (drag Active stage or settled activeStage)
   const currentDisplayedStage = dragActiveStage !== null ? dragActiveStage : activeStage;
   const stage = CUBE_STAGES[currentDisplayedStage];
+  const activeTourIdx = TOUR_FORWARD.indexOf(currentDisplayedStage);
 
-  // Active tour index for the segmented switcher sliding indicator
-  const activeTourIdx = TOUR_SEQUENCE.indexOf(currentDisplayedStage);
-
-  // Exploded view state: stage hover only, fine pointer only, not reduced motion, not dragging, not animating
+  // Exploded view state
   const isExploded = canHover && isStageHovered && !isDragging && !isAnimating && !reducedMotion;
-
-  // Auto-advance & idle pause condition
-  const isPaused =
-    reducedMotion ||
-    isStageHovered ||
-    isFocused ||
-    isDocHidden ||
-    isOffscreen ||
-    isDragging ||
-    isAnimating;
 
   return (
     <div
-      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-1 sm:py-2 gap-4 lg:gap-6 [@media(max-height:800px)]:gap-2 [@media(max-height:800px)]:py-0 [--s:clamp(180px,48vw,220px)] sm:[--s:clamp(180px,23vw,220px)] lg:[--s:clamp(200px,26vw,264px)] [@media(max-height:800px)]:lg:[--s:clamp(165px,18vw,185px)]"
-      onFocus={() => setIsFocused(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-          setIsFocused(false);
-        }
-      }}
+      className="relative w-full max-w-[660px] flex flex-col items-center select-none py-1 [--s:clamp(200px,48vw,240px)] sm:[--s:clamp(220px,32vw,260px)] lg:[--s:clamp(240px,min(44vh,34vw),420px)]"
+      onKeyDown={handleKeyDown}
     >
-      {/* ── 3D STAGE CONTAINER (DECORATIVE & INTERACTIVE) ── */}
+      {/* ── 3D STAGE CONTAINER ── */}
       <div
         ref={stageRef}
         className={`relative w-full flex items-center justify-center overflow-visible select-none ${
           isDragging ? 'cursor-grabbing' : canHover ? 'cursor-grab' : 'cursor-default'
         }`}
         style={{
-          height: 'calc(var(--s) * 1.42)',
+          height: 'calc(var(--s) * 1.28)',
           touchAction: 'pan-y',
         }}
         aria-hidden="true"
@@ -779,172 +774,191 @@ const Rotating3DCube = () => {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
-        {/* Step 6: Faint Dot Grid Background with Radial Mask */}
+        {/* Step 4: Flat Neutral Floor Shadow directly under cube bottom */}
         <div
-          className="absolute inset-0 pointer-events-none -z-10 overflow-hidden"
-          aria-hidden="true"
+          className="absolute -bottom-5 pointer-events-none flex items-center justify-center z-0"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-            maskImage: 'radial-gradient(ellipse 65% 65% at 50% 50%, black 20%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 65% 65% at 50% 50%, black 20%, transparent 75%)',
-          }}
-        />
-
-        {/* ── STEP 3: TURNTABLE ORBIT RING WITH TRAVELING ACCENT DOT ── */}
-        <div
-          className="absolute -bottom-8 pointer-events-none flex items-center justify-center z-0"
-          style={{
-            width: 'calc(var(--s) * 1.35)',
-            height: 'calc(var(--s) * 1.35)',
-            transform: 'rotateX(76deg)',
-            transformStyle: 'preserve-3d',
+            width: 'calc(var(--s) * 0.82)',
+            height: '22px',
           }}
         >
-          {/* Neutral Floor Shadow */}
           <div
-            className={`absolute w-[68%] h-[68%] rounded-full bg-black/40 blur-md ${
-              reducedMotion ? 'opacity-30' : 'animate-cube-shadow'
+            className={`w-full h-full rounded-[50%] bg-black/32 blur-[8px] transition-opacity duration-300 ${
+              isAnimating ? 'opacity-20' : 'opacity-100'
             }`}
           />
-
-          {/* Hairline Turntable Orbit Ring */}
-          <div className="absolute inset-0 rounded-full border border-line/45">
-            {/* Traveling Orbit Dot (Auto-Advance Indicator) */}
-            {!reducedMotion && (
-              <div
-                key={orbitKey}
-                className="w-full h-full rounded-full animate-orbit-rotate"
-                style={{
-                  animationPlayState: isPaused ? 'paused' : 'running',
-                }}
-              >
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_rgba(255,161,22,0.4)]" />
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* ── LAYER 1: OUTER FLOAT WRAPPER (IDLE FLOAT ANIMATION) ── */}
+        {/* ── LAYER 1: OUTER FLOAT WRAPPER ── */}
         <div
           className={`relative flex items-center justify-center z-10 ${
             reducedMotion ? '' : 'animate-cube-subtle-float'
           }`}
           style={{ transformStyle: 'preserve-3d' }}
         >
-          {/* ── LAYER 1.2: IDLE YAW DRIFT (SLOW +/-2 DEGREE DRIFT) ── */}
+          {/* ── LAYER 1.2: IDLE YAW DRIFT (+/- 8 deg, 9s alternate) ── */}
           <div
             className={reducedMotion ? '' : 'animate-cube-yaw-drift'}
             style={{
               transformStyle: 'preserve-3d',
-              animationPlayState: isPaused ? 'paused' : 'running',
+              animationPlayState: isDragging || isStageHovered ? 'paused' : 'running',
             }}
           >
-            {/* ── LAYER 1.5: FIXED VIEWING TILT WRAPPER (-14deg on X) ── */}
+            {/* ── LAYER 1.3: IDLE PITCH DRIFT (+/- 3 deg, 13s alternate) ── */}
             <div
+              className={reducedMotion ? '' : 'animate-cube-pitch-drift'}
               style={{
-                transform: 'rotateX(-14deg)',
                 transformStyle: 'preserve-3d',
+                animationPlayState: isDragging || isStageHovered ? 'paused' : 'running',
               }}
             >
-              {/* ── LAYER 2: PARALLAX WRAPPER (MOUSE TILT, 150ms EASE-OUT) ── */}
+              {/* ── LAYER 1.5: FIXED VIEWING TILT WRAPPER (-10deg on X) ── */}
               <div
-                ref={parallaxRef}
                 style={{
-                  perspective: '1100px',
+                  transform: 'rotateX(-10deg)',
                   transformStyle: 'preserve-3d',
-                  transform: 'rotateX(var(--px, 0deg)) rotateY(var(--py, 0deg))',
-                  transition: isDragging ? 'none' : 'transform 150ms ease-out',
                 }}
               >
-                {/* ── LAYER 3: CUBE ELEMENT (DRIVEN 100% BY 3D ORIENTATION ENGINE) ── */}
+                {/* ── LAYER 2: PARALLAX WRAPPER (MOUSE TILT, 150ms EASE-OUT) ── */}
                 <div
-                  ref={cubeRef}
+                  ref={parallaxRef}
                   style={{
-                    width: 'var(--s)',
-                    height: 'var(--s)',
+                    perspective: '1200px',
                     transformStyle: 'preserve-3d',
-                    transformOrigin: '50% 50% 0px',
-                    transform: quatToMatrix3d(currentQuatRef.current),
-                    willChange: 'transform',
-                    '--gap': isExploded ? 'calc(var(--s) * 0.14)' : '0px',
+                    transform: 'rotateX(var(--px, 0deg)) rotateY(var(--py, 0deg))',
+                    transition: isDragging ? 'none' : 'transform 150ms ease-out',
                   }}
                 >
-                  {/* 6 Faces: 4 Lateral + 1 Top + 1 Bottom */}
-                  {[0, 1, 2, 3, 4, 5].map((i) => {
-                    const isFaceActive = currentDisplayedStage === i;
-                    // Specific face transforms:
-                    // 0: rotateY(0deg), 1: rotateY(90deg), 2: rotateY(180deg), 3: rotateY(270deg)
-                    // 4: rotateX(90deg) (Top face), 5: rotateX(-90deg) (Bottom face)
-                    let faceTransform = '';
-                    if (i < 4) {
-                      faceTransform = `rotateY(${i * 90}deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))`;
-                    } else if (i === 4) {
-                      faceTransform = 'rotateX(90deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))';
-                    } else {
-                      faceTransform = 'rotateX(-90deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))';
-                    }
+                  {/* ── LAYER 3: CUBE ELEMENT ── */}
+                  <div
+                    ref={cubeRef}
+                    style={{
+                      width: 'var(--s)',
+                      height: 'var(--s)',
+                      transformStyle: 'preserve-3d',
+                      transformOrigin: '50% 50% 0px',
+                      transform: quatToMatrix3d(currentQuatRef.current),
+                      willChange: 'transform',
+                      '--gap': isExploded ? 'calc(var(--s) * 0.14)' : '0px',
+                    }}
+                  >
+                    {/* 6 Faces: 4 Lateral + 1 Top + 1 Bottom */}
+                    {[0, 1, 2, 3, 4, 5].map((i) => {
+                      const isFaceActive = currentDisplayedStage === i;
+                      const stageInfo = CUBE_STAGES[i];
+                      const StageIcon = stageInfo.icon;
 
-                    // Lighting filter: Top face subtle brightness, bottom face subtle shade
-                    const lightingClass = i === 4 ? 'brightness-105' : i === 5 ? 'brightness-90' : '';
+                      let faceTransform = '';
+                      if (i < 4) {
+                        faceTransform = `rotateY(${i * 90}deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))`;
+                      } else if (i === 4) {
+                        faceTransform = 'rotateX(-90deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))';
+                      } else {
+                        faceTransform = 'rotateX(90deg) translateZ(calc(var(--s) / 2 + var(--gap, 0px)))';
+                      }
 
-                    return (
-                      <div
-                        key={i}
-                        data-stage={i}
-                        className={`absolute inset-0 rounded-2xl p-2.5 sm:p-3 overflow-hidden select-none bg-surface shadow-card ${lightingClass} ${
-                          isFaceActive ? 'border border-accent' : 'border border-line'
-                        }`}
-                        style={{
-                          transform: faceTransform,
-                          backfaceVisibility: 'hidden',
-                          WebkitBackfaceVisibility: 'hidden',
-                          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-                          transition: reducedMotion
-                            ? 'none'
-                            : 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), border-color 300ms ease-out',
-                        }}
-                      >
-                        {i === 0 && <SlidingWindowViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                        {i === 1 && <RevisionLadderViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                        {i === 2 && <TopicRadarViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                        {i === 3 && <HeatmapViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                        {i === 4 && <DifficultySplitViz active={isFaceActive} reducedMotion={reducedMotion} />}
-                        {i === 5 && <NextUpViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                      const lightingClass = i === 4 ? 'brightness-105' : i === 5 ? 'brightness-90' : '';
 
-                        {/* Step 5: Face Material Lighting Sheen & Vignette Overlay */}
+                      return (
                         <div
-                          className="absolute inset-0 pointer-events-none"
+                          key={i}
+                          data-stage={i}
+                          className={`absolute inset-0 rounded-2xl overflow-hidden select-none bg-surface shadow-card ${lightingClass} ${
+                            isFaceActive ? 'border border-accent' : 'border border-line/60'
+                          }`}
                           style={{
-                            background:
-                              'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%), radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.1) 100%)',
+                            transform: faceTransform,
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                            transition: reducedMotion
+                              ? 'none'
+                              : 'transform 400ms cubic-bezier(0.22, 1, 0.36, 1), border-color 300ms ease-out',
                           }}
-                          aria-hidden="true"
-                        />
-
-                        {/* Step 5: Active Face Viewfinder Camera Corner Ticks */}
-                        <div
-                          className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
-                            isFaceActive ? 'opacity-100' : 'opacity-0'
-                          }`}
-                          aria-hidden="true"
                         >
-                          <span className="absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-accent" />
-                          <span className="absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-accent" />
-                          <span className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-accent" />
-                          <span className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-accent" />
-                        </div>
+                          {/* Face Material Lighting: Diagonal Sheen & Edge Vignette */}
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                              background:
+                                'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%), radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.1) 100%)',
+                            }}
+                            aria-hidden="true"
+                          />
 
-                        {/* Inactive Face Dark Overlay (tuned to ~28% black) */}
-                        <div
-                          className={`absolute inset-0 bg-black/28 pointer-events-none transition-opacity duration-300 ${
-                            isFaceActive ? 'opacity-0' : 'opacity-100'
-                          }`}
-                          aria-hidden="true"
-                        />
-                      </div>
-                    );
-                  })}
+                          {/* Step 2: Inactive Face Pictogram (56px Lucide Icon at ~20% Opacity) */}
+                          <div
+                            className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-250 ${
+                              isFaceActive ? 'opacity-0 invisible' : 'opacity-100 visible'
+                            }`}
+                            aria-hidden="true"
+                          >
+                            <StageIcon className="w-14 h-14 text-text/20" />
+                          </div>
+
+                          {/* Step 1: Fixed 240x240 Design Canvas (Scaled uniformly via --k = sizePx / 240) */}
+                          <div
+                            className={`absolute top-0 left-0 transition-opacity duration-250 ${
+                              isFaceActive ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+                            }`}
+                            style={{
+                              width: '240px',
+                              height: '240px',
+                              transform: 'scale(var(--k, 1))',
+                              transformOrigin: '0 0',
+                              padding: '14px',
+                              display: 'grid',
+                              gridTemplateRows: '28px 1fr',
+                              minHeight: 0,
+                              minWidth: 0,
+                            }}
+                          >
+                            {/* Standardized 28px Header Row */}
+                            <div className="flex items-center justify-between border-b border-line pb-1.5 shrink-0 overflow-hidden">
+                              <span className="text-[12px] font-bold tracking-wider uppercase flex items-center gap-1.5 text-text-secondary whitespace-nowrap shrink-0">
+                                <StageIcon className="w-3.5 h-3.5 shrink-0 text-accent" />
+                                {stageInfo.stageLabel}
+                              </span>
+                              <span className="text-[12px] font-mono px-2 py-0.5 rounded-full bg-surface-2 text-muted border border-line whitespace-nowrap shrink-0">
+                                Sample
+                              </span>
+                            </div>
+
+                            {/* 1fr Visualization Area (min-height 0, no collisions) */}
+                            <div className="w-full h-full min-h-0 min-w-0 overflow-hidden flex items-center justify-center">
+                              {i === 0 && <SlidingWindowViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                              {i === 1 && <RevisionLadderViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                              {i === 2 && <TopicRadarViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                              {i === 3 && <HeatmapViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                              {i === 4 && <DifficultySplitViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                              {i === 5 && <NextUpViz active={isFaceActive} reducedMotion={reducedMotion} />}
+                            </div>
+                          </div>
+
+                          {/* Active Face Viewfinder Camera Corner Ticks */}
+                          <div
+                            className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+                              isFaceActive ? 'opacity-100' : 'opacity-0'
+                            }`}
+                            aria-hidden="true"
+                          >
+                            <span className="absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-accent" />
+                            <span className="absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-accent" />
+                            <span className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-accent" />
+                            <span className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-accent" />
+                          </div>
+
+                          {/* Inactive Face Dark Overlay (~28% black) */}
+                          <div
+                            className={`absolute inset-0 bg-black/28 pointer-events-none transition-opacity duration-300 ${
+                              isFaceActive ? 'opacity-0' : 'opacity-100'
+                            }`}
+                            aria-hidden="true"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -952,97 +966,106 @@ const Rotating3DCube = () => {
         </div>
       </div>
 
-      {/* ── STEP 1: ONE CENTERED CAPTION BLOCK (TIGHT, CROSS-FADING, FIXED MIN-HEIGHT) ── */}
-      <div
-        className="w-full max-w-[460px] px-4 min-h-[88px] sm:min-h-[96px] [@media(max-height:800px)]:min-h-[72px] flex flex-col items-center text-center justify-start select-none"
-        aria-live="polite"
-      >
-        <div
-          key={currentDisplayedStage}
-          className={`flex flex-col items-center ${
-            reducedMotion ? '' : 'animate-caption-fade'
-          }`}
-        >
-          {/* Eyebrow */}
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">
-            <span
-              className="w-1.5 h-1.5 rounded-full shrink-0"
-              style={{ backgroundColor: stage.accentColor }}
-              aria-hidden="true"
-            />
-            <span>{stage.stageLabel}</span>
-          </div>
-
-          {/* Title */}
-          <h3 className="text-base sm:text-lg font-semibold text-text tracking-tight leading-snug">
+      {/* ── STEP 4: CLEAN UNDER-CUBE AREA ── */}
+      <div className="w-full flex flex-col items-center mt-5 max-w-[640px]">
+        {/* 1. Stage Title Line (18px font-semibold text token, cross-fading ~250ms, fixed height) */}
+        <div className="min-h-[28px] flex items-center justify-center text-center px-4">
+          <h3
+            key={stage.title}
+            className="text-base sm:text-lg font-semibold text-text tracking-tight animate-fade-in"
+          >
             {stage.title}
           </h3>
-
-          {/* Description */}
-          <p className="text-sm text-text-secondary mt-1 leading-relaxed max-w-[48ch]">
-            {stage.description}
-          </p>
         </div>
-      </div>
 
-      {/* ── STEP 4: PILL-SHAPED SEGMENTED CONTROL IN TOUR ORDER ── */}
-      <div
-        role="group"
-        aria-label="3D Cube Stage Controls"
-        className="flex flex-col items-center select-none w-full max-w-full px-2"
-      >
-        <div
-          className="relative flex items-center justify-center p-1 rounded-full bg-surface border border-line shadow-sm max-w-full"
-          onKeyDown={handleKeyDown}
-        >
-          {/* Sliding Indicator behind active segment */}
+        {/* Visually hidden aria-live polite region for screen readers */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {`${stage.title}: ${stage.description}`}
+        </div>
+
+        {/* 2. Solid Surface Segmented Switcher + Pause/Play Button */}
+        <div className="mt-3.5 w-full flex items-center justify-center px-2">
           <div
-            className="absolute top-1 bottom-1 rounded-full bg-surface-2 border border-line shadow-xs pointer-events-none"
-            style={{
-              width: 'calc((100% - 8px) / 6)',
-              left: '4px',
-              transform: `translateX(${activeTourIdx * 100}%)`,
-              transition: reducedMotion
-                ? 'none'
-                : 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)',
-            }}
+            className="relative flex items-center bg-surface border border-line rounded-full p-1 shadow-sm w-full max-w-[620px]"
+            role="tablist"
+            aria-label="Cube Feature Stages"
           >
-            {/* Small accent dot indicator on active segment */}
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-accent" />
+            {/* Sliding Indicator behind active segment */}
+            <div
+              className="absolute top-1 bottom-1 rounded-full bg-surface-2 border border-line/80 shadow-xs pointer-events-none transition-transform duration-250 ease-out"
+              style={{
+                width: 'calc((100% - 44px - 8px) / 6)',
+                transform: `translateX(calc(${activeTourIdx} * 100%))`,
+              }}
+            />
+
+            {/* 6 Tour Segments */}
+            {TOUR_SEGMENTS.map((seg, idx) => {
+              const Icon = seg.icon;
+              const isSegmentActive = currentDisplayedStage === seg.stageId;
+
+              return (
+                <button
+                  key={seg.stageId}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSegmentActive}
+                  aria-pressed={isSegmentActive}
+                  aria-label={`Switch to stage ${idx + 1}: ${seg.label}`}
+                  tabIndex={0}
+                  onClick={() => handleStageButtonClick(seg.stageId)}
+                  className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1.5 min-h-[40px] sm:min-h-[36px] rounded-full text-xs font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    isSegmentActive ? 'text-text font-semibold' : 'text-text-secondary hover:text-text'
+                  }`}
+                  style={{
+                    width: 'calc((100% - 44px - 8px) / 6)',
+                  }}
+                >
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isSegmentActive ? 'text-accent' : 'text-text-secondary'}`} />
+                  <span className="hidden sm:inline whitespace-nowrap text-xs">{seg.label}</span>
+
+                  {/* 2px Active Segment Progress Underline */}
+                  {isSegmentActive && !isUserPaused && !reducedMotion && (
+                    <span
+                      key={progressKey}
+                      className="absolute bottom-0 left-2.5 right-2.5 h-[2px] rounded-full overflow-hidden bg-transparent"
+                    >
+                      <span
+                        className="block h-full w-full bg-accent rounded-full origin-left animate-dwell-fill"
+                        style={{
+                          animationPlayState: isHardPaused ? 'paused' : 'running',
+                          animationDuration: '3600ms',
+                        }}
+                      />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Vertical Hairline Divider */}
+            <div className="w-px h-5 bg-line mx-1 shrink-0" aria-hidden="true" />
+
+            {/* Accessible Pause / Play Button */}
+            <button
+              type="button"
+              onClick={toggleUserPause}
+              aria-label={isUserPaused ? 'Resume auto-rotation' : 'Pause auto-rotation'}
+              aria-pressed={isUserPaused}
+              title={isUserPaused ? 'Resume auto-rotation' : 'Pause auto-rotation'}
+              className="relative z-10 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-text-secondary hover:text-text hover:bg-surface-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              {isUserPaused ? (
+                <Play className="w-3.5 h-3.5 text-accent fill-accent" />
+              ) : (
+                <Pause className="w-3.5 h-3.5 text-text-secondary" />
+              )}
+            </button>
           </div>
-
-          {TOUR_SEGMENTS.map((seg, segIdx) => {
-            const isActive = activeTourIdx === segIdx;
-            const Icon = seg.icon;
-            return (
-              <button
-                key={seg.stageId}
-                onClick={() => handleStageButtonClick(seg.stageId)}
-                type="button"
-                aria-pressed={isActive}
-                aria-label={`Switch to stage ${segIdx + 1}: ${seg.label}`}
-                className={`relative z-10 min-w-[44px] min-h-[44px] sm:min-h-0 sm:min-w-0 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-150 cursor-pointer flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  isActive
-                    ? 'text-text font-semibold'
-                    : 'text-text-secondary hover:text-text'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                <span className="hidden sm:inline font-sans">{seg.label}</span>
-              </button>
-            );
-          })}
         </div>
-
-        {/* Step 4: Merged Microcopy Line (12px, clean, fades hint after first interaction) */}
-        <p className="text-xs text-muted font-sans text-center mt-2 select-none">
-          {!hasInteracted && (
-            <span>{isTouchDevice ? 'Swipe to rotate · ' : 'Drag to rotate · '}</span>
-          )}
-          <span>Sample data</span>
-        </p>
       </div>
 
+      {/* Embedded Keyframes for Smooth Motion */}
       <style>{`
         @keyframes cubeSubtleFloat {
           0%, 100% {
@@ -1053,39 +1076,37 @@ const Rotating3DCube = () => {
           }
         }
 
-        @keyframes cubeShadowPulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 0.40;
-          }
-          50% {
-            transform: scale(0.85);
-            opacity: 0.22;
-          }
-        }
-
         @keyframes cubeYawDrift {
-          0%, 100% {
-            transform: rotateY(-2deg);
+          0% {
+            transform: rotateY(-8deg);
           }
-          50% {
-            transform: rotateY(2deg);
-          }
-        }
-
-        @keyframes orbitRotate {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
+          100% {
+            transform: rotateY(8deg);
           }
         }
 
-        @keyframes captionFade {
+        @keyframes cubePitchDrift {
+          0% {
+            transform: rotateX(-3deg);
+          }
+          100% {
+            transform: rotateX(3deg);
+          }
+        }
+
+        @keyframes dwellFill {
+          0% {
+            transform: scaleX(0);
+          }
+          100% {
+            transform: scaleX(1);
+          }
+        }
+
+        @keyframes titleFade {
           from {
             opacity: 0;
-            transform: translateY(8px);
+            transform: translateY(4px);
           }
           to {
             opacity: 1;
@@ -1094,27 +1115,27 @@ const Rotating3DCube = () => {
         }
 
         .animate-cube-subtle-float {
-          animation: cubeSubtleFloat 4.4s ease-in-out infinite;
-        }
-
-        .animate-cube-shadow {
-          animation: cubeShadowPulse 4.4s ease-in-out infinite;
+          animation: cubeSubtleFloat 5.4s ease-in-out infinite;
         }
 
         .animate-cube-yaw-drift {
-          animation: cubeYawDrift 7s ease-in-out infinite;
+          animation: cubeYawDrift 9s ease-in-out infinite alternate;
         }
 
-        .animate-orbit-rotate {
-          animation: orbitRotate 5800ms linear infinite;
+        .animate-cube-pitch-drift {
+          animation: cubePitchDrift 13s ease-in-out infinite alternate;
         }
 
-        .animate-caption-fade {
-          animation: captionFade 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .animate-dwell-fill {
+          animation: dwellFill linear forwards;
+        }
+
+        .animate-fade-in {
+          animation: titleFade 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
       `}</style>
     </div>
   );
 };
 
-export default Rotating3DCube;
+export default React.memo(Rotating3DCube);
