@@ -59,7 +59,7 @@ const getProblems = async (req, res, next) => {
     if (search && search.trim()) {
       const escapedSearch = escapeRegex(search.trim());
       const searchRegex = { $regex: escapedSearch, $options: 'i' };
-      query.$or = [{ title: searchRegex }, { topics: searchRegex }];
+      query.$or = [{ title: searchRegex }, { topics: searchRegex }, { platform: searchRegex }];
     }
 
     // Fetch matching problems

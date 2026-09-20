@@ -67,6 +67,7 @@ const GridIcon = () => (
 );
 
 /* ── Mobile Problem Card (touch-first card) ──────────────────────── */
+/* ── Mobile Problem Card (High-density touch-first card) ───────────── */
 const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
   const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted' };
   const latestStatus = problem.latestAttempt?.status;
@@ -74,111 +75,96 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
   const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="p-4 bg-surface border border-line flex flex-col gap-3 rounded-xl transition-all duration-150">
-      {/* Top row: Difficulty + Platform on left, Status on right */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <span className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${diff.text} ${diff.bg}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
-            <span>{problem.difficulty}</span>
-          </span>
-          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md border ${platform.style}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${platform.dot}`} />
-            <span>{platform.short}</span>
-          </span>
-        </div>
-
-        {statusCfg ? (
-          <div className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-            <span className="text-xs font-semibold">{statusCfg.label}</span>
-          </div>
-        ) : (
-          <span className="text-xs text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line">
-            Unattempted
-          </span>
-        )}
-      </div>
-
-      {/* Middle row: Problem Title + External Link */}
+    <div className="p-3 bg-surface border border-line rounded-lg flex flex-col gap-2 transition-all">
+      {/* Top Line: Title + Status Pill */}
       <div className="flex items-start justify-between gap-2">
         <Link
           to={`/problems/${problem.id || problem._id}`}
-          className="text-sm font-semibold text-text leading-snug line-clamp-2 hover:text-accent active:text-accent transition-colors"
+          className="text-xs sm:text-sm font-semibold text-text leading-snug line-clamp-1 hover:text-accent active:text-accent transition-colors flex-1"
         >
           {problem.title}
         </Link>
-        {problem.link && (
-          <a
-            href={problem.link}
-            target="_blank"
-            rel="noreferrer"
-            className="p-1 text-muted hover:text-accent active:text-accent shrink-0"
-            title="Open original problem"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+        {statusCfg ? (
+          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
+            <span className={`w-1 h-1 rounded-full ${statusCfg.dot}`} />
+            <span>{statusCfg.label}</span>
+          </span>
+        ) : (
+          <span className="text-[10px] text-muted px-1.5 py-0.2 rounded bg-surface-2 border border-line shrink-0">
+            New
+          </span>
         )}
       </div>
 
-      {/* Topics & Sessions row */}
-      <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
-        <div className="flex items-center gap-1 flex-wrap">
-          {problem.topics?.slice(0, 3).map((t) => (
-            <span
-              key={t}
-              className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary"
-            >
-              #{t}
+      {/* Middle Line: Difficulty · Platform · Topics · Sessions */}
+      <div className="flex items-center gap-1.5 text-[11px] text-muted flex-wrap">
+        <span className={`inline-flex items-center gap-1 font-semibold ${diff.text}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
+          <span className="capitalize">{problem.difficulty}</span>
+        </span>
+        <span className="text-line">•</span>
+        <span className="font-medium text-text-secondary">{platform.short}</span>
+        {problem.topics?.length > 0 && (
+          <>
+            <span className="text-line">•</span>
+            <span className="text-muted truncate max-w-[140px] font-mono text-[10px]">
+              #{problem.topics[0]}
+              {problem.topics.length > 1 ? ` +${problem.topics.length - 1}` : ''}
             </span>
-          ))}
-          {(problem.topics?.length || 0) > 3 && (
-            <span className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted">
-              +{problem.topics.length - 3}
-            </span>
-          )}
-        </div>
-
-        <span className="text-xs text-muted tabular-nums">
-          {problem.attemptCount > 0 ? `${problem.attemptCount} attempt${problem.attemptCount > 1 ? 's' : ''}` : 'No attempts'}
+          </>
+        )}
+        <span className="text-line">•</span>
+        <span className="text-[10px] tabular-nums">
+          {problem.attemptCount > 0 ? `${problem.attemptCount} att.` : '0 att.'}
         </span>
       </div>
 
-      {/* Bottom actions row */}
-      <div className="flex items-center gap-2 pt-2.5 border-t border-line">
+      {/* Bottom Action Strip (Compact) */}
+      <div className="flex items-center justify-between gap-2 pt-2 border-t border-line/50">
         {onLog && (
           <button
             onClick={() => onLog(problem)}
-            className="flex-1 h-9 flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold bg-success/10 text-success border border-success/25 hover:bg-success/20 transition-all cursor-pointer"
+            className="h-7 flex-1 flex items-center justify-center gap-1 px-2.5 rounded-md text-[11px] font-semibold bg-success/10 text-success border border-success/25 hover:bg-success/20 transition-all cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Plus className="w-3 h-3 stroke-[2.5]" />
             <span>Log Attempt</span>
           </button>
         )}
 
-        <Link
-          to={`/problems/${problem.id || problem._id}`}
-          aria-label="View problem details"
-          className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface-2 text-muted border border-line hover:text-text transition-colors"
-        >
-          <Eye className="w-3.5 h-3.5" />
-        </Link>
-
-        <button
-          onClick={() => onEdit(problem)}
-          aria-label="Edit problem"
-          className="w-9 h-9 flex items-center justify-center rounded-lg bg-surface-2 text-muted border border-line hover:text-medium transition-colors cursor-pointer"
-        >
-          <Edit2 className="w-3.5 h-3.5" />
-        </button>
-
-        <button
-          onClick={() => onDelete(problem)}
-          aria-label="Delete problem"
-          className="w-9 h-9 flex items-center justify-center rounded-lg bg-danger/10 text-danger border border-danger/25 hover:bg-danger/20 transition-colors cursor-pointer"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          {problem.link && (
+            <a
+              href={problem.link}
+              target="_blank"
+              rel="noreferrer"
+              className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-accent border border-line"
+              title="Open problem link"
+            >
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+          <Link
+            to={`/problems/${problem.id || problem._id}`}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-text border border-line"
+            title="View details"
+          >
+            <Eye className="w-3 h-3" />
+          </Link>
+          <button
+            onClick={() => onEdit(problem)}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-medium border border-line cursor-pointer"
+            title="Edit problem"
+          >
+            <Edit2 className="w-3 h-3" />
+          </button>
+          <button
+            onClick={() => onDelete(problem)}
+            className="w-7 h-7 flex items-center justify-center rounded-md bg-danger/10 text-danger hover:bg-danger/20 border border-danger/25 cursor-pointer"
+            title="Delete problem"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -186,22 +172,22 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
 
 /* ── Mobile Loading Skeleton ──────────────────────────────────────── */
 const MobileProblemSkeleton = () => (
-  <div className="space-y-3">
+  <div className="space-y-2.5">
     {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="p-4 bg-surface border border-line space-y-3 animate-pulse rounded-xl">
-        <div className="flex justify-between">
-          <div className="h-4 w-20 bg-surface-2 rounded-md" />
-          <div className="h-4 w-16 bg-surface-2 rounded-md" />
+      <div key={i} className="p-3 bg-surface border border-line space-y-2 animate-pulse rounded-lg">
+        <div className="flex justify-between items-center">
+          <div className="h-4 w-44 bg-surface-2 rounded" />
+          <div className="h-3.5 w-14 bg-surface-2 rounded-full" />
         </div>
-        <div className="h-4 w-4/5 bg-surface-2 rounded-md" />
-        <div className="flex gap-1.5">
-          <div className="h-3 w-12 bg-surface-2 rounded-md" />
-          <div className="h-3 w-14 bg-surface-2 rounded-md" />
+        <div className="flex gap-2">
+          <div className="h-3 w-12 bg-surface-2 rounded" />
+          <div className="h-3 w-16 bg-surface-2 rounded" />
+          <div className="h-3 w-14 bg-surface-2 rounded" />
         </div>
-        <div className="pt-2 border-t border-line flex gap-2">
-          <div className="h-8 flex-1 bg-surface-2 rounded-lg" />
-          <div className="h-8 w-8 bg-surface-2 rounded-lg" />
-          <div className="h-8 w-8 bg-surface-2 rounded-lg" />
+        <div className="pt-2 border-t border-line/40 flex gap-2">
+          <div className="h-7 flex-1 bg-surface-2 rounded" />
+          <div className="h-7 w-7 bg-surface-2 rounded" />
+          <div className="h-7 w-7 bg-surface-2 rounded" />
         </div>
       </div>
     ))}
@@ -709,45 +695,49 @@ const ProblemsPage = () => {
         </div>
       </Reveal>
 
-      {/* ── Unified Modern Command & Filter Toolbar ────────────────── */}
+      {/* ── Unified Modern Command & Filter Toolbar (Compact 1-Row Desktop) ── */}
       <Reveal delay={50} y={12}>
-        <div className="p-3.5 sm:p-4 border border-line bg-surface space-y-3 rounded-xl">
-          {/* Top Row: Search Title + Topic Filter + Reset */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3 items-center">
-            {/* Search Title */}
-            <div className="md:col-span-6 relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
-                <Search className="w-4 h-4" />
-              </span>
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search problems by title, keywords... (Press / to focus)"
-                className="input pl-9.5 pr-8 py-2 text-xs sm:text-sm w-full bg-surface-2 border border-line rounded-lg text-text placeholder:text-muted focus:border-accent focus:ring-1 focus:ring-accent"
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-text p-0.5 cursor-pointer"
-                  title="Clear search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+        <div className="p-2.5 sm:p-3 border border-line bg-surface rounded-xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 shadow-xs">
+          {/* Search Bar with Shortcut Badge */}
+          <div className="relative flex-1 min-w-[200px] max-w-full lg:max-w-md">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+              <Search className="w-3.5 h-3.5" />
+            </span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search problems, topics, keywords... (/)"
+              className="input pl-8.5 pr-8 py-1.5 text-xs sm:text-sm w-full bg-surface-2 border border-line rounded-lg text-text placeholder:text-muted focus:border-accent"
+            />
+            {search ? (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-text p-0.5 cursor-pointer"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-block absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted bg-surface-3 px-1.5 py-0.2 rounded border border-line/60 pointer-events-none">
+                /
+              </kbd>
+            )}
+          </div>
 
+          {/* Inline Filter Cluster (Topic, Difficulty, Status, Reset) */}
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
             {/* Topic Filter Dropdown */}
-            <div className="md:col-span-4 relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
-                <Tag className="w-3.5 h-3.5" />
+            <div className="relative shrink-0">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+                <Tag className="w-3 h-3" />
               </span>
               <select
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="input pl-9 pr-8 py-2 text-xs sm:text-sm w-full bg-surface-2 border border-line rounded-lg text-text focus:border-accent focus:ring-1 focus:ring-accent appearance-none cursor-pointer"
+                className="input pl-7 pr-6 py-1 text-xs bg-surface-2 border border-line rounded-lg text-text focus:border-accent appearance-none cursor-pointer h-7.5"
               >
                 <option value="">All Topics ({(allTopics || []).length})</option>
                 {(allTopics || []).map((t) => (
@@ -756,89 +746,69 @@ const ProblemsPage = () => {
                   </option>
                 ))}
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-xs">
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-[9px]">
                 ▼
               </span>
             </div>
 
-            {/* Quick Reset / Filter count Indicator */}
-            <div className="md:col-span-2 flex items-center justify-end gap-2">
-              {activeFilterCount > 0 ? (
+            {/* Difficulty Segmented Group */}
+            <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line h-7.5 shrink-0">
+              {[
+                { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
+                { value: 'easy', label: 'Easy', active: 'bg-easy/15 text-easy border-easy/35 font-semibold shadow-xs' },
+                { value: 'medium', label: 'Med', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
+                { value: 'hard', label: 'Hard', active: 'bg-hard/15 text-hard border-hard/35 font-semibold shadow-xs' },
+              ].map((d) => (
                 <button
+                  key={d.value}
                   type="button"
-                  onClick={handleResetFilters}
-                  className="text-xs text-accent hover:text-accent-hover border border-accent/20 bg-accent/10 hover:bg-accent/20 py-1.5 px-2.5 rounded-lg flex items-center gap-1.5 w-full justify-center sm:w-auto transition-colors cursor-pointer"
+                  onClick={() => setDifficulty(d.value)}
+                  className={`text-xs px-2 py-0.5 rounded transition-all cursor-pointer ${
+                    difficulty === d.value
+                      ? d.active
+                      : 'border-transparent text-muted hover:text-text'
+                  }`}
                 >
-                  <X className="w-3 h-3" />
-                  <span>Reset ({activeFilterCount})</span>
+                  {d.label}
                 </button>
-              ) : (
-                <span className="text-xs text-muted hidden md:inline">
-                  No active filters
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom Row: Difficulty & Status Quick Filter Chips */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2.5 border-t border-line">
-            {/* Difficulty Segmented Control */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              <span className="text-xs font-medium text-text-secondary shrink-0 flex items-center gap-1">
-                <SlidersHorizontal className="w-3 h-3 text-muted" />
-                <span>Difficulty:</span>
-              </span>
-              <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line shrink-0">
-                {[
-                  { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
-                  { value: 'easy', label: 'Easy', active: 'bg-easy/15 text-easy border-easy/35 font-semibold shadow-xs' },
-                  { value: 'medium', label: 'Medium', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
-                  { value: 'hard', label: 'Hard', active: 'bg-hard/15 text-hard border-hard/35 font-semibold shadow-xs' },
-                ].map((d) => (
-                  <button
-                    key={d.value}
-                    type="button"
-                    onClick={() => setDifficulty(d.value)}
-                    className={`text-xs px-2.5 py-0.5 rounded-md border transition-all cursor-pointer ${
-                      difficulty === d.value
-                        ? d.active
-                        : 'border-transparent text-muted hover:text-text hover:bg-surface'
-                    }`}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
 
-            {/* Status Segmented Control */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              <span className="text-xs font-medium text-text-secondary shrink-0 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-muted" />
-                <span>Status:</span>
-              </span>
-              <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line shrink-0">
-                {[
-                  { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
-                  { value: 'solved', label: 'Solved', active: 'bg-success/15 text-success border-success/35 font-semibold shadow-xs' },
-                  { value: 'struggled', label: 'Struggled', active: 'bg-danger/15 text-danger border-danger/35 font-semibold shadow-xs' },
-                  { value: 'revisit_needed', label: 'Revisit', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
-                ].map((s) => (
-                  <button
-                    key={s.value}
-                    type="button"
-                    onClick={() => setStatus(s.value)}
-                    className={`text-xs px-2.5 py-0.5 rounded-md border transition-all cursor-pointer ${
-                      status === s.value
-                        ? s.active
-                        : 'border-transparent text-muted hover:text-text hover:bg-surface'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
+            {/* Status Segmented Group */}
+            <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line h-7.5 shrink-0">
+              {[
+                { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
+                { value: 'solved', label: 'Solved', active: 'bg-success/15 text-success border-success/35 font-semibold shadow-xs' },
+                { value: 'struggled', label: 'Struggled', active: 'bg-danger/15 text-danger border-danger/35 font-semibold shadow-xs' },
+                { value: 'revisit_needed', label: 'Revisit', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
+              ].map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => setStatus(s.value)}
+                  className={`text-xs px-2 py-0.5 rounded transition-all cursor-pointer ${
+                    status === s.value
+                      ? s.active
+                      : 'border-transparent text-muted hover:text-text'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
+
+            {/* Reset Button */}
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="text-xs text-accent hover:text-accent-hover border border-accent/25 bg-accent/10 hover:bg-accent/20 h-7.5 px-2.5 rounded-lg flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                title="Reset all filters"
+              >
+                <X className="w-3 h-3" />
+                <span>Reset ({activeFilterCount})</span>
+              </button>
+            )}
           </div>
         </div>
       </Reveal>
