@@ -168,25 +168,26 @@ const DashboardPage = () => {
         </Reveal>
       ) : (
         <div className="space-y-6">
-          {/* Row 1: The Studio Split — Left: Practice Studio | Right: LeetCode Console */}
+          {/* Row 1: The Studio Split — Left: LeetCode Performance Console | Right: Practice Studio */}
           <Reveal delay={60} y={16}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
-              {/* Left Pillar (col-span-7): Unified Practice Studio */}
+              {/* Left Pillar (col-span-5): LeetCode Solved & Momentum Console */}
+              <div className="lg:col-span-5 xl:col-span-5 flex flex-col h-full">
+                <LeetCodeStatsConsole
+                  summary={summary}
+                  isLoading={loadingSummary}
+                  solveRate={solveRate}
+                  heatmapData={heatmap}
+                />
+              </div>
+
+              {/* Right Pillar (col-span-7): Unified Practice Studio */}
               <div className="lg:col-span-7 xl:col-span-7 flex flex-col h-full">
                 <PracticeStudio
                   queue={revisionQueue}
                   isLoadingQueue={loadingRevision}
                   queueError={revisionError}
                   onRetryQueue={loadRevision}
-                />
-              </div>
-
-              {/* Right Pillar (col-span-5): LeetCode Solved & Momentum Console */}
-              <div className="lg:col-span-5 xl:col-span-5 flex flex-col h-full">
-                <LeetCodeStatsConsole
-                  summary={summary}
-                  isLoading={loadingSummary}
-                  solveRate={solveRate}
                 />
               </div>
             </div>

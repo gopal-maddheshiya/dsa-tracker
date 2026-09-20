@@ -111,7 +111,7 @@ const PracticeStudio = ({
       {/* ── ZONE 1: Today's Featured Problem (Hero Practice Target) ──── */}
       <div>
         {/* Header Line */}
-        <div className="flex items-center justify-between pb-3 border-b border-line/50">
+        <div className="flex items-center justify-between pb-2.5 border-b border-line/50">
           <div className="flex items-center gap-2">
             <Compass className="w-4 h-4 text-accent shrink-0" />
             <h2 className="text-xs font-bold text-text-secondary uppercase tracking-wider">
@@ -134,10 +134,10 @@ const PracticeStudio = ({
 
         {/* Featured Content */}
         {dailyFocus ? (
-          <div className="py-3.5 space-y-2.5">
+          <div className="py-2.5 space-y-2">
             {/* Tag & Title */}
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-surface-2 border border-line/60 text-text-secondary">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                   <span>{dailyFocus.badge || 'Priority Recall'}</span>
@@ -176,7 +176,7 @@ const PracticeStudio = ({
             </div>
 
             {/* Subtle Memory Insight Bar */}
-            <div className="border-l-2 border-accent/70 pl-3 py-1 bg-surface-2/30 rounded-r-md">
+            <div className="border-l-2 border-accent/70 pl-2.5 py-1 bg-surface-2/30 rounded-r-md">
               <p className="text-xs text-text-secondary leading-relaxed">
                 <span className="font-semibold text-text">Memory Insight: </span>
                 {dailyFocus.rationale}
@@ -184,7 +184,7 @@ const PracticeStudio = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-1 flex flex-wrap items-center gap-2">
+            <div className="pt-0.5 flex flex-wrap items-center gap-2">
               <Link
                 to={`/problems/${dailyFocus.id}`}
                 className="btn-primary text-xs py-1.5 px-3.5 rounded-md font-semibold inline-flex items-center gap-1.5 shadow-none"
@@ -214,9 +214,9 @@ const PracticeStudio = ({
       </div>
 
       {/* ── ZONE 2: Spaced Recall Queue (Next Due Items) ─────────────── */}
-      <div className="pt-3 border-t border-line/50 mt-auto">
+      <div className="pt-2.5 border-t border-line/50 mt-auto">
         {/* Sub-Header */}
-        <div className="flex items-center justify-between pb-2.5">
+        <div className="flex items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <RotateCcw className="w-3.5 h-3.5 text-accent shrink-0" />
             <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">

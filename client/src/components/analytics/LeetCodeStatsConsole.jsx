@@ -1,5 +1,5 @@
-import React from 'react';
-import { Flame, Zap, Trophy } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Flame, Zap, Trophy, Activity } from 'lucide-react';
 import AnimatedNumber from '../ui/AnimatedNumber';
 import { easy, medium, hard } from '../../theme/colors';
 
@@ -7,15 +7,53 @@ import { easy, medium, hard } from '../../theme/colors';
  * LeetCodeStatsConsole: Dedicated LeetCode Solved & Momentum Console.
  * Symmetrically pairs with PracticeStudio on laptop viewports.
  *
- * Top Zone: Solved Problems Donut (112px) + Stacked Easy/Med/Hard Bars.
- * Bottom Zone: Active Streak (with personal record rail) & Practice Output (with accuracy meter).
+ * Top Zone: Solved Problems Donut (108px) + Stacked Easy/Med/Hard Bars.
+ * Mid Zone: 7-Day Consistency Rhythm + Today's Target Status Rail.
+ * Bottom Zone: Active Streak & Practice Output Tiles.
  */
 const LeetCodeStatsConsole = ({
   summary,
   isLoading = false,
   solveRate = 0,
+  heatmapData = [],
   className = '',
 }) => {
+  // Calculate 7-Day Consistency Rhythm & Today's Target Status from real heatmap logs
+  const { weekDays, weekTotal, todayCount } = useMemo(() => {
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const countMap = new Map();
+    (heatmapData || []).forEach(({ date, count }) => {
+      if (date) countMap.set(date, Number(count) || 0);
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const days = [];
+    let total = 0;
+    let todayLogged = 0;
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      const count = countMap.get(iso) || 0;
+      const isToday = i === 0;
+
+      if (isToday) todayLogged = count;
+      total += count;
+
+      days.push({
+        date: iso,
+        shortDay: isToday ? 'Now' : dayNames[d.getDay()],
+        count,
+        isToday,
+      });
+    }
+
+    return { weekDays: days, weekTotal: total, todayCount: todayLogged };
+  }, [heatmapData]);
+
   if (isLoading) {
     return (
       <div className={`panel p-4 sm:p-5 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
@@ -33,9 +71,12 @@ const LeetCodeStatsConsole = ({
             </div>
           </div>
         </div>
-        <div className="pt-4 grid grid-cols-2 gap-3">
-          <div className="h-24 bg-surface-2 rounded-xl" />
-          <div className="h-24 bg-surface-2 rounded-xl" />
+        <div className="py-2 space-y-2">
+          <div className="h-10 bg-surface-2 rounded-lg" />
+        </div>
+        <div className="pt-2 grid grid-cols-2 gap-3">
+          <div className="h-20 bg-surface-2 rounded-xl" />
+          <div className="h-20 bg-surface-2 rounded-xl" />
         </div>
       </div>
     );
@@ -90,7 +131,7 @@ const LeetCodeStatsConsole = ({
       {/* ── ZONE 1: Solved Problems Donut + Difficulty Stack ──────────── */}
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-line/50">
+        <div className="flex items-center justify-between pb-2.5 border-b border-line/50">
           <div className="flex items-center gap-2">
             <Trophy className="w-4 h-4 text-accent shrink-0" />
             <h2 className="text-xs font-bold text-text-secondary uppercase tracking-wider">
@@ -103,7 +144,7 @@ const LeetCodeStatsConsole = ({
         </div>
 
         {/* Donut + Difficulty Bars */}
-        <div className="flex items-center gap-4 sm:gap-5 py-3.5">
+        <div className="flex items-center gap-4 sm:gap-5 py-2.5">
           
           {/* Multi-Segment Donut Ring */}
           <div className="relative shrink-0 flex items-center justify-center" style={{ width: size, height: size }}>
@@ -256,12 +297,79 @@ const LeetCodeStatsConsole = ({
         </div>
       </div>
 
-      {/* ── ZONE 2: Activity Momentum Tiles (Streak & Volume) ────────── */}
-      <div className="pt-3 border-t border-line/50 mt-auto">
+      {/* ── ZONE 2: 7-Day Consistency Rhythm & Today's Target Status ───── */}
+      <div className="py-2.5 px-3 rounded-lg bg-surface-2/25 border border-line/40 my-2">
+        <div className="flex items-center justify-between text-[11px] mb-1.5">
+          <div className="flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-accent shrink-0" />
+            <span className="font-semibold text-text-secondary">7-Day Activity Rhythm</span>
+            <span className="text-[10px] text-muted font-mono font-medium hidden sm:inline">
+              ({weekTotal} {weekTotal === 1 ? 'attempt' : 'attempts'})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[10px] font-mono">
+            <span className="text-muted">Today:</span>
+            <span
+              className={`font-semibold px-1.5 py-0.5 rounded text-[10px] border ${
+                todayCount > 0
+                  ? 'text-success bg-success/10 border-success/25'
+                  : 'text-muted bg-surface-3 border-line/50'
+              }`}
+            >
+              {todayCount > 0 ? `${todayCount} logged` : '0 logged'}
+            </span>
+          </div>
+        </div>
+
+        {/* 7 Micro Column Bars */}
+        <div className="grid grid-cols-7 gap-1.5 items-end h-8">
+          {weekDays.map((d) => {
+            const maxInWeek = Math.max(...weekDays.map((x) => x.count), 3);
+            const heightPct =
+              d.count > 0 ? Math.max(35, Math.round((d.count / maxInWeek) * 100)) : 14;
+
+            return (
+              <div
+                key={d.date}
+                className="flex flex-col items-center gap-1 group/bar relative"
+                title={`${d.date}: ${d.count} ${d.count === 1 ? 'attempt' : 'attempts'}`}
+              >
+                {/* Micro vertical bar rail */}
+                <div className="w-full h-5 rounded bg-surface-2/70 flex items-end overflow-hidden p-0.5 border border-line/30">
+                  <div
+                    className={`w-full rounded-xs transition-all duration-500 ease-out ${
+                      d.isToday
+                        ? d.count > 0
+                          ? 'bg-success shadow-[0_0_6px_rgba(46,204,113,0.4)]'
+                          : 'bg-accent/40'
+                        : d.count > 0
+                        ? 'bg-accent shadow-[0_0_4px_rgba(99,102,241,0.3)]'
+                        : 'bg-transparent'
+                    }`}
+                    style={{ height: `${heightPct}%` }}
+                  />
+                </div>
+                {/* Day label */}
+                <span
+                  className={`text-[9px] font-mono leading-none ${
+                    d.isToday ? 'font-bold text-accent' : 'text-muted'
+                  }`}
+                >
+                  {d.shortDay}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── ZONE 3: Activity Momentum Tiles (Streak & Volume) ────────── */}
+      <div className="pt-2 border-t border-line/50 mt-auto">
         <div className="grid grid-cols-2 gap-3">
           
           {/* Active Streak Tile */}
-          <div className="p-3 rounded-lg bg-surface-2/30 hover:bg-surface-2/60 border border-line/40 transition-colors flex flex-col justify-between">
+          <div className="p-2.5 sm:p-3 rounded-lg bg-surface-2/30 hover:bg-surface-2/60 border border-line/40 transition-colors flex flex-col justify-between">
             <div className="flex items-center justify-between gap-1">
               <span className="text-[11px] font-semibold text-text-secondary">
                 Streak
