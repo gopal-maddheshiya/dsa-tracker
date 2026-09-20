@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchRevisionQueue } from '../api/analytics';
+import { createAttempt } from '../api/attempts';
 import { getErrorMessage } from '../utils/errorHandler';
 import { useToast } from '../context/ToastContext';
 import Badge from '../components/ui/Badge';
@@ -195,6 +196,22 @@ const RevisionPage = () => {
     setLoggingProblem(null);
     loadQueue();
     toast.success('Practice session recorded! Spaced repetition updated.');
+  };
+
+  const handleQuickLog = async (item, status = 'solved') => {
+    try {
+      await createAttempt(item.problemId, {
+        status,
+        timeTakenMinutes: 15,
+        notes: `Quick recall logged via Revision Queue (${status === 'solved' ? 'Recalled successfully' : 'Needs more practice'}).`,
+        attemptedAt: new Date().toISOString(),
+      });
+      toast.success(`Marked "${item.title}" as ${status === 'solved' ? 'Solved' : 'Struggled'}!`);
+      window.dispatchEvent(new CustomEvent('problem-created'));
+      loadQueue();
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Failed to log quick recall.'));
+    }
   };
 
   const handleResetFilters = () => {
@@ -560,7 +577,7 @@ const RevisionPage = () => {
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
-                          <Badge variant={diffCfg.variant} dot size="xs">{diffCfg.label}</Badge>
+                          <Badge variant={diffCfg.variant} size="xs">{diffCfg.label}</Badge>
                           <span className={`text-xs font-semibold px-2 py-0.2 rounded border ${platformCfg.style}`}>
                             {platformCfg.short}
                           </span>
@@ -574,8 +591,7 @@ const RevisionPage = () => {
                       </div>
 
                       <div className="col-span-2">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${urgency.style}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${urgency.dot}`} />
+                        <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${urgency.style}`}>
                           <span>{urgency.label}</span>
                         </span>
                       </div>
@@ -599,16 +615,24 @@ const RevisionPage = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
+                            onClick={() => handleQuickLog(item, 'solved')}
+                            className="h-7.5 px-2 rounded-lg text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                            title="Quick 1-Tap: Mark Solved"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => handleOpenLog(item)}
-                            className="px-2.5 py-1.5 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+                            className="h-7.5 px-2.5 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                             title="Log recall practice attempt"
                           >
                             <Plus className="w-3 h-3 stroke-[2.5]" />
-                            <span>Log Recall</span>
+                            <span>Log</span>
                           </button>
                           <Link
                             to={`/problems/${item.problemId}`}
-                            className="btn-secondary px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                            className="btn-secondary h-7.5 px-2.5 rounded-lg text-xs font-semibold flex items-center transition-all"
                             title="View details & notes"
                           >
                             Details
@@ -646,7 +670,7 @@ const RevisionPage = () => {
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${platformCfg.style}`}>
                             {platformCfg.short}
                           </span>
-                          <Badge variant={diffCfg.variant} dot size="xs">{diffCfg.label}</Badge>
+                          <Badge variant={diffCfg.variant} size="xs">{diffCfg.label}</Badge>
                         </div>
 
                         <div className="flex items-center gap-1 text-xs font-semibold text-accent px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 shrink-0 tabular-nums">
@@ -699,8 +723,7 @@ const RevisionPage = () => {
 
                       {/* Overdue Timing & Urgency Strip */}
                       <div className="flex items-center justify-between text-xs pt-1 border-t border-line">
-                        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${urgency.style}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${urgency.dot}`} />
+                        <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${urgency.style}`}>
                           <span>{urgency.label}</span>
                         </span>
 
@@ -710,22 +733,31 @@ const RevisionPage = () => {
                         </div>
                       </div>
 
-                      {/* Mobile Actions */}
-                      <div className="grid grid-cols-2 gap-2 pt-1">
+                      {/* Mobile Actions: Non-wrapping flex action bar */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-line">
                         <button
                           type="button"
                           onClick={() => handleOpenLog(item)}
-                          className="h-9 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          className="flex-1 h-8 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                         >
-                          <Plus className="w-4 h-4 stroke-[2.5]" />
+                          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                           <span>Log Recall</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleQuickLog(item, 'solved')}
+                          className="h-8 px-2.5 rounded-lg text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                          title="Quick 1-Tap: Mark Solved"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Pass</span>
                         </button>
                         <Link
                           to={`/problems/${item.problemId}`}
-                          className="btn-secondary h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
+                          className="btn-secondary h-8 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
                         >
                           <span>Details</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-muted" />
+                          <ArrowRight className="w-3 h-3 text-muted" />
                         </Link>
                       </div>
                     </div>
