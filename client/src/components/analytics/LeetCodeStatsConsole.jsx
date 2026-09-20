@@ -31,10 +31,10 @@ const LeetCodeStatsConsole = ({
             </div>
           </div>
         </div>
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="panel p-4 h-36 shimmer rounded-xl" />
-          <div className="panel p-4 h-36 shimmer rounded-xl" />
-          <div className="panel p-4 h-36 shimmer rounded-xl" />
+        <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="panel p-4 h-32 shimmer rounded-xl" />
+          <div className="panel p-4 h-32 shimmer rounded-xl" />
+          <div className="col-span-2 sm:col-span-1 panel p-4 h-24 sm:h-32 shimmer rounded-xl" />
         </div>
       </div>
     );
@@ -257,7 +257,7 @@ const LeetCodeStatsConsole = ({
       </div>
 
       {/* ── Right Pillar: 3 Dense Telemetry Cards (col-span-7) ───────── */}
-      <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 items-stretch">
+      <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 items-stretch">
         
         {/* 1. Active Streak Card (Dense, with streak progress rail) */}
         <div className="panel p-3.5 sm:p-4 flex flex-col justify-between hover:border-line transition-all shadow-sm group">
@@ -329,10 +329,10 @@ const LeetCodeStatsConsole = ({
           </div>
         </div>
 
-        {/* 3. Revision Queue Card (Dense, with actionable link) */}
+        {/* 3. Revision Queue Card (col-span-2 on mobile, col-span-1 on sm+) */}
         <Link
           to="/revision"
-          className="panel p-3.5 sm:p-4 flex flex-col justify-between hover:border-accent/40 transition-all shadow-sm group cursor-pointer"
+          className="col-span-2 sm:col-span-1 panel p-3.5 sm:p-4 flex flex-col justify-between hover:border-accent/40 transition-all shadow-sm group cursor-pointer"
         >
           {/* Top Line: Label + Icon */}
           <div className="flex items-center justify-between gap-1.5">
