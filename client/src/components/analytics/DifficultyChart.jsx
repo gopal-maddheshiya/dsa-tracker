@@ -39,7 +39,7 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
 
   if (isLoading) {
     return (
-      <div className={`rounded-xl bg-surface border border-line p-6 animate-pulse flex flex-col justify-between h-full ${className}`}>
+      <div className={`rounded-xl bg-surface border border-line p-4 sm:p-6 animate-pulse flex flex-col justify-between h-full ${className}`}>
         <div className="h-4 w-36 bg-surface-2 rounded mb-2" />
         <div className="h-3 w-28 bg-surface-2 rounded mb-5" />
         <div className="grid grid-cols-2 gap-4">
@@ -56,7 +56,7 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
 
   if (error) {
     return (
-      <div className={`rounded-xl bg-surface border border-danger/20 p-6 flex flex-col justify-between h-full ${className}`}>
+      <div className={`rounded-xl bg-surface border border-danger/20 p-4 sm:p-6 flex flex-col justify-between h-full ${className}`}>
         <h3 className="text-sm font-semibold text-text mb-3">Difficulty Split</h3>
         <div className="h-48 flex flex-col items-center justify-center text-center">
           <p className="text-xs text-danger mb-3">Unable to load difficulty data.</p>
@@ -121,7 +121,7 @@ const DifficultyChart = ({ breakdown = {}, isLoading = false, error = null, onRe
 
   return (
     <div
-      className={`rounded-xl bg-surface border border-line p-6 flex flex-col justify-between h-full ${className}`}
+      className={`rounded-xl bg-surface border border-line p-4 sm:p-6 flex flex-col justify-between h-full ${className}`}
     >
       {/* ── Top Header ─────────────────────────────────────────────── */}
       <div className="shrink-0 mb-3 sm:mb-4">

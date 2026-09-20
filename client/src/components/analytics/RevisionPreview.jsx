@@ -86,56 +86,65 @@ const RevisionPreview = ({ queue = [], isLoading = false, error = null, onRetry,
           <p className="text-xs text-muted mt-1">No revision items due right now.</p>
         </div>
       ) : (
-        <div className="divide-y divide-line flex-1 flex flex-col justify-between">
-          {previewItems.map((item, idx) => {
-            const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
-            const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
-            const diffLabel = DIFFICULTY_LABELS[item.difficulty] || item.difficulty;
-            const platformLabel = PLATFORM_LABELS[item.platform] || item.platform;
-            const topicStr = item.topics?.length > 0 ? item.topics.slice(0, 2).join(', ') : '';
+        <div className="flex-1 flex flex-col justify-between">
+          <div className="divide-y divide-line">
+            {previewItems.map((item, idx) => {
+              const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
+              const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
+              const diffLabel = DIFFICULTY_LABELS[item.difficulty] || item.difficulty;
+              const platformLabel = PLATFORM_LABELS[item.platform] || item.platform;
+              const topicStr = item.topics?.length > 0 ? item.topics.slice(0, 2).join(', ') : '';
 
-            return (
-              <Link
-                key={item.problemId}
-                to={`/problems/${item.problemId}`}
-                className="px-5 py-3.5 block hover:bg-surface-2 transition-colors duration-150 group"
-              >
-                {/* Tier 1: Index + Problem Title + Priority Score */}
-                <div className="flex items-center justify-between gap-3 mb-1.5">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span className="text-xs font-medium tabular-nums text-muted shrink-0 w-4">
-                      {idx + 1}
-                    </span>
-                    <span className="text-sm font-semibold text-text group-hover:text-accent line-clamp-2 transition-colors">
-                      {item.title}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0 pl-2">
-                    <span className="text-xs text-muted font-medium">Priority</span>
-                    <span className="text-xs font-semibold tabular-nums text-accent">
-                      {item.priorityScore.toFixed(1)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tier 2: Topics, Difficulty, Platform and Status */}
-                <div className="flex items-center justify-between gap-2 pl-6.5 text-xs">
-                  <div className="flex items-center gap-2 truncate flex-1 min-w-0 text-muted">
-                    <span className="truncate">{topicStr || 'Algorithm'}</span>
-                    <span className="text-line">·</span>
-                    <span className="shrink-0">{diffLabel}</span>
-                    <span className="text-line">·</span>
-                    <span className="uppercase tracking-wide shrink-0">{platformLabel}</span>
+              return (
+                <Link
+                  key={item.problemId}
+                  to={`/problems/${item.problemId}`}
+                  className="px-5 py-3.5 block hover:bg-surface-2 transition-colors duration-150 group"
+                >
+                  {/* Tier 1: Index + Problem Title + Priority Score */}
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <span className="text-xs font-medium tabular-nums text-muted shrink-0 w-4">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm font-semibold text-text group-hover:text-accent line-clamp-2 transition-colors">
+                        {item.title}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                      <span className="text-xs text-muted font-medium">Priority</span>
+                      <span className="text-xs font-semibold tabular-nums text-accent">
+                        {item.priorityScore.toFixed(1)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                    <span className={`text-xs font-medium ${statusCfg.text}`}>{statusCfg.label}</span>
+                  {/* Tier 2: Topics, Difficulty, Platform and Status */}
+                  <div className="flex items-center justify-between gap-2 pl-6.5 text-xs">
+                    <div className="flex items-center gap-2 truncate flex-1 min-w-0 text-muted">
+                      <span className="truncate">{topicStr || 'Algorithm'}</span>
+                      <span className="text-line">·</span>
+                      <span className="shrink-0">{diffLabel}</span>
+                      <span className="text-line">·</span>
+                      <span className="uppercase tracking-wide shrink-0">{platformLabel}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                      <span className={`text-xs font-medium ${statusCfg.text}`}>{statusCfg.label}</span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="px-5 py-3 border-t border-line bg-surface-2/20 flex items-center justify-between text-xs text-muted mt-auto">
+            <span>{queue.length > 4 ? `+${queue.length - 4} more in backlog` : 'Spaced repetition active'}</span>
+            <Link to="/revision" className="text-accent hover:underline font-medium">
+              Start revision →
+            </Link>
+          </div>
         </div>
       )}
     </div>

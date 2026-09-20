@@ -11,6 +11,9 @@ const formatDisplayDate = (iso) => {
 
 const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, onRetry }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
+  const [compactMode, setCompactMode] = useState(() => {
+    return typeof window !== 'undefined' && window.innerWidth < 640;
+  });
 
   const {
     weeks,
@@ -103,6 +106,18 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
     };
   }, [heatmapData]);
 
+  const displayWeeks = useMemo(() => {
+    return compactMode ? weeks.slice(-10) : weeks;
+  }, [weeks, compactMode]);
+
+  const displayMonthLabels = useMemo(() => {
+    if (!compactMode) return monthLabels;
+    const startIndex = Math.max(0, weeks.length - 10);
+    return monthLabels
+      .filter((m) => m.weekIndex >= startIndex)
+      .map((m) => ({ ...m, weekIndex: m.weekIndex - startIndex }));
+  }, [monthLabels, weeks.length, compactMode]);
+
   const getColor = (count) => {
     if (count === null || count === undefined) return 'bg-transparent border-transparent';
     if (count === 0) return 'bg-surface-2 border-line';
@@ -163,28 +178,44 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
             </span>
           </div>
           <p className="text-xs text-text-secondary mt-1">
-            Rolling 140-day (20-week) consistency & momentum tracker
+            Rolling 140-day consistency & momentum tracker
           </p>
         </div>
 
-        {/* Top 3 Quick Stats */}
+        {/* Top Controls: 10w / 20w Toggle + Quick Stats */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <div className="px-3.5 py-2 rounded-lg bg-surface-2 border border-line">
-            <span className="text-xs text-text-secondary block uppercase tracking-wide">Active Days</span>
+          {/* 10w / 20w View Toggle */}
+          <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line text-xs">
+            <button
+              type="button"
+              onClick={() => setCompactMode(false)}
+              className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                !compactMode ? 'bg-surface text-accent font-semibold shadow-sm' : 'text-muted hover:text-text'
+              }`}
+            >
+              20w Full
+            </button>
+            <button
+              type="button"
+              onClick={() => setCompactMode(true)}
+              className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                compactMode ? 'bg-surface text-accent font-semibold shadow-sm' : 'text-muted hover:text-text'
+              }`}
+            >
+              10w Compact
+            </button>
+          </div>
+
+          <div className="px-3 py-1.5 rounded-lg bg-surface-2 border border-line">
+            <span className="text-[11px] text-text-secondary block uppercase tracking-wide">Active</span>
             <span className="text-xs font-semibold tabular-nums text-text">
-              {activeDaysCount} <span className="text-xs text-muted font-normal">/ 140d</span>
+              {activeDaysCount} <span className="text-[11px] text-muted font-normal">/ 140d</span>
             </span>
           </div>
-          <div className="px-3.5 py-2 rounded-lg bg-surface-2 border border-line">
-            <span className="text-xs text-text-secondary block uppercase tracking-wide">Total Sessions</span>
+          <div className="px-3 py-1.5 rounded-lg bg-surface-2 border border-line">
+            <span className="text-[11px] text-text-secondary block uppercase tracking-wide">Sessions</span>
             <span className="text-xs font-semibold tabular-nums text-accent">
-              {totalAttemptsInPeriod} <span className="text-xs text-muted font-normal">attempts</span>
-            </span>
-          </div>
-          <div className="px-3.5 py-2 rounded-lg bg-surface-2 border border-line">
-            <span className="text-xs text-text-secondary block uppercase tracking-wide">Daily Avg</span>
-            <span className="text-xs font-semibold tabular-nums text-text">
-              {avgPerActiveDay} <span className="text-xs text-muted font-normal">/ active</span>
+              {totalAttemptsInPeriod}
             </span>
           </div>
         </div>
@@ -194,12 +225,12 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-5 min-w-0">
         {/* Left/Center: Heatmap Grid + Readout + Legend (8 cols) */}
         <div className="lg:col-span-8 min-w-0 flex flex-col justify-between">
-          <div className="w-full overflow-x-auto pb-2">
-            <div className="min-w-[420px]">
+          <div className={`w-full ${compactMode ? 'overflow-x-visible' : 'overflow-x-auto'} pb-2`}>
+            <div className={compactMode ? 'min-w-0 max-w-full' : 'min-w-[420px]'}>
               {/* Month labels */}
               <div className="flex text-xs text-text-secondary mb-2 pl-6">
-                {weeks.map((_, wIndex) => {
-                  const labelObj = monthLabels.find((m) => m.weekIndex === wIndex && m.name);
+                {displayWeeks.map((_, wIndex) => {
+                  const labelObj = displayMonthLabels.find((m) => m.weekIndex === wIndex && m.name);
                   return (
                     <div key={wIndex} className="w-4 mr-1 text-center shrink-0">
                       {labelObj ? labelObj.name : ''}
@@ -218,7 +249,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
 
                 {/* Weeks columns */}
                 <div className="flex gap-1.5 overflow-visible">
-                  {weeks.map((week, wIdx) => (
+                  {displayWeeks.map((week, wIdx) => (
                     <div key={wIdx} className="flex flex-col gap-1.5 shrink-0">
                       {week.map((day, dIdx) => {
                         const isHovered = hoveredCell?.date === day.date;
@@ -254,7 +285,7 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
           <div className="mt-3 pt-3 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs">
             {/* Left: Window & Today */}
             <div className="flex items-center gap-3 text-text-secondary">
-              <span>140d window</span>
+              <span>{compactMode ? '70d window' : '140d window'}</span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded border ring-1 ring-accent bg-surface-2 border-line inline-block" />
                 <span>Today</span>
@@ -294,12 +325,14 @@ const PracticeHeatmap = ({ heatmapData = [], isLoading = false, error = null, on
             </div>
           </div>
 
-          {/* Mobile swipe indicator */}
-          <div className="sm:hidden text-xs text-muted text-center pt-2.5 flex items-center justify-center gap-1.5 border-t border-line mt-2">
-            <span>←</span>
-            <span>Swipe horizontally to view full 20-week timeline</span>
-            <span>→</span>
-          </div>
+          {/* Mobile swipe indicator (only in full mode) */}
+          {!compactMode && (
+            <div className="sm:hidden text-xs text-muted text-center pt-2.5 flex items-center justify-center gap-1.5 border-t border-line mt-2">
+              <span>←</span>
+              <span>Swipe horizontally to view full 20-week timeline</span>
+              <span>→</span>
+            </div>
+          )}
         </div>
 
         {/* Right: Practice Habits & Velocity Breakdown (4 cols) */}

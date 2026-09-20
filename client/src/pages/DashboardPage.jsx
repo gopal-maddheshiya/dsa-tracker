@@ -112,47 +112,44 @@ const DashboardPage = () => {
 
   return (
     <div className="space-y-6 pb-6 animate-fade-up">
-      {/* Clean Minimalist Hero Greeting & Quick Actions */}
-      <Reveal delay={0} y={16}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-line relative">
-          <div className="relative z-10">
+      {/* Premium Minimalist Hero Header */}
+      <Reveal delay={0} y={12}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-line">
+          <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-text">
-                {greeting}, {firstName}
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-text">
+                {greeting}, <span className="text-accent">{firstName}</span>
               </h1>
               <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border"
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border backdrop-blur-sm"
                 style={{
                   color: rank.color,
-                  borderColor: `${rank.color}44`,
-                  background: `${rank.color}18`,
+                  borderColor: `${rank.color}35`,
+                  background: `${rank.color}14`,
                 }}
               >
                 {rank.Icon && <rank.Icon className="w-3.5 h-3.5" />}
-                {rank.label}
+                <span>{rank.label}</span>
               </span>
             </div>
-            <p className="text-xs text-muted mt-1">
-              Here is your daily momentum overview and recall priority.
+            <p className="text-xs text-text-secondary mt-1">
+              Track daily consistency, solve velocity, and spaced recall.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end relative z-10">
-            {revisionQueue.length > 0 && (
-              <Link to="/revision">
-                <Badge variant="amber" dot size="sm">
-                  {revisionQueue.length} revision due
-                </Badge>
+          {revisionQueue.length > 0 && (
+            <div className="flex items-center shrink-0">
+              <Link
+                to="/revision"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-3 border border-line hover:border-accent text-xs text-text font-medium transition-all group"
+              >
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                <span className="font-semibold text-accent tabular-nums">{revisionQueue.length}</span>
+                <span>revisions due</span>
+                <span className="text-muted group-hover:text-accent group-hover:translate-x-0.5 transition-transform">→</span>
               </Link>
-            )}
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
-              className="btn-primary text-xs sm:text-sm lg:hidden cursor-pointer"
-            >
-              + Add Problem
-            </button>
-          </div>
+            </div>
+          )}
         </div>
       </Reveal>
 

@@ -62,7 +62,28 @@ const IntelligentRecommender = ({ className = '' }) => {
   }
 
   if (!data || !data.dailyFocus) {
-    return null;
+    return (
+      <div className={`panel p-5 sm:p-6 flex flex-col justify-between h-full text-center items-center ${className}`}>
+        <div className="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-2 mt-4">
+          <Sparkles className="w-5 h-5" />
+        </div>
+        <div>
+          <h3 className="text-base font-semibold text-text">Practice Queue Clear</h3>
+          <p className="text-xs text-muted max-w-sm mx-auto my-2 leading-relaxed">
+            Catalog new DSA problems to unlock adaptive daily recommendations and spaced repetition schedules.
+          </p>
+        </div>
+        <div className="mt-3 mb-2">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
+            className="btn-primary text-xs cursor-pointer"
+          >
+            + Catalog a Problem
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const { dailyFocus, weakestTopics } = data;
