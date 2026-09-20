@@ -11,8 +11,7 @@ import {
 import { getErrorMessage } from '../utils/errorHandler';
 import { getRank } from '../utils/profileUtils';
 
-import LeetCodeSolvedCard from '../components/analytics/LeetCodeSolvedCard';
-import ActivityTelemetryCard from '../components/analytics/ActivityTelemetryCard';
+import LeetCodeStatsConsole from '../components/analytics/LeetCodeStatsConsole';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
@@ -152,25 +151,13 @@ const DashboardPage = () => {
         </div>
       </Reveal>
 
-      {/* Top Section: LeetCode Solved Card & Activity Momentum Strip */}
+      {/* Top Section: Unified LeetCode Stats Console */}
       <Reveal delay={50} y={15}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
-          <div className="lg:col-span-7 xl:col-span-8 flex flex-col">
-            <LeetCodeSolvedCard
-              summary={summary}
-              isLoading={loadingSummary}
-              className="h-full"
-            />
-          </div>
-          <div className="lg:col-span-5 xl:col-span-4 flex flex-col">
-            <ActivityTelemetryCard
-              summary={summary}
-              isLoading={loadingSummary}
-              solveRate={solveRate}
-              className="h-full"
-            />
-          </div>
-        </div>
+        <LeetCodeStatsConsole
+          summary={summary}
+          isLoading={loadingSummary}
+          solveRate={solveRate}
+        />
       </Reveal>
 
       {/* Zero state vs Asymmetric Dashboard Grid */}
