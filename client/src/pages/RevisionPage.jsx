@@ -6,6 +6,7 @@ import { getErrorMessage } from '../utils/errorHandler';
 import { useToast } from '../context/ToastContext';
 import Badge from '../components/ui/Badge';
 import AttemptForm from '../components/AttemptForm';
+import RevisionTable from '../components/RevisionTable';
 import Reveal from '../components/common/Reveal';
 import TiltCard from '../components/common/TiltCard';
 import {
@@ -223,7 +224,7 @@ const RevisionPage = () => {
   const hasActiveFilters = statusFilter !== 'all' || searchQuery.trim() !== '' || topicFilter !== '';
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto pb-6 animate-fade-up">
+    <div className="space-y-5 pb-6 animate-fade-up">
       {/* ── Top Header Banner ────────────────────────────────────────── */}
       <Reveal delay={0} y={12}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -525,125 +526,13 @@ const RevisionPage = () => {
       {!isLoading && !error && filteredQueue.length > 0 && (
         <div className="space-y-3">
           {/* DESKTOP TABLE VIEW */}
-          <div className="hidden md:block overflow-hidden border border-line rounded-xl bg-surface">
-            <div className="grid grid-cols-12 gap-4 px-6 py-3.5 bg-surface-2/60 border-b border-line text-muted text-xs tracking-wide">
-              <div className="col-span-1">#</div>
-              <div className="col-span-4">Problem & Topics</div>
-              <div className="col-span-2">Recall Urgency</div>
-              <div className="col-span-2">Last Practiced</div>
-              <div className="col-span-1 text-center">Score</div>
-              <div className="col-span-2 text-right">Action</div>
-            </div>
-
-            <div className="divide-y divide-line">
-              {filteredQueue.map((item, index) => {
-                const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
-                const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
-                const diffCfg = DIFFICULTY_CONFIG[item.difficulty] || { variant: 'default', label: item.difficulty };
-                const platformCfg = PLATFORM_CONFIG[item.platform] || PLATFORM_CONFIG.other;
-                const urgency = getUrgencyBadge(item.priorityScore);
-                const rankStr = String(index + 1).padStart(2, '0');
-                const daysFormatted = formatDaysAgo(item.daysSinceLastAttempt);
-
-                return (
-                  <div
-                    key={item.problemId}
-                    className="px-6 py-3.5 hover:bg-surface-2/40 transition-colors duration-150 group relative"
-                  >
-                    <div className="grid grid-cols-12 gap-4 items-center">
-                      <div className="col-span-1 text-xs font-semibold text-muted tabular-nums">
-                        {rankStr}
-                      </div>
-
-                      <div className="col-span-4 min-w-0 pr-3">
-                        <div className="flex items-center gap-1.5">
-                          <Link
-                            to={`/problems/${item.problemId}`}
-                            className="text-sm font-semibold text-text hover:text-accent transition-colors line-clamp-1 block tracking-tight"
-                            title={item.title}
-                          >
-                            {item.title}
-                          </Link>
-                          {item.link && (
-                            <a
-                              href={item.link}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-muted hover:text-accent transition-colors shrink-0"
-                              title="Open original problem"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
-                            </a>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <Badge variant={diffCfg.variant} size="xs">{diffCfg.label}</Badge>
-                          <span className={`text-xs font-semibold px-2 py-0.2 rounded border ${platformCfg.style}`}>
-                            {platformCfg.short}
-                          </span>
-                          {item.topics?.length > 0 && (
-                            <span className="text-xs text-muted font-mono truncate max-w-[150px]">
-                              {item.topics.slice(0, 2).map((t) => `#${t}`).join(' ')}
-                              {item.topics.length > 2 && ` +${item.topics.length - 2}`}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="col-span-2">
-                        <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${urgency.style}`}>
-                          <span>{urgency.label}</span>
-                        </span>
-                      </div>
-
-                      <div className="col-span-2">
-                        <span className="text-xs text-text font-medium block tabular-nums">
-                          {daysFormatted}
-                        </span>
-                        <span className="text-xs text-muted block">
-                          {statusCfg.cycle}
-                        </span>
-                      </div>
-
-                      <div className="col-span-1 text-center">
-                        <span className="text-xs font-semibold text-accent px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 tabular-nums">
-                          {item.priorityScore.toFixed(2)}
-                        </span>
-                      </div>
-
-                      <div className="col-span-2 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleQuickLog(item, 'solved')}
-                            className="h-7.5 px-2 rounded-lg text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
-                            title="Quick 1-Tap: Mark Solved"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenLog(item)}
-                            className="h-7.5 px-2.5 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
-                            title="Log recall practice attempt"
-                          >
-                            <Plus className="w-3 h-3 stroke-[2.5]" />
-                            <span>Log</span>
-                          </button>
-                          <Link
-                            to={`/problems/${item.problemId}`}
-                            className="btn-secondary h-7.5 px-2.5 rounded-lg text-xs font-semibold flex items-center transition-all"
-                            title="View details & notes"
-                          >
-                            Details
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="hidden md:block">
+            <RevisionTable
+              queue={filteredQueue}
+              onOpenLog={handleOpenLog}
+              onQuickLog={handleQuickLog}
+              startIndex={0}
+            />
           </div>
 
           {/* MOBILE CARDS VIEW */}
