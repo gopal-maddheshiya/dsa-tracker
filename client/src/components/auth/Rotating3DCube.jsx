@@ -258,6 +258,17 @@ const Rotating3DCube = () => {
     rafId: null,
   });
 
+  // ── Master Component Unmount Cleanup ──
+  useEffect(() => {
+    return () => {
+      if (animEngineRef.current?.rafId) cancelAnimationFrame(animEngineRef.current.rafId);
+      if (dragInfoRef.current?.rafId) cancelAnimationFrame(dragInfoRef.current.rafId);
+      if (parallaxRafRef.current) cancelAnimationFrame(parallaxRafRef.current);
+      if (entranceRafRef.current) cancelAnimationFrame(entranceRafRef.current);
+      if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    };
+  }, []);
+
   // ── Media Queries & Visibility Listeners ──
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -745,7 +756,7 @@ const Rotating3DCube = () => {
   };
 
   // Keyboard navigation: ArrowLeft/Right/Up/Down
-  const handleKeyDown = (e) => {
+  const handleKeyDown = useCallback((e) => {
     const currentSeq = tourDirectionRef.current === 'forward' ? TOUR_FORWARD : TOUR_REVERSE;
     const curIdx = currentSeq.indexOf(activeStage);
 
@@ -768,7 +779,21 @@ const Rotating3DCube = () => {
       delayTour(2500);
       rotateToStage(activeStage === 5 ? 0 : 5, MOVE_DURATION_MS, 'keyboard');
     }
-  };
+  }, [activeStage, delayTour, rotateToStage]);
+
+  // Global window listener for arrow keys when user is not typing in a form input
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+        return;
+      }
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+        handleKeyDown(e);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [handleKeyDown]);
 
   const currentDisplayedStage = dragActiveStage !== null ? dragActiveStage : activeStage;
   const stage = CUBE_STAGES[currentDisplayedStage];
@@ -779,7 +804,10 @@ const Rotating3DCube = () => {
 
   return (
     <div
-      className="relative w-full max-w-[450px] flex flex-col items-center select-none py-1 [--s:clamp(195px,46vw,215px)] sm:[--s:clamp(210px,25vw,235px)] lg:[--s:clamp(230px,min(28vh,22vw),250px)]"
+      tabIndex={0}
+      role="region"
+      aria-label="3D Interactive Cube Showcase. Use arrow keys to explore feature stages."
+      className="relative w-full max-w-[450px] flex flex-col items-center select-none py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent/30 rounded-2xl [--s:clamp(195px,46vw,215px)] sm:[--s:clamp(210px,25vw,235px)] lg:[--s:clamp(230px,min(28vh,22vw),250px)]"
       onKeyDown={handleKeyDown}
     >
       {/* ── 3D STAGE CONTAINER ── */}
