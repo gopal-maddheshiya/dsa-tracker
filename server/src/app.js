@@ -42,6 +42,15 @@ app.use(
   })
 );
 
+// Keep-alive / Uptime monitor root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'DSA Tracker API is active and healthy',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // API Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
