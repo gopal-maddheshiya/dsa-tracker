@@ -4,16 +4,13 @@ import {
   Compass,
   ArrowRight,
   ExternalLink,
-  Flame,
-  Zap,
-  Lightbulb,
 } from 'lucide-react';
 import { fetchProblemRecommendations } from '../../api/problems';
 
 const DIFFICULTY_CONFIG = {
-  easy: { text: 'text-easy', bg: 'bg-easy/10 border-easy/25', dot: 'bg-easy' },
-  medium: { text: 'text-medium', bg: 'bg-medium/10 border-medium/25', dot: 'bg-medium' },
-  hard: { text: 'text-hard', bg: 'bg-hard/10 border-hard/25', dot: 'bg-hard' },
+  easy: { text: 'text-easy', dot: 'bg-easy' },
+  medium: { text: 'text-medium', dot: 'bg-medium' },
+  hard: { text: 'text-hard', dot: 'bg-hard' },
 };
 
 const PLATFORM_LABELS = {
@@ -52,15 +49,16 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
   if (loading) {
     return (
       <div className={`panel p-4 sm:p-5 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-lg shimmer shrink-0" />
-          <div className="space-y-2 flex-1 min-w-0">
-            <div className="h-4 w-36 shimmer rounded" />
-            <div className="h-3 w-48 shimmer rounded" />
-          </div>
+        <div className="flex items-center justify-between pb-3 border-b border-line/40">
+          <div className="h-4 w-28 shimmer rounded" />
+          <div className="h-4 w-20 shimmer rounded" />
         </div>
-        <div className="h-28 shimmer rounded-xl my-4" />
-        <div className="h-10 w-44 shimmer rounded-xl" />
+        <div className="space-y-3 py-4">
+          <div className="h-5 w-48 shimmer rounded" />
+          <div className="h-3.5 w-64 shimmer rounded" />
+          <div className="h-14 w-full shimmer rounded-lg" />
+        </div>
+        <div className="h-8 w-36 shimmer rounded-lg" />
       </div>
     );
   }
@@ -68,22 +66,22 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
   if (!data || !data.dailyFocus) {
     return (
       <div className={`panel p-5 sm:p-6 flex flex-col justify-between h-full text-center items-center ${className}`}>
-        <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-2 mt-4">
-          <Compass className="w-5 h-5" />
+        <div className="w-9 h-9 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-muted mb-2 mt-2">
+          <Compass className="w-4 h-4" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-text">Practice Queue Clear</h3>
-          <p className="text-xs text-muted max-w-sm mx-auto my-2 leading-relaxed">
-            Catalog new DSA problems to unlock adaptive daily recommendations and spaced repetition schedules.
+          <h3 className="text-sm font-semibold text-text">Practice Queue Clear</h3>
+          <p className="text-xs text-muted max-w-sm mx-auto my-1.5 leading-relaxed">
+            All priority spaced revisions are up to date. Catalog new problems to generate fresh drill recommendations.
           </p>
         </div>
-        <div className="mt-3 mb-2">
+        <div className="mt-2">
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
-            className="btn-primary text-xs cursor-pointer"
+            className="btn-primary text-xs py-1.5 px-3 cursor-pointer"
           >
-            + Catalog a Problem
+            + Catalog Problem
           </button>
         </div>
       </div>
@@ -94,56 +92,47 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
   const diffCfg = DIFFICULTY_CONFIG[dailyFocus.difficulty] || DIFFICULTY_CONFIG.medium;
   const platformName = PLATFORM_LABELS[dailyFocus.platform] || dailyFocus.platform;
   const primaryWeakTopic = weakestTopics && weakestTopics.length > 0 ? weakestTopics[0] : null;
-
-  // Clean topics (max 3, no hashtags)
-  const displayTopics = (dailyFocus.topics || []).slice(0, 3);
-  const extraTopicCount = Math.max(0, (dailyFocus.topics?.length || 0) - 3);
+  const topicList = (dailyFocus.topics || []).slice(0, 3).join(', ');
 
   return (
     <div className={`panel p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between h-full group ${className}`}>
-      {/* ── 1. Header: Clean Copilot Identity ──────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3.5 border-b border-line/60 relative z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
-            <Compass className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-[10px] font-mono font-bold tracking-wider text-accent uppercase block leading-tight">
-              Adaptive Practice Spotlight
-            </span>
-            <h2 className="text-sm sm:text-base font-bold text-text tracking-tight leading-tight mt-0.5">
-              Recommended Daily Focus
-            </h2>
-          </div>
+      {/* ── 1. Clean Understated Header ────────────────────────────── */}
+      <div className="flex items-center justify-between pb-3 border-b border-line/50">
+        <div className="flex items-center gap-2">
+          <Compass className="w-4 h-4 text-accent shrink-0" />
+          <h2 className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Daily Focus
+          </h2>
+          <span className="text-[10px] text-muted font-mono font-medium px-1.5 py-0.2 rounded bg-surface-2 border border-line/60">
+            AI Recommended
+          </span>
         </div>
 
-        {/* Focused Weakness Target Pill */}
+        {/* Quiet Target Context */}
         {primaryWeakTopic && (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-danger/10 text-danger border border-danger/20 self-start sm:self-center shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-danger animate-pulse" />
-            <span>Target:</span>
-            <span className="font-semibold text-text">{primaryWeakTopic.topic}</span>
-            <span className="text-danger font-mono font-semibold tabular-nums">
-              ({Math.round(primaryWeakTopic.struggleRatio * 100)}%)
+          <span className="text-xs text-muted hidden sm:inline-flex items-center gap-1">
+            Focus area: <strong className="text-text font-medium">{primaryWeakTopic.topic}</strong>
+            <span className="text-[11px] font-mono text-danger font-semibold">
+              ({Math.round(primaryWeakTopic.struggleRatio * 100)}% struggle)
             </span>
-          </div>
+          </span>
         )}
       </div>
 
-      {/* ── 2. Problem Focus Content ────────────────────────────────── */}
-      <div className="py-4 space-y-3.5 relative z-10 flex-1 flex flex-col justify-between">
+      {/* ── 2. Content Zone ────────────────────────────────────────── */}
+      <div className="py-3.5 space-y-3 flex-1 flex flex-col justify-between">
         
-        <div className="space-y-2.5">
-          {/* Status Tag */}
+        <div className="space-y-2">
+          {/* Subtle Tag */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
-              <Flame className="w-3 h-3 fill-accent shrink-0" />
-              <span>{dailyFocus.badge || 'Priority Revision'}</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-surface-2 border border-line/60 text-text-secondary">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+              <span>{dailyFocus.badge || 'Priority Drill'}</span>
             </span>
           </div>
 
           {/* Problem Title */}
-          <h3 className="text-lg sm:text-xl font-bold text-text tracking-tight leading-snug">
+          <h3 className="text-base sm:text-lg font-bold text-text tracking-tight leading-snug">
             <Link
               to={`/problems/${dailyFocus.id}`}
               className="hover:text-accent transition-colors hover:underline"
@@ -152,57 +141,45 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
             </Link>
           </h3>
 
-          {/* Metadata Row: Difficulty + Platform + Clean Topic Tags */}
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-0.5">
-            {/* Difficulty Badge */}
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase border ${diffCfg.text} ${diffCfg.bg}`}>
+          {/* Clean Inline Metadata Line (No bulky pill soup) */}
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
+            {/* Difficulty */}
+            <span className={`inline-flex items-center gap-1.5 font-semibold ${diffCfg.text}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${diffCfg.dot}`} />
-              <span>{dailyFocus.difficulty}</span>
+              <span className="capitalize">{dailyFocus.difficulty}</span>
             </span>
 
-            {/* Platform Badge */}
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-surface-2/80 text-text-secondary border border-line/60">
+            <span className="text-line">•</span>
+
+            {/* Platform */}
+            <span className="text-text-secondary font-medium">
               {platformName}
             </span>
 
-            <span className="text-line hidden sm:inline">•</span>
-
-            {/* Clean Topic Pills (no # clutter) */}
-            {displayTopics.map((topic, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-surface-2/60 text-text-secondary border border-line/50 hover:text-text hover:border-line transition-colors"
-              >
-                {topic}
-              </span>
-            ))}
-
-            {extraTopicCount > 0 && (
-              <span className="text-[10px] font-mono text-muted px-1.5 py-0.5 rounded bg-surface-2 border border-line/40">
-                +{extraTopicCount}
-              </span>
+            {topicList && (
+              <>
+                <span className="text-line">•</span>
+                <span className="text-muted truncate">
+                  {topicList}
+                </span>
+              </>
             )}
           </div>
         </div>
 
-        {/* ── 3. Spaced Recall Rationale (Refined Copilot Callout) ──── */}
-        <div className="p-3 sm:p-3.5 rounded-xl bg-surface-2/40 border-l-2 border-accent border-y border-r border-line/40 space-y-1 my-1">
-          <div className="flex items-center gap-1.5">
-            <Lightbulb className="w-3.5 h-3.5 text-accent shrink-0" />
-            <span className="text-[11px] font-semibold text-accent uppercase tracking-wider">
-              Why this problem now
-            </span>
-          </div>
-          <p className="text-xs sm:text-[13px] text-text-secondary leading-relaxed pl-5">
+        {/* ── 3. Subtle Spaced Recall Insight (Elegant Accent Bar) ─── */}
+        <div className="border-l-2 border-accent/70 pl-3 py-1 bg-surface-2/30 rounded-r-md">
+          <p className="text-xs text-text-secondary leading-relaxed">
+            <span className="font-semibold text-text">Memory Insight: </span>
             {dailyFocus.rationale}
           </p>
         </div>
 
-        {/* ── 4. Anchored Action CTAs ──────────────────────────────── */}
-        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        {/* ── 4. Balanced Action CTAs ──────────────────────────────── */}
+        <div className="pt-2 flex flex-wrap items-center gap-2.5">
           <Link
             to={`/problems/${dailyFocus.id}`}
-            className="btn-primary w-full sm:w-auto text-center justify-center text-xs py-2 px-4 shadow-[0_0_12px_rgba(255,161,22,0.2)] hover:shadow-[0_0_18px_rgba(255,161,22,0.35)] transition-all font-semibold"
+            className="btn-primary text-xs py-1.5 px-3.5 rounded-md font-semibold inline-flex items-center gap-1.5 shadow-none"
           >
             <span>Solve & Log Attempt</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -213,10 +190,10 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
               href={dailyFocus.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary w-full sm:w-auto text-center justify-center text-xs py-2 px-3.5 hover:border-accent/40 transition-colors font-medium text-text-secondary hover:text-text"
+              className="btn-secondary text-xs py-1.5 px-3 rounded-md font-medium inline-flex items-center gap-1.5 text-text-secondary hover:text-text"
             >
-              <span>Open on {platformName}</span>
-              <ExternalLink className="w-3 h-3 opacity-70" />
+              <span>View on {platformName}</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
             </a>
           )}
         </div>
