@@ -281,9 +281,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     )}
                   </td>
 
-                  {/* Difficulty Badge with dot */}
+                  {/* Difficulty Badge */}
                   <td className="py-3.5 px-3 whitespace-nowrap">
-                    <Badge variant={diff.variant} dot size="sm">
+                    <Badge variant={diff.variant} size="sm">
                       {diff.label}
                     </Badge>
                   </td>
@@ -291,10 +291,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   {/* Brand Platform Badge */}
                   <td className="py-3.5 px-3 whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${platformCfg.style}`}
+                      className={`inline-flex items-center justify-center text-xs font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${platformCfg.style}`}
                       title={platformCfg.label}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
                       <span>{platformCfg.short}</span>
                     </span>
                   </td>
@@ -302,8 +301,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   {/* Status Indicator (Always single-line, expands into empty space) */}
                   <td className="py-3.5 px-3 whitespace-nowrap">
                     {statusCfg ? (
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusCfg.dot}`} />
+                      <span className={`inline-flex items-center justify-center text-xs font-medium px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
                         <span className="whitespace-nowrap">{statusCfg.label}</span>
                       </span>
                     ) : (

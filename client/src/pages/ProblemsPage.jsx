@@ -85,8 +85,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
           {problem.title}
         </Link>
         {statusCfg ? (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
-            <span className={`w-1 h-1 rounded-full ${statusCfg.dot}`} />
+          <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
             <span>{statusCfg.label}</span>
           </span>
         ) : (
@@ -98,8 +97,7 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
 
       {/* Middle Line: Difficulty · Platform · Topics · Sessions */}
       <div className="flex items-center gap-1.5 text-[11px] text-muted flex-wrap">
-        <span className={`inline-flex items-center gap-1 font-semibold ${diff.text}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
+        <span className={`inline-flex items-center font-semibold ${diff.text}`}>
           <span className="capitalize">{problem.difficulty}</span>
         </span>
         <span className="text-line">•</span>
@@ -228,19 +226,16 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       {/* Top row: Difficulty & Platform chips */}
       <div className="flex items-center justify-between gap-2 relative z-10">
         <div className="flex items-center gap-1.5">
-          <span className={`inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${diff.text} ${diff.bg}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
+          <span className={`inline-flex items-center text-xs font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${diff.text} ${diff.bg}`}>
             <span>{problem.difficulty}</span>
           </span>
-          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md border ${platform.style}`} title={platform.label}>
-            <span className={`w-1.5 h-1.5 rounded-full ${platform.dot}`} />
+          <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-md border ${platform.style}`} title={platform.label}>
             <span>{platform.short}</span>
           </span>
         </div>
 
         {statusCfg ? (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+          <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
             <span>{statusCfg.label}</span>
           </span>
         ) : (
