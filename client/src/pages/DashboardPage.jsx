@@ -181,10 +181,10 @@ const DashboardPage = () => {
           {/* Row 1: Priority Action Spotlight & Recall Queue (Balanced & Aligned) */}
           <Reveal delay={100} y={20}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              <div className="lg:col-span-7 xl:col-span-8 flex flex-col h-full">
+              <div className="lg:col-span-7 xl:col-span-7 flex flex-col h-full">
                 <IntelligentRecommender className="h-full flex-1" />
               </div>
-              <div className="lg:col-span-5 xl:col-span-4 flex flex-col h-full">
+              <div className="lg:col-span-5 xl:col-span-5 flex flex-col h-full">
                 <RevisionPreview
                   className="h-full flex-1"
                   queue={revisionQueue}
