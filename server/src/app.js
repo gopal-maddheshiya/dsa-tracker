@@ -20,15 +20,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Cross-Origin Resource Sharing
-const allowedOrigins = process.env.CLIENT_URL
-  ? [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173']
-  : ['http://localhost:5173', 'http://127.0.0.1:5173'];
+const rawOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
+const allowedOrigins = [
+  ...rawOrigins.map((url) => url.trim().replace(/\/+$/, '')),
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. server-to-server, curl) or allowed origins
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      const normalizedOrigin = origin ? origin.replace(/\/+$/, '') : null;
+      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
         callback(new Error('CORS policy: Access denied for this origin'));

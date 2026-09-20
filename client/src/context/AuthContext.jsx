@@ -97,9 +97,17 @@ export const AuthProvider = ({ children }) => {
   // Google login handler
   const googleLogin = async (tokenPayload) => {
     try {
-      const body = typeof tokenPayload === 'string'
-        ? { credential: tokenPayload }
-        : tokenPayload;
+      let body;
+      if (typeof tokenPayload === 'string') {
+        // If it's a 3-part JWT, send as credential; otherwise send as accessToken
+        if (tokenPayload.split('.').length === 3) {
+          body = { credential: tokenPayload };
+        } else {
+          body = { accessToken: tokenPayload };
+        }
+      } else {
+        body = tokenPayload;
+      }
       const response = await api.post('/auth/google', body);
       const { token: receivedToken, user: receivedUser } = response.data;
 

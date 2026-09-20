@@ -70,10 +70,10 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleSuccess = async ({ accessToken }) => {
+  const handleGoogleSuccess = async (tokenPayload) => {
     setApiError('');
     setIsSubmitting(true);
-    const result = await googleAuth(accessToken);
+    const result = await googleAuth(tokenPayload);
     setIsSubmitting(false);
 
     if (result.success) {
