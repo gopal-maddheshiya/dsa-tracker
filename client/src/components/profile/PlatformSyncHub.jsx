@@ -65,8 +65,8 @@ const PlatformConnectInput = ({
 
   return (
     <div className="space-y-2.5 my-3">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1 flex items-center">
+      <div className="flex flex-row items-center gap-2 w-full">
+        <div className="relative flex-1 min-w-0 flex items-center">
           <span className="absolute left-3 text-muted pointer-events-none text-xs font-mono flex items-center justify-center w-4 h-4">
             {safeVal.includes('http') || safeVal.includes('.com') || safeVal.includes('.org') ? (
               <Globe className="w-3.5 h-3.5 text-accent" />
@@ -99,7 +99,7 @@ const PlatformConnectInput = ({
           type="button"
           disabled={isConnecting || !safeVal.trim()}
           onClick={onConnect}
-          className="btn-primary h-10 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm"
+          className="btn-primary h-10 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm"
         >
           {isConnecting ? (
             <>

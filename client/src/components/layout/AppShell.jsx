@@ -207,48 +207,62 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
   const SideNavLink = ({ to, label, Icon: NavIcon }) => {
     const isRevision = label === 'Revision';
     const badge = isRevision ? revisionCount : 0;
+    const location = useLocation();
+
+    const isPlatforms = to.includes('tab=platforms');
+    const isCustomActive = isPlatforms
+      ? location.pathname === '/profile' && location.search.includes('tab=platforms')
+      : to === '/profile'
+        ? location.pathname === '/profile' && !location.search.includes('tab=platforms')
+        : undefined;
 
     return (
       <NavLink
         to={to}
-        className={({ isActive }) => `
-          group relative flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm
-          transition-all duration-150 select-none
-          ${isActive
-            ? 'bg-surface-2/90 text-accent border border-line/80 font-medium shadow-xs'
-            : 'text-text-secondary hover:text-text hover:bg-surface-2/60 border border-transparent'
-          }
-        `}
+        className={({ isActive }) => {
+          const active = isCustomActive !== undefined ? isCustomActive : isActive;
+          return `
+            group relative flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm
+            transition-all duration-150 select-none
+            ${active
+              ? 'bg-surface-2/90 text-accent border border-line/80 font-medium shadow-xs'
+              : 'text-text-secondary hover:text-text hover:bg-surface-2/60 border border-transparent'
+            }
+          `;
+        }}
       >
-        {({ isActive }) => (
-          <>
-            {isActive && (
-              <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-accent nav-active-glow" />
-            )}
-            <span className={`shrink-0 ${isActive ? 'text-accent' : 'text-text-secondary group-hover:text-text'} transition-colors`}>
-              <NavIcon className="w-4 h-4" />
-            </span>
-            {!collapsed ? (
-              <>
-                <span className="truncate flex-1">{label}</span>
-                {badge > 0 && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent text-bg tabular-nums shadow-xs">
-                    {badge > 99 ? '99+' : badge}
+        {({ isActive }) => {
+          const active = isCustomActive !== undefined ? isCustomActive : isActive;
+          return (
+            <>
+              {active && (
+                <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-accent nav-active-glow" />
+              )}
+              <span className={`shrink-0 ${active ? 'text-accent' : 'text-text-secondary group-hover:text-text'} transition-colors`}>
+                <NavIcon className="w-4 h-4" />
+              </span>
+              {!collapsed ? (
+                <>
+                  <span className="truncate flex-1">{label}</span>
+                  {badge > 0 && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent text-bg tabular-nums shadow-xs">
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>
+                  {badge > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent nav-active-glow" />
+                  )}
+                  <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
+                    {label}{badge > 0 ? ` (${badge})` : ''}
                   </span>
-                )}
-              </>
-            ) : (
-              <>
-                {badge > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent nav-active-glow" />
-                )}
-                <span className="pointer-events-none absolute left-full ml-2.5 px-2.5 py-1 rounded-md bg-surface-2 text-text text-xs font-semibold whitespace-nowrap shadow-dropdown border border-line opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50">
-                  {label}{badge > 0 ? ` (${badge})` : ''}
-                </span>
-              </>
-            )}
-          </>
-        )}
+                </>
+              )}
+            </>
+          );
+        }}
       </NavLink>
     );
   };
@@ -299,6 +313,15 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         {NAV_LINKS.map(({ to, label, Icon: NavIcon }) => (
           <SideNavLink key={to} to={to} label={label} Icon={NavIcon} />
         ))}
+
+        {!collapsed ? (
+          <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
+            Integrations
+          </p>
+        ) : (
+          <div className="my-1 border-t border-line/50" />
+        )}
+        <SideNavLink to="/profile?tab=platforms" label="Platform Sync" Icon={Globe} />
       </nav>
 
       {/* ── Streak strip ──────────────────────── */}

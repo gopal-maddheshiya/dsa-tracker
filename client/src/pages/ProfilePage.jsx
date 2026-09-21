@@ -901,7 +901,21 @@ const ProfilePage = () => {
 
             {/* Right: Actions & Dual Progress Rings Telemetry Cockpit */}
             <div className="w-full lg:w-auto shrink-0 flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between lg:justify-center gap-3 border-t lg:border-t-0 border-line pt-4 lg:pt-0">
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end order-1 sm:order-2 lg:order-1">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end order-1 sm:order-2 lg:order-1 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('platforms')}
+                  className={`text-xs flex items-center justify-center gap-1.5 min-h-[38px] px-3.5 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'platforms'
+                      ? 'btn-primary shadow-sm'
+                      : 'btn-secondary text-text hover:border-accent/40'
+                  }`}
+                  title="Connect and manage LeetCode, Codeforces, GFG, CodeChef"
+                >
+                  <Globe className="w-3.5 h-3.5 text-accent" />
+                  <span>Connect Platforms</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
