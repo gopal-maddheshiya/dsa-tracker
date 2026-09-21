@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchProblems, deleteProblem } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
-import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, ChevronLeft, ChevronRight, SlidersHorizontal, Globe } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
