@@ -56,9 +56,11 @@ const STATUS_CONFIG = {
 
 const PLATFORM_CONFIG = {
   leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
+  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20', dot: 'bg-[#2196F3]' },
   gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30', dot: 'bg-[#D4A373]' },
   hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
+  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
   other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
 };
 

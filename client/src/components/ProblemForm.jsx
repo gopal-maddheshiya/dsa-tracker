@@ -90,6 +90,12 @@ const detectPlatformAndTitle = (inputUrl) => {
       if (probIdx !== -1 && parts[probIdx + 1]) {
         slug = parts[probIdx + 1];
       }
+    } else if (hostname.includes('codeforces.com')) {
+      detectedPlatform = 'codeforces';
+      const match = pathname.match(/\/(?:problem|problemset\/problem)\/([0-9]+)\/([a-zA-Z0-9]+)/i);
+      if (match) {
+        slug = `${match[1]}${match[2]}`;
+      }
     } else if (hostname.includes('hackerrank.com')) {
       detectedPlatform = 'hackerrank';
       const match = pathname.match(/\/challenges\/([^/]+)/);

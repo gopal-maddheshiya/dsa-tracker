@@ -26,9 +26,11 @@ const STATUS_CFG = {
 };
 const PLATFORM_LABELS = {
   leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
+  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20', dot: 'bg-[#2196F3]' },
   gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30', dot: 'bg-[#D4A373]' },
   hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
+  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
   other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
 };
 
@@ -368,6 +370,7 @@ const ProblemsPage = () => {
   const [difficulty, setDifficulty] = useState(() => searchParams.get('difficulty') || '');
   const [status, setStatus] = useState(() => searchParams.get('status') || '');
   const [topic, setTopic] = useState(() => searchParams.get('topic') || '');
+  const [platform, setPlatform] = useState(() => searchParams.get('platform') || '');
 
   // Ref for keyboard shortcut focusing
   const searchInputRef = useRef(null);
@@ -379,16 +382,18 @@ const ProblemsPage = () => {
   // Reset page when search or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, difficulty, status, topic, pageSize]);
+  }, [search, difficulty, status, topic, platform, pageSize]);
 
   // Sync state if URL query params change
   useEffect(() => {
     const d = searchParams.get('difficulty');
     const t = searchParams.get('topic');
     const s = searchParams.get('search');
+    const p = searchParams.get('platform');
     if (d !== null && d !== difficulty) setDifficulty(d);
     if (t !== null && t !== topic) setTopic(t);
     if (s !== null && s !== search) setSearch(s);
+    if (p !== null && p !== platform) setPlatform(p);
 
     if (searchParams.get('new') === '1' || searchParams.get('add') === 'true' || searchParams.get('add') === '1') {
       setEditingProblem(null);
@@ -432,6 +437,7 @@ const ProblemsPage = () => {
         difficulty: difficulty || undefined,
         status: status || undefined,
         topic: topic.trim() || undefined,
+        platform: platform || undefined,
       });
       setProblems(response.data || []);
     } catch (err) {
@@ -441,7 +447,7 @@ const ProblemsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [search, difficulty, status, topic, toast]);
+  }, [search, difficulty, status, topic, platform, toast]);
 
   useEffect(() => {
     const timer = setTimeout(() => { loadProblems(); }, 250);
@@ -488,9 +494,10 @@ const ProblemsPage = () => {
     setDifficulty('');
     setStatus('');
     setTopic('');
+    setPlatform('');
   };
 
-  const activeFilterCount = [search, difficulty, status, topic].filter(Boolean).length;
+  const activeFilterCount = [search, difficulty, status, topic, platform].filter(Boolean).length;
 
   // Header quick statistics
   const stats = useMemo(() => {
@@ -741,6 +748,29 @@ const ProblemsPage = () => {
                     {t}
                   </option>
                 ))}
+              </select>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-[9px]">
+                ▼
+              </span>
+            </div>
+
+            {/* Platform Filter Dropdown */}
+            <div className="relative shrink-0">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+                <Globe className="w-3 h-3" />
+              </span>
+              <select
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+                className="pl-7 pr-6 py-1 text-xs bg-surface-2 border border-line rounded-lg text-text focus:border-accent focus:outline-none appearance-none cursor-pointer h-7.5"
+              >
+                <option value="">All Platforms</option>
+                <option value="leetcode">LeetCode</option>
+                <option value="codeforces">Codeforces</option>
+                <option value="gfg">GeeksforGeeks</option>
+                <option value="codechef">CodeChef</option>
+                <option value="hackerrank">HackerRank</option>
+                <option value="other">Other / Custom</option>
               </select>
               <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-[9px]">
                 ▼

@@ -10,6 +10,7 @@ export const fetchProblems = async (filters = {}) => {
   if (filters.difficulty) params.difficulty = filters.difficulty;
   if (filters.status) params.status = filters.status;
   if (filters.search) params.search = filters.search;
+  if (filters.platform) params.platform = filters.platform;
 
   const response = await api.get('/problems', { params });
   return response.data;
