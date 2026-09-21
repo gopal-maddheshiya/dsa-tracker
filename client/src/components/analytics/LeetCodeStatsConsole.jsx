@@ -54,6 +54,19 @@ const LeetCodeStatsConsole = ({
     return { weekDays: days, weekTotal: total, todayCount: todayLogged };
   }, [heatmapData]);
 
+  // Extract active platforms breakdown unconditionally before any early returns
+  const platformBreakdown = summary?.platformBreakdown || {};
+  const activePlatforms = useMemo(() => {
+    return [
+      { key: 'leetcode', label: 'LeetCode', short: 'LC', count: platformBreakdown.leetcode || 0, style: 'text-accent bg-accent/10 border-accent/25' },
+      { key: 'codeforces', label: 'Codeforces', short: 'CF', count: platformBreakdown.codeforces || 0, style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
+      { key: 'gfg', label: 'GeeksforGeeks', short: 'GFG', count: platformBreakdown.gfg || 0, style: 'text-easy bg-easy/10 border-easy/25' },
+      { key: 'codechef', label: 'CodeChef', short: 'CC', count: platformBreakdown.codechef || 0, style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
+      { key: 'hackerrank', label: 'HackerRank', short: 'HR', count: platformBreakdown.hackerrank || 0, style: 'text-success bg-success/10 border-success/25' },
+      { key: 'other', label: 'Other', short: 'Ext', count: platformBreakdown.other || 0, style: 'text-muted bg-surface-2 border-line' },
+    ].filter((p) => p.count > 0);
+  }, [platformBreakdown]);
+
   if (isLoading) {
     return (
       <div className={`panel p-4 sm:p-5 border-line animate-pulse flex flex-col justify-between h-full ${className}`}>
@@ -109,18 +122,6 @@ const LeetCodeStatsConsole = ({
 
   const streakPct = longestStreak > 0 ? Math.min(100, Math.round((currentStreak / longestStreak) * 100)) : 0;
   const solvedSessions = Math.round((totalAttempts * solveRate) / 100);
-
-  const platformBreakdown = summary?.platformBreakdown || {};
-  const activePlatforms = useMemo(() => {
-    return [
-      { key: 'leetcode', label: 'LeetCode', short: 'LC', count: platformBreakdown.leetcode || 0, style: 'text-accent bg-accent/10 border-accent/25' },
-      { key: 'codeforces', label: 'Codeforces', short: 'CF', count: platformBreakdown.codeforces || 0, style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
-      { key: 'gfg', label: 'GeeksforGeeks', short: 'GFG', count: platformBreakdown.gfg || 0, style: 'text-easy bg-easy/10 border-easy/25' },
-      { key: 'codechef', label: 'CodeChef', short: 'CC', count: platformBreakdown.codechef || 0, style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
-      { key: 'hackerrank', label: 'HackerRank', short: 'HR', count: platformBreakdown.hackerrank || 0, style: 'text-success bg-success/10 border-success/25' },
-      { key: 'other', label: 'Other', short: 'Ext', count: platformBreakdown.other || 0, style: 'text-muted bg-surface-2 border-line' },
-    ].filter((p) => p.count > 0);
-  }, [platformBreakdown]);
 
   // Donut geometry (108px diameter)
   const size = 108;
