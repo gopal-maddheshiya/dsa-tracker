@@ -34,6 +34,21 @@ const attemptSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    approach: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    timeComplexity: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    spaceComplexity: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     attemptedAt: {
       type: Date,
       default: Date.now,

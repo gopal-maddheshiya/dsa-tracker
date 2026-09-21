@@ -134,7 +134,7 @@ const getProblems = async (req, res, next) => {
  */
 const createProblem = async (req, res, next) => {
   try {
-    const { title, platform, link, topics, difficulty, solutionCode, solutionLanguage } = req.body;
+    const { title, platform, link, topics, difficulty, solutionCode, solutionLanguage, timeComplexity, spaceComplexity, intuition } = req.body;
 
     // Validation: Title
     if (!title || typeof title !== 'string' || !title.trim()) {
@@ -179,6 +179,9 @@ const createProblem = async (req, res, next) => {
       difficulty: difficulty.toLowerCase().trim(),
       solutionCode: typeof solutionCode === 'string' ? solutionCode : '',
       solutionLanguage: typeof solutionLanguage === 'string' ? solutionLanguage.toLowerCase().trim() : 'cpp',
+      timeComplexity: typeof timeComplexity === 'string' ? timeComplexity.trim() : '',
+      spaceComplexity: typeof spaceComplexity === 'string' ? spaceComplexity.trim() : '',
+      intuition: typeof intuition === 'string' ? intuition.trim() : '',
     });
 
     return res.status(201).json({
@@ -304,6 +307,18 @@ const updateProblem = async (req, res, next) => {
 
     if (solutionLanguage !== undefined) {
       problem.solutionLanguage = typeof solutionLanguage === 'string' ? solutionLanguage.toLowerCase().trim() : 'cpp';
+    }
+
+    if (req.body.timeComplexity !== undefined) {
+      problem.timeComplexity = typeof req.body.timeComplexity === 'string' ? req.body.timeComplexity.trim() : '';
+    }
+
+    if (req.body.spaceComplexity !== undefined) {
+      problem.spaceComplexity = typeof req.body.spaceComplexity === 'string' ? req.body.spaceComplexity.trim() : '';
+    }
+
+    if (req.body.intuition !== undefined) {
+      problem.intuition = typeof req.body.intuition === 'string' ? req.body.intuition.trim() : '';
     }
 
     await problem.save();

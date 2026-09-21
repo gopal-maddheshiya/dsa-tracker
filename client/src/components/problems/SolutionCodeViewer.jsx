@@ -71,6 +71,9 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
   const [wordWrap, setWordWrap] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [timeComplexity, setTimeComplexity] = useState(problem?.timeComplexity || '');
+  const [spaceComplexity, setSpaceComplexity] = useState(problem?.spaceComplexity || '');
+  const [intuition, setIntuition] = useState(problem?.intuition || '');
   const [copied, setCopied] = useState(false);
 
   // Lock body scroll when expanded
@@ -88,6 +91,9 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
   useEffect(() => {
     setCode(problem?.solutionCode || '');
     setLanguage(problem?.solutionLanguage || 'cpp');
+    setTimeComplexity(problem?.timeComplexity || '');
+    setSpaceComplexity(problem?.spaceComplexity || '');
+    setIntuition(problem?.intuition || '');
   }, [problem]);
 
   const problemId = problem?._id || problem?.id;
@@ -114,9 +120,12 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
       const res = await updateProblem(problemId, {
         solutionCode: code,
         solutionLanguage: language,
+        timeComplexity: timeComplexity.trim(),
+        spaceComplexity: spaceComplexity.trim(),
+        intuition: intuition.trim(),
       });
       if (res.success) {
-        toast?.success ? toast.success('Solution code updated successfully!') : null;
+        toast?.success ? toast.success('Solution code and complexities saved!') : null;
         setIsEditing(false);
         onProblemUpdated?.(res.data);
       }
@@ -304,66 +313,144 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
 
       {/* ── Editor or Viewer Body ───────────────────────────────────── */}
       {isEditing ? (
-        <div className="p-4 flex-1 flex flex-col" style={{ backgroundColor: activeTheme.bg }}>
-          <textarea
-            rows={isExpanded ? 24 : 14}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`// Paste or write your optimal ${currentLangObj.label} implementation here...\n// Press Tab to insert 4 spaces.`}
-            className="w-full flex-1 font-mono text-xs sm:text-sm text-text bg-transparent border-0 focus:outline-none resize-y leading-relaxed selection:bg-accent/30 placeholder:text-muted"
-            spellCheck={false}
-            autoFocus
-          />
-        </div>
-      ) : code ? (
-        <div
-          className={`relative overflow-x-auto flex text-xs sm:text-sm font-mono divide-x divide-line transition-all ${
-            isExpanded ? 'flex-1 max-h-[85vh]' : 'max-h-[480px]'
-          }`}
-          style={{ backgroundColor: activeTheme.bg }}
-        >
-          {/* Line Numbers Column */}
-          <div
-            className="select-none py-4 px-3 text-right text-muted font-mono text-xs leading-relaxed shrink-0 border-r border-line"
-            style={{ backgroundColor: activeTheme.gutterBg }}
-          >
-            {lines.map((_, idx) => (
-              <div key={idx} className="h-[21px] leading-[21px]">
-                {idx + 1}
-              </div>
-            ))}
+        <div className="flex-1 flex flex-col divide-y divide-line" style={{ backgroundColor: activeTheme.bg }}>
+          {/* Complexity & Intuition Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-surface-2/30">
+            <div>
+              <label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                <Cpu className="w-3.5 h-3.5 text-accent" />
+                <span>Time Complexity</span>
+              </label>
+              <input
+                type="text"
+                value={timeComplexity}
+                onChange={(e) => setTimeComplexity(e.target.value)}
+                placeholder="e.g. O(N), O(N log N)"
+                className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs font-mono text-text focus:outline-none focus:border-accent"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                <Database className="w-3.5 h-3.5 text-medium" />
+                <span>Space Complexity</span>
+              </label>
+              <input
+                type="text"
+                value={spaceComplexity}
+                onChange={(e) => setSpaceComplexity(e.target.value)}
+                placeholder="e.g. O(1), O(N)"
+                className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs font-mono text-text focus:outline-none focus:border-accent"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-accent" />
+                <span>Core Intuition / Algorithmic Pattern / Edge Cases</span>
+              </label>
+              <textarea
+                rows={2}
+                value={intuition}
+                onChange={(e) => setIntuition(e.target.value)}
+                placeholder="Key insight, invariant, or edge case trick to remember during interviews..."
+                className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-text focus:outline-none focus:border-accent leading-relaxed resize-y placeholder:text-muted"
+              />
+            </div>
           </div>
 
-          {/* Actual Code View with optional Word Wrap */}
-          <pre
-            className={`py-4 px-4 leading-relaxed overflow-x-auto flex-1 font-mono selection:bg-accent/30 ${
-              wordWrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'
-            }`}
-            style={{ color: activeTheme.text }}
-          >
-            <code>{code}</code>
-          </pre>
+          <div className="p-4 flex-1 flex flex-col">
+            <textarea
+              rows={isExpanded ? 22 : 14}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`// Paste or write your optimal ${currentLangObj.label} implementation here...\n// Press Tab to insert 4 spaces.`}
+              className="w-full flex-1 font-mono text-xs sm:text-sm text-text bg-transparent border-0 focus:outline-none resize-y leading-relaxed selection:bg-accent/30 placeholder:text-muted"
+              spellCheck={false}
+              autoFocus
+            />
+          </div>
         </div>
       ) : (
-        /* Empty State */
-        <div className="p-10 text-center bg-surface">
-          <div className="w-12 h-12 rounded-xl bg-surface-2 border border-line flex items-center justify-center mx-auto mb-3 text-muted">
-            <Terminal className="w-6 h-6" />
-          </div>
-          <h4 className="text-sm font-semibold text-text">No Solution Snippet Saved</h4>
-          <p className="text-xs text-muted mt-1.5 max-w-md mx-auto leading-relaxed">
-            Record your optimal solution, time & space complexities, or memory notes to review during spaced repetition recall sessions.
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="mt-5 btn-primary text-xs inline-flex items-center gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Add Solution Snippet</span>
-          </button>
-        </div>
+        <>
+          {/* Complexity & Intuition Readout (When available) */}
+          {(problem?.timeComplexity || problem?.spaceComplexity || problem?.intuition) && (
+            <div className="p-4 border-b border-line bg-surface-2/20 space-y-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                {problem.timeComplexity && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent/10 border border-accent/25 text-xs font-mono font-medium text-accent">
+                    <Cpu className="w-3.5 h-3.5" />
+                    <span>Time: {problem.timeComplexity}</span>
+                  </span>
+                )}
+                {problem.spaceComplexity && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-medium/10 border border-medium/25 text-xs font-mono font-medium text-medium">
+                    <Database className="w-3.5 h-3.5" />
+                    <span>Space: {problem.spaceComplexity}</span>
+                  </span>
+                )}
+              </div>
+              {problem.intuition && (
+                <div className="p-3 rounded-lg bg-surface border border-line text-xs text-text-secondary leading-relaxed">
+                  <div className="flex items-center gap-1.5 font-semibold text-text mb-1">
+                    <Sparkles className="w-3.5 h-3.5 text-accent" />
+                    <span>Core Intuition & Strategy</span>
+                  </div>
+                  <p className="whitespace-pre-wrap">{problem.intuition}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {code ? (
+            <div
+              className={`relative overflow-x-auto flex text-xs sm:text-sm font-mono divide-x divide-line transition-all ${
+                isExpanded ? 'flex-1 max-h-[85vh]' : 'max-h-[480px]'
+              }`}
+              style={{ backgroundColor: activeTheme.bg }}
+            >
+              {/* Line Numbers Column */}
+              <div
+                className="select-none py-4 px-3 text-right text-muted font-mono text-xs leading-relaxed shrink-0 border-r border-line"
+                style={{ backgroundColor: activeTheme.gutterBg }}
+              >
+                {lines.map((_, idx) => (
+                  <div key={idx} className="h-[21px] leading-[21px]">
+                    {idx + 1}
+                  </div>
+                ))}
+              </div>
+
+              {/* Actual Code View with optional Word Wrap */}
+              <pre
+                className={`py-4 px-4 leading-relaxed overflow-x-auto flex-1 font-mono selection:bg-accent/30 ${
+                  wordWrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'
+                }`}
+                style={{ color: activeTheme.text }}
+              >
+                <code>{code}</code>
+              </pre>
+            </div>
+          ) : (
+            /* Empty State */
+            <div className="p-10 text-center bg-surface">
+              <div className="w-12 h-12 rounded-xl bg-surface-2 border border-line flex items-center justify-center mx-auto mb-3 text-muted">
+                <Terminal className="w-6 h-6" />
+              </div>
+              <h4 className="text-sm font-semibold text-text">No Solution Snippet Saved</h4>
+              <p className="text-xs text-muted mt-1.5 max-w-md mx-auto leading-relaxed">
+                Record your optimal solution, time and space complexities, or memory notes to review during spaced repetition recall sessions.
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="mt-5 btn-primary text-xs inline-flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Add Solution Snippet</span>
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

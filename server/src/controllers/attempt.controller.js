@@ -29,7 +29,7 @@ const createAttempt = async (req, res, next) => {
       });
     }
 
-    const { status, timeTakenMinutes, notes, attemptedAt } = req.body;
+    const { status, timeTakenMinutes, notes, attemptedAt, approach, timeComplexity, spaceComplexity } = req.body;
 
     // Validate status
     if (!status || !VALID_STATUSES.includes(status.toLowerCase())) {
@@ -71,6 +71,9 @@ const createAttempt = async (req, res, next) => {
       status: status.toLowerCase().trim(),
       timeTakenMinutes: parsedTime,
       notes: typeof notes === 'string' ? notes.trim() : '',
+      approach: typeof approach === 'string' ? approach.trim() : '',
+      timeComplexity: typeof timeComplexity === 'string' ? timeComplexity.trim() : '',
+      spaceComplexity: typeof spaceComplexity === 'string' ? spaceComplexity.trim() : '',
       attemptedAt: parsedDate,
     });
 
@@ -181,6 +184,18 @@ const updateAttempt = async (req, res, next) => {
 
     if (notes !== undefined) {
       attempt.notes = typeof notes === 'string' ? notes.trim() : '';
+    }
+
+    if (req.body.approach !== undefined) {
+      attempt.approach = typeof req.body.approach === 'string' ? req.body.approach.trim() : '';
+    }
+
+    if (req.body.timeComplexity !== undefined) {
+      attempt.timeComplexity = typeof req.body.timeComplexity === 'string' ? req.body.timeComplexity.trim() : '';
+    }
+
+    if (req.body.spaceComplexity !== undefined) {
+      attempt.spaceComplexity = typeof req.body.spaceComplexity === 'string' ? req.body.spaceComplexity.trim() : '';
     }
 
     if (attemptedAt !== undefined) {

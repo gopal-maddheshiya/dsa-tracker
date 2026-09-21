@@ -57,6 +57,21 @@ const problemSchema = new mongoose.Schema(
       default: 'cpp',
       trim: true,
     },
+    timeComplexity: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    spaceComplexity: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    intuition: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

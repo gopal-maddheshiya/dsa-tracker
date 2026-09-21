@@ -44,6 +44,9 @@ const AttemptForm = ({
     const now = new Date();
     return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   });
+  const [approach, setApproach] = useState('');
+  const [timeComplexity, setTimeComplexity] = useState('');
+  const [spaceComplexity, setSpaceComplexity] = useState('');
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -65,6 +68,9 @@ const AttemptForm = ({
         setStatus(initialData.status || 'solved');
         setTimeTakenMinutes(initialData.timeTakenMinutes != null ? String(initialData.timeTakenMinutes) : '');
         setNotes(initialData.notes || '');
+        setApproach(initialData.approach || '');
+        setTimeComplexity(initialData.timeComplexity || '');
+        setSpaceComplexity(initialData.spaceComplexity || '');
         if (initialData.attemptedAt) {
           const d = new Date(initialData.attemptedAt);
           setAttemptedAt(new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
@@ -72,6 +78,9 @@ const AttemptForm = ({
       } else {
         setStatus('solved');
         setNotes('');
+        setApproach('');
+        setTimeComplexity('');
+        setSpaceComplexity('');
         const now = new Date();
         setAttemptedAt(new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
         if (defaultTimeTaken != null && defaultTimeTaken !== '') {
@@ -99,6 +108,9 @@ const AttemptForm = ({
         status,
         timeTakenMinutes: timeTakenMinutes !== '' ? Math.round(Number(timeTakenMinutes)) : null,
         notes: notes.trim(),
+        approach: approach.trim(),
+        timeComplexity: timeComplexity.trim(),
+        spaceComplexity: spaceComplexity.trim(),
         attemptedAt: attemptedAt ? new Date(attemptedAt).toISOString() : new Date().toISOString(),
       };
 
@@ -120,6 +132,11 @@ const AttemptForm = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleQuickAddMinutes = (mins) => {
+    const current = Number(timeTakenMinutes) || 0;
+    setTimeTakenMinutes(String(current + mins));
   };
 
   const content = (
@@ -183,9 +200,24 @@ const AttemptForm = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="time-taken" className="block section-label mb-1.5">
-                Time Taken (min)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="time-taken" className="section-label">
+                  Time Taken (min)
+                </label>
+                <div className="flex items-center gap-1">
+                  {[5, 15, 30].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => handleQuickAddMinutes(mins)}
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-2 border border-line text-muted hover:text-accent hover:border-accent/40 cursor-pointer"
+                      title={`Add ${mins} minutes`}
+                    >
+                      +{mins}m
+                    </button>
+                  ))}
+                </div>
+              </div>
               <input
                 id="time-taken"
                 type="number"
@@ -209,6 +241,52 @@ const AttemptForm = ({
                 disabled={isSubmitting}
                 onChange={(e) => setAttemptedAt(e.target.value)}
                 className="input-base text-xs"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="attempt-approach" className="block section-label mb-1.5">
+              Algorithm / Technique Approach
+            </label>
+            <input
+              id="attempt-approach"
+              type="text"
+              value={approach}
+              disabled={isSubmitting}
+              onChange={(e) => setApproach(e.target.value)}
+              placeholder="e.g. Two Pointers, Dynamic Programming, Simulation, Hash Map"
+              className="input-base text-xs"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="time-complexity" className="block section-label mb-1.5">
+                Time Complexity
+              </label>
+              <input
+                id="time-complexity"
+                type="text"
+                value={timeComplexity}
+                disabled={isSubmitting}
+                onChange={(e) => setTimeComplexity(e.target.value)}
+                placeholder="e.g. O(N*M), O(N log N)"
+                className="input-base text-xs font-mono"
+              />
+            </div>
+            <div>
+              <label htmlFor="space-complexity" className="block section-label mb-1.5">
+                Space Complexity
+              </label>
+              <input
+                id="space-complexity"
+                type="text"
+                value={spaceComplexity}
+                disabled={isSubmitting}
+                onChange={(e) => setSpaceComplexity(e.target.value)}
+                placeholder="e.g. O(1), O(N)"
+                className="input-base text-xs font-mono"
               />
             </div>
           </div>

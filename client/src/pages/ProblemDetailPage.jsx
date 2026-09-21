@@ -25,6 +25,12 @@ import {
   ChevronRight,
   Sparkles,
   Code2,
+  Brain,
+  ShieldCheck,
+  History,
+  Target,
+  Cpu,
+  Database
 } from 'lucide-react';
 
 const DIFFICULTY_CONFIG = {
@@ -55,13 +61,55 @@ const STATUS_CONFIG = {
 };
 
 const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
-  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20', dot: 'bg-[#2196F3]' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30', dot: 'bg-[#D4A373]' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
-  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
-  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
+  leetcode:   {
+    label: 'LeetCode',
+    short: 'LC',
+    style: 'text-accent bg-accent/10 border-accent/20',
+    glow: 'shadow-[0_0_25px_rgba(255,161,22,0.10)]',
+    ring: 'border-accent/25',
+  },
+  codeforces: {
+    label: 'Codeforces',
+    short: 'CF',
+    style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20',
+    glow: 'shadow-[0_0_25px_rgba(33,150,243,0.10)]',
+    ring: 'border-[#2196F3]/25',
+  },
+  gfg: {
+    label: 'GeeksforGeeks',
+    short: 'GFG',
+    style: 'text-easy bg-easy/10 border-easy/20',
+    glow: 'shadow-[0_0_25px_rgba(16,185,129,0.10)]',
+    ring: 'border-easy/25',
+  },
+  codechef: {
+    label: 'CodeChef',
+    short: 'CC',
+    style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30',
+    glow: 'shadow-[0_0_25px_rgba(212,163,115,0.10)]',
+    ring: 'border-[#8B572A]/30',
+  },
+  hackerrank: {
+    label: 'HackerRank',
+    short: 'HR',
+    style: 'text-success bg-success/10 border-success/20',
+    glow: 'shadow-[0_0_25px_rgba(22,163,74,0.10)]',
+    ring: 'border-success/25',
+  },
+  atcoder: {
+    label: 'AtCoder',
+    short: 'AC',
+    style: 'text-medium bg-medium/10 border-medium/20',
+    glow: 'shadow-[0_0_25px_rgba(99,102,241,0.10)]',
+    ring: 'border-medium/25',
+  },
+  other: {
+    label: 'External',
+    short: 'Ext',
+    style: 'text-muted bg-surface-2 border-line',
+    glow: '',
+    ring: 'border-line',
+  },
 };
 
 const ProblemDetailPage = () => {
@@ -103,7 +151,7 @@ const ProblemDetailPage = () => {
   // Dynamic document title based on problem name
   useEffect(() => {
     if (problem?.title) {
-      document.title = `${problem.title} · DSA Tracker`;
+      document.title = `${problem.title} | DSA Tracker`;
     }
   }, [problem?.title]);
 
@@ -182,13 +230,54 @@ const ProblemDetailPage = () => {
   const platformCfg = PLATFORM_CONFIG[problem.platform] || PLATFORM_CONFIG.other;
   const latestCfg = problem.latestAttempt ? STATUS_CONFIG[problem.latestAttempt.status] : null;
 
-  // Best time computation
+  // Best time & average computation
   const times = attempts.map(a => a.timeTakenMinutes).filter(t => t != null && t > 0);
   const bestTime = times.length > 0 ? Math.min(...times) : null;
   const avgTime = times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
 
+  // Spaced repetition interval calculations
+  const latestAttempt = attempts.length > 0 ? attempts[0] : null;
+  const REVISION_INTERVALS = { solved: 14, revisit_needed: 5, struggled: 2 };
+  let recallInfo = null;
+
+  if (!latestAttempt) {
+    recallInfo = {
+      status: 'Initial Practice Pending',
+      variant: 'default',
+      description: 'Solve and log your first attempt to initiate spaced repetition recall intervals.',
+      intervalLabel: 'No attempts yet',
+    };
+  } else {
+    const intervalDays = REVISION_INTERVALS[latestAttempt.status] || 7;
+    const daysSince = Math.max(0, Math.floor((Date.now() - new Date(latestAttempt.attemptedAt).getTime()) / (1000 * 60 * 60 * 24)));
+    const daysRemaining = intervalDays - daysSince;
+
+    if (daysRemaining < 0) {
+      recallInfo = {
+        status: 'Revision Overdue',
+        variant: 'danger',
+        description: `Overdue by ${Math.abs(daysRemaining)} ${Math.abs(daysRemaining) === 1 ? 'day' : 'days'} (${daysSince}d since last session). Schedule revision to prevent forgetting.`,
+        intervalLabel: `${intervalDays}d cycle`,
+      };
+    } else if (daysRemaining === 0) {
+      recallInfo = {
+        status: 'Scheduled for Today',
+        variant: 'warning',
+        description: `Scheduled for recall review today (${daysSince}d since last session) to solidify memory consolidation.`,
+        intervalLabel: `${intervalDays}d cycle`,
+      };
+    } else {
+      recallInfo = {
+        status: 'Optimal Retention',
+        variant: 'success',
+        description: `Next review recommended in ${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} (${daysSince}d elapsed).`,
+        intervalLabel: `${intervalDays}d cycle`,
+      };
+    }
+  }
+
   return (
-    <div className="space-y-5 max-w-4xl mx-auto pb-6 animate-fade-up">
+    <div className="space-y-5 max-w-4xl mx-auto pb-8 animate-fade-up">
       {/* Top Navigation & Action Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <nav className="flex items-center gap-2 text-xs text-muted min-w-0">
@@ -205,7 +294,7 @@ const ProblemDetailPage = () => {
               href={problem.link}
               target="_blank"
               rel="noreferrer"
-              className="btn-secondary text-xs flex items-center gap-1.5 h-8 px-3"
+              className="btn-secondary text-xs flex items-center gap-1.5 h-8 px-3 transition-all hover:border-accent hover:text-accent"
               title="Open problem on platform"
             >
               <span>Solve on {platformCfg.short}</span>
@@ -236,7 +325,7 @@ const ProblemDetailPage = () => {
       </div>
 
       {/* Main Problem Telemetry HUD Banner */}
-      <div className="p-4 sm:p-5 relative overflow-hidden bg-surface rounded-xl border border-line space-y-4">
+      <div className={`p-4 sm:p-5 relative overflow-hidden bg-surface rounded-xl border transition-all duration-300 ${platformCfg.ring} ${platformCfg.glow} space-y-4`}>
         <div className="flex flex-col gap-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={diffCfg.variant} size="sm">{diffCfg.label}</Badge>
@@ -287,7 +376,7 @@ const ProblemDetailPage = () => {
               <Clock className="w-3.5 h-3.5 text-success" />
             </div>
             <span className="text-lg font-semibold text-success block tabular-nums">
-              {bestTime != null ? `${bestTime}m` : '—'}
+              {bestTime != null ? `${bestTime}m` : 'Untimed'}
             </span>
           </div>
 
@@ -297,7 +386,7 @@ const ProblemDetailPage = () => {
               <Flame className="w-3.5 h-3.5 text-accent" />
             </div>
             <span className="text-lg font-semibold text-text block tabular-nums">
-              {avgTime != null ? `${avgTime}m` : '—'}
+              {avgTime != null ? `${avgTime}m` : attempts.length > 0 ? 'Untimed' : 'Untracked'}
             </span>
           </div>
 
@@ -310,6 +399,58 @@ const ProblemDetailPage = () => {
               {new Date(problem.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
+        </div>
+
+        {/* Spaced Repetition Recall Health Card */}
+        <div className="p-3.5 rounded-xl bg-surface-2/40 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
+              recallInfo.variant === 'danger'
+                ? 'bg-danger/10 border-danger/25 text-danger'
+                : recallInfo.variant === 'warning'
+                ? 'bg-accent/10 border-accent/25 text-accent'
+                : recallInfo.variant === 'success'
+                ? 'bg-success/10 border-success/25 text-success'
+                : 'bg-surface-2 border-line text-muted'
+            }`}>
+              <Brain className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-text">
+                  Recall Status:
+                </span>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                  recallInfo.variant === 'danger'
+                    ? 'bg-danger/10 border-danger/25 text-danger'
+                    : recallInfo.variant === 'warning'
+                    ? 'bg-accent/10 border-accent/25 text-accent'
+                    : recallInfo.variant === 'success'
+                    ? 'bg-success/10 border-success/25 text-success'
+                    : 'bg-surface-2 border-line text-muted'
+                }`}>
+                  {recallInfo.status}
+                </span>
+                <span className="text-[11px] font-mono text-muted px-1.5 py-0.5 rounded bg-surface border border-line">
+                  {recallInfo.intervalLabel}
+                </span>
+              </div>
+              <p className="text-xs text-muted mt-1 leading-relaxed">
+                {recallInfo.description}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('practice');
+              window.scrollTo({ top: 350, behavior: 'smooth' });
+            }}
+            className="btn-secondary text-xs shrink-0 self-start sm:self-center cursor-pointer"
+          >
+            Practice Now
+          </button>
         </div>
       </div>
 
@@ -389,7 +530,7 @@ const ProblemDetailPage = () => {
                   </span>
                 </h2>
                 <p className="text-xs text-muted mt-0.5">
-                  Chronological log of recall sessions, speed metrics, and notes.
+                  Chronological log of recall sessions, algorithms, complexities, and memory notes.
                 </p>
               </div>
             </div>
@@ -401,7 +542,7 @@ const ProblemDetailPage = () => {
                 </div>
                 <h3 className="text-sm font-semibold text-text">No practice sessions recorded yet</h3>
                 <p className="text-xs text-muted mt-1.5 max-w-sm mx-auto leading-relaxed">
-                  Use the stopwatch timer above or click below to log your first solve attempt and schedule your recall intervals.
+                  Use the practice timer above or click below to log your first solve attempt and schedule your recall intervals.
                 </p>
                 <button
                   onClick={() => setIsAttemptModalOpen(true)}
@@ -428,11 +569,11 @@ const ProblemDetailPage = () => {
 
                   return (
                     <div
-                      key={attempt.id || index}
-                      className="p-3.5 sm:p-4 rounded-xl transition-all duration-200 border border-line bg-surface hover:bg-surface-2/40 relative overflow-hidden"
+                      key={attempt.id || attempt._id || index}
+                      className="p-3.5 sm:p-4 rounded-xl transition-all duration-200 border border-line bg-surface hover:bg-surface-2/40 relative overflow-hidden space-y-2.5"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.text}`}>
                             <span>{cfg.label}</span>
                           </span>
@@ -441,6 +582,27 @@ const ProblemDetailPage = () => {
                             <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent">
                               <Sparkles className="w-3 h-3" />
                               <span>Latest</span>
+                            </span>
+                          )}
+
+                          {attempt.approach && (
+                            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text">
+                              <Zap className="w-3 h-3 text-accent" />
+                              <span>{attempt.approach}</span>
+                            </span>
+                          )}
+
+                          {attempt.timeComplexity && (
+                            <span className="inline-flex items-center gap-1 text-xs font-mono text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line">
+                              <Cpu className="w-3 h-3 text-accent" />
+                              <span>{attempt.timeComplexity}</span>
+                            </span>
+                          )}
+
+                          {attempt.spaceComplexity && (
+                            <span className="inline-flex items-center gap-1 text-xs font-mono text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line">
+                              <Database className="w-3 h-3 text-medium" />
+                              <span>{attempt.spaceComplexity}</span>
                             </span>
                           )}
 
@@ -454,7 +616,7 @@ const ProblemDetailPage = () => {
 
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-muted tabular-nums">
-                            {attemptDate} · {attemptTime}
+                            {attemptDate} at {attemptTime}
                           </span>
                           <div className="flex items-center gap-1">
                             <button
@@ -479,7 +641,7 @@ const ProblemDetailPage = () => {
                       </div>
 
                       {attempt.notes && (
-                        <div className="mt-2.5 p-3 rounded-lg bg-surface-2 border border-line text-xs text-text-secondary leading-relaxed">
+                        <div className="p-3 rounded-lg bg-surface-2 border border-line text-xs text-text-secondary leading-relaxed">
                           {attempt.notes}
                         </div>
                       )}
@@ -541,4 +703,3 @@ const ProblemDetailPage = () => {
 };
 
 export default ProblemDetailPage;
-
