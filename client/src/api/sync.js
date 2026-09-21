@@ -43,3 +43,13 @@ export const syncAllPlatforms = async () => {
   const response = await api.post('/sync/all');
   return response.data;
 };
+
+/**
+ * Batch import problem slugs or links for a platform
+ * @param {string} platform
+ * @param {string[]} items
+ */
+export const batchImportPlatform = async (platform, items) => {
+  const response = await api.post('/sync/batch-import', { platform, items });
+  return response.data;
+};

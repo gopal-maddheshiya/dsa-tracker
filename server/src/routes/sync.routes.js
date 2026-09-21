@@ -6,6 +6,7 @@ const {
   disconnectPlatform,
   syncPlatform,
   syncAllPlatforms,
+  batchImportProblems,
 } = require('../controllers/sync.controller');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -16,6 +17,7 @@ router.get('/status', getSyncStatus);
 router.post('/connect', connectPlatform);
 router.post('/disconnect', disconnectPlatform);
 router.post('/all', syncAllPlatforms);
+router.post('/batch-import', batchImportProblems);
 router.post('/:platform', syncPlatform);
 
 module.exports = router;

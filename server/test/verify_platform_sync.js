@@ -12,6 +12,7 @@ const {
   disconnectPlatform,
   syncPlatform,
   syncAllPlatforms,
+  batchImportProblems,
 } = require('../src/controllers/sync.controller');
 
 const mockResponse = () => {
@@ -162,6 +163,29 @@ async function runTests() {
       throw new Error('disconnectPlatform failed');
     }
     console.log('✅ 12. disconnectPlatform successfully unlinked GFG platform');
+
+    // 10. Test batchImportProblems
+    const reqBatch = {
+      user: testUser,
+      body: {
+        platform: 'leetcode',
+        items: ['two-sum', 'https://leetcode.com/problems/add-two-numbers/'],
+      },
+    };
+    const resBatch = mockResponse();
+    await batchImportProblems(reqBatch, resBatch);
+    if (resBatch.statusCode !== 200 || resBatch.body.data.importedCount < 1) {
+      throw new Error(`batchImportProblems failed: ${JSON.stringify(resBatch.body)}`);
+    }
+    console.log(`✅ 13. batchImportProblems successfully imported ${resBatch.body.data.importedCount} problems`);
+
+    // 11. Test batchImportProblems deduplication
+    const resBatchDup = mockResponse();
+    await batchImportProblems(reqBatch, resBatchDup);
+    if (resBatchDup.statusCode !== 200 || resBatchDup.body.data.importedCount !== 0) {
+      throw new Error(`batchImportProblems deduplication failed: ${JSON.stringify(resBatchDup.body)}`);
+    }
+    console.log(`✅ 14. batchImportProblems correctly skipped ${resBatchDup.body.data.skippedDuplicates} duplicates`);
 
     console.log('--- ALL 4 PLATFORM SYNC INTEGRATION TESTS PASSED 100%! ---');
   } catch (err) {

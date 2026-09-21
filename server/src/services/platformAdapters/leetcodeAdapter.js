@@ -173,7 +173,7 @@ async function fetchSolvedProblems(username, limit = 50) {
       return { success: false, problems: [], stats: {}, error: verification.error };
     }
 
-    // 2. Fetch recent AC submissions
+    // 2. Fetch both recent AC submissions and general recent submissions
     const query = `
       query getRecentSubmissions($username: String!, $limit: Int!) {
         recentAcSubmissionList(username: $username, limit: $limit) {
@@ -181,6 +181,12 @@ async function fetchSolvedProblems(username, limit = 50) {
           title
           titleSlug
           timestamp
+        }
+        recentSubmissionList(username: $username, limit: $limit) {
+          id
+          title
+          titleSlug
+          statusDisplay
         }
       }
     `;
@@ -210,11 +216,14 @@ async function fetchSolvedProblems(username, limit = 50) {
     }
 
     const data = await response.json();
-    const rawList = data?.data?.recentAcSubmissionList || [];
+    const rawAcList = data?.data?.recentAcSubmissionList || [];
+    const rawGeneralList = (data?.data?.recentSubmissionList || []).filter(
+      (item) => String(item.statusDisplay || '').toLowerCase() === 'accepted'
+    );
 
-    // Deduplicate submissions by titleSlug (keeping the earliest or most recent attempt)
+    // Deduplicate submissions by titleSlug (merging both sources)
     const slugMap = new Map();
-    for (const item of rawList) {
+    for (const item of [...rawAcList, ...rawGeneralList]) {
       if (!item.titleSlug) continue;
       if (!slugMap.has(item.titleSlug)) {
         slugMap.set(item.titleSlug, item);
@@ -259,7 +268,50 @@ async function fetchSolvedProblems(username, limit = 50) {
   }
 }
 
+/**
+ * Enriches a batch list of problem slugs or URLs into fully formed Problem objects.
+ * Useful for 1-click importing of complete historical problem lists (e.g. 50+ problems).
+ * @param {string[]} items - Array of slugs or URLs
+ * @returns {Promise<Array>}
+ */
+async function fetchProblemsBySlugs(items = []) {
+  const normalizedProblems = [];
+  const processedSlugs = new Set();
+
+  for (const raw of items) {
+    if (!raw) continue;
+    let clean = String(raw).trim();
+
+    // Extract slug from URL if pasted (e.g. https://leetcode.com/problems/two-sum/)
+    if (clean.includes('/problems/')) {
+      const parts = clean.split('/problems/')[1]?.split('/')[0];
+      if (parts) clean = parts;
+    }
+    clean = clean.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+    if (!clean || processedSlugs.has(clean)) continue;
+    processedSlugs.add(clean);
+
+    const details = await fetchQuestionDetails(clean);
+    const title = details?.title || clean.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    const difficulty = details?.difficulty || 'medium';
+    const topics = details?.topics || [];
+
+    normalizedProblems.push({
+      title,
+      platform: 'leetcode',
+      link: `https://leetcode.com/problems/${clean}/`,
+      difficulty,
+      topics,
+      submittedAt: new Date(),
+      rawSlug: clean,
+    });
+  }
+
+  return normalizedProblems;
+}
+
 module.exports = {
   verifyUser,
   fetchSolvedProblems,
+  fetchProblemsBySlugs,
 };

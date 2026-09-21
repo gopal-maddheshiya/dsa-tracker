@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
+const User = require('../models/User');
 
 const REVISION_INTERVALS = {
   solved: 14,
@@ -515,19 +516,32 @@ const getProfile = async (req, res, next) => {
       if (diffSolved[diffKey] !== undefined) diffSolved[diffKey] = d.count;
     });
 
+    // ── Platform Totals (from connected LeetCode, CF, GFG, CodeChef) ─────
+    const userDoc = await User.findById(userId).select('connectedPlatforms').lean();
+    let platformTotalSolved = 0;
+    if (userDoc?.connectedPlatforms) {
+      for (const p of Object.values(userDoc.connectedPlatforms)) {
+        if (p && p.isConnected && p.stats) {
+          const solved = Number(p.stats.totalSolved) || 0;
+          platformTotalSolved += solved;
+        }
+      }
+    }
+
     // ── Totals ─────────────────────────────────────────────────────
     const totalProblems = await Problem.countDocuments({ userId });
     const totalAttempts = allAttempts.length;
     const totalSolved = diffSolved.easy + diffSolved.medium + diffSolved.hard;
+    const effectiveTotalSolved = Math.max(totalSolved, platformTotalSolved);
     const activeDays = daySet.size;
 
-    // ── Milestones / Badges ────────────────────────────────────────
+    // ── Milestones / Badges (calculated from effective solved) ──────
     const badges = [];
-    if (totalSolved >= 1)   badges.push({ id: 'first_step',   icon: '🌱', label: 'First Step',     desc: 'Solved your first problem' });
-    if (totalSolved >= 10)  badges.push({ id: 'getting_warm', icon: '🔥', label: 'Getting Warm',   desc: '10 problems solved' });
-    if (totalSolved >= 50)  badges.push({ id: 'half_century', icon: '⚡', label: 'Half Century',   desc: '50 problems solved' });
-    if (totalSolved >= 100) badges.push({ id: 'century',      icon: '💯', label: 'Century',        desc: '100 problems solved' });
-    if (totalSolved >= 250) badges.push({ id: 'elite',        icon: '🏆', label: 'Elite Coder',    desc: '250 problems solved' });
+    if (effectiveTotalSolved >= 1)   badges.push({ id: 'first_step',   icon: '🌱', label: 'First Step',     desc: 'Solved your first problem' });
+    if (effectiveTotalSolved >= 10)  badges.push({ id: 'getting_warm', icon: '🔥', label: 'Getting Warm',   desc: '10 problems solved' });
+    if (effectiveTotalSolved >= 50)  badges.push({ id: 'half_century', icon: '⚡', label: 'Half Century',   desc: '50 problems solved' });
+    if (effectiveTotalSolved >= 100) badges.push({ id: 'century',      icon: '💯', label: 'Century',        desc: '100 problems solved' });
+    if (effectiveTotalSolved >= 250) badges.push({ id: 'elite',        icon: '🏆', label: 'Elite Coder',    desc: '250 problems solved' });
     if (diffSolved.hard >= 1)  badges.push({ id: 'hard_first', icon: '🧠', label: 'Deep Thinker',  desc: 'First Hard solved' });
     if (diffSolved.hard >= 10) badges.push({ id: 'hard_ten',  icon: '💎', label: 'Diamond Mind',   desc: '10 Hard problems solved' });
     if (currentStreak >= 7)  badges.push({ id: 'streak_7',   icon: '📅', label: 'On a Roll',      desc: '7-day streak' });
@@ -540,6 +554,9 @@ const getProfile = async (req, res, next) => {
         totalProblems,
         totalAttempts,
         totalSolved,
+        catalogSolved: totalSolved,
+        platformTotalSolved,
+        effectiveTotalSolved,
         activeDays,
         currentStreak,
         longestStreak,

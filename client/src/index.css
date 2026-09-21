@@ -79,6 +79,12 @@
     outline-offset: 2px;
   }
 
+  /* High-contrast, crisp placeholder rule across all browsers */
+  ::placeholder {
+    color: var(--muted) !important;
+    opacity: 0.9 !important;
+  }
+
   /* Refined scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -142,6 +148,7 @@
   .input-base::placeholder,
   .input-field::placeholder {
     color: var(--muted);
+    opacity: 0.9;
   }
   .input-base:focus,
   .input-field:focus {

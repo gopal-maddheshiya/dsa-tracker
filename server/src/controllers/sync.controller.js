@@ -370,10 +370,99 @@ const syncAllPlatforms = async (req, res, next) => {
   }
 };
 
+/**
+ * @route   POST /api/sync/batch-import
+ * @desc    Batch import problems by list of URLs or slugs
+ */
+const batchImportProblems = async (req, res, next) => {
+  try {
+    const { platform = 'leetcode', items = [] } = req.body;
+    const userId = req.user._id;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of problem links or slugs',
+      });
+    }
+
+    const adapter = ADAPTERS[platform];
+    if (!adapter || !adapter.fetchProblemsBySlugs) {
+      return res.status(400).json({
+        success: false,
+        message: `Batch import is currently supported for LeetCode`,
+      });
+    }
+
+    const fetchedProblems = await adapter.fetchProblemsBySlugs(items);
+
+    const existingProblems = await Problem.find({ userId }).select('title link platform').lean();
+    const titleSet = new Set(existingProblems.map((p) => normalizeTitle(p.title)));
+    const linkSet = new Set(existingProblems.map((p) => String(p.link || '').toLowerCase().trim()));
+
+    let importedCount = 0;
+    let skippedDuplicates = 0;
+
+    for (const item of fetchedProblems) {
+      const normTitle = normalizeTitle(item.title);
+      const normLink = String(item.link || '').toLowerCase().trim();
+
+      if (titleSet.has(normTitle) || (normLink && linkSet.has(normLink))) {
+        skippedDuplicates++;
+        continue;
+      }
+
+      const newProblem = await Problem.create({
+        userId,
+        title: item.title,
+        platform: item.platform,
+        link: item.link,
+        difficulty: item.difficulty,
+        topics: item.topics || [],
+        createdAt: item.submittedAt || new Date(),
+      });
+
+      await Attempt.create({
+        problemId: newProblem._id,
+        userId,
+        status: 'solved',
+        attemptedAt: item.submittedAt || new Date(),
+        notes: `Batch imported from ${platform.toUpperCase()}`,
+      });
+
+      titleSet.add(normTitle);
+      if (normLink) linkSet.add(normLink);
+      importedCount++;
+    }
+
+    // Update user's totalSynced count
+    const user = await User.findById(userId);
+    if (user && user.connectedPlatforms?.[platform]) {
+      user.connectedPlatforms[platform].totalSynced =
+        (user.connectedPlatforms[platform].totalSynced || 0) + importedCount;
+      user.markModified('connectedPlatforms');
+      await user.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Batch imported ${importedCount} problems (${skippedDuplicates} duplicates skipped).`,
+      data: {
+        importedCount,
+        skippedDuplicates,
+        totalCataloged: (user?.connectedPlatforms?.[platform]?.totalSynced || 0),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getSyncStatus,
   connectPlatform,
   disconnectPlatform,
   syncPlatform,
   syncAllPlatforms,
+  batchImportProblems,
 };

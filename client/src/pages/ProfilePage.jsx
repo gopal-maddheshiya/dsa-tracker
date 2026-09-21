@@ -645,7 +645,10 @@ const ProfilePage = () => {
   const solvedPct = profile?.totalProblems > 0
     ? Math.round((profile.totalSolved / profile.totalProblems) * 100) : 0;
 
-  const rank = useMemo(() => getRank(profile?.totalSolved ?? 0), [profile?.totalSolved]);
+  const rank = useMemo(
+    () => getRank(profile?.effectiveTotalSolved ?? profile?.totalSolved ?? 0),
+    [profile?.effectiveTotalSolved, profile?.totalSolved]
+  );
 
   // Member since — use createdAt from user if available
   const memberSince = user?.createdAt ? fmtMonthYear(user.createdAt) : null;
@@ -858,8 +861,12 @@ const ProfilePage = () => {
                 )}
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface-2/80 border border-line text-xs font-medium">
                   <CheckCircle2 className="w-3.5 h-3.5 text-easy" />
-                  <span className="font-bold tabular-nums text-text">{profile?.totalSolved ?? 0}</span>
-                  <span className="text-muted text-[11px]">solved / {profile?.totalProblems ?? 0}</span>
+                  <span className="font-bold tabular-nums text-text">
+                    {profile?.effectiveTotalSolved ?? profile?.totalSolved ?? 0}
+                  </span>
+                  <span className="text-muted text-[11px]">
+                    solved {profile?.platformTotalSolved > 0 ? `(${profile.platformTotalSolved} platform)` : `/ ${profile?.totalProblems ?? 0}`}
+                  </span>
                 </div>
               </div>
 

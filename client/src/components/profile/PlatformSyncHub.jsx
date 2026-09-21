@@ -4,7 +4,7 @@ import {
   Unlink, ShieldCheck, Zap, Trophy, Flame, Layers, Sparkles,
   ArrowRight, RefreshCw, Globe, Award, Star, X, Link2
 } from 'lucide-react';
-import { getSyncStatus, connectPlatform, disconnectPlatform, syncPlatform, syncAllPlatforms } from '../../api/sync';
+import { getSyncStatus, connectPlatform, disconnectPlatform, syncPlatform, syncAllPlatforms, batchImportPlatform } from '../../api/sync';
 import { useToast } from '../../context/ToastContext';
 
 /* ── Universal Clean Handle Extractor ──────────────────────────── */
@@ -51,21 +51,24 @@ const PlatformConnectInput = ({
   placeholder,
   exampleUrl,
 }) => {
+  const safeVal = value || '';
   const detected = useMemo(() => {
-    if (!value) return null;
-    const clean = extractCleanHandle(platform, value);
-    if (clean && clean !== value && (value.includes('/') || value.includes('@') || value.includes('.'))) {
+    if (!safeVal) return null;
+    const clean = extractCleanHandle(platform, safeVal);
+    if (clean && clean !== safeVal && (safeVal.includes('/') || safeVal.includes('@') || safeVal.includes('.'))) {
       return clean;
     }
     return null;
-  }, [platform, value]);
+  }, [platform, safeVal]);
+
+  const defaultPlaceholder = exampleUrl ? `e.g. ${exampleUrl}` : 'Username or profile link';
 
   return (
     <div className="space-y-2.5 my-3">
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1 flex items-center">
-          <span className="absolute left-3 text-muted pointer-events-none text-xs font-mono">
-            {value.includes('http') || value.includes('.com') || value.includes('.org') ? (
+          <span className="absolute left-3 text-muted pointer-events-none text-xs font-mono flex items-center justify-center w-4 h-4">
+            {safeVal.includes('http') || safeVal.includes('.com') || safeVal.includes('.org') ? (
               <Globe className="w-3.5 h-3.5 text-accent" />
             ) : (
               <span className="font-semibold text-muted text-xs">@</span>
@@ -73,14 +76,14 @@ const PlatformConnectInput = ({
           </span>
           <input
             type="text"
-            value={value}
+            value={safeVal}
             onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder || `Username or profile link (e.g. ${exampleUrl})`}
+            placeholder={placeholder || defaultPlaceholder}
             disabled={isConnecting}
-            className="w-full bg-surface-2 hover:bg-surface-2/80 focus:bg-surface-2 border border-line focus:border-accent rounded-xl text-text font-mono text-xs pl-8.5 pr-8 h-10 transition-all outline-none placeholder:text-muted/50 focus:ring-1 focus:ring-accent"
+            className="w-full bg-surface-2 hover:bg-surface-2/80 focus:bg-surface-2 border border-line focus:border-accent rounded-xl text-text font-mono text-xs pl-10 pr-8 h-10 transition-all outline-none placeholder:text-muted placeholder:opacity-90 focus:ring-1 focus:ring-accent input-field"
             onKeyDown={(e) => e.key === 'Enter' && onConnect()}
           />
-          {value && (
+          {safeVal && (
             <button
               type="button"
               onClick={() => onChange('')}
@@ -94,7 +97,7 @@ const PlatformConnectInput = ({
 
         <button
           type="button"
-          disabled={isConnecting || !value.trim()}
+          disabled={isConnecting || !safeVal.trim()}
           onClick={onConnect}
           className="btn-primary h-10 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm"
         >
@@ -118,6 +121,113 @@ const PlatformConnectInput = ({
           <span>Detected handle: <strong>@{detected}</strong> (will connect automatically)</span>
         </div>
       )}
+    </div>
+  );
+};
+
+/* ── Batch Problem Importer Modal ─────────────────────────────── */
+const BatchImportModal = ({ isOpen, onClose, onImportSuccess }) => {
+  const toast = useToast();
+  const [text, setText] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleImport = async () => {
+    const rawItems = text
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (rawItems.length === 0) {
+      toast.error('Please paste at least one problem link or slug');
+      return;
+    }
+
+    try {
+      setIsImporting(true);
+      const res = await batchImportPlatform('leetcode', rawItems);
+      toast.success(res?.message || `Successfully imported ${res?.data?.importedCount || 0} problems!`);
+      setText('');
+      window.dispatchEvent(new CustomEvent('problem-created'));
+      onImportSuccess?.();
+      onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to import problems');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
+      <div className="w-full max-w-lg bg-surface border border-line rounded-2xl p-6 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-line/60 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-text">Batch Import LeetCode Problems</h3>
+              <p className="text-[11px] text-muted">Paste your solved question URLs or slugs to catalog them</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isImporting}
+            className="text-muted hover:text-text p-1.5 rounded-lg hover:bg-surface-2 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-secondary block">
+            Problem URLs or Slugs (one per line or comma-separated):
+          </label>
+          <textarea
+            rows={6}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            disabled={isImporting}
+            placeholder={`two-sum\nhttps://leetcode.com/problems/add-two-numbers/\nlongest-substring-without-repeating-characters\nmedian-of-two-sorted-arrays`}
+            className="w-full p-3 rounded-xl bg-surface-2 border border-line text-text font-mono text-xs focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent resize-y placeholder:text-muted placeholder:opacity-75"
+          />
+          <p className="text-[11px] text-muted leading-relaxed">
+            DSA Tracker will automatically fetch title, difficulty, and topic tags from LeetCode GraphQL and record them as solved attempts in your catalog.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-line/60">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isImporting}
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleImport}
+            disabled={isImporting || !text.trim()}
+            className="btn-primary px-5 py-2 text-xs font-semibold flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {isImporting ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Fetching & Cataloging...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Import Solved Questions</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -199,6 +309,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
     all: false,
   });
 
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+
   const loadStatus = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -206,10 +318,10 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
       if (res?.data) {
         setStatus(res.data);
         setHandles({
-          leetcode: res.data.leetcode?.handle || '',
-          codeforces: res.data.codeforces?.handle || '',
-          gfg: res.data.gfg?.handle || '',
-          codechef: res.data.codechef?.handle || '',
+          leetcode: res.data.leetcode?.isConnected ? (res.data.leetcode?.handle || '') : '',
+          codeforces: res.data.codeforces?.isConnected ? (res.data.codeforces?.handle || '') : '',
+          gfg: res.data.gfg?.isConnected ? (res.data.gfg?.handle || '') : '',
+          codechef: res.data.codechef?.isConnected ? (res.data.codechef?.handle || '') : '',
         });
       }
     } catch (err) {
@@ -448,6 +560,30 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                     </span>
                   </div>
                 </div>
+
+                {/* Transparency telemetry breakdown */}
+                <div className="p-3 rounded-xl bg-accent/10 border border-accent/25 space-y-1.5 text-xs animate-fade-in">
+                  <div className="flex items-center justify-between gap-2 flex-wrap text-text">
+                    <span className="font-semibold text-accent flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Profile Solved: {status.leetcode.stats?.totalSolved ?? 0}</span>
+                    </span>
+                    <span className="font-mono text-[11px] text-secondary">
+                      In Catalog: <strong className="text-text">{status.leetcode.totalSynced ?? 0}</strong>
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-secondary leading-relaxed">
+                    LeetCode's public API limits live sync to your 20 recent submissions without private cookies. Your complete {status.leetcode.stats?.totalSolved ?? 0} solved count is honored in your profile badges and streaks.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsBatchModalOpen(true)}
+                    className="text-[11px] text-accent font-semibold hover:underline flex items-center gap-1 cursor-pointer pt-0.5"
+                  >
+                    <span>+ Batch import older solved questions</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="space-y-1">
@@ -460,6 +596,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   onChange={(val) => setHandles({ ...handles, leetcode: val })}
                   onConnect={() => handleConnect('leetcode')}
                   isConnecting={connecting.leetcode}
+                  placeholder="e.g. lee215 or leetcode.com/u/lee215"
                   exampleUrl="leetcode.com/u/lee215"
                 />
               </div>
@@ -468,7 +605,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
 
           {/* Footer Actions */}
           {status.leetcode?.isConnected && (
-            <div className="pt-4 mt-2 border-t border-line/60 flex items-center justify-between gap-3">
+            <div className="pt-4 mt-2 border-t border-line/60 flex items-center justify-between gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => handleDisconnect('leetcode')}
@@ -478,15 +615,27 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 <span>Disconnect</span>
               </button>
 
-              <button
-                type="button"
-                disabled={syncing.leetcode || isAnySyncing}
-                onClick={() => handleSync('leetcode')}
-                className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
-              >
-                <RotateCcw className={`w-3.5 h-3.5 ${syncing.leetcode ? 'animate-spin text-[#FFA116]' : ''}`} />
-                <span>{syncing.leetcode ? 'Syncing...' : 'Sync Now'}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsBatchModalOpen(true)}
+                  className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  title="Paste problem links or slugs in batch"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                  <span>Batch Import</span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={syncing.leetcode || isAnySyncing}
+                  onClick={() => handleSync('leetcode')}
+                  className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                >
+                  <RotateCcw className={`w-3.5 h-3.5 ${syncing.leetcode ? 'animate-spin text-[#FFA116]' : ''}`} />
+                  <span>{syncing.leetcode ? 'Syncing...' : 'Sync Now'}</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -580,6 +729,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   onChange={(val) => setHandles({ ...handles, codeforces: val })}
                   onConnect={() => handleConnect('codeforces')}
                   isConnecting={connecting.codeforces}
+                  placeholder="e.g. tourist or codeforces.com/profile/tourist"
                   exampleUrl="codeforces.com/profile/tourist"
                 />
               </div>
@@ -707,6 +857,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   onChange={(val) => setHandles({ ...handles, gfg: val })}
                   onConnect={() => handleConnect('gfg')}
                   isConnecting={connecting.gfg}
+                  placeholder="e.g. theghost01 or geeksforgeeks.org/user/..."
                   exampleUrl="geeksforgeeks.org/user/theghost01"
                 />
               </div>
@@ -838,6 +989,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   onChange={(val) => setHandles({ ...handles, codechef: val })}
                   onConnect={() => handleConnect('codechef')}
                   isConnecting={connecting.codechef}
+                  placeholder="e.g. tourist or codechef.com/users/tourist"
                   exampleUrl="codechef.com/users/tourist"
                 />
               </div>
@@ -880,6 +1032,13 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
           </p>
         </div>
       </div>
+
+      {/* ── Batch Problem Importer Modal ──────────────────────────── */}
+      <BatchImportModal
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        onImportSuccess={loadStatus}
+      />
     </div>
   );
 };
