@@ -12,6 +12,7 @@ import EditProfileModal from '../components/profile/EditProfileModal';
 import DataImportModal from '../components/profile/DataImportModal';
 import MilestoneDetailModal from '../components/profile/MilestoneDetailModal';
 import TargetGoalsCard from '../components/profile/TargetGoalsCard';
+import PlatformSyncHub from '../components/profile/PlatformSyncHub';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import Reveal from '../components/common/Reveal';
 import TiltCard from '../components/common/TiltCard';
@@ -20,7 +21,7 @@ import {
   Rocket, Sprout, Flame, Zap, Award, Crown, Brain, Gem, Calendar, Target,
   PartyPopper, FolderGit2, CheckCircle2, History, FolderOpen,
   TrendingUp, BarChart3, Trophy, Layers, Download, FileJson, FileSpreadsheet, Database,
-  Settings, Upload, Lock, Sparkles
+  Settings, Upload, Lock, Sparkles, Globe
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
@@ -899,6 +900,23 @@ const ProfilePage = () => {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab('platforms')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === 'platforms'
+                ? 'bg-accent text-white shadow-xs'
+                : 'text-secondary hover:text-text hover:bg-surface-2'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>Connected Platforms</span>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'platforms' ? 'bg-white/20 text-white' : 'bg-accent/15 text-accent'
+            }`}>
+              Sync
+            </span>
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('milestones')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'milestones'
@@ -1039,6 +1057,15 @@ const ProfilePage = () => {
                 })()}
               </div>
             </div>
+          </Reveal>
+        </div>
+      )}
+
+      {/* ── Tab: Connected Platforms ────────────────────────────── */}
+      {activeTab === 'platforms' && (
+        <div className="space-y-6 animate-fade-up">
+          <Reveal delay={40} y={15}>
+            <PlatformSyncHub onSyncSuccess={load} />
           </Reveal>
         </div>
       )}

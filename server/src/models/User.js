@@ -64,6 +64,33 @@ const userSchema = new mongoose.Schema(
         default: null,
       },
     },
+    connectedPlatforms: {
+      leetcode: {
+        handle: { type: String, default: null, trim: true },
+        isConnected: { type: Boolean, default: false },
+        lastSyncedAt: { type: Date, default: null },
+        totalSynced: { type: Number, default: 0 },
+        stats: {
+          easy: { type: Number, default: 0 },
+          medium: { type: Number, default: 0 },
+          hard: { type: Number, default: 0 },
+          totalSolved: { type: Number, default: 0 },
+          ranking: { type: Number, default: null },
+        },
+      },
+      codeforces: {
+        handle: { type: String, default: null, trim: true },
+        isConnected: { type: Boolean, default: false },
+        lastSyncedAt: { type: Date, default: null },
+        totalSynced: { type: Number, default: 0 },
+        stats: {
+          rating: { type: Number, default: null },
+          maxRating: { type: Number, default: null },
+          rank: { type: String, default: null },
+          totalSolved: { type: Number, default: 0 },
+        },
+      },
+    },
   },
   {
     timestamps: false,
@@ -89,6 +116,10 @@ userSchema.methods.toSafeObject = function () {
       weeklyTarget: 10,
       targetCompanies: ['Google', 'Amazon'],
       targetInterviewDate: null,
+    },
+    connectedPlatforms: this.connectedPlatforms || {
+      leetcode: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
+      codeforces: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
     },
     hasPassword: !!this.passwordHash,
     createdAt: this.createdAt,
