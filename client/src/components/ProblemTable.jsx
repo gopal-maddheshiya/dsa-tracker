@@ -12,6 +12,7 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
+  Globe,
 } from 'lucide-react';
 
 const DIFFICULTY_CONFIG = {
@@ -160,9 +161,15 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
         <p className="text-xs text-muted mt-1 max-w-xs mx-auto leading-relaxed">
           No problems match your search or filters. Catalog your first problem to get started.
         </p>
-        <button onClick={onOpenAdd} type="button" className="btn-primary text-xs mt-5">
-          + Add First Problem
-        </button>
+        <div className="flex items-center justify-center gap-3 mt-5">
+          <button onClick={onOpenAdd} type="button" className="btn-primary text-xs">
+            + Add First Problem
+          </button>
+          <Link to="/profile?tab=platforms" className="btn-secondary text-xs flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5 text-accent" />
+            <span>Sync from Platforms</span>
+          </Link>
+        </div>
       </div>
     );
   }

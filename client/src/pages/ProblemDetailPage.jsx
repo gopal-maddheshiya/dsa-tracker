@@ -114,6 +114,7 @@ const ProblemDetailPage = () => {
       const delId = problem.id || problem._id;
       await deleteProblem(delId);
       toast.success(`Problem "${problem.title}" deleted.`);
+      window.dispatchEvent(new CustomEvent('problem-created'));
       navigate('/problems', { replace: true });
     } catch (err) {
       toast.error(getErrorMessage(err, 'Failed to delete problem.'));
@@ -129,6 +130,7 @@ const ProblemDetailPage = () => {
     try {
       await deleteAttempt(problem.id, attemptId);
       toast.success('Attempt deleted successfully.');
+      window.dispatchEvent(new CustomEvent('problem-created'));
       loadProblem();
     } catch (err) {
       toast.error(getErrorMessage(err, 'Failed to delete attempt.'));

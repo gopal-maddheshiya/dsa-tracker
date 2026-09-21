@@ -110,6 +110,7 @@ const AttemptForm = ({
         await createAttempt(problemId, payload);
         toast.success(`Attempt logged as "${STATUS_OPTIONS.find((o) => o.value === status)?.label}".`);
       }
+      window.dispatchEvent(new CustomEvent('problem-created'));
       onSuccess();
       onClose();
     } catch (err) {

@@ -210,9 +210,15 @@ const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
         Clear All Filters
       </button>
     ) : (
-      <button onClick={onOpenAdd} className="btn-primary text-xs mt-2">
-        + Add First Problem
-      </button>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-2">
+        <button onClick={onOpenAdd} className="btn-primary text-xs">
+          + Add First Problem
+        </button>
+        <Link to="/profile?tab=platforms" className="btn-secondary text-xs flex items-center justify-center gap-1.5">
+          <Globe className="w-3.5 h-3.5 text-accent" />
+          <span>Sync from Platforms</span>
+        </Link>
+      </div>
     )}
   </div>
 );
@@ -482,6 +488,7 @@ const ProblemsPage = () => {
       setDeletingProblem(null);
       toast.success(`Deleted "${deletingProblem.title}".`);
       loadProblems();
+      window.dispatchEvent(new CustomEvent('problem-created'));
     } catch (err) {
       toast.error(getErrorMessage(err, 'Failed to delete problem.'));
     } finally {

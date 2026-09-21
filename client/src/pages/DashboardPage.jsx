@@ -173,9 +173,15 @@ const DashboardPage = () => {
             <p className="text-xs text-muted mt-2 max-w-sm mx-auto leading-relaxed">
               Add your first problem and log practice sessions to unlock analytics.
             </p>
-            <Link to="/problems?new=1" className="btn-primary inline-flex mt-5 text-xs">
-              Add your first problem
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5">
+              <Link to="/problems?new=1" className="btn-primary inline-flex text-xs">
+                Add your first problem
+              </Link>
+              <Link to="/profile?tab=platforms" className="btn-secondary inline-flex items-center gap-1.5 text-xs">
+                <Globe className="w-3.5 h-3.5 text-accent" />
+                <span>Sync from Platforms</span>
+              </Link>
+            </div>
           </div>
         </Reveal>
       ) : (

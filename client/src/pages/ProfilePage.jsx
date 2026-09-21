@@ -632,6 +632,12 @@ const ProfilePage = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    const handleRefresh = () => { load(); };
+    window.addEventListener('problem-created', handleRefresh);
+    return () => window.removeEventListener('problem-created', handleRefresh);
+  }, [load]);
+
   const initials = user?.name
     ? user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : (user?.email?.[0] ?? 'U').toUpperCase();

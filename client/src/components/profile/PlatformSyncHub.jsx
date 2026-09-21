@@ -137,6 +137,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
       await disconnectPlatform(platform);
       toast.info(`Disconnected ${platform.toUpperCase()} account`);
       await loadStatus();
+      window.dispatchEvent(new CustomEvent('problem-created'));
     } catch (err) {
       toast.error('Failed to disconnect platform');
     }
@@ -151,6 +152,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
         `Synced ${data.syncedCount} new problem${data.syncedCount === 1 ? '' : 's'} (${data.skippedDuplicates} duplicates skipped)`
       );
       await loadStatus();
+      window.dispatchEvent(new CustomEvent('problem-created'));
       onSyncSuccess?.();
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Sync failed';
@@ -167,6 +169,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
       const data = res.data;
       toast.success(`Complete: ${data.totalSynced} new problems synced across connected accounts!`);
       await loadStatus();
+      window.dispatchEvent(new CustomEvent('problem-created'));
       onSyncSuccess?.();
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Batch sync failed';

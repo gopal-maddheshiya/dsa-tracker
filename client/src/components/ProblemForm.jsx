@@ -322,6 +322,7 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         await createProblem(payload);
         toast.success(`"${payload.title}" cataloged.`);
       }
+      window.dispatchEvent(new CustomEvent('problem-created'));
       onSuccess();
       onClose();
     } catch (err) {
