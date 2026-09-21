@@ -77,11 +77,6 @@ const getSummary = async (req, res, next) => {
       }
     });
 
-    const difficultyBreakdown = [
-      { difficulty: 'easy', count: diffMap.easy, solved: solvedDiffMap.easy },
-      { difficulty: 'medium', count: diffMap.medium, solved: solvedDiffMap.medium },
-      { difficulty: 'hard', count: diffMap.hard, solved: solvedDiffMap.hard },
-    ];
 
     // Platform breakdown of user problems (total per platform)
     const platformAgg = await Problem.aggregate([
@@ -97,6 +92,63 @@ const getSummary = async (req, res, next) => {
         platformMap[p._id] = p.count;
       }
     });
+
+    // ── Platform Totals (from connected LeetCode, CF, GFG, CodeChef) ─────
+    const userDoc = await User.findById(userId).select('connectedPlatforms').lean();
+    let platformTotalSolved = 0;
+    const platformDifficulty = { easy: 0, medium: 0, hard: 0 };
+    let hasPlatformDifficulty = false;
+
+    if (userDoc?.connectedPlatforms) {
+      for (const [pKey, p] of Object.entries(userDoc.connectedPlatforms)) {
+        if (p && p.isConnected && p.stats) {
+          const solved = Number(p.stats.totalSolved) || 0;
+          platformTotalSolved += solved;
+
+          if (pKey === 'leetcode' && p.stats) {
+            if (p.stats.easy != null) {
+              platformDifficulty.easy += Number(p.stats.easy) || 0;
+              hasPlatformDifficulty = true;
+            }
+            if (p.stats.medium != null) {
+              platformDifficulty.medium += Number(p.stats.medium) || 0;
+              hasPlatformDifficulty = true;
+            }
+            if (p.stats.hard != null) {
+              platformDifficulty.hard += Number(p.stats.hard) || 0;
+              hasPlatformDifficulty = true;
+            }
+          }
+
+          if (platformMap[pKey] !== undefined) {
+            platformMap[pKey] = Math.max(platformMap[pKey], solved);
+          }
+        }
+      }
+    }
+
+    const effectiveSolvedProblems = Math.max(solvedProblems, platformTotalSolved);
+    const effectiveTotalProblems = Math.max(totalProblems, effectiveSolvedProblems);
+
+    const effectiveEasySolved = hasPlatformDifficulty && platformTotalSolved > solvedProblems
+      ? Math.max(solvedDiffMap.easy, platformDifficulty.easy)
+      : solvedDiffMap.easy;
+    const effectiveMedSolved = hasPlatformDifficulty && platformTotalSolved > solvedProblems
+      ? Math.max(solvedDiffMap.medium, platformDifficulty.medium)
+      : solvedDiffMap.medium;
+    const effectiveHardSolved = hasPlatformDifficulty && platformTotalSolved > solvedProblems
+      ? Math.max(solvedDiffMap.hard, platformDifficulty.hard)
+      : solvedDiffMap.hard;
+
+    const effectiveEasyCount = Math.max(diffMap.easy, effectiveEasySolved);
+    const effectiveMedCount = Math.max(diffMap.medium, effectiveMedSolved);
+    const effectiveHardCount = Math.max(diffMap.hard, effectiveHardSolved);
+
+    const difficultyBreakdown = [
+      { difficulty: 'easy', count: effectiveEasyCount, solved: effectiveEasySolved },
+      { difficulty: 'medium', count: effectiveMedCount, solved: effectiveMedSolved },
+      { difficulty: 'hard', count: effectiveHardCount, solved: effectiveHardSolved },
+    ];
 
     // Calculate practice streaks safely
     const allAttemptDates = await Attempt.find(
@@ -157,9 +209,12 @@ const getSummary = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: {
-        totalProblems,
+        totalProblems: effectiveTotalProblems,
+        catalogProblems: totalProblems,
         totalAttempts,
-        solvedProblems,
+        solvedProblems: effectiveSolvedProblems,
+        catalogSolved: solvedProblems,
+        platformTotalSolved,
         solvedAttempts,
         difficultyBreakdown,
         platformBreakdown: platformMap,

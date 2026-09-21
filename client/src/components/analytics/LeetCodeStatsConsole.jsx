@@ -151,9 +151,19 @@ const LeetCodeStatsConsole = ({
               Problems Solved
             </h2>
           </div>
-          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-surface-2 border border-line text-accent">
-            {overallPct}% cataloged
-          </span>
+          {summary?.catalogProblems && summary.catalogProblems < totalProblems ? (
+            <span
+              className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-accent/15 border border-accent/30 text-accent flex items-center gap-1 cursor-default"
+              title={`Platform verified ${solvedProblems} solved problems. ${summary.catalogProblems} synced to catalog.`}
+            >
+              <span>{solvedProblems} Solved</span>
+              <span className="text-muted font-normal">({summary.catalogProblems} in catalog)</span>
+            </span>
+          ) : (
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-surface-2 border border-line text-accent">
+              {overallPct}% cataloged
+            </span>
+          )}
         </div>
 
         {/* Donut + Difficulty Bars */}
