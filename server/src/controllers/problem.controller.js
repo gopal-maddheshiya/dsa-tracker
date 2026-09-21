@@ -40,9 +40,14 @@ const normalizeTopics = (topics) => {
  */
 const getProblems = async (req, res, next) => {
   try {
-    const { topic, difficulty, status, search } = req.query;
+    const { topic, difficulty, status, search, platform } = req.query;
 
     const query = { userId: req.user._id };
+
+    // Filter by platform
+    if (platform && VALID_PLATFORMS.includes(platform.toLowerCase())) {
+      query.platform = platform.toLowerCase();
+    }
 
     // Filter by difficulty
     if (difficulty && VALID_DIFFICULTIES.includes(difficulty.toLowerCase())) {
