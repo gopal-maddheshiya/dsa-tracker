@@ -1,11 +1,126 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   RotateCcw, CheckCircle2, ExternalLink,
   Unlink, ShieldCheck, Zap, Trophy, Flame, Layers, Sparkles,
-  ArrowRight, RefreshCw, Globe, HelpCircle, Award, Star
+  ArrowRight, RefreshCw, Globe, Award, Star, X, Link2
 } from 'lucide-react';
 import { getSyncStatus, connectPlatform, disconnectPlatform, syncPlatform, syncAllPlatforms } from '../../api/sync';
 import { useToast } from '../../context/ToastContext';
+
+/* ── Universal Clean Handle Extractor ──────────────────────────── */
+export function extractCleanHandle(platform, input) {
+  if (!input) return '';
+  let str = String(input).trim();
+  str = str.replace(/^["']|["']$/g, '').trim();
+
+  if (str.includes('http://') || str.includes('https://') || str.includes('/') || str.includes('.com') || str.includes('.org')) {
+    try {
+      const urlStr = str.startsWith('http') ? str : `https://${str}`;
+      const url = new URL(urlStr);
+      const segments = url.pathname.split('/').filter(Boolean);
+
+      if (platform === 'leetcode') {
+        if (segments[0] === 'u' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_-]/g, '');
+      } else if (platform === 'codeforces') {
+        if (segments[0] === 'profile' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_.-]/g, '');
+      } else if (platform === 'gfg') {
+        if (segments[0] === 'user' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_.-]/g, '');
+      } else if (platform === 'codechef') {
+        if (segments[0] === 'users' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_.-]/g, '');
+      }
+    } catch {
+      const parts = str.split('/').filter(Boolean);
+      if (parts.length > 0) return parts[parts.length - 1].replace(/^@+/, '');
+    }
+  }
+
+  return str.replace(/^@+/, '').replace(/\/+$/, '').trim();
+}
+
+/* ── Modern High-Contrast Platform Input Component ────────────── */
+const PlatformConnectInput = ({
+  platform,
+  value,
+  onChange,
+  onConnect,
+  isConnecting,
+  placeholder,
+  exampleUrl,
+}) => {
+  const detected = useMemo(() => {
+    if (!value) return null;
+    const clean = extractCleanHandle(platform, value);
+    if (clean && clean !== value && (value.includes('/') || value.includes('@') || value.includes('.'))) {
+      return clean;
+    }
+    return null;
+  }, [platform, value]);
+
+  return (
+    <div className="space-y-2.5 my-3">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1 flex items-center">
+          <span className="absolute left-3 text-muted pointer-events-none text-xs font-mono">
+            {value.includes('http') || value.includes('.com') || value.includes('.org') ? (
+              <Globe className="w-3.5 h-3.5 text-accent" />
+            ) : (
+              <span className="font-semibold text-muted text-xs">@</span>
+            )}
+          </span>
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder || `Username or profile link (e.g. ${exampleUrl})`}
+            disabled={isConnecting}
+            className="w-full bg-surface-2 hover:bg-surface-2/80 focus:bg-surface-2 border border-line focus:border-accent rounded-xl text-text font-mono text-xs pl-8.5 pr-8 h-10 transition-all outline-none placeholder:text-muted/50 focus:ring-1 focus:ring-accent"
+            onKeyDown={(e) => e.key === 'Enter' && onConnect()}
+          />
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange('')}
+              className="absolute right-2.5 text-muted hover:text-text p-1 transition-colors cursor-pointer rounded"
+              title="Clear input"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+
+        <button
+          type="button"
+          disabled={isConnecting || !value.trim()}
+          onClick={onConnect}
+          className="btn-primary h-10 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm"
+        >
+          {isConnecting ? (
+            <>
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              <span>Verifying...</span>
+            </>
+          ) : (
+            <>
+              <Zap className="w-3.5 h-3.5" />
+              <span>Connect</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {detected && (
+        <div className="flex items-center gap-1.5 text-[11px] font-mono text-accent bg-accent/10 border border-accent/25 px-2.5 py-1 rounded-lg animate-fade-in">
+          <Sparkles className="w-3 h-3 text-accent shrink-0" />
+          <span>Detected handle: <strong>@{detected}</strong> (will connect automatically)</span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 /* ── Branded SVG Logos ─────────────────────────────────────────── */
 const LeetCodeLogo = ({ className = 'w-6 h-6' }) => (
@@ -109,17 +224,26 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
   }, [loadStatus]);
 
   const handleConnect = async (platform) => {
-    const handle = handles[platform]?.trim();
-    if (!handle) {
-      toast.error(`Please enter your ${platform.toUpperCase()} username or handle`);
+    const rawInput = handles[platform]?.trim();
+    if (!rawInput) {
+      toast.error(`Please enter your ${platform.toUpperCase()} username or profile link`);
+      return;
+    }
+
+    const clean = extractCleanHandle(platform, rawInput);
+    if (!clean) {
+      toast.error(`Please enter a valid ${platform.toUpperCase()} username or profile link`);
       return;
     }
 
     try {
       setConnecting((prev) => ({ ...prev, [platform]: true }));
-      const res = await connectPlatform(platform, handle);
+      const res = await connectPlatform(platform, clean);
       toast.success(res.message || `Connected ${platform.toUpperCase()} account!`);
+      // Update local input to clean handle
+      setHandles((prev) => ({ ...prev, [platform]: clean }));
       await loadStatus();
+      window.dispatchEvent(new CustomEvent('problem-created'));
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Verification failed';
       toast.error(msg);
@@ -186,38 +310,57 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
     status.codechef?.isConnected,
   ].filter(Boolean).length;
 
+  const totalSyncedAcrossAll =
+    (status.leetcode?.totalSynced || 0) +
+    (status.codeforces?.totalSynced || 0) +
+    (status.gfg?.totalSynced || 0) +
+    (status.codechef?.totalSynced || 0);
+
   const isAnySyncing = syncing.all || syncing.leetcode || syncing.codeforces || syncing.gfg || syncing.codechef;
 
   return (
     <div className="space-y-6">
-      {/* ── Top Header Strip ────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-surface border border-line shadow-xs">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-text tracking-tight flex items-center gap-2">
-              <Globe className="w-4 h-4 text-accent" />
-              <span>Platform Sync Hub</span>
-            </h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-accent/15 text-accent border border-accent/30">
-              Phase 2 Live (4 Platforms)
-            </span>
-          </div>
-          <p className="text-xs text-secondary leading-relaxed">
-            Link your coding handles to automatically pull solved questions, track your competitive ratings, and keep your Activity Heatmap populated.
-          </p>
-        </div>
+      {/* ── Top Command Hub Ribbon ────────────────────────────────── */}
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-surface via-surface to-surface-2 border border-line/80 shadow-md relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-full bg-accent/5 rounded-full blur-3xl pointer-events-none" />
 
-        {connectedCount > 0 && (
-          <button
-            type="button"
-            disabled={isAnySyncing}
-            onClick={handleSyncAll}
-            className="btn-primary min-h-[38px] px-4 py-2 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 shadow-xs"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${syncing.all ? 'animate-spin' : ''}`} />
-            <span>{syncing.all ? 'Syncing All Accounts...' : `Sync All (${connectedCount} Linked)`}</span>
-          </button>
-        )}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="text-base font-bold text-text tracking-tight flex items-center gap-2">
+                <Globe className="w-4 h-4 text-accent" />
+                <span>Competitive Platform Synchronization</span>
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-accent/15 text-accent border border-accent/30">
+                {connectedCount} of 4 Hubs Active
+              </span>
+            </div>
+            <p className="text-xs text-secondary leading-relaxed max-w-2xl">
+              Paste your handles or full profile URLs to import solved algorithmic problems, competitive contest ratings, and historical activity heatmaps automatically.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {totalSyncedAcrossAll > 0 && (
+              <div className="hidden sm:flex flex-col text-right">
+                <span className="text-[10px] uppercase tracking-wider text-muted font-mono">Catalog Synced</span>
+                <span className="text-sm font-bold text-text tabular-nums">{totalSyncedAcrossAll} problems</span>
+              </div>
+            )}
+
+            {connectedCount > 0 && (
+              <button
+                type="button"
+                disabled={isAnySyncing}
+                onClick={handleSyncAll}
+                className="btn-primary min-h-[40px] px-4.5 py-2 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 shadow-md shadow-accent/20"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncing.all ? 'animate-spin' : ''}`} />
+                <span>{syncing.all ? 'Syncing All Accounts...' : `Sync All (${connectedCount} Linked)`}</span>
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ── Cards Grid (LeetCode, Codeforces, GeeksforGeeks, CodeChef) ───────────────────── */}
@@ -307,29 +450,18 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 my-2">
+              <div className="space-y-1">
                 <p className="text-xs text-secondary leading-relaxed">
-                  Enter your public LeetCode username. No passwords or tokens required.
+                  Enter your public username or paste your profile URL (e.g. <span className="font-mono text-text">leetcode.com/u/lee215</span>). No passwords required.
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={handles.leetcode}
-                    onChange={(e) => setHandles({ ...handles, leetcode: e.target.value })}
-                    placeholder="e.g. lee215 or your_handle"
-                    disabled={connecting.leetcode}
-                    className="flex-1 input-field text-xs h-9"
-                    onKeyDown={(e) => e.key === 'Enter' && handleConnect('leetcode')}
-                  />
-                  <button
-                    type="button"
-                    disabled={connecting.leetcode || !handles.leetcode.trim()}
-                    onClick={() => handleConnect('leetcode')}
-                    className="btn-primary px-3.5 h-9 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0"
-                  >
-                    {connecting.leetcode ? 'Verifying...' : 'Connect'}
-                  </button>
-                </div>
+                <PlatformConnectInput
+                  platform="leetcode"
+                  value={handles.leetcode}
+                  onChange={(val) => setHandles({ ...handles, leetcode: val })}
+                  onConnect={() => handleConnect('leetcode')}
+                  isConnecting={connecting.leetcode}
+                  exampleUrl="leetcode.com/u/lee215"
+                />
               </div>
             )}
           </div>
@@ -438,29 +570,18 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 my-2">
+              <div className="space-y-1">
                 <p className="text-xs text-secondary leading-relaxed">
-                  Enter your Codeforces handle to sync AC submissions and contest problems.
+                  Enter your Codeforces handle or paste your profile link (e.g. <span className="font-mono text-text">codeforces.com/profile/tourist</span>).
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={handles.codeforces}
-                    onChange={(e) => setHandles({ ...handles, codeforces: e.target.value })}
-                    placeholder="e.g. tourist or your_handle"
-                    disabled={connecting.codeforces}
-                    className="flex-1 input-field text-xs h-9"
-                    onKeyDown={(e) => e.key === 'Enter' && handleConnect('codeforces')}
-                  />
-                  <button
-                    type="button"
-                    disabled={connecting.codeforces || !handles.codeforces.trim()}
-                    onClick={() => handleConnect('codeforces')}
-                    className="btn-primary px-3.5 h-9 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0"
-                  >
-                    {connecting.codeforces ? 'Verifying...' : 'Connect'}
-                  </button>
-                </div>
+                <PlatformConnectInput
+                  platform="codeforces"
+                  value={handles.codeforces}
+                  onChange={(val) => setHandles({ ...handles, codeforces: val })}
+                  onConnect={() => handleConnect('codeforces')}
+                  isConnecting={connecting.codeforces}
+                  exampleUrl="codeforces.com/profile/tourist"
+                />
               </div>
             )}
           </div>
@@ -576,29 +697,18 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 my-2">
+              <div className="space-y-1">
                 <p className="text-xs text-secondary leading-relaxed">
-                  Enter your GeeksforGeeks handle to sync your problem solving stats and score.
+                  Enter your GeeksforGeeks handle or paste your profile link (e.g. <span className="font-mono text-text">geeksforgeeks.org/user/theghost01</span>).
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={handles.gfg}
-                    onChange={(e) => setHandles({ ...handles, gfg: e.target.value })}
-                    placeholder="e.g. gopalmaddheshiya or your_handle"
-                    disabled={connecting.gfg}
-                    className="flex-1 input-field text-xs h-9"
-                    onKeyDown={(e) => e.key === 'Enter' && handleConnect('gfg')}
-                  />
-                  <button
-                    type="button"
-                    disabled={connecting.gfg || !handles.gfg.trim()}
-                    onClick={() => handleConnect('gfg')}
-                    className="btn-primary px-3.5 h-9 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0"
-                  >
-                    {connecting.gfg ? 'Verifying...' : 'Connect'}
-                  </button>
-                </div>
+                <PlatformConnectInput
+                  platform="gfg"
+                  value={handles.gfg}
+                  onChange={(val) => setHandles({ ...handles, gfg: val })}
+                  onConnect={() => handleConnect('gfg')}
+                  isConnecting={connecting.gfg}
+                  exampleUrl="geeksforgeeks.org/user/theghost01"
+                />
               </div>
             )}
           </div>
@@ -718,29 +828,18 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 my-2">
+              <div className="space-y-1">
                 <p className="text-xs text-secondary leading-relaxed">
-                  Enter your CodeChef handle to sync your contest rating, stars, and solved questions.
+                  Enter your CodeChef handle or paste your profile link (e.g. <span className="font-mono text-text">codechef.com/users/tourist</span>).
                 </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={handles.codechef}
-                    onChange={(e) => setHandles({ ...handles, codechef: e.target.value })}
-                    placeholder="e.g. tourist or your_handle"
-                    disabled={connecting.codechef}
-                    className="flex-1 input-field text-xs h-9"
-                    onKeyDown={(e) => e.key === 'Enter' && handleConnect('codechef')}
-                  />
-                  <button
-                    type="button"
-                    disabled={connecting.codechef || !handles.codechef.trim()}
-                    onClick={() => handleConnect('codechef')}
-                    className="btn-primary px-3.5 h-9 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0"
-                  >
-                    {connecting.codechef ? 'Verifying...' : 'Connect'}
-                  </button>
-                </div>
+                <PlatformConnectInput
+                  platform="codechef"
+                  value={handles.codechef}
+                  onChange={(val) => setHandles({ ...handles, codechef: val })}
+                  onConnect={() => handleConnect('codechef')}
+                  isConnecting={connecting.codechef}
+                  exampleUrl="codechef.com/users/tourist"
+                />
               </div>
             )}
           </div>

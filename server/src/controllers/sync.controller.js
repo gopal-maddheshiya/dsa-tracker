@@ -60,6 +60,42 @@ const getSyncStatus = async (req, res, next) => {
 };
 
 /**
+ * Extracts a clean handle from either a raw username, @handle, or full profile URL.
+ */
+function extractCleanHandle(platform, input) {
+  if (!input) return '';
+  let str = String(input).trim();
+  str = str.replace(/^["']|["']$/g, '').trim();
+
+  if (str.includes('http://') || str.includes('https://') || str.includes('/') || str.includes('.com') || str.includes('.org')) {
+    try {
+      const urlStr = str.startsWith('http') ? str : `https://${str}`;
+      const url = new URL(urlStr);
+      const segments = url.pathname.split('/').filter(Boolean);
+
+      if (platform === 'leetcode') {
+        if (segments[0] === 'u' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_-]/g, '');
+      } else if (platform === 'codeforces') {
+        if (segments[0] === 'profile' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_.-]/g, '');
+      } else if (platform === 'gfg') {
+        if (segments[0] === 'user' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_.-]/g, '');
+      } else if (platform === 'codechef') {
+        if (segments[0] === 'users' && segments[1]) return segments[1].replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (segments[0]) return segments[0].replace(/[^a-zA-Z0-9_.-]/g, '');
+      }
+    } catch {
+      const parts = str.split('/').filter(Boolean);
+      if (parts.length > 0) return parts[parts.length - 1].replace(/^@+/, '');
+    }
+  }
+
+  return str.replace(/^@+/, '').replace(/\/+$/, '').trim();
+}
+
+/**
  * @route   POST /api/sync/connect
  * @desc    Verify and connect a platform handle
  */
@@ -67,7 +103,7 @@ const connectPlatform = async (req, res, next) => {
   try {
     const { platform, handle } = req.body;
     const cleanPlatform = String(platform || '').toLowerCase().trim();
-    const cleanHandle = String(handle || '').trim();
+    const cleanHandle = extractCleanHandle(cleanPlatform, handle);
 
     if (!SUPPORTED_PLATFORMS.includes(cleanPlatform)) {
       return res.status(400).json({
@@ -79,7 +115,7 @@ const connectPlatform = async (req, res, next) => {
     if (!cleanHandle) {
       return res.status(400).json({
         success: false,
-        message: 'Handle or username is required',
+        message: 'Handle or valid profile URL is required',
       });
     }
 

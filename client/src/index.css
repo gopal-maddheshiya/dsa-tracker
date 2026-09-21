@@ -127,7 +127,8 @@
   }
 
   /* === INPUTS === */
-  .input-base {
+  .input-base,
+  .input-field {
     width: 100%;
     padding: 0.5rem 0.875rem;
     border-radius: 0.5rem;
@@ -138,10 +139,12 @@
     border: 1px solid var(--line);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .input-base::placeholder {
+  .input-base::placeholder,
+  .input-field::placeholder {
     color: var(--muted);
   }
-  .input-base:focus {
+  .input-base:focus,
+  .input-field:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent);
