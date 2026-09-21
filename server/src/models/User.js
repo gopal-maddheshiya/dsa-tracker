@@ -90,6 +90,33 @@ const userSchema = new mongoose.Schema(
           totalSolved: { type: Number, default: 0 },
         },
       },
+      gfg: {
+        handle: { type: String, default: null, trim: true },
+        isConnected: { type: Boolean, default: false },
+        lastSyncedAt: { type: Date, default: null },
+        totalSynced: { type: Number, default: 0 },
+        stats: {
+          totalSolved: { type: Number, default: 0 },
+          score: { type: Number, default: 0 },
+          instituteRank: { type: Number, default: null },
+          instituteName: { type: String, default: null },
+          streak: { type: Number, default: 0 },
+        },
+      },
+      codechef: {
+        handle: { type: String, default: null, trim: true },
+        isConnected: { type: Boolean, default: false },
+        lastSyncedAt: { type: Date, default: null },
+        totalSynced: { type: Number, default: 0 },
+        stats: {
+          rating: { type: Number, default: null },
+          highestRating: { type: Number, default: null },
+          stars: { type: String, default: null },
+          globalRank: { type: Number, default: null },
+          countryRank: { type: Number, default: null },
+          totalSolved: { type: Number, default: 0 },
+        },
+      },
     },
   },
   {
@@ -120,6 +147,8 @@ userSchema.methods.toSafeObject = function () {
     connectedPlatforms: this.connectedPlatforms || {
       leetcode: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
       codeforces: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
+      gfg: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
+      codechef: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
     },
     hasPassword: !!this.passwordHash,
     createdAt: this.createdAt,

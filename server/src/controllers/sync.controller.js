@@ -3,12 +3,16 @@ const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
 const leetcodeAdapter = require('../services/platformAdapters/leetcodeAdapter');
 const codeforcesAdapter = require('../services/platformAdapters/codeforcesAdapter');
+const gfgAdapter = require('../services/platformAdapters/gfgAdapter');
+const codechefAdapter = require('../services/platformAdapters/codechefAdapter');
 
-const SUPPORTED_PLATFORMS = ['leetcode', 'codeforces'];
+const SUPPORTED_PLATFORMS = ['leetcode', 'codeforces', 'gfg', 'codechef'];
 
 const ADAPTERS = {
   leetcode: leetcodeAdapter,
   codeforces: codeforcesAdapter,
+  gfg: gfgAdapter,
+  codechef: codechefAdapter,
 };
 
 /**
@@ -35,6 +39,8 @@ const getSyncStatus = async (req, res, next) => {
     const defaultConnected = {
       leetcode: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
       codeforces: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
+      gfg: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
+      codechef: { handle: null, isConnected: false, lastSyncedAt: null, totalSynced: 0, stats: {} },
     };
 
     const connected = user.connectedPlatforms || defaultConnected;
@@ -44,6 +50,8 @@ const getSyncStatus = async (req, res, next) => {
       data: {
         leetcode: connected.leetcode || defaultConnected.leetcode,
         codeforces: connected.codeforces || defaultConnected.codeforces,
+        gfg: connected.gfg || defaultConnected.gfg,
+        codechef: connected.codechef || defaultConnected.codechef,
       },
     });
   } catch (err) {
