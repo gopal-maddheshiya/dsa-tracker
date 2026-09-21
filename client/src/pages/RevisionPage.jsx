@@ -24,6 +24,7 @@ import {
   X,
   ArrowRight,
   Filter,
+  Globe,
 } from 'lucide-react';
 
 const STATUS_CONFIG = {
@@ -118,6 +119,7 @@ const RevisionPage = () => {
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'struggled' | 'revisit_needed' | 'solved'
   const [searchQuery, setSearchQuery] = useState('');
   const [topicFilter, setTopicFilter] = useState('');
+  const [platformFilter, setPlatformFilter] = useState('');
 
   const loadQueue = useCallback(async () => {
     setIsLoading(true);
@@ -183,9 +185,12 @@ const RevisionPage = () => {
       if (topicFilter && !(item.topics || []).some((t) => t.toLowerCase() === topicFilter.toLowerCase())) {
         return false;
       }
+      if (platformFilter && (item.platform || 'other').toLowerCase() !== platformFilter.toLowerCase()) {
+        return false;
+      }
       return true;
     });
-  }, [queue, statusFilter, searchQuery, topicFilter]);
+  }, [queue, statusFilter, searchQuery, topicFilter, platformFilter]);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -194,7 +199,7 @@ const RevisionPage = () => {
   // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, searchQuery, topicFilter]);
+  }, [statusFilter, searchQuery, topicFilter, platformFilter]);
 
   const totalItems = filteredQueue.length;
   const paginatedQueue = useMemo(() => {
@@ -238,9 +243,10 @@ const RevisionPage = () => {
     setStatusFilter('all');
     setSearchQuery('');
     setTopicFilter('');
+    setPlatformFilter('');
   };
 
-  const hasActiveFilters = statusFilter !== 'all' || searchQuery.trim() !== '' || topicFilter !== '';
+  const hasActiveFilters = statusFilter !== 'all' || searchQuery.trim() !== '' || topicFilter !== '' || platformFilter !== '';
 
   return (
     <div className="space-y-5 pb-6 animate-fade-up">
@@ -459,6 +465,27 @@ const RevisionPage = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Platform Filter Dropdown */}
+                <div className="relative w-full sm:w-40 shrink-0">
+                  <select
+                    value={platformFilter}
+                    onChange={(e) => setPlatformFilter(e.target.value)}
+                    className="w-full h-10 pl-3.5 pr-8 text-xs rounded-lg bg-surface-2 border border-line text-text appearance-none cursor-pointer focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
+                  >
+                    <option value="">All Platforms</option>
+                    <option value="leetcode">LeetCode</option>
+                    <option value="codeforces">Codeforces</option>
+                    <option value="gfg">GeeksforGeeks</option>
+                    <option value="codechef">CodeChef</option>
+                    <option value="hackerrank">HackerRank</option>
+                    <option value="atcoder">AtCoder</option>
+                    <option value="other">Other / Custom</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center justify-between sm:justify-end gap-2 text-xs text-muted shrink-0 pt-0.5 sm:pt-0">

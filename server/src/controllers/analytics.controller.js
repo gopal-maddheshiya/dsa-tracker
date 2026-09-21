@@ -82,6 +82,21 @@ const getSummary = async (req, res, next) => {
       { difficulty: 'hard', count: diffMap.hard, solved: solvedDiffMap.hard },
     ];
 
+    // Platform breakdown of user problems (total per platform)
+    const platformAgg = await Problem.aggregate([
+      { $match: { userId } },
+      { $group: { _id: '$platform', count: { $sum: 1 } } },
+    ]);
+
+    const platformMap = { leetcode: 0, codeforces: 0, gfg: 0, codechef: 0, hackerrank: 0, other: 0 };
+    platformAgg.forEach((p) => {
+      if (p._id && platformMap[p._id] !== undefined) {
+        platformMap[p._id] = p.count;
+      } else if (p._id) {
+        platformMap[p._id] = p.count;
+      }
+    });
+
     // Calculate practice streaks safely
     const allAttemptDates = await Attempt.find(
       { userId, attemptedAt: { $exists: true, $ne: null } },
@@ -98,6 +113,7 @@ const getSummary = async (req, res, next) => {
         } catch (_) {}
       }
     });
+
     const sortedDays = [...daySet].sort();
 
     let currentStreak = 0;
@@ -145,6 +161,7 @@ const getSummary = async (req, res, next) => {
         solvedProblems,
         solvedAttempts,
         difficultyBreakdown,
+        platformBreakdown: platformMap,
         currentStreak,
         longestStreak,
       },

@@ -626,14 +626,17 @@ const ProblemsPage = () => {
 
               {/* Quick Stat Chips — scrollable on mobile, inline on desktop */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
-                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-easy/12 border border-easy/25 text-easy shrink-0 tabular-nums">
-                  ● {stats.easy} Easy
+                <span className="inline-flex items-center text-xs px-2.5 py-0.5 rounded-full bg-easy/12 border border-easy/25 text-easy shrink-0 tabular-nums">
+                  <span className="w-1.5 h-1.5 rounded-full bg-easy inline-block mr-1.5" />
+                  <span>{stats.easy} Easy</span>
                 </span>
-                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-medium/12 border border-medium/25 text-medium shrink-0 tabular-nums">
-                  ● {stats.medium} Med
+                <span className="inline-flex items-center text-xs px-2.5 py-0.5 rounded-full bg-medium/12 border border-medium/25 text-medium shrink-0 tabular-nums">
+                  <span className="w-1.5 h-1.5 rounded-full bg-medium inline-block mr-1.5" />
+                  <span>{stats.medium} Med</span>
                 </span>
-                <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-hard/12 border border-hard/25 text-hard shrink-0 tabular-nums">
-                  ● {stats.hard} Hard
+                <span className="inline-flex items-center text-xs px-2.5 py-0.5 rounded-full bg-hard/12 border border-hard/25 text-hard shrink-0 tabular-nums">
+                  <span className="w-1.5 h-1.5 rounded-full bg-hard inline-block mr-1.5" />
+                  <span>{stats.hard} Hard</span>
                 </span>
                 <span className="inline-flex text-xs px-2.5 py-0.5 rounded-full bg-success/12 border border-success/25 text-success items-center gap-1 shrink-0 tabular-nums">
                   <CheckCircle2 className="w-3 h-3 text-success" />
@@ -770,6 +773,7 @@ const ProblemsPage = () => {
                 <option value="gfg">GeeksforGeeks</option>
                 <option value="codechef">CodeChef</option>
                 <option value="hackerrank">HackerRank</option>
+                <option value="atcoder">AtCoder</option>
                 <option value="other">Other / Custom</option>
               </select>
               <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-[9px]">

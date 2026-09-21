@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchProfileAnalytics, fetchHeatmapAnalytics } from '../api/analytics';
 import { getErrorMessage } from '../utils/errorHandler';
@@ -645,7 +645,32 @@ const ProfilePage = () => {
   const memberSince = user?.createdAt ? fmtMonthYear(user.createdAt) : null;
 
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'milestones' | 'activity' | 'settings'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const validTabs = useMemo(() => ['overview', 'platforms', 'milestones', 'activity', 'settings'], []);
+  const initialTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(validTabs.includes(initialTab) ? initialTab : 'overview');
+
+  // Sync tab if URL search parameter changes
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && validTabs.includes(tab) && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, validTabs, activeTab]);
+
+  const handleTabChange = useCallback((tabId) => {
+    setActiveTab(tabId);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (tabId === 'overview') {
+        next.delete('tab');
+      } else {
+        next.set('tab', tabId);
+      }
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
   const [isExporting, setIsExporting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -888,7 +913,7 @@ const ProfilePage = () => {
         <div className="flex items-center gap-1.5 p-1.5 bg-surface border border-line rounded-xl overflow-x-auto no-scrollbar">
           <button
             type="button"
-            onClick={() => setActiveTab('overview')}
+            onClick={() => handleTabChange('overview')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'overview'
                 ? 'bg-accent text-white shadow-xs'
@@ -900,7 +925,7 @@ const ProfilePage = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('platforms')}
+            onClick={() => handleTabChange('platforms')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'platforms'
                 ? 'bg-accent text-white shadow-xs'
@@ -917,7 +942,7 @@ const ProfilePage = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('milestones')}
+            onClick={() => handleTabChange('milestones')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'milestones'
                 ? 'bg-accent text-white shadow-xs'
@@ -934,7 +959,7 @@ const ProfilePage = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('activity')}
+            onClick={() => handleTabChange('activity')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'activity'
                 ? 'bg-accent text-white shadow-xs'
@@ -951,7 +976,7 @@ const ProfilePage = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleTabChange('settings')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === 'settings'
                 ? 'bg-accent text-white shadow-xs'

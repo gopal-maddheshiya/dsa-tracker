@@ -18,7 +18,7 @@ import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import PracticeStudio from '../components/dashboard/PracticeStudio';
 import Badge from '../components/ui/Badge';
 import Reveal from '../components/common/Reveal';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, Globe } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -134,8 +134,20 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          {revisionQueue.length > 0 && (
-            <div className="flex items-center shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <Link
+              to="/profile?tab=platforms"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-3 border border-line hover:border-accent/40 text-xs text-text-secondary hover:text-text font-medium transition-all group"
+              title="Manage connected coding platforms & auto-sync"
+            >
+              <Globe className="w-3.5 h-3.5 text-accent" />
+              <span>Platform Sync</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-accent/15 text-accent">
+                4 Hubs
+              </span>
+            </Link>
+
+            {revisionQueue.length > 0 && (
               <Link
                 to="/revision"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-3 border border-line hover:border-accent text-xs text-text font-medium transition-all group"
@@ -145,8 +157,8 @@ const DashboardPage = () => {
                 <span>revisions due</span>
                 <span className="text-muted group-hover:text-accent group-hover:translate-x-0.5 transition-transform">→</span>
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </Reveal>
 

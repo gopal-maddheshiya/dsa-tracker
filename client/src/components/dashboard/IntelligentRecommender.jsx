@@ -15,9 +15,11 @@ const DIFFICULTY_CONFIG = {
 
 const PLATFORM_LABELS = {
   leetcode: 'LeetCode',
+  codeforces: 'Codeforces',
   gfg: 'GeeksforGeeks',
   codechef: 'CodeChef',
   hackerrank: 'HackerRank',
+  atcoder: 'AtCoder',
   other: 'External',
 };
 

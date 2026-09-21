@@ -19,6 +19,7 @@ import {
   Flame,
   Search,
   Plus,
+  Globe,
   X,
 } from 'lucide-react';
 import { scrollToTop } from '../common/SmoothScroll';
@@ -145,6 +146,17 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
           >
             <User className="w-4 h-4 text-muted" />
             <span>Profile & Analytics</span>
+          </NavLink>
+          <NavLink
+            to="/profile?tab=platforms"
+            onClick={onClose}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors active:scale-98"
+          >
+            <Globe className="w-4 h-4 text-accent" />
+            <span className="flex items-center justify-between w-full">
+              <span>Platform Sync</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-accent/15 text-accent">Auto</span>
+            </span>
           </NavLink>
           <NavLink
             to="/problems"

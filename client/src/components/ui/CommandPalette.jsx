@@ -18,16 +18,18 @@ import {
   RotateCcw,
   Tag,
   ArrowRight,
+  Globe,
   X
 } from 'lucide-react';
 
 /* ── Platform styling constants ────────────────────────────────────── */
 const PLATFORMS = {
   leetcode:   { label: 'LeetCode',   style: 'bg-accent/12 border-accent/25 text-accent' },
+  codeforces: { label: 'Codeforces', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
   gfg:        { label: 'GFG',        style: 'bg-easy/12 border-easy/25 text-easy' },
+  codechef:   { label: 'CodeChef',   style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
   hackerrank: { label: 'HackerRank', style: 'bg-success/12 border-success/25 text-success' },
-  codeforces: { label: 'Codeforces', style: 'bg-surface-2 border-line text-text' },
-  codechef:   { label: 'CodeChef',   style: 'bg-medium/12 border-medium/25 text-medium' },
+  atcoder:    { label: 'AtCoder',    style: 'bg-medium/12 border-medium/25 text-medium' },
   other:      { label: 'Custom',     style: 'bg-surface-2 border-line text-muted' },
 };
 
@@ -152,6 +154,19 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       action: () => {
         onClose();
         navigate('/profile');
+      }
+    },
+    {
+      id: 'action-platforms',
+      type: 'action',
+      title: 'Platform Sync & Integrations',
+      subtitle: 'Connect & sync LeetCode, Codeforces, GFG, and CodeChef',
+      icon: Globe,
+      badge: 'Sync',
+      shortcut: 'S',
+      action: () => {
+        onClose();
+        navigate('/profile?tab=platforms');
       }
     }
   ], [navigate, onClose, onOpenQuickAdd]);

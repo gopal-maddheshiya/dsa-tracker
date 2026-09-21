@@ -48,28 +48,42 @@ async function verifyUser(username) {
       };
     }
 
-    // 1. Fetch official GFG user profile
+    // 1. Fetch official GFG user profile with retry on transient network hiccups
     const profileUrl = `${GFG_BASE_URL}/user/${encodeURIComponent(cleanUsername)}/`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    let response = null;
+    let html = '';
 
-    const response = await fetch(profileUrl, {
-      headers: DEFAULT_HEADERS,
-      signal: controller.signal,
-      redirect: 'follow',
-    });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-    clearTimeout(timeoutId);
+        response = await fetch(profileUrl, {
+          headers: DEFAULT_HEADERS,
+          signal: controller.signal,
+          redirect: 'follow',
+        });
 
-    if (response.status === 404) {
-      return { isValid: false, error: 'GeeksforGeeks user not found' };
+        clearTimeout(timeoutId);
+
+        if (response.status === 404) {
+          return { isValid: false, error: 'GeeksforGeeks user not found' };
+        }
+
+        if (!response.ok) {
+          return { isValid: false, error: `GFG responded with HTTP ${response.status}` };
+        }
+
+        html = await response.text();
+        break;
+      } catch (networkErr) {
+        if (attempt === 0) {
+          await new Promise((r) => setTimeout(r, 1200));
+          continue;
+        }
+        throw networkErr;
+      }
     }
-
-    if (!response.ok) {
-      return { isValid: false, error: `GFG responded with HTTP ${response.status}` };
-    }
-
-    const html = await response.text();
 
     // Check for invalid profile indicators
     if (html.includes('Page Not Found') || html.includes('User does not exist')) {

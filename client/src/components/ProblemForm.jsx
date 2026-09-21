@@ -100,6 +100,10 @@ const detectPlatformAndTitle = (inputUrl) => {
       detectedPlatform = 'hackerrank';
       const match = pathname.match(/\/challenges\/([^/]+)/);
       if (match) slug = match[1];
+    } else if (hostname.includes('atcoder.jp')) {
+      detectedPlatform = 'atcoder';
+      const match = pathname.match(/\/tasks\/([^/]+)/);
+      if (match) slug = match[1];
     }
 
     let formattedTitle = null;

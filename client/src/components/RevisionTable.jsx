@@ -20,12 +20,12 @@ const DIFFICULTY_CONFIG = {
 };
 
 const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/12 border-accent/25' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/12 border-easy/25' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-medium bg-medium/12 border-medium/25' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/12 border-success/25' },
-  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-accent bg-accent/12 border-accent/25' },
-  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/12 border-medium/25' },
+  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20' },
+  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
+  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20' },
+  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
+  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20' },
+  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20' },
   other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line' },
 };
 
