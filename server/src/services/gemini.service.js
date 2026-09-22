@@ -12,8 +12,8 @@ NON-NEGOTIABLE GROUNDING RULES:
 6. Keep advice concise, technical, and practical.
 7. Return strictly valid JSON adhering to the provided schema.`;
 
-// Resilient upstream provider timeout (45 seconds)
-const GEMINI_TIMEOUT_MS = 45000;
+// Resilient upstream provider timeout (55 seconds)
+const GEMINI_TIMEOUT_MS = 55000;
 
 /**
  * Wraps an async operation with a resilient timeout rejection.
@@ -181,7 +181,7 @@ Provide grounded, actionable coaching following the JSON schema.`;
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           temperature: 0.3,
-          maxOutputTokens: 600,
+          maxOutputTokens: 400,
           responseMimeType: 'application/json',
           responseSchema: {
             type: Type.OBJECT,
