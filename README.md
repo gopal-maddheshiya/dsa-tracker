@@ -6,7 +6,7 @@ A focused, personal Data Structures and Algorithms preparation tracker designed 
 
 ## Live Production Deployment
 
-- 🌐 **Live Application**: [https://dsa-tracker-xi-weld.vercel.app](https://dsa-tracker-xi-weld.vercel.app)
+- 🌐 **Live Application**: [https://dsa-tracker-gopal.vercel.app](https://dsa-tracker-gopal.vercel.app)
 - ⚙️ **Production API (Render)**: [https://dsa-tracker-api-57bl.onrender.com/api/health](https://dsa-tracker-api-57bl.onrender.com/api/health)
 - 🔑 **Instant Demo Credentials**:
   - **Email**: `demo@dsa-tracker.local`
@@ -58,15 +58,15 @@ dsa-tracker/
 │   │   │   └── problems.js            # Problem CRUD client
 │   │   ├── components/
 │   │   │   ├── analytics/
-│   │   │   │   ├── DifficultyChart.jsx    # Recharts difficulty donut chart
+│   │   │   │   ├── LeetCodeStatsConsole.jsx # Dedicated platform solved & momentum console
 │   │   │   │   ├── PracticeHeatmap.jsx    # 20-week calendar activity grid
-│   │   │   │   ├── RevisionPreview.jsx    # Dashboard urgent revision widget
 │   │   │   │   ├── SolveTrendChart.jsx    # Recharts daily solve velocity trend
-│   │   │   │   ├── StatCard.jsx           # Information-dense KPI stat card
 │   │   │   │   └── TopicWeaknessChart.jsx # Horizontal topic struggle ratio bars
 │   │   │   ├── AttemptForm.jsx        # Practice attempt modal with validation
 │   │   │   ├── DeleteConfirmModal.jsx # Accessible destructive confirmation modal
-│   │   │   ├── Navbar.jsx             # Desktop & mobile navigation bar
+│   │   │   ├── layout/
+│   │   │   │   ├── AppShell.jsx           # Global application frame, header & navigation
+│   │   │   │   └── InstallAppBanner.jsx   # Progressive web installation banner
 │   │   │   ├── PrivateRoute.jsx       # Route authentication guard
 │   │   │   ├── ProblemForm.jsx        # Problem create/edit modal with topic chips
 │   │   │   ├── ProblemTable.jsx       # Responsive problems table

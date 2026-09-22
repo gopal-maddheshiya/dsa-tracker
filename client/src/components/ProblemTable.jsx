@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import Badge from './ui/Badge';
 import {
   FolderOpen,
   ExternalLink,
@@ -15,10 +14,12 @@ import {
   Globe,
 } from 'lucide-react';
 
+import { PLATFORM_CONFIG } from '../theme/platforms';
+
 const DIFFICULTY_CONFIG = {
-  easy:   { variant: 'easy',   label: 'Easy',   weight: 1 },
-  medium: { variant: 'medium', label: 'Medium', weight: 2 },
-  hard:   { variant: 'hard',   label: 'Hard',   weight: 3 },
+  easy:   { variant: 'easy',   label: 'Easy',   dot: 'bg-easy',   text: 'text-easy',   weight: 1 },
+  medium: { variant: 'medium', label: 'Medium', dot: 'bg-medium', text: 'text-medium', weight: 2 },
+  hard:   { variant: 'hard',   label: 'Hard',   dot: 'bg-hard',   text: 'text-hard',   weight: 3 },
 };
 
 const STATUS_CONFIG = {
@@ -40,16 +41,6 @@ const STATUS_CONFIG = {
     bg: 'bg-medium/12 border-medium/25',
     dot: 'bg-medium',
   },
-};
-
-const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
-  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20', dot: 'bg-[#2196F3]' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30', dot: 'bg-[#D4A373]' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
-  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
-  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
 };
 
 const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd, onLog, startIndex = 0 }) => {
@@ -264,21 +255,21 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     </div>
                   </td>
 
-                  {/* Topic Pills */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
+                  {/* Topic Inline Monospace Tags */}
+                  <td className="py-3 px-3 whitespace-nowrap">
                     {problem.topics?.length > 0 ? (
-                      <div className="flex items-center gap-1 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
                         {problem.topics.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary group-hover:border-line transition-colors whitespace-nowrap"
+                            className="text-[11px] font-mono text-text-secondary/85 hover:text-text transition-colors whitespace-nowrap"
                           >
-                            {t}
+                            #{t}
                           </span>
                         ))}
                         {problem.topics.length > 2 && (
                           <span
-                            className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted whitespace-nowrap"
+                            className="text-[10px] font-mono text-muted whitespace-nowrap cursor-help"
                             title={problem.topics.slice(2).join(', ')}
                           >
                             +{problem.topics.length - 2}
@@ -290,45 +281,48 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                     )}
                   </td>
 
-                  {/* Difficulty Badge */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <Badge variant={diff.variant} size="sm">
-                      {diff.label}
-                    </Badge>
+                  {/* Difficulty Semantic Dot + Text */}
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-xs font-medium">
+                      <span className={`w-1.5 h-1.5 rounded-full ${diff.dot || 'bg-muted'}`} />
+                      <span className={diff.text || 'text-muted'}>{diff.label}</span>
+                    </div>
                   </td>
 
-                  {/* Brand Platform Badge */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center justify-center text-xs font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${platformCfg.style}`}
-                      title={platformCfg.label}
-                    >
-                      <span>{platformCfg.short}</span>
-                    </span>
+                  {/* Brand Platform Quiet Text + Indicator */}
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-xs font-medium" title={platformCfg.label}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
+                      <span className={`font-mono text-[11px] font-semibold ${platformCfg.text}`}>
+                        {platformCfg.short}
+                      </span>
+                    </div>
                   </td>
 
-                  {/* Status Indicator (Always single-line, expands into empty space) */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
+                  {/* Status Semantic Dot + Text */}
+                  <td className="py-3 px-3 whitespace-nowrap">
                     {statusCfg ? (
-                      <span className={`inline-flex items-center justify-center text-xs font-medium px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
-                        <span className="whitespace-nowrap">{statusCfg.label}</span>
-                      </span>
+                      <div className="flex items-center gap-1.5 text-xs font-medium">
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                        <span className={statusCfg.text}>{statusCfg.label}</span>
+                      </div>
                     ) : (
-                      <span className="inline-flex items-center text-xs text-muted px-2.5 py-0.5 rounded-full bg-surface-2 border border-line whitespace-nowrap">
-                        Unattempted
-                      </span>
+                      <div className="flex items-center gap-1.5 text-xs text-muted">
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted/40" />
+                        <span>Unattempted</span>
+                      </div>
                     )}
                   </td>
 
                   {/* Session Count */}
-                  <td className="text-center py-3.5 px-3 whitespace-nowrap">
-                    <span className="inline-block text-xs font-medium tabular-nums text-muted px-2.5 py-0.5 rounded-md bg-surface-2 border border-line group-hover:border-line transition-colors whitespace-nowrap">
+                  <td className="text-center py-3 px-3 whitespace-nowrap">
+                    <span className="inline-block text-xs font-medium tabular-nums text-muted px-2 py-0.5 rounded bg-surface-2/60 border border-line/60 whitespace-nowrap">
                       {problem.attemptCount || 0}
                     </span>
                   </td>
 
                   {/* Icon Actions */}
-                  <td className="text-right py-3.5 px-4 whitespace-nowrap">
+                  <td className="text-right py-3 px-4 whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5 text-xs">
                       {/* 1-Click Quick Log Attempt */}
                       {onLog && (
@@ -336,9 +330,10 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           type="button"
                           onClick={() => onLog(problem)}
                           title={`Log attempt for "${problem.title}"`}
-                          className="h-7.5 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 transition-all text-xs font-semibold flex items-center gap-1 shrink-0 active:scale-95 mr-1 cursor-pointer"
+                          aria-label={`Log attempt for "${problem.title}"`}
+                          className="h-8 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 transition-all text-xs font-semibold flex items-center gap-1 shrink-0 active:scale-95 mr-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
                         >
-                          <Plus className="w-3 h-3 stroke-[2.5]" />
+                          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                           <span>Log</span>
                         </button>
                       )}
@@ -347,7 +342,8 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
                         title="View problem details"
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all"
+                        aria-label={`View ${problem.title}`}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
@@ -357,7 +353,8 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         type="button"
                         onClick={() => onEdit(problem)}
                         title="Edit problem details"
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-accent/12 border border-line bg-surface hover:border-accent/25 transition-all cursor-pointer"
+                        aria-label={`Edit ${problem.title}`}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-accent/12 border border-line bg-surface hover:border-accent/25 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
@@ -367,7 +364,8 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         type="button"
                         onClick={() => onDelete(problem)}
                         title="Delete problem"
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/12 border border-line bg-surface hover:border-danger/25 transition-all cursor-pointer"
+                        aria-label={`Delete ${problem.title}`}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/12 border border-line bg-surface hover:border-danger/25 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

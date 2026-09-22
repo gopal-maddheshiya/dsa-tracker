@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { fetchProblems } from '../../api/problems';
+import { useDialog } from '../../hooks/useDialog';
 import {
   Search,
   Plus,
@@ -21,17 +23,7 @@ import {
   Globe,
   X
 } from 'lucide-react';
-
-/* ── Platform styling constants ────────────────────────────────────── */
-const PLATFORMS = {
-  leetcode:   { label: 'LeetCode',   style: 'bg-accent/12 border-accent/25 text-accent' },
-  codeforces: { label: 'Codeforces', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
-  gfg:        { label: 'GFG',        style: 'bg-easy/12 border-easy/25 text-easy' },
-  codechef:   { label: 'CodeChef',   style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
-  hackerrank: { label: 'HackerRank', style: 'bg-success/12 border-success/25 text-success' },
-  atcoder:    { label: 'AtCoder',    style: 'bg-medium/12 border-medium/25 text-medium' },
-  other:      { label: 'Custom',     style: 'bg-surface-2 border-line text-muted' },
-};
+import { PLATFORM_CONFIG } from '../../theme/platforms';
 
 /* ── Difficulty styling constants ──────────────────────────────────── */
 const DIFFICULTY_CONFIG = {
@@ -45,8 +37,17 @@ const DIFFICULTY_CONFIG = {
 
 const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
   const navigate = useNavigate();
+  const dialogRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
+
+  useDialog({
+    isOpen,
+    onClose,
+    dialogRef,
+    initialFocusRef: inputRef,
+    closeOnEscape: true,
+  });
 
   const [query, setQuery] = useState('');
   const [problems, setProblems] = useState([]);
@@ -251,14 +252,19 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
 
   if (!isOpen) return null;
 
-  return (
+  const content = (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-24 px-3 sm:px-4 bg-black/70 animate-fadeIn"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command Palette"
+        tabIndex={-1}
         data-lenis-prevent
-        className="relative w-full max-w-2xl rounded-xl bg-surface border border-line shadow-modal overflow-hidden flex flex-col max-h-[85dvh] transition-all"
+        className="relative w-full max-w-2xl rounded-xl bg-surface border border-line shadow-modal overflow-hidden flex flex-col max-h-[85dvh] transition-all outline-none"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
@@ -384,7 +390,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                       const isSelected = itemGlobalIndex === selectedIndex;
                       const diffKey = prob.difficulty?.toLowerCase() || 'medium';
                       const diffCfg = DIFFICULTY_CONFIG[diffKey] || DIFFICULTY_CONFIG.medium;
-                      const platCfg = PLATFORMS[prob.platform?.toLowerCase()] || PLATFORMS.other;
+                      const platCfg = PLATFORM_CONFIG[prob.platform?.toLowerCase()] || PLATFORM_CONFIG.other;
                       const latestStatus = prob.latestAttempt?.status?.toLowerCase();
 
                       return (
@@ -416,7 +422,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
                                   <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" title="Solved" />
                                 )}
                                 {(latestStatus === 'revisit_needed' || latestStatus === 'revisit') && (
-                                  <RotateCcw className="w-3.5 h-3.5 text-medium shrink-0" title="Needs Revisit" />
+                                  <RotateCcw className="w-3.5 h-3.5 text-medium shrink-0" title="Revisit Needed" />
                                 )}
                                 {latestStatus === 'struggled' && (
                                   <AlertCircle className="w-3.5 h-3.5 text-danger shrink-0" title="Struggled" />
@@ -484,6 +490,8 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
 
 export default CommandPalette;

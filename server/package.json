@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node test/verify_phase1a.js && node test/verify_phase2.js && node test/verify_phase3.js && node test/verify_phase4.js && node test/verify_account_management.js && node test/verify_import.js && node test/verify_platform_sync.js",
+    "test": "node test/verify_phase1a.js && node test/verify_phase2.js && node test/verify_phase3.js && node test/verify_phase4.js && node test/verify_account_management.js && node test/verify_import.js && node test/verify_platform_sync.js && node test/verify_ai_coach.js && node test/verify_ai_takeaway.js && node test/verify_ai_production_readiness.js",
     "test:phase1a": "node test/verify_phase1a.js",
     "seed:demo": "node scripts/seedDemoData.js"
   },
@@ -20,6 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Code2,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { updateProblem } from '../../api/problems';
 import { useToast } from '../../context/ToastContext';
+import { useDialog } from '../../hooks/useDialog';
 
 import { colors } from '../../theme/colors';
 
@@ -76,17 +77,14 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
   const [intuition, setIntuition] = useState(problem?.intuition || '');
   const [copied, setCopied] = useState(false);
 
-  // Lock body scroll when expanded
-  useEffect(() => {
-    if (isExpanded) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isExpanded]);
+  const modalRef = useRef(null);
+
+  useDialog({
+    isOpen: isExpanded,
+    onClose: () => setIsExpanded(false),
+    dialogRef: modalRef,
+    closeOnEscape: true,
+  });
 
   useEffect(() => {
     setCode(problem?.solutionCode || '');
@@ -459,9 +457,22 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
     return createPortal(
       <div
         className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-6 animate-fade-in"
-        onClick={() => setIsExpanded(false)}
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) setIsExpanded(false);
+        }}
       >
-        {container}
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Expanded Solution Code Viewer"
+          tabIndex={-1}
+          data-lenis-prevent
+          className="w-full max-w-5xl h-full max-h-[92vh] flex flex-col outline-none"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {container}
+        </div>
       </div>,
       document.body
     );

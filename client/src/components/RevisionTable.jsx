@@ -13,20 +13,13 @@ import {
   ArrowUpDown,
 } from 'lucide-react';
 
-const DIFFICULTY_CONFIG = {
-  easy:   { variant: 'easy',   label: 'Easy',   weight: 1 },
-  medium: { variant: 'medium', label: 'Medium', weight: 2 },
-  hard:   { variant: 'hard',   label: 'Hard',   weight: 3 },
-};
+import { PLATFORM_CONFIG } from '../theme/platforms';
+import { getUrgencyPresentation } from './RevisionMobileCard';
 
-const PLATFORM_CONFIG = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20' },
-  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20' },
-  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20' },
-  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line' },
+const DIFFICULTY_CONFIG = {
+  easy:   { variant: 'easy',   label: 'Easy',   dot: 'bg-easy',   text: 'text-easy',   weight: 1 },
+  medium: { variant: 'medium', label: 'Medium', dot: 'bg-medium', text: 'text-medium', weight: 2 },
+  hard:   { variant: 'hard',   label: 'Hard',   dot: 'bg-hard',   text: 'text-hard',   weight: 3 },
 };
 
 const STATUS_CONFIG = {
@@ -36,7 +29,7 @@ const STATUS_CONFIG = {
     weight: 3,
   },
   revisit_needed: {
-    label: 'Revisit',
+    label: 'Revisit Needed',
     cycle: '5-day target',
     weight: 2,
   },
@@ -45,25 +38,6 @@ const STATUS_CONFIG = {
     cycle: '14-day target',
     weight: 1,
   },
-};
-
-const getUrgencyBadge = (score) => {
-  if (score >= 3.0) {
-    return {
-      label: 'Critical Overdue',
-      style: 'bg-danger/12 text-danger border-danger/25',
-    };
-  }
-  if (score >= 2.0) {
-    return {
-      label: 'High Urgency',
-      style: 'bg-medium/12 text-medium border-medium/25',
-    };
-  }
-  return {
-    label: 'Recall Due',
-    style: 'bg-success/12 text-success border-success/25',
-  };
 };
 
 const formatDaysAgo = (days) => {
@@ -167,44 +141,35 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
                   {renderSortIndicator('difficulty')}
                 </div>
               </th>
-              <th className="py-3.5 px-3 whitespace-nowrap">Platform</th>
+              <th className="py-3 px-3 whitespace-nowrap">Platform</th>
               <th
                 onClick={() => handleSort('urgency')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="py-3 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
-                  <span>Recall Urgency</span>
+                  <span>Urgency</span>
                   {renderSortIndicator('urgency')}
                 </div>
               </th>
               <th
                 onClick={() => handleSort('lastPracticed')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="py-3 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Last Practiced</span>
                   {renderSortIndicator('lastPracticed')}
                 </div>
               </th>
-              <th
-                onClick={() => handleSort('score')}
-                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
-              >
-                <div className="flex items-center justify-center gap-1.5">
-                  <span>Score</span>
-                  {renderSortIndicator('score')}
-                </div>
-              </th>
-              <th className="text-right py-3.5 px-4 whitespace-nowrap">Actions</th>
+              <th className="text-right py-3 px-4 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef} className="divide-y divide-line">
             {sortedQueue.map((item, idx) => {
               const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
               const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
-              const diff = DIFFICULTY_CONFIG[item.difficulty] || { variant: 'default', label: item.difficulty };
+              const diff = DIFFICULTY_CONFIG[item.difficulty] || { variant: 'default', label: item.difficulty, dot: 'bg-muted', text: 'text-muted' };
               const platformCfg = PLATFORM_CONFIG[item.platform] || PLATFORM_CONFIG.other;
-              const urgency = getUrgencyBadge(item.priorityScore);
+              const urgency = getUrgencyPresentation(item.priorityScore);
               const daysFormatted = formatDaysAgo(item.daysSinceLastAttempt);
 
               return (
@@ -213,13 +178,13 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
                   className="hover:bg-surface-2 transition-colors duration-150 group relative"
                 >
                   {/* # Index Column with hover accent indicator */}
-                  <td className="text-center text-xs tabular-nums text-muted py-3.5 px-3 whitespace-nowrap relative">
+                  <td className="text-center text-xs tabular-nums text-muted py-3 px-3 whitespace-nowrap relative">
                     <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
 
                   {/* Problem Title & External Link */}
-                  <td className="py-3.5 px-3">
+                  <td className="py-3 px-3">
                     <div className="flex items-center gap-2 max-w-xs lg:max-w-sm">
                       <Link
                         to={`/problems/${item.problemId}`}
@@ -242,21 +207,21 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
                     </div>
                   </td>
 
-                  {/* Topic Pills */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
+                  {/* Topic Tags */}
+                  <td className="py-3 px-3 whitespace-nowrap">
                     {item.topics?.length > 0 ? (
-                      <div className="flex items-center gap-1 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
                         {item.topics.slice(0, 2).map((t) => (
                           <span
                             key={t}
-                            className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary group-hover:border-line transition-colors whitespace-nowrap"
+                            className="text-[11px] font-mono text-text-secondary/85 hover:text-text transition-colors whitespace-nowrap"
                           >
-                            {t}
+                            #{t}
                           </span>
                         ))}
                         {item.topics.length > 2 && (
                           <span
-                            className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted whitespace-nowrap"
+                            className="text-[10px] font-mono text-muted whitespace-nowrap cursor-help"
                             title={item.topics.slice(2).join(', ')}
                           >
                             +{item.topics.length - 2}
@@ -268,78 +233,81 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
                     )}
                   </td>
 
-                  {/* Difficulty Badge */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <Badge variant={diff.variant} size="sm">
-                      {diff.label}
-                    </Badge>
+                  {/* Difficulty Semantic Dot + Text */}
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-xs font-medium">
+                      <span className={`w-1.5 h-1.5 rounded-full ${diff.dot || 'bg-muted'}`} />
+                      <span className={diff.text || 'text-muted'}>{diff.label}</span>
+                    </div>
                   </td>
 
-                  {/* Platform Pill */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center justify-center text-xs font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${platformCfg.style}`}
-                      title={platformCfg.label}
+                  {/* Platform Abbreviation + Dot Indicator */}
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5 text-xs font-medium" title={platformCfg.label}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
+                      <span className={`font-mono text-[11px] font-semibold ${platformCfg.text}`}>
+                        {platformCfg.short}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Recall Urgency Semantic Dot + Score Tooltip */}
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    <div
+                      className="inline-flex items-center gap-1.5 cursor-help"
+                      title={urgency.tooltip}
                     >
-                      <span>{platformCfg.short}</span>
-                    </span>
-                  </td>
-
-                  {/* Recall Urgency Pill */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <span className={`inline-flex items-center justify-center text-xs font-medium px-2.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${urgency.style}`}>
-                      <span className="whitespace-nowrap">{urgency.label}</span>
-                    </span>
+                      <span className={`w-2 h-2 rounded-full ${urgency.dot}`} />
+                      <span className={`text-xs font-semibold ${urgency.text}`}>
+                        {urgency.label}
+                      </span>
+                      <span className="text-[10px] font-mono text-muted tabular-nums ml-0.5">
+                        ({item.priorityScore.toFixed(2)})
+                      </span>
+                    </div>
                   </td>
 
                   {/* Last Practiced & Schedule */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <span className="text-xs text-text font-medium block tabular-nums">
-                      {daysFormatted}
-                    </span>
-                    <span className="text-[11px] text-muted block">
-                      {statusCfg.cycle}
-                    </span>
-                  </td>
-
-                  {/* Priority Score */}
-                  <td className="text-center py-3.5 px-3 whitespace-nowrap">
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 tabular-nums">
-                      <Flame className="w-3 h-3 text-accent" />
-                      <span>{item.priorityScore.toFixed(2)}</span>
-                    </span>
+                  <td className="py-3 px-3 whitespace-nowrap">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-text font-medium tabular-nums">{daysFormatted}</span>
+                      <span className="text-[10px] text-muted">{statusCfg.cycle} · {statusCfg.label}</span>
+                    </div>
                   </td>
 
                   {/* Actions */}
-                  <td className="text-right py-3.5 px-4 whitespace-nowrap">
+                  <td className="text-right py-3 px-4 whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5 text-xs">
                       {/* 1-Tap Quick Mark Solved */}
                       <button
                         type="button"
                         onClick={() => onQuickLog(item, 'solved')}
-                        className="h-7.5 px-2.5 rounded-lg text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                        className="h-8 px-2.5 rounded-lg text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
                         title="Quick 1-Tap: Mark Solved"
+                        aria-label={`Mark ${item.title} as solved`}
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Pass</span>
+                        <span>Solved</span>
                       </button>
 
                       {/* Log recall practice attempt */}
                       <button
                         type="button"
                         onClick={() => onOpenLog(item)}
-                        className="h-7.5 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95"
+                        className="h-8 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
                         title="Log recall practice attempt"
+                        aria-label={`Log recall attempt for ${item.title}`}
                       >
-                        <Plus className="w-3 h-3 stroke-[2.5]" />
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                         <span>Log</span>
                       </button>
 
                       {/* View details */}
                       <Link
                         to={`/problems/${item.problemId}`}
-                        className="w-7.5 h-7.5 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-text border border-line hover:border-line/80 transition-all shrink-0"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-text border border-line hover:border-line/80 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                         title="View problem details"
+                        aria-label={`View ${item.title} details`}
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Link>

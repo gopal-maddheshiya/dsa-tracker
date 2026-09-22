@@ -30,16 +30,20 @@ const Button = ({
   fullWidth = false,
   disabled = false,
   className = '',
+  type = 'button',
   children,
   ...props
 }) => {
   return (
     <button
+      type={type}
       disabled={disabled || loading}
+      aria-busy={loading ? 'true' : undefined}
       className={`
         inline-flex items-center justify-center font-medium font-sans
         transition-all duration-150 active:scale-[0.98] select-none
         disabled:opacity-50 disabled:pointer-events-none
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-bg
         ${variants[variant] ?? variants.primary}
         ${sizes[size] ?? sizes.sm}
         ${fullWidth ? 'w-full' : ''}

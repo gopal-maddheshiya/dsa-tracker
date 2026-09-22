@@ -1,32 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
+import { useDialog } from '../hooks/useDialog';
 
 const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleting }) => {
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  const dialogRef = useRef(null);
+  const cancelBtnRef = useRef(null);
+
+  useDialog({
+    isOpen,
+    onClose: isDeleting ? () => {} : onClose,
+    dialogRef,
+    initialFocusRef: cancelBtnRef,
+    closeOnEscape: !isDeleting,
+  });
 
   if (!isOpen) return null;
 
   const content = (
     <div
       className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-4 animate-fade-in"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="delete-modal-title"
-      aria-describedby="delete-modal-desc"
+      onMouseDown={(e) => {
+        if (!isDeleting && e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
-        className="max-w-sm w-full p-4 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in my-auto max-h-[90dvh] overflow-y-auto"
+        ref={dialogRef}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+        aria-describedby="delete-modal-desc"
+        tabIndex={-1}
+        data-lenis-prevent
+        className="max-w-sm w-full p-4 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in my-auto max-h-[90dvh] overflow-y-auto outline-none"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Icon + Title */}
         <div className="flex items-start gap-3 mb-4">
@@ -50,10 +59,11 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
 
         <div className="flex items-center justify-end gap-2.5">
           <button
+            ref={cancelBtnRef}
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="btn-secondary text-xs"
+            className="btn-secondary text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Cancel
           </button>
@@ -61,7 +71,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, problemTitle, isDeleti
             type="button"
             onClick={onConfirm}
             disabled={isDeleting}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-danger hover:opacity-90 text-white transition-opacity disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-danger hover:opacity-90 text-white transition-opacity disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
           >
             {isDeleting ? (
               <>

@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { X, User, Lock, Eye, EyeOff, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, LogOut } from 'lucide-react';
 import { updateProfile, changePassword } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useDialog } from '../../hooks/useDialog';
 
 const EditProfileModal = ({ isOpen, onClose }) => {
   const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const dialogRef = useRef(null);
 
   const handleSignOut = () => {
     onClose();
@@ -18,18 +20,6 @@ const EditProfileModal = ({ isOpen, onClose }) => {
   };
 
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'security'
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
 
   // Profile tab state
   const [name, setName] = useState('');
@@ -44,6 +34,13 @@ const EditProfileModal = ({ isOpen, onClose }) => {
   const [showNew, setShowNew] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+
+  useDialog({
+    isOpen,
+    onClose,
+    dialogRef,
+    closeOnEscape: !isUpdatingProfile && !isUpdatingPassword,
+  });
 
   useEffect(() => {
     if (user && isOpen) {
@@ -125,11 +122,21 @@ const EditProfileModal = ({ isOpen, onClose }) => {
   return createPortal(
     <div
       className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-3 sm:p-4 animate-fade-in"
-      onClick={onClose}
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !isUpdatingProfile && !isUpdatingPassword) {
+          onClose();
+        }
+      }}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="account-settings-title"
+        aria-describedby="account-settings-desc"
+        tabIndex={-1}
         data-lenis-prevent
-        className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal my-auto flex flex-col"
+        className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal my-auto flex flex-col outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -139,14 +146,15 @@ const EditProfileModal = ({ isOpen, onClose }) => {
               {activeTab === 'profile' ? <User className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-text tracking-tight">Account Settings</h2>
-              <p className="text-xs text-muted">Manage your profile details and credentials</p>
+              <h2 id="account-settings-title" className="text-sm font-semibold text-text tracking-tight">Account Settings</h2>
+              <p id="account-settings-desc" className="text-xs text-muted">Manage your profile details and credentials</p>
             </div>
           </div>
           <button
             onClick={onClose}
             type="button"
-            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+            aria-label="Close dialog"
+            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
             <X className="w-4 h-4" />
           </button>

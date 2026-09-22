@@ -30,8 +30,11 @@ import {
   History,
   Target,
   Cpu,
-  Database
+  Database,
+  Copy,
+  X
 } from 'lucide-react';
+import { coachAttemptTakeaway } from '../api/ai';
 
 const DIFFICULTY_CONFIG = {
   easy:   { variant: 'easy',   label: 'Easy' },
@@ -128,6 +131,44 @@ const ProblemDetailPage = () => {
   const [editingAttempt, setEditingAttempt] = useState(null);
   const [deletingAttemptId, setDeletingAttemptId] = useState(null);
   const [activeTab, setActiveTab] = useState('practice'); // 'practice' | 'solution'
+  const [takeaways, setTakeaways] = useState({});
+  const [loadingTakeaways, setLoadingTakeaways] = useState({});
+  const [openTakeaways, setOpenTakeaways] = useState({});
+
+  const handleToggleTakeaway = async (attemptId) => {
+    if (!attemptId) return;
+    if (openTakeaways[attemptId]) {
+      setOpenTakeaways((prev) => ({ ...prev, [attemptId]: false }));
+      return;
+    }
+
+    setOpenTakeaways((prev) => ({ ...prev, [attemptId]: true }));
+
+    if (takeaways[attemptId]) {
+      return;
+    }
+
+    setLoadingTakeaways((prev) => ({ ...prev, [attemptId]: true }));
+    try {
+      const data = await coachAttemptTakeaway(attemptId);
+      setTakeaways((prev) => ({ ...prev, [attemptId]: data }));
+    } catch (err) {
+      toast.error('Takeaway synthesis is temporarily unavailable.');
+      setOpenTakeaways((prev) => ({ ...prev, [attemptId]: false }));
+    } finally {
+      setLoadingTakeaways((prev) => ({ ...prev, [attemptId]: false }));
+    }
+  };
+
+  const handleCopyTakeaway = (text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    toast.success('Takeaway copied to clipboard!');
+  };
+
+  const handleCloseTakeaway = (attemptId) => {
+    setOpenTakeaways((prev) => ({ ...prev, [attemptId]: false }));
+  };
 
   const loadProblem = useCallback(async () => {
     setIsLoading(true);
@@ -494,6 +535,7 @@ const ProblemDetailPage = () => {
 
         {activeTab === 'practice' && (
           <button
+            id="open-log-attempt-modal-btn"
             onClick={() => {
               setTimerElapsedMinutes('');
               setEditingAttempt(null);
@@ -642,7 +684,116 @@ const ProblemDetailPage = () => {
 
                       {attempt.notes && (
                         <div className="p-3 rounded-lg bg-surface-2 border border-line text-xs text-text-secondary leading-relaxed">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted mb-1 font-semibold">
+                            My Notes
+                          </div>
                           {attempt.notes}
+                        </div>
+                      )}
+
+                      {/* Optional Action to Synthesize Learning Takeaway (Preview Only) */}
+                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                        <button
+                          type="button"
+                          data-testid="summarize-takeaway-btn"
+                          onClick={() => handleToggleTakeaway(attempt.id || attempt._id)}
+                          disabled={loadingTakeaways[attempt.id || attempt._id]}
+                          className="text-xs text-text-secondary hover:text-accent font-medium inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-line/60 hover:border-accent/40 hover:bg-surface-2 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          <Sparkles className="w-3 h-3 text-accent" />
+                          <span>
+                            {loadingTakeaways[attempt.id || attempt._id]
+                              ? 'Synthesizing…'
+                              : openTakeaways[attempt.id || attempt._id]
+                              ? 'Hide Takeaway'
+                              : 'Summarize takeaway'}
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* AI TAKEAWAY PREVIEW PANEL (In-session preview, non-persisted) */}
+                      {openTakeaways[attempt.id || attempt._id] && (
+                        <div className="p-3.5 rounded-lg border border-line/70 bg-surface-2/60 space-y-2 mt-1 transition-all animate-fade-in text-xs">
+                          {/* Header */}
+                          <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-line/40">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
+                              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-text">
+                                AI Takeaway
+                              </span>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-3 text-muted">
+                                {takeaways[attempt.id || attempt._id]?.source === 'gemini' ? 'Gemini Takeaway' : 'Standard Recall'}
+                              </span>
+                              <span className="text-[10px] text-muted italic">
+                                (Preview only · Not saved to DB)
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCloseTakeaway(attempt.id || attempt._id)}
+                              className="text-muted hover:text-text cursor-pointer p-0.5"
+                              aria-label="Dismiss takeaway"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {loadingTakeaways[attempt.id || attempt._id] ? (
+                            <div className="py-2 space-y-1.5 animate-pulse">
+                              <div className="h-3 w-4/5 bg-surface-3 rounded" />
+                              <div className="h-3 w-1/2 bg-surface-3 rounded" />
+                            </div>
+                          ) : takeaways[attempt.id || attempt._id] ? (
+                            <>
+                              {/* Takeaway */}
+                              <p className="font-semibold text-text leading-snug">
+                                {takeaways[attempt.id || attempt._id].takeaway}
+                              </p>
+
+                              {/* Pattern */}
+                              {takeaways[attempt.id || attempt._id].pattern && (
+                                <p className="text-text-secondary">
+                                  <strong className="text-text font-medium">Pattern: </strong>
+                                  <span className="font-mono text-[11px] text-accent">
+                                    {takeaways[attempt.id || attempt._id].pattern}
+                                  </span>
+                                </p>
+                              )}
+
+                              {/* Next Recall Prompt */}
+                              {takeaways[attempt.id || attempt._id].nextRecallPrompt && (
+                                <div className="pt-1.5 border-t border-line/30 text-muted">
+                                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted font-semibold block mb-0.5">
+                                    Recall yourself later
+                                  </span>
+                                  <p className="italic">
+                                    "{takeaways[attempt.id || attempt._id].nextRecallPrompt}"
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Actions */}
+                              <div className="pt-1.5 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  data-testid="copy-takeaway-btn"
+                                  onClick={() => handleCopyTakeaway(takeaways[attempt.id || attempt._id].takeaway)}
+                                  className="text-xs text-text-secondary hover:text-text font-medium inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-line hover:bg-surface-3 transition-colors cursor-pointer"
+                                >
+                                  <Copy className="w-3 h-3 text-muted" />
+                                  <span>Copy takeaway</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  data-testid="dismiss-takeaway-btn"
+                                  onClick={() => handleCloseTakeaway(attempt.id || attempt._id)}
+                                  className="text-xs text-muted hover:text-text px-2 py-1 transition-colors cursor-pointer"
+                                >
+                                  Dismiss
+                                </button>
+                              </div>
+                            </>
+                          ) : null}
                         </div>
                       )}
                     </div>

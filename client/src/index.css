@@ -541,4 +541,33 @@
   box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
 }
 
+/* ── Modal & Dialog Motion Utilities ────────────────────────────── */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in,
+.animate-fadeIn {
+  animation: modalFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: modalScaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Accessibility: Reduced Motion Override ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fadeIn,
+  .animate-scale-in,
+  .bar-animated {
+    animation: none !important;
+    transition: none !important;
+  }
+}

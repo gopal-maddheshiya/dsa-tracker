@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, KeyRound, ArrowRight, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { forgotPassword, resetPassword } from '../../api/auth';
 import { useToast } from '../../context/ToastContext';
+import { useDialog } from '../../hooks/useDialog';
 
 const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
   const toast = useToast();
+  const dialogRef = useRef(null);
   const [step, setStep] = useState(1); // 1 = request code, 2 = enter code & reset
   const [email, setEmail] = useState(initialEmail);
   const [resetCode, setResetCode] = useState('');
@@ -14,6 +17,23 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [codeNotice, setCodeNotice] = useState('');
+
+  const handleClose = () => {
+    setStep(1);
+    setError('');
+    setCodeNotice('');
+    setResetCode('');
+    setNewPassword('');
+    setConfirmPassword('');
+    onClose();
+  };
+
+  useDialog({
+    isOpen,
+    onClose: handleClose,
+    dialogRef,
+    closeOnEscape: !isLoading,
+  });
 
   if (!isOpen) return null;
 
@@ -74,27 +94,32 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
     }
   };
 
-  const handleClose = () => {
-    setStep(1);
-    setError('');
-    setCodeNotice('');
-    setResetCode('');
-    setNewPassword('');
-    setConfirmPassword('');
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fade-in">
+  const content = (
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fade-in"
+      onMouseDown={(e) => {
+        if (!isLoading && e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+    >
       <div
-        className="relative w-full max-w-md bg-surface border border-line rounded-xl p-4 sm:p-6 shadow-modal overflow-hidden my-auto max-h-[90dvh] overflow-y-auto"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="forgot-password-title"
+        aria-describedby="forgot-password-desc"
+        tabIndex={-1}
+        data-lenis-prevent
+        className="relative w-full max-w-md bg-surface border border-line rounded-xl p-4 sm:p-6 shadow-modal overflow-hidden my-auto max-h-[90dvh] overflow-y-auto outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={handleClose}
           type="button"
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+          aria-label="Close dialog"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
           <X className="w-4 h-4" />
         </button>
@@ -105,10 +130,10 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-text tracking-tight">
+            <h2 id="forgot-password-title" className="text-base font-semibold text-text tracking-tight">
               {step === 1 ? 'Reset Password' : 'Set New Password'}
             </h2>
-            <p className="text-xs text-text-secondary">
+            <p id="forgot-password-desc" className="text-xs text-text-secondary">
               {step === 1
                 ? 'Enter your account email to receive a verification code'
                 : `Enter the code sent for ${email}`}
@@ -272,6 +297,8 @@ const ForgotPasswordModal = ({ isOpen, onClose, initialEmail = '' }) => {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
 
 export default ForgotPasswordModal;

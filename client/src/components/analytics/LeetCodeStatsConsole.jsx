@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
-import { Flame, Zap, Trophy, Activity, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Flame, Zap, Trophy, Activity, Globe, Code2, Repeat } from 'lucide-react';
 import AnimatedNumber from '../ui/AnimatedNumber';
 import { easy, medium, hard } from '../../theme/colors';
+import { PLATFORM_CONFIG } from '../../theme/platforms';
 
 /**
  * LeetCodeStatsConsole: Dedicated LeetCode Solved & Momentum Console.
@@ -16,6 +18,7 @@ const LeetCodeStatsConsole = ({
   isLoading = false,
   solveRate = 0,
   heatmapData = [],
+  revisionCount = 0,
   className = '',
 }) => {
   // Calculate 7-Day Consistency Rhythm & Today's Target Status from real heatmap logs
@@ -58,12 +61,12 @@ const LeetCodeStatsConsole = ({
   const platformBreakdown = summary?.platformBreakdown || {};
   const activePlatforms = useMemo(() => {
     return [
-      { key: 'leetcode', label: 'LeetCode', short: 'LC', count: platformBreakdown.leetcode || 0, style: 'text-accent bg-accent/10 border-accent/25' },
-      { key: 'codeforces', label: 'Codeforces', short: 'CF', count: platformBreakdown.codeforces || 0, style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/25' },
-      { key: 'gfg', label: 'GeeksforGeeks', short: 'GFG', count: platformBreakdown.gfg || 0, style: 'text-easy bg-easy/10 border-easy/25' },
-      { key: 'codechef', label: 'CodeChef', short: 'CC', count: platformBreakdown.codechef || 0, style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30' },
-      { key: 'hackerrank', label: 'HackerRank', short: 'HR', count: platformBreakdown.hackerrank || 0, style: 'text-success bg-success/10 border-success/25' },
-      { key: 'other', label: 'Other', short: 'Ext', count: platformBreakdown.other || 0, style: 'text-muted bg-surface-2 border-line' },
+      { key: 'leetcode', label: 'LeetCode', short: 'LC', count: platformBreakdown.leetcode || 0, style: PLATFORM_CONFIG.leetcode.style },
+      { key: 'codeforces', label: 'Codeforces', short: 'CF', count: platformBreakdown.codeforces || 0, style: PLATFORM_CONFIG.codeforces.style },
+      { key: 'gfg', label: 'GeeksforGeeks', short: 'GFG', count: platformBreakdown.gfg || 0, style: PLATFORM_CONFIG.gfg.style },
+      { key: 'codechef', label: 'CodeChef', short: 'CC', count: platformBreakdown.codechef || 0, style: PLATFORM_CONFIG.codechef.style },
+      { key: 'hackerrank', label: 'HackerRank', short: 'HR', count: platformBreakdown.hackerrank || 0, style: PLATFORM_CONFIG.hackerrank.style },
+      { key: 'other', label: 'Other', short: 'Ext', count: platformBreakdown.other || 0, style: PLATFORM_CONFIG.other.style },
     ].filter((p) => p.count > 0);
   }, [platformBreakdown]);
 
@@ -148,15 +151,15 @@ const LeetCodeStatsConsole = ({
           <div className="flex items-center gap-2">
             <Trophy className="w-4 h-4 text-accent shrink-0" />
             <h2 className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-              Problems Solved
+              Platform Solved
             </h2>
           </div>
           {summary?.catalogProblems && summary.catalogProblems < totalProblems ? (
             <span
               className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-accent/15 border border-accent/30 text-accent flex items-center gap-1 cursor-default"
-              title={`Platform verified ${solvedProblems} solved problems. ${summary.catalogProblems} synced to catalog.`}
+              title={`Platform verified ${solvedProblems} solved problems across connected platforms. ${summary.catalogProblems} tracked in catalog.`}
             >
-              <span>{solvedProblems} Solved</span>
+              <span>{solvedProblems} Platform</span>
               <span className="text-muted font-normal">({summary.catalogProblems} in catalog)</span>
             </span>
           ) : (
@@ -242,11 +245,11 @@ const LeetCodeStatsConsole = ({
               <span className="text-2xl font-black text-text tracking-tight tabular-nums leading-none">
                 <AnimatedNumber value={solvedProblems} />
               </span>
-              <div className="text-[8px] font-bold text-text-secondary uppercase tracking-widest mt-0.5">
-                Solved
+              <div className="text-[9px] font-bold text-accent uppercase tracking-wider mt-0.5">
+                Platform
               </div>
-              <div className="text-[10px] font-mono text-muted tabular-nums mt-0.5">
-                /{totalProblems}
+              <div className="text-[8px] font-semibold text-text-secondary uppercase tracking-widest">
+                Solved
               </div>
             </div>
           </div>
@@ -314,6 +317,44 @@ const LeetCodeStatsConsole = ({
             </div>
           </div>
 
+        </div>
+
+        {/* Metric Clarity Rail: Tracked Catalog vs Revision Due */}
+        <div className="grid grid-cols-2 gap-2 pt-2.5 mt-2 border-t border-line/50">
+          <Link
+            to="/problems"
+            className="p-2 rounded-lg bg-surface-2/40 hover:bg-surface-2/70 border border-line/60 hover:border-line transition-colors group"
+            title="Local practice repository stored in this tracker"
+          >
+            <div className="text-[10px] uppercase tracking-wider text-muted font-semibold flex items-center justify-between">
+              <span>Tracked Catalog</span>
+              <Code2 className="w-3 h-3 text-text-secondary group-hover:text-text transition-colors" />
+            </div>
+            <div className="text-xs font-bold text-text mt-0.5 tabular-nums">
+              {summary?.catalogProblems ?? totalProblems}
+              <span className="text-[10px] font-normal text-muted ml-1">
+                ({summary?.catalogSolved ?? 0} solved)
+              </span>
+            </div>
+          </Link>
+
+          <Link
+            to="/revision"
+            className="p-2 rounded-lg bg-surface-2/40 hover:bg-surface-2/70 border border-line/60 hover:border-accent/40 transition-colors group"
+            title="Problems currently eligible for active spaced recall review"
+          >
+            <div className="text-[10px] uppercase tracking-wider text-muted font-semibold flex items-center justify-between">
+              <span>Revision Due</span>
+              <Repeat className="w-3 h-3 text-accent group-hover:rotate-180 transition-transform duration-300" />
+            </div>
+            <div className="text-xs font-bold text-accent mt-0.5 tabular-nums flex items-center justify-between">
+              <span>
+                {revisionCount}
+                <span className="text-[10px] font-normal text-muted ml-1">due</span>
+              </span>
+              <span className="text-muted group-hover:text-accent group-hover:translate-x-0.5 transition-transform text-xs">→</span>
+            </div>
+          </Link>
         </div>
 
         {/* Platform Sources Micro Strip */}

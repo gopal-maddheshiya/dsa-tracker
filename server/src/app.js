@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth.routes');
 const problemRoutes = require('./routes/problem.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const syncRoutes = require('./routes/sync.routes');
+const aiRoutes = require('./routes/ai.routes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { securityHeaders } = require('./middleware/securityHeaders');
 
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 const rawOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
 const allowedOrigins = [
   ...rawOrigins.map((url) => url.trim().replace(/\/+$/, '')),
+  'https://dsa-tracker-gopal.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
 ].filter(Boolean);
@@ -58,6 +60,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

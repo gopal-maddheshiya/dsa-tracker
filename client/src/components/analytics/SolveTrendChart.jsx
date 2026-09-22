@@ -223,66 +223,46 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
   return (
     <div
-      className={`panel p-4 sm:p-6 relative overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}
+      className={`panel p-4 sm:p-5 relative overflow-hidden transition-all flex flex-col justify-between h-full ${className}`}
     >
-      {/* ── Top Header & KPI Summary ───────────────────────────────── */}
-      <div className="space-y-3 mb-4">
-        <div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <TrendingUp className="w-4 h-4 text-accent shrink-0" />
-              <h3 className="text-base font-semibold text-text tracking-tight shrink-0">
-                Solve Velocity
-              </h3>
+      {/* ── Consolidated Header & Controls Strip ──────────────────── */}
+      <div className="flex flex-col gap-2 pb-2.5 border-b border-line/50">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-sm font-bold text-text tracking-tight">
+              Solve Velocity
+            </h3>
 
-              {/* Live Scrubbing Badge Indicator */}
-              {hoveredPoint ? (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-accent/12 border border-accent/25 text-accent text-xs animate-fadeIn font-medium">
-                  {formatFullDate(hoveredPoint.date)}
-                </span>
-              ) : (
-                <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-surface-2 border border-line text-muted shrink-0">
-                  {totalDaysCount} calendar days
-                </span>
-              )}
-            </div>
-
-            {/* Header Telemetry Pills */}
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <div className="px-2.5 py-1 rounded-lg bg-surface-2 border border-line flex items-center gap-1.5 text-xs">
-                <span className="text-[10px] uppercase font-semibold text-text-secondary tracking-wider">Solved</span>
-                <span className="font-bold tabular-nums text-accent">{periodSolves}</span>
-              </div>
-              <div className="px-2.5 py-1 rounded-lg bg-surface-2 border border-line flex items-center gap-1.5 text-xs">
-                <span className="text-[10px] uppercase font-semibold text-text-secondary tracking-wider">Pace</span>
-                <span className="font-bold tabular-nums text-text">{weeklyPace} <span className="text-[10px] text-muted font-normal">/wk</span></span>
-              </div>
-            </div>
+            {/* Live Scrubbing Badge Indicator */}
+            {hoveredPoint ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded bg-accent/10 border border-accent/25 text-accent text-xs font-mono font-medium">
+                {formatFullDate(hoveredPoint.date)}: +{hoveredPoint.solved} solved ({hoveredPoint.cumulative} total)
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono font-medium px-1.5 py-0.2 rounded bg-surface-2 border border-line/60 text-muted">
+                {totalDaysCount} calendar days
+              </span>
+            )}
           </div>
 
-          <p className="text-xs text-muted leading-relaxed mt-1">
-            {hoveredPoint ? (
-              <span>
-                Scrubbing: <strong className="text-text">+{hoveredPoint.solved} solved</strong> · <strong className="text-accent">{hoveredPoint.cumulative} total</strong>
-              </span>
-            ) : chartMode === 'hybrid' ? (
-              'Continuous timeline showing daily output volume and cumulative growth trajectory'
-            ) : chartMode === 'cumulative' ? (
-              'Cumulative solved problem growth trajectory across calendar timeline'
-            ) : (
-              'Daily problem solve volume by calendar date'
-            )}
-          </p>
+          {/* Header Telemetry */}
+          <div className="flex items-center gap-2 self-start sm:self-auto text-xs">
+            <span className="text-[11px] text-muted">Period:</span>
+            <span className="font-bold tabular-nums text-accent">{periodSolves} solved</span>
+            <span className="text-line/60">·</span>
+            <span className="text-[11px] text-muted">Pace:</span>
+            <span className="font-bold tabular-nums text-text">{weeklyPace}/wk</span>
+          </div>
         </div>
 
         {/* ── Mode & Range Toggles ──────────────────────────────────── */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-line flex-wrap">
+        <div className="flex items-center justify-between gap-2 flex-wrap text-xs pt-0.5">
           {/* View Mode Toggle */}
-          <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line text-xs">
+          <div className="flex items-center p-0.5 rounded-md bg-surface-2/80 border border-line text-xs">
             <button
               type="button"
               onClick={() => setChartMode('hybrid')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 font-medium rounded-md transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2 py-0.5 font-medium rounded transition-colors cursor-pointer text-xs ${
                 chartMode === 'hybrid'
                   ? 'bg-surface text-accent font-semibold shadow-xs'
                   : 'text-muted hover:text-text'
@@ -295,7 +275,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
             <button
               type="button"
               onClick={() => setChartMode('cumulative')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 font-medium rounded-md transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2 py-0.5 font-medium rounded transition-colors cursor-pointer text-xs ${
                 chartMode === 'cumulative'
                   ? 'bg-surface text-accent font-semibold shadow-xs'
                   : 'text-muted hover:text-text'
@@ -308,7 +288,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
             <button
               type="button"
               onClick={() => setChartMode('daily')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 font-medium rounded-md transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2 py-0.5 font-medium rounded transition-colors cursor-pointer text-xs ${
                 chartMode === 'daily'
                   ? 'bg-surface text-accent font-semibold shadow-xs'
                   : 'text-muted hover:text-text'
@@ -321,7 +301,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
           </div>
 
           {/* Lookback Range Selectors */}
-          <div className="flex items-center p-0.5 rounded-lg bg-surface-2 border border-line text-xs">
+          <div className="flex items-center p-0.5 rounded-md bg-surface-2/80 border border-line text-xs">
             {[
               { label: '14D', value: '14D' },
               { label: '30D', value: '30D' },
@@ -332,7 +312,7 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
                 key={value}
                 type="button"
                 onClick={() => setRange(value)}
-                className={`px-2.5 py-1 font-medium rounded-md transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 font-medium rounded transition-colors cursor-pointer text-xs ${
                   range === value
                     ? 'bg-surface text-accent font-semibold shadow-xs'
                     : 'text-muted hover:text-text'
@@ -347,12 +327,12 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
 
       {/* ── Chart Rendering Canvas ─────────────────────────────────── */}
       {filledData.length === 0 ? (
-        <div className="h-[220px] sm:h-72 flex flex-col items-center justify-center text-center border border-dashed border-line rounded-xl">
+        <div className="h-[200px] sm:h-[235px] flex flex-col items-center justify-center text-center border border-dashed border-line rounded-xl">
           <TrendingUp className="w-8 h-8 text-accent mb-2" />
           <p className="text-xs text-muted">No solved activity recorded in this period.</p>
         </div>
       ) : (
-        <div className="h-[220px] sm:h-72 w-full">
+        <div className="h-[200px] sm:h-[235px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             {chartMode === 'hybrid' ? (
               <ComposedChart

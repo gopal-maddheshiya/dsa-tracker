@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { createAttempt, updateAttempt } from '../api/attempts';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
+import { useDialog } from '../hooks/useDialog';
 import { X } from 'lucide-react';
 
 const STATUS_OPTIONS = [
@@ -20,7 +21,7 @@ const STATUS_OPTIONS = [
   },
   {
     value: 'revisit_needed',
-    label: 'Revisit',
+    label: 'Revisit Needed',
     dot: 'bg-medium',
     active: 'border-medium/50 text-medium bg-medium/12',
   },
@@ -36,6 +37,7 @@ const AttemptForm = ({
   initialData = null,
 }) => {
   const toast = useToast();
+  const dialogRef = useRef(null);
   const isEditing = Boolean(initialData?.id || initialData?._id);
   const [status, setStatus] = useState('solved');
   const [timeTakenMinutes, setTimeTakenMinutes] = useState('');
@@ -50,17 +52,12 @@ const AttemptForm = ({
   const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  useDialog({
+    isOpen,
+    onClose,
+    dialogRef,
+    closeOnEscape: !isSubmitting,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -145,9 +142,18 @@ const AttemptForm = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="attempt-form-title"
+      onMouseDown={(e) => {
+        if (!isSubmitting && e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
-        className="max-w-md w-full max-h-[90dvh] overflow-y-auto p-4 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in flex flex-col my-auto"
+        ref={dialogRef}
+        tabIndex={-1}
+        data-lenis-prevent
+        className="max-w-md w-full max-h-[90dvh] overflow-y-auto p-4 sm:p-6 rounded-xl bg-surface border border-line shadow-modal animate-scale-in flex flex-col my-auto outline-none"
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between pb-4 border-b border-line mb-5">
           <div>
@@ -162,8 +168,8 @@ const AttemptForm = ({
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-muted hover:text-text transition-colors p-1.5 -m-1 rounded-lg hover:bg-surface-2"
-            aria-label="Close"
+            className="text-muted hover:text-text transition-colors p-1.5 -m-1 rounded-lg hover:bg-surface-2 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
           </button>

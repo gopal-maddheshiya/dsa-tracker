@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Upload, FileJson, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, FileCheck } from 'lucide-react';
 import { importProblems } from '../../api/problems';
 import { useToast } from '../../context/ToastContext';
+import { useDialog } from '../../hooks/useDialog';
 import Badge from '../ui/Badge';
 
 const DIFFICULTY_MAP = {
@@ -71,6 +72,7 @@ const parseCSV = (text) => {
 const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
   const toast = useToast();
   const fileInputRef = useRef(null);
+  const dialogRef = useRef(null);
 
   const [file, setFile] = useState(null);
   const [parsedProblems, setParsedProblems] = useState([]);
@@ -78,17 +80,20 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  const handleClose = () => {
+    setFile(null);
+    setParsedProblems([]);
+    setParseError('');
+    setImportResult(null);
+    onClose();
+  };
+
+  useDialog({
+    isOpen,
+    onClose: handleClose,
+    dialogRef,
+    closeOnEscape: !isImporting,
+  });
 
   if (!isOpen) return null;
 
@@ -171,22 +176,24 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-  const handleClose = () => {
-    setFile(null);
-    setParsedProblems([]);
-    setParseError('');
-    setImportResult(null);
-    onClose();
-  };
-
   return createPortal(
     <div
       className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fade-in"
-      onClick={handleClose}
+      onMouseDown={(e) => {
+        if (!isImporting && e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="data-import-title"
+        aria-describedby="data-import-desc"
+        tabIndex={-1}
         data-lenis-prevent
-        className="relative w-full max-w-lg max-h-[90dvh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal my-auto flex flex-col"
+        className="relative w-full max-w-lg max-h-[90dvh] overflow-y-auto bg-surface border border-line rounded-xl shadow-modal my-auto flex flex-col outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -196,14 +203,15 @@ const DataImportModal = ({ isOpen, onClose, onSuccess }) => {
               <Upload className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-text tracking-tight">Import & Restore Data</h2>
-              <p className="text-xs text-muted">Restore your problems from a JSON or CSV backup</p>
+              <h2 id="data-import-title" className="text-sm font-semibold text-text tracking-tight">Import & Restore Data</h2>
+              <p id="data-import-desc" className="text-xs text-muted">Restore your problems from a JSON or CSV backup</p>
             </div>
           </div>
           <button
             onClick={handleClose}
             type="button"
-            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+            aria-label="Close dialog"
+            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
           >
             <X className="w-4 h-4" />
           </button>

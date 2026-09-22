@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { createProblem, updateProblem, resolveProblemMetadata } from '../api/problems';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
+import { useDialog } from '../hooks/useDialog';
 import {
   Sparkles,
   X,
@@ -141,31 +142,14 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
   const [lastAutoTitle, setLastAutoTitle] = useState('');
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
-  // Stable reference to onClose callback to prevent effect tear-down cycles
-  const onCloseRef = useRef(onClose);
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
+  const dialogRef = useRef(null);
 
-  // Handle ESC key and prevent body scroll when modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && !isSubmitting) {
-        onCloseRef.current?.();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen, isSubmitting]);
+  useDialog({
+    isOpen,
+    onClose,
+    dialogRef,
+    closeOnEscape: !isSubmitting,
+  });
 
   // Sync state on open or initialData change
   useEffect(() => {
@@ -353,8 +337,10 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
       {/* Modal Dialog Card */}
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         data-lenis-prevent
-        className="panel relative w-full max-w-lg sm:max-w-xl max-h-[90dvh] flex flex-col bg-surface border border-line shadow-modal rounded-xl overflow-hidden my-auto animate-scale-in"
+        className="panel relative w-full max-w-lg sm:max-w-xl max-h-[90dvh] flex flex-col bg-surface border border-line shadow-modal rounded-xl overflow-hidden my-auto animate-scale-in outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Fixed Header */}
@@ -376,8 +362,8 @@ const ProblemForm = ({ isOpen, onClose, onSuccess, initialData = null }) => {
             onClick={onClose}
             type="button"
             disabled={isSubmitting}
-            className="text-muted hover:text-text transition-all p-2 rounded-lg hover:bg-surface-2 active:scale-95 cursor-pointer disabled:opacity-40"
-            aria-label="Close"
+            className="text-muted hover:text-text transition-all p-2 rounded-lg hover:bg-surface-2 active:scale-95 cursor-pointer disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
           </button>

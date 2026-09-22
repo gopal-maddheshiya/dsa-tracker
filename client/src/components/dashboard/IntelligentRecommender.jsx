@@ -6,21 +6,12 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { fetchProblemRecommendations } from '../../api/problems';
+import { PLATFORM_CONFIG } from '../../theme/platforms';
 
 const DIFFICULTY_CONFIG = {
   easy: { text: 'text-easy', dot: 'bg-easy' },
   medium: { text: 'text-medium', dot: 'bg-medium' },
   hard: { text: 'text-hard', dot: 'bg-hard' },
-};
-
-const PLATFORM_LABELS = {
-  leetcode: 'LeetCode',
-  codeforces: 'Codeforces',
-  gfg: 'GeeksforGeeks',
-  codechef: 'CodeChef',
-  hackerrank: 'HackerRank',
-  atcoder: 'AtCoder',
-  other: 'External',
 };
 
 const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
@@ -92,7 +83,7 @@ const IntelligentRecommender = ({ className = '', onFocusLoaded = null }) => {
 
   const { dailyFocus, weakestTopics } = data;
   const diffCfg = DIFFICULTY_CONFIG[dailyFocus.difficulty] || DIFFICULTY_CONFIG.medium;
-  const platformName = PLATFORM_LABELS[dailyFocus.platform] || dailyFocus.platform;
+  const platformName = PLATFORM_CONFIG[dailyFocus.platform]?.label || dailyFocus.platform;
   const primaryWeakTopic = weakestTopics && weakestTopics.length > 0 ? weakestTopics[0] : null;
   const topicList = (dailyFocus.topics || []).slice(0, 3).join(', ');
 

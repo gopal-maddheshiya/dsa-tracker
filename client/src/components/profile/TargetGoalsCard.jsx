@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Target, Calendar, Building2, Flame, CheckCircle2, Edit3, X, Plus, Sparkles, AlertCircle } from 'lucide-react';
 import { fetchGoals, updateGoals } from '../../api/auth';
 import { useToast } from '../../context/ToastContext';
+import { useDialog } from '../../hooks/useDialog';
 
 const PRESET_COMPANIES = [
   'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 'Netflix',
@@ -11,6 +12,7 @@ const PRESET_COMPANIES = [
 
 const TargetGoalsCard = () => {
   const toast = useToast();
+  const modalRef = useRef(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -23,17 +25,12 @@ const TargetGoalsCard = () => {
   const [targetCompanies, setTargetCompanies] = useState([]);
   const [newCompanyInput, setNewCompanyInput] = useState('');
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isEditing) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isEditing]);
+  useDialog({
+    isOpen: isEditing,
+    onClose: () => setIsEditing(false),
+    dialogRef: modalRef,
+    closeOnEscape: !saving,
+  });
 
   const loadGoals = async () => {
     try {
@@ -305,10 +302,20 @@ const TargetGoalsCard = () => {
       {isEditing && createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fadeIn"
-          onClick={() => setIsEditing(false)}
+          onMouseDown={(e) => {
+            if (!saving && e.target === e.currentTarget) {
+              setIsEditing(false);
+            }
+          }}
         >
           <div
-            className="bg-surface border border-line rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-modal relative"
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="goals-modal-title"
+            aria-describedby="goals-modal-desc"
+            tabIndex={-1}
+            className="bg-surface border border-line rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-modal relative outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line sticky top-0 bg-surface z-10">
@@ -317,14 +324,15 @@ const TargetGoalsCard = () => {
                   <Target className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-text tracking-tight">Configure Practice Goals</h3>
-                  <p className="text-xs text-muted">Personalized pacing for tech interviews</p>
+                  <h3 id="goals-modal-title" className="text-sm font-semibold text-text tracking-tight">Configure Practice Goals</h3>
+                  <p id="goals-modal-desc" className="text-xs text-muted">Personalized pacing for tech interviews</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsEditing(false)}
                 type="button"
-                className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+                aria-label="Close dialog"
+                className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               >
                 <X className="w-4 h-4" />
               </button>

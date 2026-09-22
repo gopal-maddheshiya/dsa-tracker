@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { colors } from '../../theme/colors';
@@ -12,19 +12,17 @@ import {
   Target,
   ArrowRight
 } from 'lucide-react';
+import { useDialog } from '../../hooks/useDialog';
 
 const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  const dialogRef = useRef(null);
+
+  useDialog({
+    isOpen: Boolean(isOpen && milestone),
+    onClose,
+    dialogRef,
+    closeOnEscape: true,
+  });
 
   if (!isOpen || !milestone) return null;
 
@@ -41,17 +39,29 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
   return createPortal(
     <div
       className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/70 animate-fadeIn"
-      onClick={onClose}
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="milestone-title"
+        aria-describedby="milestone-desc"
+        tabIndex={-1}
         data-lenis-prevent
-        className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-xl bg-surface border border-line shadow-modal transition-all my-auto"
+        className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-xl bg-surface border border-line shadow-modal transition-all my-auto outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg bg-surface-2/60 hover:bg-surface-2 text-muted hover:text-text transition-colors z-10"
+          type="button"
+          aria-label="Close dialog"
+          className="absolute top-4 right-4 p-1.5 rounded-lg bg-surface-2/60 hover:bg-surface-2 text-muted hover:text-text transition-colors z-10 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         >
           <X className="w-4 h-4" />
         </button>
@@ -91,10 +101,10 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
           </div>
 
           {/* Title & Description */}
-          <h3 className="text-lg font-semibold text-text tracking-tight mb-1">
+          <h3 id="milestone-title" className="text-lg font-semibold text-text tracking-tight mb-1">
             {milestone.label}
           </h3>
-          <p className="text-xs text-text-secondary max-w-xs mb-5">
+          <p id="milestone-desc" className="text-xs text-text-secondary max-w-xs mb-5">
             {milestone.desc}
           </p>
 
@@ -134,6 +144,7 @@ const MilestoneDetailModal = ({ milestone, profile, isOpen, onClose }) => {
           {/* Action CTAs */}
           <div className="w-full flex items-center gap-3">
             <button
+              type="button"
               onClick={onClose}
               className="btn-secondary flex-1 py-2 px-4 rounded-lg text-xs font-semibold cursor-pointer"
             >

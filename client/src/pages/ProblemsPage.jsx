@@ -13,25 +13,18 @@ import PaginationBar from '../components/ui/PaginationBar';
 import Reveal from '../components/common/Reveal';
 import TiltCard from '../components/common/TiltCard';
 
+import { PLATFORM_CONFIG as PLATFORM_LABELS } from '../theme/platforms';
+
 /* ── Difficulty / Status maps ─────────────────────────────────────── */
 const DIFF_STYLE = {
-  easy:   { text: 'text-easy',   bg: 'bg-easy/12 border-easy/25',   dot: 'bg-easy' },
-  medium: { text: 'text-medium', bg: 'bg-medium/12 border-medium/25', dot: 'bg-medium' },
-  hard:   { text: 'text-hard',   bg: 'bg-hard/12 border-hard/25',   dot: 'bg-hard' },
+  easy:   { text: 'text-easy',   bg: 'bg-easy/12 border-easy/25',   dot: 'bg-easy',   label: 'Easy' },
+  medium: { text: 'text-medium', bg: 'bg-medium/12 border-medium/25', dot: 'bg-medium', label: 'Medium' },
+  hard:   { text: 'text-hard',   bg: 'bg-hard/12 border-hard/25',   dot: 'bg-hard',   label: 'Hard' },
 };
 const STATUS_CFG = {
-  solved:         { label: 'Solved',   dot: 'bg-success', text: 'text-success', bg: 'bg-success/12 border-success/25' },
-  struggled:      { label: 'Struggled',dot: 'bg-danger',  text: 'text-danger',  bg: 'bg-danger/12 border-danger/25' },
-  revisit_needed: { label: 'Revisit',  dot: 'bg-medium',  text: 'text-medium',  bg: 'bg-medium/12 border-medium/25' },
-};
-const PLATFORM_LABELS = {
-  leetcode:   { label: 'LeetCode', short: 'LC', style: 'text-accent bg-accent/10 border-accent/20', dot: 'bg-accent' },
-  codeforces: { label: 'Codeforces', short: 'CF', style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20', dot: 'bg-[#2196F3]' },
-  gfg:        { label: 'GeeksforGeeks', short: 'GFG', style: 'text-easy bg-easy/10 border-easy/20', dot: 'bg-easy' },
-  codechef:   { label: 'CodeChef', short: 'CC', style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30', dot: 'bg-[#D4A373]' },
-  hackerrank: { label: 'HackerRank', short: 'HR', style: 'text-success bg-success/10 border-success/20', dot: 'bg-success' },
-  atcoder:    { label: 'AtCoder', short: 'AC', style: 'text-medium bg-medium/10 border-medium/20', dot: 'bg-medium' },
-  other:      { label: 'External', short: 'Ext', style: 'text-muted bg-surface-2 border-line', dot: 'bg-muted' },
+  solved:         { label: 'Solved',         dot: 'bg-success', text: 'text-success', bg: 'bg-success/12 border-success/25' },
+  struggled:      { label: 'Struggled',      dot: 'bg-danger',  text: 'text-danger',  bg: 'bg-danger/12 border-danger/25' },
+  revisit_needed: { label: 'Revisit Needed', dot: 'bg-medium',  text: 'text-medium',  bg: 'bg-medium/12 border-medium/25' },
 };
 
 export const DEFAULT_DSA_TOPICS = [
@@ -69,101 +62,124 @@ const GridIcon = () => (
   </svg>
 );
 
-/* ── Mobile Problem Card (touch-first card) ──────────────────────── */
 /* ── Mobile Problem Card (High-density touch-first card) ───────────── */
 const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted' };
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted', label: problem.difficulty };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
   const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
-    <div className="p-3 bg-surface border border-line rounded-lg flex flex-col gap-2 transition-all">
-      {/* Top Line: Title + Status Pill */}
+    <div className="p-3.5 bg-surface border border-line hover:border-line/80 rounded-xl flex flex-col gap-2.5 transition-all">
+      {/* Top Line: Title + Status Semantic Indicator */}
       <div className="flex items-start justify-between gap-2">
         <Link
           to={`/problems/${problem.id || problem._id}`}
-          className="text-sm font-semibold text-text leading-snug line-clamp-1 hover:text-accent active:text-accent transition-colors flex-1"
+          className="text-sm font-semibold text-text leading-snug line-clamp-1 hover:text-accent active:text-accent transition-colors flex-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
         >
           {problem.title}
         </Link>
         {statusCfg ? (
-          <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${statusCfg.bg} ${statusCfg.text}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-[11px] font-medium shrink-0 ${
+              latestStatus === 'struggled'
+                ? 'text-danger'
+                : latestStatus === 'revisit_needed'
+                ? 'text-medium'
+                : 'text-success/90'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
             <span>{statusCfg.label}</span>
           </span>
         ) : (
-          <span className="text-[10px] text-muted px-1.5 py-0.2 rounded bg-surface-2 border border-line shrink-0">
-            New
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-muted/60" />
+            <span>Unattempted</span>
           </span>
         )}
       </div>
 
       {/* Middle Line: Difficulty · Platform · Topics · Sessions */}
-      <div className="flex items-center gap-1.5 text-[11px] text-muted flex-wrap">
-        <span className={`inline-flex items-center font-semibold ${diff.text}`}>
-          <span className="capitalize">{problem.difficulty}</span>
+      <div className="flex items-center gap-2 text-xs text-muted flex-wrap">
+        {/* Difficulty: semantic dot + text */}
+        <span className="inline-flex items-center gap-1.5 font-medium text-xs">
+          <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
+          <span className={diff.text}>{diff.label || problem.difficulty}</span>
         </span>
-        <span className="text-line/60">/</span>
-        <span className="font-medium text-text-secondary">{platform.short}</span>
+        <span className="text-line/60">·</span>
+        {/* Platform: quiet abbreviation */}
+        <span className={`font-mono text-[11px] font-semibold ${platform.text || 'text-text-secondary'}`} title={platform.label}>
+          {platform.short}
+        </span>
         {problem.topics?.length > 0 && (
           <>
-            <span className="text-line/60">/</span>
-            <span className="text-muted truncate max-w-[140px] font-mono text-[10px]">
+            <span className="text-line/60">·</span>
+            <span className="text-text-secondary/80 truncate max-w-[140px] font-mono text-[11px]">
               #{problem.topics[0]}
               {problem.topics.length > 1 ? ` +${problem.topics.length - 1}` : ''}
             </span>
           </>
         )}
-        <span className="text-line/60">/</span>
-        <span className="text-[10px] tabular-nums">
+        <span className="text-line/60">·</span>
+        <span className="text-[11px] tabular-nums text-muted">
           {problem.attemptCount > 0 ? `${problem.attemptCount} att.` : '0 att.'}
         </span>
       </div>
 
-      {/* Bottom Action Strip (Compact) */}
+      {/* Bottom Action Strip: 40-44px Touch Targets */}
       <div className="flex items-center justify-between gap-2 pt-2 border-t border-line/50">
         {onLog && (
           <button
+            type="button"
             onClick={() => onLog(problem)}
-            className="h-7 flex-1 flex items-center justify-center gap-1 px-2.5 rounded-md text-[11px] font-semibold bg-success/10 text-success border border-success/25 hover:bg-success/20 transition-all cursor-pointer"
+            className="min-h-[40px] flex-1 flex items-center justify-center gap-1.5 px-3 rounded-lg text-xs font-semibold bg-success/12 text-success border border-success/25 hover:bg-success/20 active:scale-[0.98] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
+            title="Log practice attempt"
+            aria-label={`Log attempt for ${problem.title}`}
           >
-            <Plus className="w-3 h-3 stroke-[2.5]" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Log Attempt</span>
           </button>
         )}
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {problem.link && (
             <a
               href={problem.link}
               target="_blank"
               rel="noreferrer"
-              className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-accent border border-line"
+              className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-accent border border-line active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               title="Open problem link"
+              aria-label={`Open external link for ${problem.title}`}
             >
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-4 h-4" />
             </a>
           )}
           <Link
             to={`/problems/${problem.id || problem._id}`}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-text border border-line"
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-text border border-line active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             title="View details"
+            aria-label={`View details for ${problem.title}`}
           >
-            <Eye className="w-3 h-3" />
+            <Eye className="w-4 h-4" />
           </Link>
           <button
+            type="button"
             onClick={() => onEdit(problem)}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-medium border border-line cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-medium border border-line active:scale-[0.98] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-medium"
             title="Edit problem"
+            aria-label={`Edit ${problem.title}`}
           >
-            <Edit2 className="w-3 h-3" />
+            <Edit2 className="w-4 h-4" />
           </button>
           <button
+            type="button"
             onClick={() => onDelete(problem)}
-            className="w-7 h-7 flex items-center justify-center rounded-md bg-danger/10 text-danger hover:bg-danger/20 border border-danger/25 cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger/20 border border-danger/25 active:scale-[0.98] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger"
             title="Delete problem"
+            aria-label={`Delete ${problem.title}`}
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -175,10 +191,10 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
 const MobileProblemSkeleton = () => (
   <div className="space-y-2.5">
     {[1, 2, 3, 4].map((i) => (
-      <div key={i} className="p-3 bg-surface border border-line space-y-2 animate-pulse rounded-lg">
+      <div key={i} className="p-3.5 bg-surface border border-line space-y-2.5 animate-pulse rounded-xl">
         <div className="flex justify-between items-center">
           <div className="h-4 w-44 bg-surface-2 rounded" />
-          <div className="h-3.5 w-14 bg-surface-2 rounded-full" />
+          <div className="h-3.5 w-16 bg-surface-2 rounded-full" />
         </div>
         <div className="flex gap-2">
           <div className="h-3 w-12 bg-surface-2 rounded" />
@@ -186,9 +202,10 @@ const MobileProblemSkeleton = () => (
           <div className="h-3 w-14 bg-surface-2 rounded" />
         </div>
         <div className="pt-2 border-t border-line/40 flex gap-2">
-          <div className="h-7 flex-1 bg-surface-2 rounded" />
-          <div className="h-7 w-7 bg-surface-2 rounded" />
-          <div className="h-7 w-7 bg-surface-2 rounded" />
+          <div className="h-10 flex-1 bg-surface-2 rounded-lg" />
+          <div className="h-10 w-10 bg-surface-2 rounded-lg" />
+          <div className="h-10 w-10 bg-surface-2 rounded-lg" />
+          <div className="h-10 w-10 bg-surface-2 rounded-lg" />
         </div>
       </div>
     ))}
@@ -224,32 +241,45 @@ const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
 );
 
 /* ── Problem Card (desktop card/grid view) ────────────────────────── */
+/* ── Problem Card (desktop card/grid view) ────────────────────────── */
 const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
-  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted' };
+  const diff = DIFF_STYLE[problem.difficulty] || { text: 'text-muted', bg: 'bg-surface-2 border-line', dot: 'bg-muted', label: problem.difficulty };
   const latestStatus = problem.latestAttempt?.status;
   const statusCfg = latestStatus ? STATUS_CFG[latestStatus] : null;
   const platform = PLATFORM_LABELS[problem.platform] || PLATFORM_LABELS.other;
 
   return (
     <div className="p-4 sm:p-5 flex flex-col gap-3.5 bg-surface hover:bg-surface-2/60 border border-line hover:border-line/80 transition-colors group relative rounded-xl overflow-hidden">
-      {/* Top row: Difficulty & Platform chips */}
+      {/* Top row: Difficulty & Platform subtle indicators */}
       <div className="flex items-center justify-between gap-2 relative z-10">
-        <div className="flex items-center gap-1.5">
-          <span className={`inline-flex items-center text-xs font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full border ${diff.text} ${diff.bg}`}>
-            <span>{problem.difficulty}</span>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 font-medium text-xs">
+            <span className={`w-1.5 h-1.5 rounded-full ${diff.dot}`} />
+            <span className={diff.text}>{diff.label || problem.difficulty}</span>
           </span>
-          <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-md border ${platform.style}`} title={platform.label}>
-            <span>{platform.short}</span>
+          <span className="text-line/60">·</span>
+          <span className={`font-mono text-xs font-semibold ${platform.text || 'text-text-secondary'}`} title={platform.label}>
+            {platform.short}
           </span>
         </div>
 
         {statusCfg ? (
-          <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border ${statusCfg.bg} ${statusCfg.text}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-medium ${
+              latestStatus === 'struggled'
+                ? 'text-danger'
+                : latestStatus === 'revisit_needed'
+                ? 'text-medium'
+                : 'text-success/90'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
             <span>{statusCfg.label}</span>
           </span>
         ) : (
-          <span className="text-xs text-muted px-2 py-0.5 rounded-md bg-surface-2 border border-line">
-            Unattempted
+          <span className="inline-flex items-center gap-1 text-xs text-muted">
+            <span className="w-1.5 h-1.5 rounded-full bg-muted/60" />
+            <span>Unattempted</span>
           </span>
         )}
       </div>
@@ -258,7 +288,7 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
       <div className="flex items-start justify-between gap-2 relative z-10">
         <Link
           to={`/problems/${problem.id || problem._id}`}
-          className="text-sm font-semibold text-text group-hover:text-accent transition-colors leading-snug line-clamp-2 flex-1 tracking-tight"
+          className="text-sm font-semibold text-text group-hover:text-accent transition-colors leading-snug line-clamp-2 flex-1 tracking-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
           title={problem.title}
         >
           {problem.title}
@@ -268,24 +298,25 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             href={problem.link}
             target="_blank"
             rel="noreferrer"
-            className="text-muted hover:text-accent transition-colors shrink-0 p-1 -m-1 rounded hover:bg-surface-2"
+            className="text-muted hover:text-accent transition-colors shrink-0 p-1 -m-1 rounded hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             title="Open original problem in new tab"
+            aria-label={`Open original problem ${problem.title}`}
           >
             <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
           </a>
         )}
       </div>
 
-      {/* Topics */}
+      {/* Topics: quiet inline monospace tags */}
       {problem.topics?.length > 0 && (
-        <div className="flex flex-wrap gap-1 relative z-10">
+        <div className="flex flex-wrap items-center gap-1.5 relative z-10">
           {problem.topics.slice(0, 3).map((t) => (
-            <span key={t} className="text-xs font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-line text-text-secondary">
+            <span key={t} className="text-xs font-mono text-text-secondary/85 hover:text-text transition-colors">
               #{t}
             </span>
           ))}
           {problem.topics.length > 3 && (
-            <span className="text-xs font-mono px-1.5 py-0.5 rounded-md bg-surface-2 border border-line text-muted" title={problem.topics.slice(3).join(', ')}>
+            <span className="text-[11px] font-mono text-muted cursor-help" title={problem.topics.slice(3).join(', ')}>
               +{problem.topics.length - 3}
             </span>
           )}
@@ -307,33 +338,37 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
             <button
               type="button"
               onClick={() => onLog(problem)}
-              className="h-8 px-2.5 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+              className="h-8 px-2.5 rounded-lg text-success bg-success/10 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
               title="Log practice attempt"
+              aria-label={`Log attempt for ${problem.title}`}
             >
-              <Plus className="w-3 h-3 stroke-[2.5]" />
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Log</span>
             </button>
           )}
           <Link
             to={`/problems/${problem.id || problem._id}`}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             title="View Details"
+            aria-label={`View details for ${problem.title}`}
           >
             <Eye className="w-3.5 h-3.5" />
           </Link>
           <button
             type="button"
             onClick={() => onEdit(problem)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-medium hover:bg-medium/10 border border-line bg-surface transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-medium hover:bg-medium/10 border border-line bg-surface transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-medium"
             title="Edit problem"
+            aria-label={`Edit ${problem.title}`}
           >
             <Edit2 className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => onDelete(problem)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/10 border border-line bg-surface transition-all cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/10 border border-line bg-surface transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger"
             title="Delete problem"
+            aria-label={`Delete ${problem.title}`}
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -343,8 +378,8 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
   );
 };
 
-/* ── useIsMobile hook ─────────────────────────────────────────────── */
-const useIsMobile = (breakpoint = 640) => {
+/* ── useIsMobile hook (Strict 768px breakpoint for mobile cards vs desktop table) ── */
+const useIsMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
   );
@@ -817,7 +852,7 @@ const ProblemsPage = () => {
                 { value: '', label: 'All', active: 'bg-surface text-text font-semibold border-line shadow-xs' },
                 { value: 'solved', label: 'Solved', active: 'bg-success/15 text-success border-success/35 font-semibold shadow-xs' },
                 { value: 'struggled', label: 'Struggled', active: 'bg-danger/15 text-danger border-danger/35 font-semibold shadow-xs' },
-                { value: 'revisit_needed', label: 'Revisit', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
+                { value: 'revisit_needed', label: 'Revisit Needed', active: 'bg-medium/15 text-medium border-medium/35 font-semibold shadow-xs' },
               ].map((s) => (
                 <button
                   key={s.value}

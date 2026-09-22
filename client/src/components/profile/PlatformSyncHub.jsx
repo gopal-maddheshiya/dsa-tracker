@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   RotateCcw, CheckCircle2, ExternalLink,
   Unlink, ShieldCheck, Zap, Trophy, Flame, Layers, Sparkles,
@@ -6,6 +7,8 @@ import {
 } from 'lucide-react';
 import { getSyncStatus, connectPlatform, disconnectPlatform, syncPlatform, syncAllPlatforms, batchImportPlatform } from '../../api/sync';
 import { useToast } from '../../context/ToastContext';
+import { PLATFORM_CONFIG } from '../../theme/platforms';
+import { useDialog } from '../../hooks/useDialog';
 
 /* ── Universal Clean Handle Extractor ──────────────────────────── */
 export function extractCleanHandle(platform, input) {
@@ -41,7 +44,7 @@ export function extractCleanHandle(platform, input) {
   return str.replace(/^@+/, '').replace(/\/+$/, '').trim();
 }
 
-/* ── Modern High-Contrast Platform Input Component ────────────── */
+/* ── Platform Input Component (42px touch target) ─────────────── */
 const PlatformConnectInput = ({
   platform,
   value,
@@ -65,7 +68,7 @@ const PlatformConnectInput = ({
 
   return (
     <div className="space-y-2.5 my-3">
-      <div className="flex flex-row items-center gap-2 w-full">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
         <div className="relative flex-1 min-w-0 flex items-center">
           <span className="absolute left-3 text-muted pointer-events-none text-xs font-mono flex items-center justify-center w-4 h-4">
             {safeVal.includes('http') || safeVal.includes('.com') || safeVal.includes('.org') ? (
@@ -80,17 +83,19 @@ const PlatformConnectInput = ({
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder || defaultPlaceholder}
             disabled={isConnecting}
-            className="w-full bg-surface-2 hover:bg-surface-2/80 focus:bg-surface-2 border border-line focus:border-accent rounded-xl text-text font-mono text-xs pl-10 pr-8 h-10 transition-all outline-none placeholder:text-muted placeholder:opacity-90 focus:ring-1 focus:ring-accent input-field"
+            className="w-full bg-surface-2 hover:bg-surface-2/80 focus:bg-surface-2 border border-line focus:border-accent rounded-xl text-text font-mono text-xs pl-10 pr-8 h-11 transition-all outline-none placeholder:text-muted placeholder:opacity-80 focus:ring-1 focus:ring-accent input-field"
             onKeyDown={(e) => e.key === 'Enter' && onConnect()}
+            aria-label={`${platform} username or profile link`}
           />
           {safeVal && (
             <button
               type="button"
               onClick={() => onChange('')}
-              className="absolute right-2.5 text-muted hover:text-text p-1 transition-colors cursor-pointer rounded"
+              className="absolute right-2.5 text-muted hover:text-text p-1.5 transition-colors cursor-pointer rounded"
               title="Clear input"
+              aria-label="Clear input"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -99,7 +104,7 @@ const PlatformConnectInput = ({
           type="button"
           disabled={isConnecting || !safeVal.trim()}
           onClick={onConnect}
-          className="btn-primary h-10 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm"
+          className="btn-primary min-h-[42px] px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm"
         >
           {isConnecting ? (
             <>
@@ -128,8 +133,16 @@ const PlatformConnectInput = ({
 /* ── Batch Problem Importer Modal ─────────────────────────────── */
 const BatchImportModal = ({ isOpen, onClose, onImportSuccess }) => {
   const toast = useToast();
+  const dialogRef = useRef(null);
   const [text, setText] = useState('');
   const [isImporting, setIsImporting] = useState(false);
+
+  useDialog({
+    isOpen,
+    onClose,
+    dialogRef,
+    closeOnEscape: !isImporting,
+  });
 
   if (!isOpen) return null;
 
@@ -149,62 +162,70 @@ const BatchImportModal = ({ isOpen, onClose, onImportSuccess }) => {
       const res = await batchImportPlatform('leetcode', rawItems);
       toast.success(res?.message || `Successfully imported ${res?.data?.importedCount || 0} problems!`);
       setText('');
-      window.dispatchEvent(new CustomEvent('problem-created'));
       onImportSuccess?.();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Failed to import problems');
+      const msg = err.response?.data?.message || err.message || 'Batch import failed';
+      toast.error(msg);
     } finally {
       setIsImporting(false);
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
-      <div className="w-full max-w-lg bg-surface border border-line rounded-2xl p-6 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-line/60 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-text">Batch Import LeetCode Problems</h3>
-              <p className="text-[11px] text-muted">Paste your solved question URLs or slugs to catalog them</p>
-            </div>
+  const content = (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in"
+      onMouseDown={(e) => {
+        if (!isImporting && e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="batch-import-title"
+        tabIndex={-1}
+        className="w-full max-w-lg bg-surface border border-line rounded-2xl p-6 shadow-modal space-y-4 max-h-[90vh] overflow-y-auto outline-none"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-line pb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <h3 id="batch-import-title" className="text-sm font-semibold text-text">
+              Batch Import Older Problems
+            </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            disabled={isImporting}
-            className="text-muted hover:text-text p-1.5 rounded-lg hover:bg-surface-2 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-secondary block">
-            Problem URLs or Slugs (one per line or comma-separated):
-          </label>
-          <textarea
-            rows={6}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            disabled={isImporting}
-            placeholder={`two-sum\nhttps://leetcode.com/problems/add-two-numbers/\nlongest-substring-without-repeating-characters\nmedian-of-two-sorted-arrays`}
-            className="w-full p-3 rounded-xl bg-surface-2 border border-line text-text font-mono text-xs focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent resize-y placeholder:text-muted placeholder:opacity-75"
-          />
-          <p className="text-[11px] text-muted leading-relaxed">
-            DSA Tracker will automatically fetch title, difficulty, and topic tags from LeetCode GraphQL and record them as solved attempts in your catalog.
-          </p>
-        </div>
+        <p className="text-xs text-secondary leading-relaxed">
+          Paste LeetCode problem URLs or slugs (separated by lines or commas). They will be queried from the public GraphQL API and added to your catalog with accurate titles, difficulties, topics, and problem links.
+        </p>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-line/60">
+        <textarea
+          rows={6}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={`two-sum\nhttps://leetcode.com/problems/add-two-numbers/\nlongest-substring-without-repeating-characters`}
+          className="w-full bg-surface-2 border border-line focus:border-accent rounded-xl p-3 text-xs font-mono text-text outline-none focus:ring-1 focus:ring-accent resize-none placeholder:text-muted placeholder:opacity-75 input-field"
+          aria-label="Problem URLs or slugs"
+        />
+
+        <div className="flex items-center justify-end gap-2.5 pt-2">
           <button
             type="button"
             onClick={onClose}
             disabled={isImporting}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+            className="btn-secondary min-h-[40px] px-4 text-xs font-semibold cursor-pointer"
           >
             Cancel
           </button>
@@ -212,17 +233,17 @@ const BatchImportModal = ({ isOpen, onClose, onImportSuccess }) => {
             type="button"
             onClick={handleImport}
             disabled={isImporting || !text.trim()}
-            className="btn-primary px-5 py-2 text-xs font-semibold flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="btn-primary min-h-[40px] px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
           >
             {isImporting ? (
               <>
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Fetching & Cataloging...</span>
+                <span>Importing...</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Import Solved Questions</span>
+                <span>Import Solved Problems</span>
               </>
             )}
           </button>
@@ -230,20 +251,20 @@ const BatchImportModal = ({ isOpen, onClose, onImportSuccess }) => {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
 
-/* ── Branded SVG Logos ─────────────────────────────────────────── */
+/* ── Platform SVG Logos ───────────────────────────────────────── */
 const LeetCodeLogo = ({ className = 'w-6 h-6' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.551 5.973 5.973 0 0 0 3.324-.766l5.882-4.148a1.378 1.378 0 0 0 .438-.961 1.378 1.378 0 0 0-.438-.962L10.37 8.07l4.074-4.36A1.374 1.374 0 0 0 13.483 0zm-2.88 8.877l4.364 4.364-4.819 3.398a3.178 3.178 0 0 1-1.77.408 3.16 3.16 0 0 1-2.568-1.892 3.11 3.11 0 0 1-.186-.542 2.946 2.946 0 0 1-.033-1.258 2.808 2.808 0 0 1 .644-1.121l4.368-3.357zM19.98 12.012a1.374 1.374 0 0 0-.961.438l-2.073 2.073a1.378 1.378 0 0 0 1.95 1.95l2.073-2.073a1.374 1.374 0 0 0-.989-2.388z" />
+    <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .666-1.764l3.854-4.126 5.406-5.788c.54-.54.54-1.414.003-1.955A1.374 1.374 0 0 0 13.483 0zm-2.88 5.904a1.376 1.376 0 0 0-.96.438L4.238 11.9a1.378 1.378 0 0 0 .003 1.955 1.378 1.378 0 0 0 1.951.003l5.405-5.558c.54-.54.54-1.414.003-1.955a1.374 1.374 0 0 0-.997-.441z" />
   </svg>
 );
 
 const CodeforcesLogo = ({ className = 'w-6 h-6' }) => (
-  <svg className={className} viewBox="0 0 24 24">
-    <rect x="1.5" y="9" width="5" height="13" rx="1.5" fill="#FFC107" />
-    <rect x="9.5" y="3" width="5" height="19" rx="1.5" fill="#2196F3" />
-    <rect x="17.5" y="6.5" width="5" height="15.5" rx="1.5" fill="#F44336" />
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4.5 7.5a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-3 0v-9a1.5 1.5 0 0 1 1.5-1.5zM12 3a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-3 0V4.5A1.5 1.5 0 0 1 12 3zm7.5 7.5a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-3 0v-6a1.5 1.5 0 0 1 1.5-1.5z" />
   </svg>
 );
 
@@ -251,7 +272,7 @@ const GFGLogo = ({ className = 'w-6 h-6' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor">
     <path
       d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12c0-5.523-4.477-10-10-10z"
-      fill="#2F8D46"
+      fill="currentColor"
     />
     <path
       d="M9.5 10a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm5 0a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"
@@ -352,7 +373,6 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
       setConnecting((prev) => ({ ...prev, [platform]: true }));
       const res = await connectPlatform(platform, clean);
       toast.success(res.message || `Connected ${platform.toUpperCase()} account!`);
-      // Update local input to clean handle
       setHandles((prev) => ({ ...prev, [platform]: clean }));
       await loadStatus();
       window.dispatchEvent(new CustomEvent('problem-created'));
@@ -430,6 +450,12 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
 
   const isAnySyncing = syncing.all || syncing.leetcode || syncing.codeforces || syncing.gfg || syncing.codechef;
 
+  // Platform visual configurations from centralized theme
+  const lcConfig = PLATFORM_CONFIG.leetcode;
+  const cfConfig = PLATFORM_CONFIG.codeforces;
+  const gfgConfig = PLATFORM_CONFIG.gfg;
+  const ccConfig = PLATFORM_CONFIG.codechef;
+
   return (
     <div className="space-y-6">
       {/* ── Top Command Hub Ribbon ────────────────────────────────── */}
@@ -444,7 +470,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 <span>Competitive Platform Synchronization</span>
               </h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-accent/15 text-accent border border-accent/30">
-                {connectedCount} of 4 Hubs Active
+                {connectedCount} of 4 Connected
               </span>
             </div>
             <p className="text-xs text-secondary leading-relaxed max-w-2xl">
@@ -465,7 +491,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 type="button"
                 disabled={isAnySyncing}
                 onClick={handleSyncAll}
-                className="btn-primary min-h-[40px] px-4.5 py-2 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 shadow-md shadow-accent/20"
+                className="btn-primary min-h-[42px] px-4.5 py-2 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 active:scale-95 shadow-md shadow-accent/20"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${syncing.all ? 'animate-spin' : ''}`} />
                 <span>{syncing.all ? 'Syncing All Accounts...' : `Sync All (${connectedCount} Linked)`}</span>
@@ -478,19 +504,26 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
       {/* ── Cards Grid (LeetCode, Codeforces, GeeksforGeeks, CodeChef) ───────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* 1. LeetCode Card */}
-        <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-[#FFA116]/40 transition-all duration-300">
-          <div className="absolute top-0 right-0 w-36 h-36 bg-[#FFA116]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-accent/40 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-36 h-36 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
 
           <div>
-            {/* Header */}
+            {/* Header: Platform Identity & Connection Status */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#FFA116]/12 border border-[#FFA116]/30 flex items-center justify-center text-[#FFA116] shrink-0 shadow-inner">
+                <div
+                  className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 shadow-inner"
+                  style={{
+                    color: lcConfig.color,
+                    backgroundColor: `${lcConfig.color}18`,
+                    borderColor: `${lcConfig.color}35`,
+                  }}
+                >
                   <LeetCodeLogo className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-text tracking-tight">
-                    LeetCode
+                    {lcConfig.label}
                   </h3>
                   <span className="text-xs text-muted">
                     Official GraphQL Sync
@@ -505,7 +538,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-2 border border-line text-muted shrink-0">
-                  <span>Not Linked</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted/60" />
+                  <span>Not Connected</span>
                 </span>
               )}
             </div>
@@ -513,6 +547,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             {/* Body */}
             {status.leetcode?.isConnected ? (
               <div className="space-y-4 my-2">
+                {/* Account / handle */}
                 <div className="p-3 rounded-xl bg-surface-2/60 border border-line/70 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <span className="text-[10px] font-mono uppercase text-muted block">Username</span>
@@ -520,10 +555,10 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                       href={`https://leetcode.com/u/${status.leetcode.handle}/`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-bold text-text hover:text-[#FFA116] transition-colors flex items-center gap-1 truncate group/link"
+                      className="text-sm font-bold text-text hover:text-accent transition-colors flex items-center gap-1 truncate group/link"
                     >
-                      <span>@{status.leetcode.handle}</span>
-                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-[#FFA116]" />
+                      <span className="truncate">@{status.leetcode.handle}</span>
+                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-accent shrink-0" />
                     </a>
                   </div>
                   <div className="text-right shrink-0">
@@ -534,6 +569,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   </div>
                 </div>
 
+                {/* Useful platform stats */}
                 <div className="grid grid-cols-4 gap-2">
                   <div className="p-2.5 rounded-xl bg-surface-2/40 border border-line/50 text-center">
                     <span className="text-[10px] text-muted font-mono block">Solved</span>
@@ -603,13 +639,13 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             )}
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer Primary Actions (40-44px touch targets) */}
           {status.leetcode?.isConnected && (
             <div className="pt-4 mt-2 border-t border-line/60 flex items-center justify-between gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => handleDisconnect('leetcode')}
-                className="text-xs text-muted hover:text-danger transition-colors cursor-pointer flex items-center gap-1.5"
+                className="text-xs text-muted hover:text-danger min-h-[40px] px-2 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Unlink className="w-3.5 h-3.5" />
                 <span>Disconnect</span>
@@ -619,7 +655,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 <button
                   type="button"
                   onClick={() => setIsBatchModalOpen(true)}
-                  className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="btn-secondary min-h-[40px] px-3.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs"
                   title="Paste problem links or slugs in batch"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-accent" />
@@ -630,9 +666,9 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   type="button"
                   disabled={syncing.leetcode || isAnySyncing}
                   onClick={() => handleSync('leetcode')}
-                  className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                  className="btn-secondary min-h-[40px] px-3.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
                 >
-                  <RotateCcw className={`w-3.5 h-3.5 ${syncing.leetcode ? 'animate-spin text-[#FFA116]' : ''}`} />
+                  <RotateCcw className={`w-3.5 h-3.5 ${syncing.leetcode ? 'animate-spin text-accent' : ''}`} />
                   <span>{syncing.leetcode ? 'Syncing...' : 'Sync Now'}</span>
                 </button>
               </div>
@@ -642,18 +678,25 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
 
         {/* 2. Codeforces Card */}
         <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-[#2196F3]/40 transition-all duration-300">
-          <div className="absolute top-0 right-0 w-36 h-36 bg-[#2196F3]/8 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-36 h-36 bg-[#2196F3]/5 rounded-full blur-3xl pointer-events-none" />
 
           <div>
-            {/* Header */}
+            {/* Header: Platform Identity & Connection Status */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#2196F3]/12 border border-[#2196F3]/30 flex items-center justify-center text-[#2196F3] shrink-0 shadow-inner">
+                <div
+                  className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 shadow-inner"
+                  style={{
+                    color: cfConfig.color,
+                    backgroundColor: `${cfConfig.color}18`,
+                    borderColor: `${cfConfig.color}35`,
+                  }}
+                >
                   <CodeforcesLogo className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-text tracking-tight">
-                    Codeforces
+                    {cfConfig.label}
                   </h3>
                   <span className="text-xs text-muted">
                     Official Public API Sync
@@ -668,7 +711,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-2 border border-line text-muted shrink-0">
-                  <span>Not Linked</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted/60" />
+                  <span>Not Connected</span>
                 </span>
               )}
             </div>
@@ -676,6 +720,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             {/* Body */}
             {status.codeforces?.isConnected ? (
               <div className="space-y-4 my-2">
+                {/* Account / handle */}
                 <div className="p-3 rounded-xl bg-surface-2/60 border border-line/70 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <span className="text-[10px] font-mono uppercase text-muted block">Handle</span>
@@ -685,8 +730,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                       rel="noopener noreferrer"
                       className="text-sm font-bold text-text hover:text-[#2196F3] transition-colors flex items-center gap-1 truncate group/link"
                     >
-                      <span>@{status.codeforces.handle}</span>
-                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-[#2196F3]" />
+                      <span className="truncate">@{status.codeforces.handle}</span>
+                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-[#2196F3] shrink-0" />
                     </a>
                   </div>
                   <div className="text-right shrink-0">
@@ -697,6 +742,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   </div>
                 </div>
 
+                {/* Useful platform stats */}
                 <div className="grid grid-cols-3 gap-2">
                   <div className="p-2.5 rounded-xl bg-surface-2/40 border border-line/50 text-center">
                     <span className="text-[10px] text-muted font-mono block">Rating</span>
@@ -736,13 +782,13 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             )}
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer Actions (40-44px touch targets) */}
           {status.codeforces?.isConnected && (
             <div className="pt-4 mt-2 border-t border-line/60 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => handleDisconnect('codeforces')}
-                className="text-xs text-muted hover:text-danger transition-colors cursor-pointer flex items-center gap-1.5"
+                className="text-xs text-muted hover:text-danger min-h-[40px] px-2 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Unlink className="w-3.5 h-3.5" />
                 <span>Disconnect</span>
@@ -752,7 +798,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 type="button"
                 disabled={syncing.codeforces || isAnySyncing}
                 onClick={() => handleSync('codeforces')}
-                className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                className="btn-secondary min-h-[40px] px-3.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
               >
                 <RotateCcw className={`w-3.5 h-3.5 ${syncing.codeforces ? 'animate-spin text-[#2196F3]' : ''}`} />
                 <span>{syncing.codeforces ? 'Syncing...' : 'Sync Now'}</span>
@@ -762,19 +808,26 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
         </div>
 
         {/* 3. GeeksforGeeks Card */}
-        <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-[#2F8D46]/40 transition-all duration-300">
-          <div className="absolute top-0 right-0 w-36 h-36 bg-[#2F8D46]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-easy/40 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-36 h-36 bg-easy/5 rounded-full blur-3xl pointer-events-none" />
 
           <div>
-            {/* Header */}
+            {/* Header: Platform Identity & Connection Status */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#2F8D46]/12 border border-[#2F8D46]/30 flex items-center justify-center text-[#2F8D46] shrink-0 shadow-inner">
+                <div
+                  className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 shadow-inner"
+                  style={{
+                    color: gfgConfig.color,
+                    backgroundColor: `${gfgConfig.color}18`,
+                    borderColor: `${gfgConfig.color}35`,
+                  }}
+                >
                   <GFGLogo className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-text tracking-tight">
-                    GeeksforGeeks
+                    {gfgConfig.label}
                   </h3>
                   <span className="text-xs text-muted">
                     Profile & Practice Sync
@@ -789,7 +842,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-2 border border-line text-muted shrink-0">
-                  <span>Not Linked</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted/60" />
+                  <span>Not Connected</span>
                 </span>
               )}
             </div>
@@ -797,6 +851,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             {/* Body */}
             {status.gfg?.isConnected ? (
               <div className="space-y-4 my-2">
+                {/* Account / handle */}
                 <div className="p-3 rounded-xl bg-surface-2/60 border border-line/70 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <span className="text-[10px] font-mono uppercase text-muted block">Username</span>
@@ -804,10 +859,10 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                       href={`https://www.geeksforgeeks.org/user/${status.gfg.handle}/`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-bold text-text hover:text-[#2F8D46] transition-colors flex items-center gap-1 truncate group/link"
+                      className="text-sm font-bold text-text hover:text-easy transition-colors flex items-center gap-1 truncate group/link"
                     >
-                      <span>@{status.gfg.handle}</span>
-                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-[#2F8D46]" />
+                      <span className="truncate">@{status.gfg.handle}</span>
+                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-easy shrink-0" />
                     </a>
                   </div>
                   <div className="text-right shrink-0">
@@ -818,10 +873,11 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   </div>
                 </div>
 
+                {/* Useful platform stats */}
                 <div className="grid grid-cols-4 gap-2">
                   <div className="p-2.5 rounded-xl bg-surface-2/40 border border-line/50 text-center">
                     <span className="text-[10px] text-muted font-mono block">Coding Score</span>
-                    <span className="text-sm font-bold text-[#2F8D46] tabular-nums">
+                    <span className="text-sm font-bold text-easy tabular-nums">
                       {status.gfg.stats?.score ?? 0}
                     </span>
                   </div>
@@ -864,13 +920,13 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             )}
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer Actions (40-44px touch targets) */}
           {status.gfg?.isConnected && (
             <div className="pt-4 mt-2 border-t border-line/60 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => handleDisconnect('gfg')}
-                className="text-xs text-muted hover:text-danger transition-colors cursor-pointer flex items-center gap-1.5"
+                className="text-xs text-muted hover:text-danger min-h-[40px] px-2 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Unlink className="w-3.5 h-3.5" />
                 <span>Disconnect</span>
@@ -880,9 +936,9 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 type="button"
                 disabled={syncing.gfg || isAnySyncing}
                 onClick={() => handleSync('gfg')}
-                className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                className="btn-secondary min-h-[40px] px-3.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
               >
-                <RotateCcw className={`w-3.5 h-3.5 ${syncing.gfg ? 'animate-spin text-[#2F8D46]' : ''}`} />
+                <RotateCcw className={`w-3.5 h-3.5 ${syncing.gfg ? 'animate-spin text-easy' : ''}`} />
                 <span>{syncing.gfg ? 'Syncing...' : 'Sync Now'}</span>
               </button>
             </div>
@@ -890,19 +946,26 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
         </div>
 
         {/* 4. CodeChef Card */}
-        <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-[#8B572A]/40 transition-all duration-300">
-          <div className="absolute top-0 right-0 w-36 h-36 bg-[#8B572A]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden group hover:border-[#D4A373]/40 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-36 h-36 bg-[#D4A373]/5 rounded-full blur-3xl pointer-events-none" />
 
           <div>
-            {/* Header */}
+            {/* Header: Platform Identity & Connection Status */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#8B572A]/15 border border-[#8B572A]/30 flex items-center justify-center text-[#D4A373] shrink-0 shadow-inner">
+                <div
+                  className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 shadow-inner"
+                  style={{
+                    color: ccConfig.color,
+                    backgroundColor: `${ccConfig.color}18`,
+                    borderColor: `${ccConfig.color}35`,
+                  }}
+                >
                   <CodeChefLogo className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-text tracking-tight flex items-center gap-1.5">
-                    <span>CodeChef</span>
+                    <span>{ccConfig.label}</span>
                     {status.codechef?.stats?.stars && (
                       <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#8B572A]/20 text-[#D4A373] border border-[#8B572A]/30">
                         {status.codechef.stats.stars}
@@ -922,7 +985,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-2 border border-line text-muted shrink-0">
-                  <span>Not Linked</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted/60" />
+                  <span>Not Connected</span>
                 </span>
               )}
             </div>
@@ -930,6 +994,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             {/* Body */}
             {status.codechef?.isConnected ? (
               <div className="space-y-4 my-2">
+                {/* Account / handle */}
                 <div className="p-3 rounded-xl bg-surface-2/60 border border-line/70 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <span className="text-[10px] font-mono uppercase text-muted block">Handle</span>
@@ -939,8 +1004,8 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                       rel="noopener noreferrer"
                       className="text-sm font-bold text-text hover:text-[#D4A373] transition-colors flex items-center gap-1 truncate group/link"
                     >
-                      <span>@{status.codechef.handle}</span>
-                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-[#D4A373]" />
+                      <span className="truncate">@{status.codechef.handle}</span>
+                      <ExternalLink className="w-3 h-3 text-muted group-hover/link:text-[#D4A373] shrink-0" />
                     </a>
                   </div>
                   <div className="text-right shrink-0">
@@ -951,6 +1016,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                   </div>
                 </div>
 
+                {/* Useful platform stats */}
                 <div className="grid grid-cols-4 gap-2">
                   <div className="p-2.5 rounded-xl bg-surface-2/40 border border-line/50 text-center">
                     <span className="text-[10px] text-muted font-mono block">Rating</span>
@@ -996,13 +1062,13 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
             )}
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer Actions (40-44px touch targets) */}
           {status.codechef?.isConnected && (
             <div className="pt-4 mt-2 border-t border-line/60 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => handleDisconnect('codechef')}
-                className="text-xs text-muted hover:text-danger transition-colors cursor-pointer flex items-center gap-1.5"
+                className="text-xs text-muted hover:text-danger min-h-[40px] px-2 py-1.5 transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Unlink className="w-3.5 h-3.5" />
                 <span>Disconnect</span>
@@ -1012,7 +1078,7 @@ const PlatformSyncHub = ({ onSyncSuccess }) => {
                 type="button"
                 disabled={syncing.codechef || isAnySyncing}
                 onClick={() => handleSync('codechef')}
-                className="btn-secondary h-8 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                className="btn-secondary min-h-[40px] px-3.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
               >
                 <RotateCcw className={`w-3.5 h-3.5 ${syncing.codechef ? 'animate-spin text-[#D4A373]' : ''}`} />
                 <span>{syncing.codechef ? 'Syncing...' : 'Sync Now'}</span>
