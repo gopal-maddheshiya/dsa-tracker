@@ -3,17 +3,12 @@ const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
 const User = require('../models/User');
 
-const REVISION_INTERVALS = {
-  solved: 14,
-  revisit_needed: 5,
-  struggled: 2,
-};
-
-const STRUGGLE_WEIGHTS = {
-  solved: 0,
-  revisit_needed: 1,
-  struggled: 2,
-};
+const {
+  REVISION_INTERVALS,
+  STRUGGLE_WEIGHTS,
+  SOLVED_MAX_ELAPSED_DAYS,
+  calculatePriorityScore,
+} = require('../utils/revisionRules');
 
 /**
  * @route   GET /api/analytics/summary
@@ -394,8 +389,9 @@ const getRevisionQueue = async (req, res, next) => {
     const userId = req.user._id;
 
     // Aggregate problems and fetch strictly the latest attempt by highest attemptedAt
+    // Exclude historical synced problems that have not been manually practiced
     const problemsWithLatestAttempt = await Problem.aggregate([
-      { $match: { userId } },
+      { $match: { userId, inRevisionQueue: { $ne: false } } },
       {
         $lookup: {
           from: 'attempts',
@@ -427,6 +423,8 @@ const getRevisionQueue = async (req, res, next) => {
           platform: 1,
           difficulty: 1,
           topics: 1,
+          source: 1,
+          inRevisionQueue: 1,
           latestAttempt: { $arrayElemAt: ['$latestAttemptArray', 0] },
         },
       },
@@ -444,13 +442,10 @@ const getRevisionQueue = async (req, res, next) => {
 
         // Clamp future-dated attempts so elapsed days is never negative
         const daysSinceLastAttempt = Math.max(0, elapsedDays);
-
         const latestStatus = problem.latestAttempt.status;
-        const intervalForStatus = REVISION_INTERVALS[latestStatus] || 14;
-        const struggleWeight = STRUGGLE_WEIGHTS[latestStatus] ?? 0;
 
-        // Deterministic priority formula
-        const priorityScore = (daysSinceLastAttempt / intervalForStatus) + struggleWeight;
+        // Deterministic priority calculation via canonical rules
+        const { priorityScore } = calculatePriorityScore(latestStatus, daysSinceLastAttempt);
 
         return {
           problemId: problem.problemId.toString(),
@@ -458,6 +453,8 @@ const getRevisionQueue = async (req, res, next) => {
           platform: problem.platform,
           difficulty: problem.difficulty,
           topics: problem.topics || [],
+          source: problem.source || 'manual',
+          inRevisionQueue: problem.inRevisionQueue !== false,
           latestStatus,
           lastAttemptedAt,
           daysSinceLastAttempt: Number(daysSinceLastAttempt.toFixed(2)),
@@ -633,4 +630,6 @@ module.exports = {
   getHeatmap,
   getRevisionQueue,
   getProfile,
+  REVISION_INTERVALS,
+  STRUGGLE_WEIGHTS,
 };

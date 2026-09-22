@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
+const {
+  REVISION_INTERVALS,
+  STRUGGLE_WEIGHTS,
+  SOLVED_MAX_ELAPSED_DAYS,
+  calculatePriorityScore,
+} = require('../utils/revisionRules');
 
 const VALID_PLATFORMS = ['leetcode', 'gfg', 'codechef', 'hackerrank', 'codeforces', 'atcoder', 'other'];
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
@@ -733,14 +739,18 @@ const getProblemRecommendations = async (req, res, next) => {
     const primaryWeakTopic = weakestTopics[0]?.topic?.toLowerCase() || null;
 
     const now = Date.now();
-    const REVISION_INTERVALS = { solved: 14, revisit_needed: 5, struggled: 2 };
-    const STRUGGLE_WEIGHTS = { solved: 0, revisit_needed: 1, struggled: 2.5 };
 
     const spacedList = [];
     const weaknessList = [];
     const unattemptedList = [];
 
     problems.forEach((prob) => {
+      // Historical synced problems that have not been manually practiced
+      // are excluded from active spaced repetition and recommendations
+      if (prob.inRevisionQueue === false) {
+        return;
+      }
+
       const pId = prob._id.toString();
       const pAttempts = attemptsByProblem.get(pId) || [];
       const latestAttempt = pAttempts[0] || null;
@@ -752,6 +762,8 @@ const getProblemRecommendations = async (req, res, next) => {
         difficulty: prob.difficulty,
         topics: prob.topics || [],
         link: prob.link,
+        source: prob.source || 'manual',
+        inRevisionQueue: prob.inRevisionQueue !== false,
         latestStatus: latestAttempt ? latestAttempt.status : 'unattempted',
         lastAttemptedAt: latestAttempt ? latestAttempt.attemptedAt : null,
       };
@@ -760,14 +772,13 @@ const getProblemRecommendations = async (req, res, next) => {
         unattemptedList.push(probSummary);
       } else {
         const daysElapsed = Math.max(0, (now - new Date(latestAttempt.attemptedAt).getTime()) / (1000 * 60 * 60 * 24));
-        const interval = REVISION_INTERVALS[latestAttempt.status] || 14;
-        const weight = STRUGGLE_WEIGHTS[latestAttempt.status] || 0;
-        const urgencyScore = (daysElapsed / interval) + weight;
+        const { priorityScore } = calculatePriorityScore(latestAttempt.status, daysElapsed);
+        const urgencyScore = priorityScore;
 
         const withScore = {
           ...probSummary,
-          daysSinceLastAttempt: Math.round(daysElapsed),
-          urgencyScore: Number(urgencyScore.toFixed(2)),
+          daysSinceLastAttempt: Number(daysElapsed.toFixed(2)),
+          urgencyScore: Number(urgencyScore.toFixed(3)),
         };
 
         if (latestAttempt.status !== 'solved' || urgencyScore >= 1.0) {
@@ -799,14 +810,14 @@ const getProblemRecommendations = async (req, res, next) => {
     // Sort spaced repetition by highest urgency
     spacedList.sort((a, b) => b.urgencyScore - a.urgencyScore);
 
-    // Determine Daily Focus (The single highest priority problem for today)
+    // Determine Daily Focus (The single highest priority active problem for today)
     let dailyFocus = null;
     if (spacedList.length > 0 && spacedList[0].urgencyScore >= 1.2) {
       const top = spacedList[0];
       dailyFocus = {
         ...top,
         badge: 'Critical Revision',
-        rationale: `You ${top.latestStatus === 'struggled' ? 'struggled with' : 'flagged'} this problem ${top.daysSinceLastAttempt} days ago. Strengthen this pattern before it fades.`,
+        rationale: `You ${top.latestStatus === 'struggled' ? 'struggled with' : 'flagged'} this problem ${Math.round(top.daysSinceLastAttempt)} days ago. Strengthen this pattern before it fades.`,
       };
     } else if (weaknessList.length > 0) {
       const top = weaknessList[0];
@@ -823,18 +834,21 @@ const getProblemRecommendations = async (req, res, next) => {
         badge: 'New Frontier',
         rationale: `Fresh cataloged challenge to keep your daily solving momentum active!`,
       };
-    } else if (problems.length > 0) {
-      const chosen = problems[0];
-      dailyFocus = {
-        id: chosen._id.toString(),
-        title: chosen.title,
-        platform: chosen.platform,
-        difficulty: chosen.difficulty,
-        topics: chosen.topics || [],
-        link: chosen.link,
-        badge: 'Daily Warmup',
-        rationale: 'Review and refine your optimal solution to keep your problem-solving reflex sharp.',
-      };
+    } else {
+      const activeProblems = problems.filter((p) => p.inRevisionQueue !== false);
+      if (activeProblems.length > 0) {
+        const chosen = activeProblems[0];
+        dailyFocus = {
+          id: chosen._id.toString(),
+          title: chosen.title,
+          platform: chosen.platform,
+          difficulty: chosen.difficulty,
+          topics: chosen.topics || [],
+          link: chosen.link,
+          badge: 'Daily Warmup',
+          rationale: 'Review and refine your optimal solution to keep your problem-solving reflex sharp.',
+        };
+      }
     }
 
     return res.status(200).json({

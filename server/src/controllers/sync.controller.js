@@ -237,7 +237,7 @@ async function performPlatformSync(userId, platform) {
       continue;
     }
 
-    // Insert new Problem
+    // Insert new Problem with sync source semantics (historical sync excluded from active revision)
     const newProblem = await Problem.create({
       userId,
       title: item.title,
@@ -245,6 +245,8 @@ async function performPlatformSync(userId, platform) {
       link: item.link,
       difficulty: item.difficulty,
       topics: item.topics || [],
+      source: 'sync',
+      inRevisionQueue: false,
       createdAt: item.submittedAt || new Date(),
     });
 
@@ -419,6 +421,8 @@ const batchImportProblems = async (req, res, next) => {
         link: item.link,
         difficulty: item.difficulty,
         topics: item.topics || [],
+        source: 'sync',
+        inRevisionQueue: false,
         createdAt: item.submittedAt || new Date(),
       });
 

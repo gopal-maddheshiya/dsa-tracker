@@ -77,6 +77,13 @@ const createAttempt = async (req, res, next) => {
       attemptedAt: parsedDate,
     });
 
+    // If problem is not currently active in revision queue (e.g. historical synced problem),
+    // manually logging an attempt activates it for active spaced repetition.
+    if (!problem.inRevisionQueue) {
+      problem.inRevisionQueue = true;
+      await problem.save();
+    }
+
     return res.status(201).json({
       success: true,
       data: attempt.toJSON(),

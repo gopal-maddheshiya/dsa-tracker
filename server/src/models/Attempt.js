@@ -64,6 +64,9 @@ const attemptSchema = new mongoose.Schema(
 // Compound index for querying user activity chronologically
 attemptSchema.index({ userId: 1, attemptedAt: -1 });
 
+// Compound index for querying a user's attempts on specific problems ordered by recency
+attemptSchema.index({ userId: 1, problemId: 1, attemptedAt: -1 });
+
 // Ensure JSON serialization maps _id to id
 attemptSchema.set('toJSON', {
   transform: (doc, ret) => {

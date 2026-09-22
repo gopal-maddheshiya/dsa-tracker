@@ -72,6 +72,21 @@ const problemSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    source: {
+      type: String,
+      enum: {
+        values: ['manual', 'sync'],
+        message: '{VALUE} is not a valid problem source',
+      },
+      default: 'manual',
+      lowercase: true,
+      trim: true,
+    },
+    inRevisionQueue: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -83,10 +98,12 @@ const problemSchema = new mongoose.Schema(
   }
 );
 
-// Ensure JSON serialization maps _id to id
+// Ensure JSON serialization maps _id to id and provides backward-compatible defaults
 problemSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();
+    if (ret.source === undefined) ret.source = 'manual';
+    if (ret.inRevisionQueue === undefined) ret.inRevisionQueue = true;
     delete ret._id;
     delete ret.__v;
     return ret;

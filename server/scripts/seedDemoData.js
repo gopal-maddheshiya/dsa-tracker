@@ -339,6 +339,8 @@ async function seed() {
     const doc = await Problem.create({
       ...p,
       userId: user._id,
+      source: 'manual',
+      inRevisionQueue: true,
       createdAt: daysAgo(75),
     });
     problemDocs.push(doc);
