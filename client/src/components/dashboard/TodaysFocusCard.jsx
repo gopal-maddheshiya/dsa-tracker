@@ -38,7 +38,7 @@ const TodaysFocusCard = ({
   }, [dailyFocus?.id]);
 
   const handleToggleCoach = async () => {
-    if (isCoachOpen) {
+    if (isCoachOpen && !isCoachLoading) {
       setIsCoachOpen(false);
       return;
     }
@@ -46,17 +46,16 @@ const TodaysFocusCard = ({
       setIsCoachOpen(true);
       return;
     }
-    if (!dailyFocus?.id) return;
+    if (!dailyFocus?.id || isCoachLoading) return;
 
+    setIsCoachOpen(true);
     setIsCoachLoading(true);
     setCoachError(null);
     try {
       const data = await getAICoach(dailyFocus.id);
       setCoachData(data);
-      setIsCoachOpen(true);
     } catch (err) {
       setCoachError('Coaching is temporarily unavailable. Your standard recall guidance is still active.');
-      setIsCoachOpen(true);
     } finally {
       setIsCoachLoading(false);
     }
@@ -182,16 +181,58 @@ const TodaysFocusCard = ({
 
             {/* LOCALIZED ERROR STATE FOR AI COACH */}
             {coachError && isCoachOpen && (
-              <div className="p-3 rounded-md border border-line/60 bg-surface-2/50 text-xs text-muted flex items-start justify-between gap-2 mt-2">
-                <span>{coachError}</span>
+              <div className="p-3.5 rounded-lg border border-line/60 bg-surface-2/60 text-xs text-text-secondary space-y-2 mt-2">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="leading-relaxed">{coachError}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCoachOpen(false);
+                      setCoachError(null);
+                    }}
+                    className="text-muted hover:text-text cursor-pointer shrink-0 p-0.5"
+                    aria-label="Dismiss error"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setIsCoachOpen(false)}
-                  className="text-muted hover:text-text cursor-pointer shrink-0"
-                  aria-label="Dismiss error"
+                  onClick={handleToggleCoach}
+                  className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1 cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  Retry coaching note
                 </button>
+              </div>
+            )}
+
+            {/* AI COACHING NOTE LOADING PANEL */}
+            {isCoachOpen && isCoachLoading && (
+              <div className="p-3.5 sm:p-4 rounded-lg border border-line/70 bg-surface-2/50 space-y-2.5 transition-all mt-2 animate-fade-in">
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-line/40">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-accent animate-spin" />
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-text">
+                      Coaching Note
+                    </span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-3 text-muted">
+                      Synthesizing…
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 py-1">
+                  <p className="text-xs font-semibold text-text">
+                    Generating your coaching note…
+                  </p>
+                  <p className="text-[11px] text-muted leading-relaxed">
+                    Analyzing practice history, weak topic telemetry, and spaced-repetition metrics to frame targeted session guidance.
+                  </p>
+                  <div className="space-y-1.5 pt-1.5 animate-pulse">
+                    <div className="h-3 w-4/5 bg-surface-3 rounded" />
+                    <div className="h-3 w-3/5 bg-surface-3 rounded" />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -305,8 +346,8 @@ const TodaysFocusCard = ({
             disabled={isCoachLoading}
             className="text-xs text-text-secondary hover:text-accent font-medium inline-flex items-center gap-1.5 px-3 py-2 rounded-md border border-line/60 hover:border-accent/40 hover:bg-surface-2 transition-all cursor-pointer disabled:opacity-50"
           >
-            <Sparkles className="w-3.5 h-3.5 text-accent" />
-            <span>{isCoachLoading ? 'Preparing…' : isCoachOpen ? 'Hide Coach' : 'Coach me'}</span>
+            <Sparkles className={`w-3.5 h-3.5 text-accent ${isCoachLoading ? 'animate-spin' : ''}`} />
+            <span>{isCoachLoading ? 'Generating note…' : isCoachOpen ? 'Hide Coach' : 'Coach me'}</span>
           </button>
         </div>
       )}

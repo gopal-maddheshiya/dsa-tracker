@@ -739,9 +739,20 @@ const ProblemDetailPage = () => {
                           </div>
 
                           {loadingTakeaways[attempt.id || attempt._id] ? (
-                            <div className="py-2 space-y-1.5 animate-pulse">
-                              <div className="h-3 w-4/5 bg-surface-3 rounded" />
-                              <div className="h-3 w-1/2 bg-surface-3 rounded" />
+                            <div className="py-2.5 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Sparkles className="w-3.5 h-3.5 text-accent animate-spin shrink-0" />
+                                <span className="font-semibold text-text text-xs">
+                                  Synthesizing your reflection into a learning takeaway…
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-muted leading-relaxed">
+                                Distilling your notes into a grounded invariant and framing a self-test recall prompt.
+                              </p>
+                              <div className="space-y-1.5 animate-pulse pt-1">
+                                <div className="h-3 w-4/5 bg-surface-3 rounded" />
+                                <div className="h-3 w-1/2 bg-surface-3 rounded" />
+                              </div>
                             </div>
                           ) : takeaways[attempt.id || attempt._id] ? (
                             <>

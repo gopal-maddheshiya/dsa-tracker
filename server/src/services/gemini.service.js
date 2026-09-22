@@ -12,6 +12,30 @@ NON-NEGOTIABLE GROUNDING RULES:
 6. Keep advice concise, technical, and practical.
 7. Return strictly valid JSON adhering to the provided schema.`;
 
+// Resilient upstream provider timeout (45 seconds)
+const GEMINI_TIMEOUT_MS = 45000;
+
+/**
+ * Wraps an async operation with a resilient timeout rejection.
+ *
+ * @param {Promise} promise
+ * @param {number} ms
+ * @returns {Promise}
+ */
+const withTimeout = (promise, ms = GEMINI_TIMEOUT_MS) => {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const err = new Error(`Gemini upstream request timed out after ${ms}ms`);
+      err.code = 'ETIMEDOUT';
+      reject(err);
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    clearTimeout(timer);
+  });
+};
+
 /**
  * Builds deterministic fallback coaching when Gemini is unconfigured or unavailable.
  *
@@ -150,36 +174,41 @@ Recent Practice Activity:
 
 Provide grounded, actionable coaching following the JSON schema.`;
 
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            headline: { type: Type.STRING, description: 'Short coaching headline under 80 characters' },
-            whyThisProblem: { type: Type.STRING, description: '1-2 sentences explaining why this problem needs attention based on telemetry' },
-            patternFocus: { type: Type.STRING, description: '1 sentence identifying the algorithmic pattern or invariant to recall' },
-            sessionPlan: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  step: { type: Type.STRING, description: 'Practice step instruction' },
-                  minutes: { type: Type.INTEGER, description: 'Allocated minutes (3-20)' },
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          temperature: 0.3,
+          maxOutputTokens: 600,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              headline: { type: Type.STRING, description: 'Short coaching headline under 80 characters' },
+              whyThisProblem: { type: Type.STRING, description: '1-2 sentences explaining why this problem needs attention based on telemetry' },
+              patternFocus: { type: Type.STRING, description: '1 sentence identifying the algorithmic pattern or invariant to recall' },
+              sessionPlan: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    step: { type: Type.STRING, description: 'Practice step instruction' },
+                    minutes: { type: Type.INTEGER, description: 'Allocated minutes (3-20)' },
+                  },
+                  required: ['step', 'minutes'],
                 },
-                required: ['step', 'minutes'],
+                description: '2 to 4 timed execution steps, total <= 45 minutes',
               },
-              description: '2 to 4 timed execution steps, total <= 45 minutes',
+              encouragement: { type: Type.STRING, description: 'Grounding motivational sentence under 100 characters' },
             },
-            encouragement: { type: Type.STRING, description: 'Grounding motivational sentence under 100 characters' },
+            required: ['headline', 'whyThisProblem', 'patternFocus', 'sessionPlan', 'encouragement'],
           },
-          required: ['headline', 'whyThisProblem', 'patternFocus', 'sessionPlan', 'encouragement'],
         },
-      },
-    });
+      }),
+      GEMINI_TIMEOUT_MS
+    );
 
     const responseText = response?.text;
     if (!responseText) {
@@ -328,32 +357,37 @@ ${notes}
 
 Summarize the user's reflection into a concise, grounded takeaway adhering strictly to the JSON schema.`;
 
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction: TAKEAWAY_SYSTEM_INSTRUCTION,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            takeaway: {
-              type: Type.STRING,
-              description: '1 concise sentence distilling the user reflection, max 220 chars',
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          systemInstruction: TAKEAWAY_SYSTEM_INSTRUCTION,
+          temperature: 0.3,
+          maxOutputTokens: 300,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              takeaway: {
+                type: Type.STRING,
+                description: '1 concise sentence distilling the user reflection, max 220 chars',
+              },
+              pattern: {
+                type: Type.STRING,
+                description: 'Core algorithm pattern name grounded in notes, max 100 chars',
+              },
+              nextRecallPrompt: {
+                type: Type.STRING,
+                description: 'Self-test question for future review without giving away the solution, max 160 chars',
+              },
             },
-            pattern: {
-              type: Type.STRING,
-              description: 'Core algorithm pattern name grounded in notes, max 100 chars',
-            },
-            nextRecallPrompt: {
-              type: Type.STRING,
-              description: 'Self-test question for future review without giving away the solution, max 160 chars',
-            },
+            required: ['takeaway', 'pattern', 'nextRecallPrompt'],
           },
-          required: ['takeaway', 'pattern', 'nextRecallPrompt'],
         },
-      },
-    });
+      }),
+      GEMINI_TIMEOUT_MS
+    );
 
     const responseText = response?.text;
     if (!responseText) {

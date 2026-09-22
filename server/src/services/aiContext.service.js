@@ -27,11 +27,61 @@ const buildAIContext = async (userId, problemId) => {
     return null;
   }
 
-  // 2. Fetch attempts for this problem, ordered newest first
-  const problemAttempts = await Attempt.find({ problemId, userId })
-    .sort({ attemptedAt: -1 })
-    .select('status attemptedAt timeTakenMinutes notes')
-    .lean();
+  // 2. Fetch attempts, aggregate topic stats, and recent attempts in parallel
+  const [problemAttempts, topicStats, recentAttempts] = await Promise.all([
+    Attempt.find({ problemId, userId })
+      .sort({ attemptedAt: -1 })
+      .select('status attemptedAt timeTakenMinutes notes')
+      .lean(),
+    Attempt.aggregate([
+      { $match: { userId } },
+      {
+        $lookup: {
+          from: 'problems',
+          localField: 'problemId',
+          foreignField: '_id',
+          as: 'problem',
+        },
+      },
+      { $unwind: '$problem' },
+      { $unwind: '$problem.topics' },
+      {
+        $group: {
+          _id: { $toLower: '$problem.topics' },
+          totalAttempts: { $sum: 1 },
+          struggledAttempts: {
+            $sum: { $cond: [{ $in: ['$status', ['struggled', 'revisit_needed']] }, 1, 0] },
+          },
+          solvedAttempts: {
+            $sum: { $cond: [{ $eq: ['$status', 'solved'] }, 1, 0] },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          topic: '$_id',
+          totalAttempts: 1,
+          struggledAttempts: 1,
+          solvedAttempts: 1,
+          struggleRatio: {
+            $cond: [
+              { $gt: ['$totalAttempts', 0] },
+              { $divide: ['$struggledAttempts', '$totalAttempts'] },
+              0,
+            ],
+          },
+        },
+      },
+      { $sort: { struggleRatio: -1, totalAttempts: -1, topic: 1 } },
+      { $limit: 5 },
+    ]),
+    Attempt.find({ userId })
+      .sort({ attemptedAt: -1 })
+      .limit(10)
+      .select('status attemptedAt')
+      .lean(),
+  ]);
 
   const latestAttempt = problemAttempts.length > 0 ? problemAttempts[0] : null;
 
@@ -51,62 +101,10 @@ const buildAIContext = async (userId, problemId) => {
     priorityScore = (daysSinceLastAttempt / cfg.interval) + cfg.weight;
   }
 
-  // 4. Fetch user's top weak topics (descending struggleRatio)
-  const topicStats = await Attempt.aggregate([
-    { $match: { userId } },
-    {
-      $lookup: {
-        from: 'problems',
-        localField: 'problemId',
-        foreignField: '_id',
-        as: 'problem',
-      },
-    },
-    { $unwind: '$problem' },
-    { $unwind: '$problem.topics' },
-    {
-      $group: {
-        _id: { $toLower: '$problem.topics' },
-        totalAttempts: { $sum: 1 },
-        struggledAttempts: {
-          $sum: { $cond: [{ $in: ['$status', ['struggled', 'revisit_needed']] }, 1, 0] },
-        },
-        solvedAttempts: {
-          $sum: { $cond: [{ $eq: ['$status', 'solved'] }, 1, 0] },
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        topic: '$_id',
-        totalAttempts: 1,
-        struggledAttempts: 1,
-        solvedAttempts: 1,
-        struggleRatio: {
-          $cond: [
-            { $gt: ['$totalAttempts', 0] },
-            { $divide: ['$struggledAttempts', '$totalAttempts'] },
-            0,
-          ],
-        },
-      },
-    },
-    { $sort: { struggleRatio: -1, totalAttempts: -1, topic: 1 } },
-    { $limit: 5 },
-  ]);
-
-  // 5. Fetch user's recent attempt overview (last 10 attempts)
-  const recentAttempts = await Attempt.find({ userId })
-    .sort({ attemptedAt: -1 })
-    .limit(10)
-    .select('status attemptedAt')
-    .lean();
-
   const recentSolved = recentAttempts.filter((a) => a.status === 'solved').length;
   const recentStruggled = recentAttempts.filter((a) => a.status !== 'solved').length;
 
-  // 6. Build and return sanitized context
+  // 4. Build and return sanitized context
   return {
     problem: {
       id: String(problem._id),
@@ -159,14 +157,14 @@ const buildTakeawayContext = async (userId, attemptId) => {
     return null;
   }
 
-  // 2. Fetch associated problem strictly belonging to this same user
-  const problem = await Problem.findOne({ _id: attempt.problemId, userId }).lean();
+  // 2. Fetch associated problem and total attempt count concurrently
+  const [problem, totalAttempts] = await Promise.all([
+    Problem.findOne({ _id: attempt.problemId, userId }).lean(),
+    Attempt.countDocuments({ problemId: attempt.problemId, userId }),
+  ]);
   if (!problem) {
     return null;
   }
-
-  // 3. Count total attempts for this problem
-  const totalAttempts = await Attempt.countDocuments({ problemId: problem._id, userId });
 
   return {
     problem: {
