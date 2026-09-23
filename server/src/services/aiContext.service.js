@@ -272,7 +272,7 @@ const buildWeeklyReviewContext = async (userId) => {
           },
         },
       },
-      { $sort: { struggleRatio: -1, totalAttempts: -1 } },
+      { $sort: { struggleRatio: -1, totalAttempts: -1, topic: 1 } },
     ]),
 
     // 4. Revision queue status for canonical spaced-repetition pressure
@@ -340,19 +340,25 @@ const buildWeeklyReviewContext = async (userId) => {
   const currentSolved = solved;
   const prevSolved = prevAttempts.filter((a) => a.status === 'solved').length;
 
-  // Topics: strongest and weakest
+  // Topics: strongest and weakest with deterministic tie-breaking
   let strongestTopic = null;
   let weakestTopic = null;
 
   if (topicAgg.length > 0) {
-    const weakest = topicAgg.find((t) => t.struggledAttempts > 0) || null;
+    const sortedByWeakness = [...topicAgg].sort((a, b) => {
+      if (b.struggleRatio !== a.struggleRatio) return b.struggleRatio - a.struggleRatio;
+      if (b.totalAttempts !== a.totalAttempts) return b.totalAttempts - a.totalAttempts;
+      return String(a.topic).localeCompare(String(b.topic));
+    });
+    const weakest = sortedByWeakness.find((t) => t.struggledAttempts > 0) || null;
     if (weakest) {
       weakestTopic = `${weakest.topic} (${weakest.struggledAttempts} struggled of ${weakest.totalAttempts})`;
     }
 
     const sortedByStrength = [...topicAgg].sort((a, b) => {
       if (b.solvedAttempts !== a.solvedAttempts) return b.solvedAttempts - a.solvedAttempts;
-      return a.struggleRatio - b.struggleRatio;
+      if (a.struggleRatio !== b.struggleRatio) return a.struggleRatio - b.struggleRatio;
+      return String(a.topic).localeCompare(String(b.topic));
     });
     const strongest = sortedByStrength.find((t) => t.solvedAttempts > 0) || null;
     if (strongest) {
