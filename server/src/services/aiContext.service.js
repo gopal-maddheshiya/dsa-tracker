@@ -1,5 +1,6 @@
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
+const { calculatePriorityScore } = require('../utils/revisionRules');
 
 const REVISION_CONFIG = {
   solved: { interval: 14, weight: 0 },
@@ -191,7 +192,229 @@ const buildTakeawayContext = async (userId, attemptId) => {
   };
 };
 
+/**
+ * Builds a strictly minimized, verified weekly practice telemetry context for the authenticated user.
+ * Covers the previous 7 days (and compares with the preceding 7-day period for trend).
+ *
+ * CRITICAL PRIVACY & SECURITY RULES:
+ * - NO user credentials (password, hash, resetCode)
+ * - NO authorization tokens (JWT, OAuth)
+ * - NO user email, private profile metadata, or billing info
+ * - NO third-party platform API keys or credentials
+ * - NO full attempt histories or solution code
+ *
+ * @param {string|mongoose.Types.ObjectId} userId - Authenticated user's ObjectId
+ * @returns {Promise<Object>} Minimized weekly telemetry context
+ */
+const buildWeeklyReviewContext = async (userId) => {
+  const now = new Date();
+  const end = now;
+  const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const prevStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  // Parallelize the 4 required analytical queries safely
+  const [currentAttempts, prevAttempts, topicAgg, revisionQueueProblems] = await Promise.all([
+    // 1. Attempts in the past 7 days
+    Attempt.find({
+      userId,
+      attemptedAt: { $gte: start, $lte: end },
+    })
+      .sort({ attemptedAt: -1 })
+      .select('problemId status attemptedAt timeTakenMinutes notes')
+      .lean(),
+
+    // 2. Attempts in the preceding 7 days (for trend)
+    Attempt.find({
+      userId,
+      attemptedAt: { $gte: prevStart, $lt: start },
+    })
+      .select('status')
+      .lean(),
+
+    // 3. Topic performance over the past 7 days
+    Attempt.aggregate([
+      { $match: { userId, attemptedAt: { $gte: start, $lte: end } } },
+      {
+        $lookup: {
+          from: 'problems',
+          localField: 'problemId',
+          foreignField: '_id',
+          as: 'problem',
+        },
+      },
+      { $unwind: '$problem' },
+      { $unwind: '$problem.topics' },
+      {
+        $group: {
+          _id: { $toLower: '$problem.topics' },
+          totalAttempts: { $sum: 1 },
+          struggledAttempts: {
+            $sum: { $cond: [{ $in: ['$status', ['struggled', 'revisit_needed']] }, 1, 0] },
+          },
+          solvedAttempts: {
+            $sum: { $cond: [{ $eq: ['$status', 'solved'] }, 1, 0] },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          topic: '$_id',
+          totalAttempts: 1,
+          struggledAttempts: 1,
+          solvedAttempts: 1,
+          struggleRatio: {
+            $cond: [
+              { $gt: ['$totalAttempts', 0] },
+              { $divide: ['$struggledAttempts', '$totalAttempts'] },
+              0,
+            ],
+          },
+        },
+      },
+      { $sort: { struggleRatio: -1, totalAttempts: -1 } },
+    ]),
+
+    // 4. Revision queue status for canonical spaced-repetition pressure
+    Problem.aggregate([
+      { $match: { userId, inRevisionQueue: { $ne: false } } },
+      {
+        $lookup: {
+          from: 'attempts',
+          let: { pId: '$_id', uId: '$userId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$problemId', '$$pId'] },
+                    { $eq: ['$userId', '$$uId'] },
+                  ],
+                },
+              },
+            },
+            { $sort: { attemptedAt: -1 } },
+            { $limit: 1 },
+          ],
+          as: 'latestAttemptArray',
+        },
+      },
+      { $match: { 'latestAttemptArray.0': { $exists: true } } },
+      {
+        $project: {
+          _id: 0,
+          problemId: '$_id',
+          title: 1,
+          latestAttempt: { $arrayElemAt: ['$latestAttemptArray', 0] },
+        },
+      },
+    ]),
+  ]);
+
+  // Aggregate activity
+  const totalAttempts = currentAttempts.length;
+  const solved = currentAttempts.filter((a) => a.status === 'solved').length;
+  const struggled = currentAttempts.filter((a) => a.status === 'struggled').length;
+  const revisitNeeded = currentAttempts.filter((a) => a.status === 'revisit_needed').length;
+
+  const uniqueProblemSet = new Set(
+    currentAttempts
+      .map((a) => a.problemId?.toString())
+      .filter(Boolean)
+  );
+  const uniqueProblems = uniqueProblemSet.size;
+
+  // Active days in the 7-day period
+  const activeDaysSet = new Set();
+  currentAttempts.forEach((a) => {
+    if (a.attemptedAt) {
+      try {
+        const d = new Date(a.attemptedAt).toISOString().slice(0, 10);
+        activeDaysSet.add(d);
+      } catch (_) {}
+    }
+  });
+  const activeDays = activeDaysSet.size;
+
+  // Trend
+  const currentSolved = solved;
+  const prevSolved = prevAttempts.filter((a) => a.status === 'solved').length;
+
+  // Topics: strongest and weakest
+  let strongestTopic = null;
+  let weakestTopic = null;
+
+  if (topicAgg.length > 0) {
+    const weakest = topicAgg.find((t) => t.struggledAttempts > 0) || null;
+    if (weakest) {
+      weakestTopic = `${weakest.topic} (${weakest.struggledAttempts} struggled of ${weakest.totalAttempts})`;
+    }
+
+    const sortedByStrength = [...topicAgg].sort((a, b) => {
+      if (b.solvedAttempts !== a.solvedAttempts) return b.solvedAttempts - a.solvedAttempts;
+      return a.struggleRatio - b.struggleRatio;
+    });
+    const strongest = sortedByStrength.find((t) => t.solvedAttempts > 0) || null;
+    if (strongest) {
+      strongestTopic = `${strongest.topic} (${strongest.solvedAttempts} solved of ${strongest.totalAttempts})`;
+    }
+  }
+
+  // Revision queue pressure
+  const nowMs = now.getTime();
+  let dueCount = 0;
+  let overdueCount = 0;
+
+  revisionQueueProblems.forEach((p) => {
+    if (p.latestAttempt && p.latestAttempt.attemptedAt) {
+      const attTime = new Date(p.latestAttempt.attemptedAt).getTime();
+      const elapsed = Math.max(0, (nowMs - (isNaN(attTime) ? nowMs : attTime)) / (1000 * 60 * 60 * 24));
+      const { priorityScore, interval } = calculatePriorityScore(p.latestAttempt.status, elapsed);
+      if (priorityScore >= 1.0) dueCount++;
+      if (elapsed >= interval) overdueCount++;
+    }
+  });
+
+  // Recent notes snippets (at most 2 notes, bounded to 120 chars each, untrusted data)
+  const recentNotes = currentAttempts
+    .filter((a) => a.notes && typeof a.notes === 'string' && a.notes.trim().length > 0)
+    .slice(0, 2)
+    .map((a) => a.notes.trim().slice(0, 120));
+
+  return {
+    period: {
+      start: start.toISOString().slice(0, 10),
+      end: end.toISOString().slice(0, 10),
+      days: 7,
+    },
+    activity: {
+      attempts: totalAttempts,
+      solved,
+      struggled,
+      revisitNeeded,
+      uniqueProblems,
+    },
+    topics: {
+      strongest: strongestTopic,
+      weakest: weakestTopic,
+    },
+    trend: {
+      current: currentSolved,
+      previous: prevSolved,
+    },
+    revision: {
+      dueCount,
+      overdueCount,
+    },
+    consistency: {
+      activeDays,
+    },
+    reflections: recentNotes,
+  };
+};
+
 module.exports = {
   buildAIContext,
   buildTakeawayContext,
+  buildWeeklyReviewContext,
 };

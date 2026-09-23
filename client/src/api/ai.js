@@ -21,3 +21,14 @@ export const coachAttemptTakeaway = async (attemptId) => {
   const response = await api.post('/ai/takeaway', { attemptId });
   return response.data?.data;
 };
+
+/**
+ * Fetches 7-day progress review (preview-only, non-persisted).
+ *
+ * @returns {Promise<Object>} Structured weekly review
+ */
+export const fetchWeeklyReview = async () => {
+  const response = await api.post('/ai/weekly-review');
+  return response.data?.data;
+};
+

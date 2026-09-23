@@ -15,6 +15,7 @@ import { getRank } from '../utils/profileUtils';
 import PracticeStateBar from '../components/dashboard/PracticeStateBar';
 import TodaysFocusCard from '../components/dashboard/TodaysFocusCard';
 import UpcomingRevisionsCard from '../components/dashboard/UpcomingRevisionsCard';
+import WeeklyReviewCard from '../components/dashboard/WeeklyReviewCard';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import SolveTrendChart from '../components/analytics/SolveTrendChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
@@ -352,6 +353,11 @@ const DashboardPage = () => {
                 />
               </Reveal>
             </div>
+
+            {/* Level 3B: AI Weekly Review Module */}
+            <Reveal delay={90} y={16}>
+              <WeeklyReviewCard />
+            </Reveal>
           </div>
 
           {/* ── CHAPTER B: Practice Behavior & Weaknesses ─────────────── */}
