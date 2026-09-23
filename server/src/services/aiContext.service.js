@@ -343,6 +343,8 @@ const buildWeeklyReviewContext = async (userId) => {
   // Topics: strongest and weakest with deterministic tie-breaking
   let strongestTopic = null;
   let weakestTopic = null;
+  let strongestTopicData = null;
+  let weakestTopicData = null;
 
   if (topicAgg.length > 0) {
     const sortedByWeakness = [...topicAgg].sort((a, b) => {
@@ -353,6 +355,13 @@ const buildWeeklyReviewContext = async (userId) => {
     const weakest = sortedByWeakness.find((t) => t.struggledAttempts > 0) || null;
     if (weakest) {
       weakestTopic = `${weakest.topic} (${weakest.struggledAttempts} struggled of ${weakest.totalAttempts})`;
+      weakestTopicData = {
+        topic: weakest.topic,
+        attempts: weakest.totalAttempts,
+        struggled: weakest.struggledAttempts,
+        struggleRatio: weakest.struggleRatio,
+        evidenceLevel: weakest.totalAttempts <= 1 ? 'sparse' : (weakest.totalAttempts <= 4 ? 'moderate' : 'strong'),
+      };
     }
 
     const sortedByStrength = [...topicAgg].sort((a, b) => {
@@ -363,6 +372,12 @@ const buildWeeklyReviewContext = async (userId) => {
     const strongest = sortedByStrength.find((t) => t.solvedAttempts > 0) || null;
     if (strongest) {
       strongestTopic = `${strongest.topic} (${strongest.solvedAttempts} solved of ${strongest.totalAttempts})`;
+      strongestTopicData = {
+        topic: strongest.topic,
+        attempts: strongest.totalAttempts,
+        solved: strongest.solvedAttempts,
+        evidenceLevel: strongest.totalAttempts <= 1 ? 'sparse' : (strongest.totalAttempts <= 4 ? 'moderate' : 'strong'),
+      };
     }
   }
 
@@ -387,6 +402,28 @@ const buildWeeklyReviewContext = async (userId) => {
     .slice(0, 2)
     .map((a) => a.notes.trim().slice(0, 120));
 
+  // Sample size & evidence awareness (does not alter canonical calculations)
+  const isLowSample = totalAttempts <= 2 || activeDays <= 1;
+  const dataConfidence =
+    totalAttempts === 0
+      ? 'none'
+      : (totalAttempts <= 2 || activeDays <= 1
+          ? 'low'
+          : (totalAttempts <= 5 ? 'moderate' : 'high'));
+
+  const sampleSize = {
+    attempts: totalAttempts,
+    uniqueProblems,
+    activeDays,
+    isLowSample,
+    dataConfidence,
+  };
+
+  const topicEvidence = {
+    strongest: strongestTopicData,
+    weakest: weakestTopicData,
+  };
+
   return {
     period: {
       start: start.toISOString().slice(0, 10),
@@ -400,6 +437,8 @@ const buildWeeklyReviewContext = async (userId) => {
       revisitNeeded,
       uniqueProblems,
     },
+    sampleSize,
+    topicEvidence,
     topics: {
       strongest: strongestTopic,
       weakest: weakestTopic,

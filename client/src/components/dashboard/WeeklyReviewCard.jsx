@@ -45,15 +45,22 @@ const WeeklyReviewCard = ({ className = '' }) => {
                 Weekly Review
               </span>
               {reviewData && (
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                    reviewData.source === 'gemini'
-                      ? 'bg-accent/10 border-accent/25 text-accent font-semibold'
-                      : 'bg-surface-3 border-line text-muted'
-                  }`}
-                >
-                  {reviewData.source === 'gemini' ? 'Gemini Review' : 'Standard Review'}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                      reviewData.source === 'gemini'
+                        ? 'bg-accent/10 border-accent/25 text-accent font-semibold'
+                        : 'bg-surface-3 border-line text-muted'
+                    }`}
+                  >
+                    {reviewData.source === 'gemini' ? 'Gemini Review' : 'Standard Review'}
+                  </span>
+                  {reviewData.sampleSize?.isLowSample && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-amber-500/10 border-amber-500/25 text-amber-400 font-medium">
+                      Early Signal
+                    </span>
+                  )}
+                </div>
               )}
             </div>
             <p className="text-[11px] text-muted hidden sm:block">
@@ -158,6 +165,21 @@ const WeeklyReviewCard = ({ className = '' }) => {
               {reviewData.headline}
             </h2>
           </div>
+
+          {/* Low-Sample Early Signal Notice */}
+          {reviewData.sampleSize?.isLowSample && (
+            <div className="p-2.5 rounded-lg border border-amber-500/25 bg-amber-500/5 text-xs text-text-secondary flex items-start gap-2">
+              <span className="font-mono text-amber-400 font-bold shrink-0">ℹ</span>
+              <p className="text-[11px] leading-relaxed text-muted">
+                <strong className="text-text font-medium">Early signal:</strong> Based on{' '}
+                {reviewData.sampleSize.attempts} logged attempt
+                {reviewData.sampleSize.attempts === 1 ? '' : 's'} across{' '}
+                {reviewData.sampleSize.activeDays} active day
+                {reviewData.sampleSize.activeDays === 1 ? '' : 's'}. Keep practicing before drawing
+                stronger conclusions.
+              </p>
+            </div>
+          )}
 
           {/* What Changed */}
           <div className="space-y-1">
