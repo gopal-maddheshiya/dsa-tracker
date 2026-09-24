@@ -15,7 +15,7 @@ export const PLATFORM_CONFIG = {
     style: 'text-accent bg-accent/10 border-accent/20',
     badge: 'text-accent bg-accent/10 border-accent/20',
     ring: 'border-accent/25',
-    glow: 'shadow-[0_0_20px_rgba(255,161,22,0.12)]',
+    glow: '',
   },
   codeforces: {
     key: 'codeforces',
@@ -27,7 +27,7 @@ export const PLATFORM_CONFIG = {
     style: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20',
     badge: 'text-[#2196F3] bg-[#2196F3]/10 border-[#2196F3]/20',
     ring: 'border-[#2196F3]/25',
-    glow: 'shadow-[0_0_20px_rgba(33,150,243,0.12)]',
+    glow: '',
   },
   gfg: {
     key: 'gfg',
@@ -39,7 +39,7 @@ export const PLATFORM_CONFIG = {
     style: 'text-easy bg-easy/10 border-easy/20',
     badge: 'text-easy bg-easy/10 border-easy/20',
     ring: 'border-easy/25',
-    glow: 'shadow-[0_0_20px_rgba(0,184,163,0.12)]',
+    glow: '',
   },
   codechef: {
     key: 'codechef',
@@ -51,7 +51,7 @@ export const PLATFORM_CONFIG = {
     style: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30',
     badge: 'text-[#D4A373] bg-[#8B572A]/15 border-[#8B572A]/30',
     ring: 'border-[#8B572A]/30',
-    glow: 'shadow-[0_0_20px_rgba(212,163,115,0.12)]',
+    glow: '',
   },
   hackerrank: {
     key: 'hackerrank',
@@ -63,7 +63,7 @@ export const PLATFORM_CONFIG = {
     style: 'text-success bg-success/10 border-success/20',
     badge: 'text-success bg-success/10 border-success/20',
     ring: 'border-success/25',
-    glow: 'shadow-[0_0_20px_rgba(44,187,93,0.12)]',
+    glow: '',
   },
   atcoder: {
     key: 'atcoder',
@@ -75,7 +75,7 @@ export const PLATFORM_CONFIG = {
     style: 'text-medium bg-medium/10 border-medium/20',
     badge: 'text-medium bg-medium/10 border-medium/20',
     ring: 'border-medium/25',
-    glow: 'shadow-[0_0_20px_rgba(255,192,30,0.12)]',
+    glow: '',
   },
   other: {
     key: 'other',
