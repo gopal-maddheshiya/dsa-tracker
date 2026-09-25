@@ -1,48 +1,56 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCcw, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { PLATFORM_LABELS } from '../../theme/platforms';
+import { ArrowRight } from 'lucide-react';
 
-const DIFFICULTY_CONFIG = {
-  easy: { label: 'Easy', text: 'text-easy' },
-  medium: { label: 'Med', text: 'text-medium' },
-  hard: { label: 'Hard', text: 'text-hard' },
-};
-
-const STATUS_CONFIG = {
-  struggled: { label: 'Struggled', dot: 'bg-danger' },
-  revisit_needed: { label: 'Recall Due', dot: 'bg-medium' },
-  solved: { label: 'Solved', dot: 'bg-success' },
+const DIFFICULTY_MAP = {
+  easy: { label: 'Easy', dotClass: 'semantic-dot-easy', textClass: 'text-easy' },
+  medium: { label: 'Med', dotClass: 'semantic-dot-medium', textClass: 'text-medium' },
+  hard: { label: 'Hard', dotClass: 'semantic-dot-hard', textClass: 'text-hard' },
 };
 
 /**
- * UpcomingRevisionsCard: Level 3 Priority Module.
+ * Format relative urgency in uppercase ('TODAY', 'TOMORROW', '3D')
+ */
+const getRelativeUrgency = (dateStr) => {
+  if (!dateStr) return 'TODAY';
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target - now) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return 'TODAY';
+  if (diffDays === 1) return 'TOMORROW';
+  return `${diffDays}D`;
+};
+
+/**
+ * UpcomingRevisionsCard: Quiet Engineering Work Queue.
  *
- * Answers: "What else needs attention soon?"
- * Supports Today's Focus without competing with it.
- * Shows top 3 candidates + link to full revision queue.
+ * Clean, scannable spaced repetition queue matching the app's dark theme.
  */
 const UpcomingRevisionsCard = ({
   queue = [],
   featuredId = null,
   isLoading = false,
   error = null,
-  onRetry,
   className = '',
 }) => {
   if (isLoading) {
     return (
-      <div className={`panel p-5 border-line/70 animate-pulse flex flex-col justify-between h-full ${className}`}>
-        <div className="flex justify-between items-center pb-3 border-b border-line/40">
-          <div className="h-4 w-32 bg-surface-2 rounded" />
-          <div className="h-4 w-16 bg-surface-2 rounded" />
+      <div className={`rounded-xl border border-line bg-surface p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
+        <div className="flex justify-between items-center pb-3 border-b border-line-subtle">
+          <div className="h-3 w-24 bg-surface-2 rounded-xs" />
+          <div className="h-3 w-16 bg-surface-2 rounded-xs" />
         </div>
-        <div className="space-y-1.5 py-3">
-          <div className="h-8 bg-surface-2 rounded-lg" />
-          <div className="h-8 bg-surface-2 rounded-lg" />
-          <div className="h-8 bg-surface-2 rounded-lg" />
+        <div className="space-y-3 py-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex justify-between items-center py-2">
+              <div className="h-3.5 w-36 bg-surface-2 rounded-xs" />
+              <div className="h-3 w-16 bg-surface-2 rounded-xs" />
+            </div>
+          ))}
         </div>
-        <div className="h-4 w-28 bg-surface-2 rounded mt-2" />
+        <div className="h-3 w-28 bg-surface-2 rounded-xs mt-2" />
       </div>
     );
   }
@@ -50,80 +58,107 @@ const UpcomingRevisionsCard = ({
   // Filter out featured problem so it never duplicates
   const candidates = (queue || [])
     .filter((item) => !featuredId || item.problemId !== featuredId)
-    .slice(0, 3);
+    .slice(0, 5);
 
   return (
-    <div className={`panel p-5 border-line/70 flex flex-col justify-between h-full transition-all shadow-sm ${className}`}>
-      <div>
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-line/50">
+    <section
+      aria-label="Upcoming Revisions Queue"
+      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none ${className}`}
+    >
+      <div className="flex-1 flex flex-col">
+        {/* Header: UP NEXT + VIEW ALL */}
+        <div className="flex items-center justify-between pb-3 border-b border-line">
           <div className="flex items-center gap-2">
-            <RotateCcw className="w-3.5 h-3.5 text-accent shrink-0" />
-            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-              Upcoming Revisions
-            </h3>
-            <span className="inline-flex items-center px-1.5 py-0.2 rounded font-mono text-[10px] font-bold tabular-nums bg-accent/10 border border-accent/25 text-accent">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted">
+              Recall Queue
+            </span>
+            <span className="text-[11px] font-mono font-medium text-accent px-1.5 py-0.2 rounded bg-accent/10 border border-accent/20 tabular-nums">
               {queue.length} due
             </span>
           </div>
 
           <Link
             to="/revision"
-            className="text-xs text-muted hover:text-accent transition-colors font-medium flex items-center gap-1 group"
+            className="text-xs font-mono text-muted hover:text-accent transition-colors font-medium tracking-wider flex items-center gap-1 group"
           >
-            <span>View all</span>
-            <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            <span>VIEW ALL</span>
+            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
 
-        {/* Due Items List */}
+        {/* Column Headers for Structural & Visual Balance with Bottlenecks */}
+        {candidates.length > 0 && (
+          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted/60 px-2 pt-2.5 pb-1 select-none border-b border-line-subtle/30">
+            <div className="flex items-center gap-3">
+              <span className="w-5 tabular-nums">#</span>
+              <span>Problem</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-16 text-right hidden sm:inline">Difficulty</span>
+              <span className="w-14 text-center">Timing</span>
+              <span className="w-3" />
+            </div>
+          </div>
+        )}
+
+        {/* Work Queue Rows */}
         {candidates.length === 0 ? (
-          <div className="py-8 text-center text-xs text-muted flex flex-col items-center justify-center gap-2">
-            <CheckCircle2 className="w-6 h-6 text-success/80" />
-            <span>No additional revisions due today. High retention!</span>
+          <div className="py-10 text-center space-y-1 my-auto">
+            <p className="text-xs font-semibold text-text">Queue is clear</p>
+            <p className="text-[11px] text-muted">Zero pending recalls. Retention memory is optimal.</p>
           </div>
         ) : (
-          <div className="space-y-1.5 pt-3">
+          <div className="divide-y divide-line-subtle/50 pt-0.5 flex-1 flex flex-col justify-around">
             {candidates.map((item, idx) => {
-              const statusKey = item.latestStatus || item.lastAttemptStatus || 'revisit_needed';
-              const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.revisit_needed;
-              const diffCfg = DIFFICULTY_CONFIG[item.difficulty] || DIFFICULTY_CONFIG.medium;
-              const topic = item.topics?.length > 0 ? item.topics[0] : '';
+              const diffKey = item.difficulty?.toLowerCase() || 'medium';
+              const diffInfo = DIFFICULTY_MAP[diffKey] || DIFFICULTY_MAP.medium;
+              const urgency = getRelativeUrgency(item.nextRevisionDate);
+              const primaryTopic = item.topics?.[0] || null;
 
               return (
                 <Link
                   key={item.problemId}
                   to={`/problems/${item.problemId}`}
-                  className="px-2.5 py-1.5 rounded-lg bg-surface-2/20 hover:bg-surface-2/60 border border-line/30 hover:border-accent/40 transition-all flex items-center justify-between gap-2 group cursor-pointer"
+                  className="py-2 px-2 -mx-2 flex items-center justify-between gap-2.5 sm:gap-3 group transition-colors hover:bg-surface-2/60 rounded-md"
+                  title={item.title}
                 >
-                  {/* Left: Index + Title + Diff */}
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="w-4 h-4 rounded bg-surface-3/80 border border-line/50 flex items-center justify-center text-[9px] font-mono font-bold text-text-secondary group-hover:text-accent shrink-0">
-                      {idx + 1}
+                  {/* Left: Index + Title + Topic Tag */}
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <span className="text-[11px] font-mono text-muted/60 w-5 shrink-0 tabular-nums">
+                      {String(idx + 1).padStart(2, '0')}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-text group-hover:text-accent truncate transition-colors">
-                        {item.title}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted leading-tight">
-                        <span className={`font-semibold ${diffCfg.text}`}>{diffCfg.label}</span>
-                        {topic && (
-                          <>
-                            <span className="text-line/60">·</span>
-                            <span className="truncate">#{topic}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                    <p className="text-xs font-medium text-text group-hover:text-accent truncate transition-colors">
+                      {item.title}
+                    </p>
+                    {primaryTopic && (
+                      <span className="hidden md:inline-block px-1.5 py-0.2 rounded bg-surface-2 border border-line-subtle text-[10px] font-mono text-muted shrink-0">
+                        #{primaryTopic.toLowerCase().replace(/\s+/g, '-')}
+                      </span>
+                    )}
                   </div>
 
-                  {/* Right: Quiet Semantic Dot Status */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] text-text-secondary font-mono flex items-center gap-1">
-                      <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                      <span>{statusCfg.label}</span>
+                  {/* Right: Difficulty dot + Urgency Pill + Arrow */}
+                  <div className="flex items-center gap-3 shrink-0 select-none">
+                    <div className="inline-flex items-center justify-end gap-1 font-mono text-[11px] w-auto sm:w-16">
+                      <span className={diffInfo.dotClass} />
+                      <span className={`font-medium ${diffInfo.textClass} hidden sm:inline`}>
+                        {diffInfo.label}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`text-[10px] font-mono font-medium w-14 text-center px-1.5 py-0.5 rounded ${
+                        urgency === 'TODAY'
+                          ? 'text-accent bg-accent/10 border border-accent/20'
+                          : 'text-muted bg-surface-2 border border-line-subtle'
+                      }`}
+                    >
+                      {urgency}
                     </span>
-                    <ArrowRight className="w-3 h-3 text-muted/30 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+
+                    <span className="text-muted/30 group-hover:text-accent group-hover:translate-x-0.5 transition-all text-xs font-mono w-3 text-right">
+                      →
+                    </span>
                   </div>
                 </Link>
               );
@@ -132,20 +167,32 @@ const UpcomingRevisionsCard = ({
         )}
       </div>
 
-      {/* Footer Info */}
-      <div className="pt-3 border-t border-line/40 mt-3 flex items-center justify-between text-[11px] text-muted">
-        {queue.length > 3 ? (
+      {/* Footer Telemetry */}
+      <div className="pt-3 border-t border-line mt-auto flex items-center justify-between text-xs text-muted font-mono">
+        {queue.length > 5 ? (
           <>
-            <span>+{queue.length - candidates.length} more in recall queue</span>
-            <Link to="/revision" className="text-accent hover:underline font-medium">
-              Start revision session →
+            <span className="text-[11px] text-muted">+{queue.length - candidates.length} more in queue</span>
+            <Link
+              to="/revision"
+              className="text-[11px] font-mono font-medium text-accent hover:underline flex items-center gap-1"
+            >
+              <span>Start session</span>
+              <ArrowRight className="w-3 h-3" />
             </Link>
           </>
         ) : (
-          <span className="text-text-secondary">Optimal recall cadence</span>
+          <>
+            <span className="text-[11px] text-muted">Spaced cadence active</span>
+            <Link
+              to="/revision"
+              className="text-[11px] font-mono text-accent hover:underline font-medium"
+            >
+              Open queue →
+            </Link>
+          </>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

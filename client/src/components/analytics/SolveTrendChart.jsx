@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ComposedChart, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, ReferenceLine,
@@ -73,7 +74,14 @@ const CustomTooltip = ({ active, payload, label, maxDaySolved }) => {
   );
 };
 
-const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRetry, className = '' }) => {
+const SolveTrendChart = ({
+  trendData = [],
+  isLoading = false,
+  error = null,
+  onRetry,
+  compact = false,
+  className = '',
+}) => {
   // Mode: 'hybrid' (Dual volume + trajectory) | 'cumulative' (Growth curve) | 'daily' (Volume bars)
   const [chartMode, setChartMode] = useState('hybrid');
   // Range: '14D' | '30D' | '90D' | 'all'
@@ -192,6 +200,23 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
     setHoveredPoint(null);
   };
 
+  // Compact Dashboard Performance Summary Mode (unconditional hook execution)
+  const { thisWeekSolves, prevWeekSolves, recentDaysData } = useMemo(() => {
+    if (!filledData || filledData.length === 0) {
+      return { thisWeekSolves: 0, prevWeekSolves: 0, recentDaysData: [] };
+    }
+    const recent14 = filledData.slice(-14);
+    const last7 = recent14.slice(-7);
+    const prev7 = recent14.slice(0, 7);
+    const tWeek = last7.reduce((sum, d) => sum + (d.solved || 0), 0);
+    const pWeek = prev7.reduce((sum, d) => sum + (d.solved || 0), 0);
+    return {
+      thisWeekSolves: tWeek,
+      prevWeekSolves: pWeek,
+      recentDaysData: recent14,
+    };
+  }, [filledData]);
+
   if (isLoading) {
     return (
       <div className={`panel p-6 animate-pulse border-line flex flex-col justify-between h-full ${className}`}>
@@ -218,6 +243,97 @@ const SolveTrendChart = ({ trendData = [], isLoading = false, error = null, onRe
           </button>
         )}
       </div>
+    );
+  }
+
+  if (compact) {
+    const diff = thisWeekSolves - prevWeekSolves;
+    const diffText = diff > 0 ? `+${diff}` : `${diff}`;
+    const isOnPace = diff >= 0;
+
+    return (
+      <section
+        aria-label="Weekly Performance Summary"
+        className={`rounded-lg border border-line-subtle/70 bg-surface/50 p-5 flex flex-col justify-between h-full select-none transition-all relative overflow-hidden ${className}`}
+      >
+        {/* Precision architectural corner crosshairs */}
+        <span aria-hidden="true" className="absolute top-2 left-2 text-[10px] font-mono text-muted/25 select-none pointer-events-none">+</span>
+        <span aria-hidden="true" className="absolute top-2 right-2 text-[10px] font-mono text-muted/25 select-none pointer-events-none">+</span>
+
+        <div className="flex items-start justify-between gap-2 pb-3 border-b border-line-subtle/60">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted block">
+                Performance
+              </span>
+              <span
+                className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase ${
+                  isOnPace
+                    ? 'bg-easy/10 border-easy/25 text-easy'
+                    : 'bg-surface-2 border-line-subtle text-muted'
+                }`}
+              >
+                {isOnPace ? '↑ On Pace' : '↓ Cadence'}
+              </span>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2 mt-1">
+              <span className="text-sm sm:text-base font-bold text-text tabular-nums whitespace-nowrap">
+                {diffText} solved this week
+              </span>
+              <span className="text-[10px] sm:text-[11px] text-muted font-normal whitespace-nowrap">
+                vs previous 7 days
+              </span>
+            </div>
+          </div>
+          <Link
+            to="/profile?tab=activity"
+            className="text-xs text-muted hover:text-accent font-medium transition-colors flex items-center gap-1 group font-mono text-[11px] shrink-0 pt-0.5"
+          >
+            <span>Full analytics</span>
+            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+          </Link>
+        </div>
+
+        {/* Compact sparkline ribbon (restrained visual height) */}
+        <div className="h-[56px] w-full pt-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={recentDaysData} margin={{ top: 3, right: 2, left: -25, bottom: 0 }}>
+              <defs>
+                <linearGradient id="compactAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.28} />
+                  <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="date" hide />
+              <YAxis hide domain={['dataMin', 'dataMax + 1']} />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const item = payload[0].payload;
+                  return (
+                    <div className="rounded-md px-2.5 py-1 bg-surface-2 border border-line-subtle text-[10px] font-mono shadow-dropdown text-text">
+                      <span className="text-accent font-semibold tabular-nums">+{item.solved} solved</span> on {formatDateTick(item.date)}
+                    </div>
+                  );
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="solved"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                fill="url(#compactAreaGrad)"
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="pt-2 border-t border-line-subtle/50 flex items-center justify-between text-[10px] text-muted font-mono">
+          <span>{thisWeekSolves} solved this week ({weeklyPace}/wk)</span>
+          <span>14-day velocity trajectory</span>
+        </div>
+      </section>
     );
   }
 

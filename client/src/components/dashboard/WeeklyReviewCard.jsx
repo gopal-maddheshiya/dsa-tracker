@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { Sparkles, RefreshCw, X, TrendingUp, AlertTriangle, Target, Clock, Compass } from 'lucide-react';
+import { Sparkles, X, ChevronDown, ChevronUp, AlertCircle, ArrowRight } from 'lucide-react';
 import { fetchWeeklyReview } from '../../api/ai';
 import { getErrorMessage } from '../../utils/errorHandler';
 
 /**
- * WeeklyReviewCard: AI-Powered 7-Day Practice Progress Review.
+ * WeeklyReviewCard: Compact Editorial Intelligence Brief.
  *
- * Product Principle:
- * - Deterministic Analytics = What Happened
- * - Gemini = Why It Matters + What To Do Next
- *
- * User Triggered: Does NOT invoke Gemini on initial load.
+ * Follows UI-3.3 Reference Direction:
+ * - Editorial insight block with minimal footprint (no wasted horizontal space).
+ * - Displays a sharp synthesis headline, key gap diagnosis, and next focus.
+ * - Action plan accessible via quiet disclosure.
+ * - Fits naturally in an analytical pairing alongside the Up Next queue.
  */
 const WeeklyReviewCard = ({ className = '' }) => {
   const [reviewData, setReviewData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleGenerateReview = async () => {
     if (isLoading) return;
@@ -32,255 +33,204 @@ const WeeklyReviewCard = ({ className = '' }) => {
   };
 
   return (
-    <div className={`panel p-4 sm:p-5 border-line/70 transition-all shadow-sm ${className}`}>
-      {/* ── Level 1 Header ────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-line/50">
-        <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md bg-accent/10 border border-accent/25 text-accent shrink-0">
-            <Compass className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-text">
-                Weekly Review
-              </span>
-              {reviewData && (
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                      reviewData.source === 'gemini'
-                        ? 'bg-accent/10 border-accent/25 text-accent font-semibold'
-                        : 'bg-surface-3 border-line text-muted'
-                    }`}
-                  >
-                    {reviewData.source === 'gemini' ? 'Gemini Review' : 'Standard Review'}
-                  </span>
-                  {reviewData.sampleSize?.isLowSample && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-amber-500/10 border-amber-500/25 text-amber-400 font-medium">
-                      Early Signal
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-            <p className="text-[11px] text-muted hidden sm:block">
-              7-day practice telemetry, breakthrough signals, and prioritized execution.
-            </p>
-          </div>
-        </div>
+    <section
+      aria-label="Weekly Intelligence Signal"
+      className={`rounded-lg border border-line-subtle/70 bg-surface/40 p-4 sm:p-5 flex flex-col justify-between h-full select-none transition-all relative overflow-hidden ${className}`}
+    >
+      {/* Precision architectural corner crosshairs */}
+      <span aria-hidden="true" className="absolute top-2 left-2 text-[10px] font-mono text-muted/25 select-none pointer-events-none">+</span>
+      <span aria-hidden="true" className="absolute top-2 right-2 text-[10px] font-mono text-muted/25 select-none pointer-events-none">+</span>
 
-        {/* Action Trigger */}
-        <div>
-          <button
-            type="button"
-            onClick={handleGenerateReview}
-            disabled={isLoading}
-            className="text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-line/70 hover:border-accent/50 bg-surface-2/60 hover:bg-surface-2 text-text transition-all cursor-pointer disabled:opacity-50"
-            title="Generate or refresh your 7-day progress review"
-          >
-            <Sparkles className={`w-3.5 h-3.5 text-accent ${isLoading ? 'animate-spin' : ''}`} />
-            <span>
-              {isLoading
-                ? 'Generating review…'
-                : reviewData
-                ? 'Refresh review'
-                : 'Generate weekly review'}
+      <div>
+        {/* ── HEADER STRIP ────────────────────────────────────────── */}
+        <div className="flex items-center justify-between pb-3 border-b border-line-subtle/50">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted">
+              Weekly Signal
             </span>
-          </button>
-        </div>
-      </div>
+            <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.2 rounded bg-surface-2 border border-line-subtle text-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+              <span>{reviewData?.source === 'gemini' ? 'Gemini 2.5' : 'AI Engine'}</span>
+            </span>
+            {reviewData?.sampleSize?.isLowSample && (
+              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-accent/10 border border-accent/25 text-accent font-medium">
+                Early
+              </span>
+            )}
+          </div>
 
-      {/* ── Error Banner ──────────────────────────────────────────────── */}
-      {error && (
-        <div className="mt-3.5 p-3 rounded-lg border border-danger/40 bg-danger/10 text-xs text-text-secondary flex items-start justify-between gap-2 animate-fade-in">
-          <p className="leading-relaxed">{error}</p>
-          <div className="flex items-center gap-2 shrink-0">
+          {reviewData && !isLoading && (
             <button
               type="button"
               onClick={handleGenerateReview}
-              className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+              className="text-[11px] font-mono text-muted hover:text-text transition-colors cursor-pointer inline-flex items-center gap-1"
+              title="Refresh intelligence brief"
             >
-              Retry
+              <Sparkles className="w-3 h-3 text-accent" />
+              <span>Refresh</span>
             </button>
+          )}
+        </div>
+
+        {/* ── UNGENERATED / DEFAULT STATE ─────────────────────────── */}
+        {!reviewData && !isLoading && !error && (
+          <div className="py-3.5 space-y-3.5">
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-text leading-snug tracking-tight">
+                Executive Practice Synthesis
+              </h3>
+              <p className="text-xs text-muted leading-relaxed">
+                Evaluates 7-day velocity trajectory, active recall burden, and primary topic friction into actionable steps.
+              </p>
+            </div>
+
+            {/* Micro Telemetry Preview Framework */}
+            <div className="grid grid-cols-3 gap-1.5 text-center select-none pt-0.5">
+              <div className="p-2 rounded bg-surface-2/40 border border-line-subtle/40">
+                <span className="text-[9px] font-mono text-muted uppercase block">Window</span>
+                <span className="text-[11px] font-mono font-bold text-text">7-Day</span>
+              </div>
+              <div className="p-2 rounded bg-surface-2/40 border border-line-subtle/40">
+                <span className="text-[9px] font-mono text-muted uppercase block">Intelligence</span>
+                <span className="text-[11px] font-mono font-bold text-accent">Gemini</span>
+              </div>
+              <div className="p-2 rounded bg-surface-2/40 border border-line-subtle/40">
+                <span className="text-[9px] font-mono text-muted uppercase block">Target</span>
+                <span className="text-[11px] font-mono font-bold text-text">Friction</span>
+              </div>
+            </div>
+
             <button
               type="button"
-              onClick={() => setError(null)}
-              className="text-muted hover:text-text cursor-pointer p-0.5"
-              aria-label="Dismiss error"
+              onClick={handleGenerateReview}
+              className="w-full py-2 px-3.5 rounded-md bg-accent/10 hover:bg-accent/20 border border-accent/25 text-accent font-semibold text-xs inline-flex items-center justify-center gap-2 cursor-pointer transition-all group"
             >
-              <X className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-accent group-hover:rotate-12 transition-transform" />
+              <span>Synthesize Intelligence Brief</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Loading State ─────────────────────────────────────────────── */}
-      {isLoading && (
-        <div className="mt-3.5 p-4 rounded-xl border border-line/60 bg-surface-2/40 space-y-3 animate-fade-in">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent animate-spin" />
-            <span className="text-xs font-semibold text-text">
-              Generating your weekly review…
-            </span>
-          </div>
-          <p className="text-[11px] text-muted leading-relaxed">
-            Analyzing 7-day solve velocity, topic struggle ratios, and spaced recall pressure to frame targeted progress guidance.
-          </p>
-          <div className="space-y-2 pt-1 animate-pulse">
-            <div className="h-4 w-3/4 bg-surface-3 rounded" />
-            <div className="h-3 w-full bg-surface-3 rounded" />
-            <div className="h-3 w-5/6 bg-surface-3 rounded" />
-          </div>
-        </div>
-      )}
-
-      {/* ── Initial Untriggered State ──────────────────────────────────── */}
-      {!reviewData && !isLoading && !error && (
-        <div className="mt-3.5 p-4 rounded-xl border border-dashed border-line/80 bg-surface-2/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="space-y-1">
-            <p className="font-medium text-text">
-              Ready for your personalized weekly progress review?
-            </p>
+        {/* ── LOADING STATE ───────────────────────────────────────── */}
+        {isLoading && (
+          <div className="py-6 space-y-2 animate-fade-in text-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-accent animate-spin" />
+              <span className="font-semibold text-text">Synthesizing intelligence brief…</span>
+            </div>
             <p className="text-[11px] text-muted leading-relaxed">
-              Synthesize key retention breakthroughs, detect weak algorithmic patterns, and formulate three focused actions for the days ahead.
+              Evaluating 7-day velocity trajectory, topic struggle rates, and active recall load.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleGenerateReview}
-            className="btn-primary text-xs shrink-0 self-start sm:self-center inline-flex items-center gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Generate review</span>
-          </button>
-        </div>
-      )}
+        )}
 
-      {/* ── Generated Review Content ──────────────────────────────────── */}
-      {reviewData && !isLoading && (
-        <div className="mt-3.5 space-y-4 animate-fade-in">
-          {/* Headline */}
-          <div>
-            <h2 className="text-sm sm:text-base font-bold text-text tracking-tight leading-snug">
-              {reviewData.headline}
-            </h2>
+        {/* ── ERROR STATE ─────────────────────────────────────────── */}
+        {error && (
+          <div className="my-3 p-3 rounded-md bg-danger/10 border border-danger/25 text-xs text-text-secondary flex items-start justify-between gap-2">
+            <div className="flex items-start gap-2 min-w-0">
+              <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
+              <p className="truncate">{error}</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleGenerateReview}
+                className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+              >
+                Retry
+              </button>
+              <button
+                type="button"
+                onClick={() => setError(null)}
+                className="p-1 text-muted hover:text-text cursor-pointer"
+                aria-label="Dismiss error"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
+        )}
 
-          {/* Low-Sample Early Signal Notice */}
-          {reviewData.sampleSize?.isLowSample && (
-            <div className="p-2.5 rounded-lg border border-amber-500/25 bg-amber-500/5 text-xs text-text-secondary flex items-start gap-2">
-              <span className="font-mono text-amber-400 font-bold shrink-0">ℹ</span>
-              <p className="text-[11px] leading-relaxed text-muted">
-                <strong className="text-text font-medium">Early signal:</strong> Based on{' '}
-                {reviewData.sampleSize.attempts} logged attempt
-                {reviewData.sampleSize.attempts === 1 ? '' : 's'} across{' '}
-                {reviewData.sampleSize.activeDays} active day
-                {reviewData.sampleSize.activeDays === 1 ? '' : 's'}. Keep practicing before drawing
-                stronger conclusions.
+        {/* ── GENERATED EDITORIAL INTELLIGENCE BRIEF ──────────────── */}
+        {reviewData && !isLoading && (
+          <div className="pt-3 space-y-3 animate-fade-in">
+            {/* Headline with precision accent stripe */}
+            <div className="border-l-2 border-accent pl-2.5 space-y-1">
+              <h3 className="text-sm sm:text-base font-bold text-text tracking-tight leading-snug">
+                {reviewData.headline}
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
+                {reviewData.weeklySummary}
               </p>
             </div>
-          )}
 
-          {/* What Changed */}
-          <div className="space-y-1">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted">
-              What Changed
-            </span>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {reviewData.weeklySummary}
-            </p>
-          </div>
-
-          {/* Two-Column Diagnostic Signals */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Strongest Signal */}
-            <div className="p-3 rounded-lg border border-line/60 bg-surface-2/40 space-y-1">
-              <div className="flex items-center gap-1.5 text-easy">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">
-                  Strongest Signal
+            {/* Diagnostic Key-Value Pairs */}
+            <div className="grid grid-cols-2 gap-2.5 pt-1 text-xs">
+              <div className="p-2.5 rounded-md bg-surface-2/50 border border-line-subtle/50 space-y-0.5">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-muted block font-semibold">
+                  01 Biggest Gap
                 </span>
+                <p className="text-xs text-text-secondary font-medium truncate" title={reviewData.biggestGap}>
+                  {reviewData.biggestGap}
+                </p>
               </div>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                {reviewData.strongestSignal}
-              </p>
-            </div>
 
-            {/* Biggest Gap */}
-            <div className="p-3 rounded-lg border border-line/60 bg-surface-2/40 space-y-1">
-              <div className="flex items-center gap-1.5 text-medium">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider">
-                  Biggest Gap
+              <div className="p-2.5 rounded-md bg-surface-2/50 border border-line-subtle/50 space-y-0.5">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-muted block font-semibold">
+                  02 Next Focus
                 </span>
+                <p className="text-xs text-text font-medium truncate" title={reviewData.nextWeekFocus}>
+                  {reviewData.nextWeekFocus}
+                </p>
               </div>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                {reviewData.biggestGap}
-              </p>
-            </div>
-          </div>
-
-          {/* Next Focus */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-accent">
-              <Target className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider">
-                Next Focus
-              </span>
-            </div>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {reviewData.recommendedFocus}
-            </p>
-          </div>
-
-          {/* Three Actions */}
-          <div className="space-y-2 pt-1 border-t border-line/40">
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-muted" />
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted">
-                Three Actions
-              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-              {reviewData.actionPlan?.map((item, index) => (
-                <div
-                  key={index}
-                  className="p-3 rounded-lg border border-line/60 bg-surface-2/30 flex flex-col justify-between space-y-2"
+            {/* Action Plan Progressive Disclosure */}
+            {reviewData.actionPlan?.length > 0 && (
+              <div className="pt-2 border-t border-line-subtle/40">
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-[11px] text-muted hover:text-text transition-colors flex items-center gap-1 font-medium cursor-pointer"
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-[10px] font-mono font-bold text-accent">
-                        Action 0{index + 1}
-                      </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-3 text-muted">
-                        {item.minutes}m
-                      </span>
-                    </div>
-                    <p className="text-xs font-semibold text-text leading-snug">
-                      {item.action}
-                    </p>
-                  </div>
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {item.reason}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
+                  <span>Tactical action plan ({reviewData.actionPlan.length} steps)</span>
+                  {isExpanded ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                </button>
 
-          {/* Encouragement Footer */}
-          {reviewData.encouragement && (
-            <div className="pt-2 border-t border-line/30 flex items-start gap-2">
-              <span className="text-accent text-sm leading-none">“</span>
-              <p className="text-xs italic text-muted leading-relaxed">
-                {reviewData.encouragement}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+                {isExpanded && (
+                  <ol className="mt-2 space-y-1.5 pl-0.5 text-xs text-text-secondary animate-fade-in">
+                    {reviewData.actionPlan.map((step, idx) => (
+                      <li key={idx} className="flex items-start justify-between gap-2 py-1 border-b border-line-subtle/30 last:border-0 text-[11px]">
+                        <div className="flex items-start gap-2 min-w-0">
+                          <span className="font-mono text-accent font-bold shrink-0 text-[10px]">
+                            {String(idx + 1).padStart(2, '0')}.
+                          </span>
+                          <span className="leading-snug truncate">{step.action}</span>
+                        </div>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-surface-2 border border-line-subtle text-muted shrink-0 tabular-nums font-semibold">
+                          {step.targetMinutes}m
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer Info */}
+      <div className="pt-3 border-t border-line-subtle/40 mt-3 flex items-center justify-between text-[10px] font-mono text-muted">
+        <span>7-day rolling synthesis</span>
+        <span>AI Intelligence Console</span>
+      </div>
+    </section>
   );
 };
 
