@@ -40,11 +40,13 @@ function App() {
                     <Route path="/signup" element={<SignupPage />} />
                   </Route>
 
-                  {/* Protected routes */}
+                  {/* Hybrid Accessible Workspace (Guest Demo or Authenticated Personal) */}
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/problems" element={<ProblemsPage />} />
+                  <Route path="/problems/:id" element={<ProblemDetailPage />} />
+
+                  {/* Strictly Protected Personal Routes */}
                   <Route element={<PrivateRoute />}>
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/problems" element={<ProblemsPage />} />
-                    <Route path="/problems/:id" element={<ProblemDetailPage />} />
                     <Route path="/revision" element={<RevisionPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                   </Route>

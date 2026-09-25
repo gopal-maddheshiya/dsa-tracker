@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const DIFFICULTY_MAP = {
   easy: { label: 'Easy', dotClass: 'semantic-dot-easy', textClass: 'text-easy' },
@@ -35,6 +36,22 @@ const UpcomingRevisionsCard = ({
   error = null,
   className = '',
 }) => {
+  const { isAuthenticated } = useAuth();
+
+  const handleRevisionClick = (e) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Spaced Repetition Queue',
+            description: 'Create an account to track your personalized forgetting curve and revision schedules.',
+            contextAction: 'Revision Queue',
+          },
+        })
+      );
+    }
+  };
   if (isLoading) {
     return (
       <div className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
@@ -79,6 +96,7 @@ const UpcomingRevisionsCard = ({
 
           <Link
             to="/revision"
+            onClick={handleRevisionClick}
             className="text-xs font-mono text-muted hover:text-accent transition-colors font-medium tracking-wider flex items-center gap-1 group"
           >
             <span>VIEW ALL</span>
@@ -174,6 +192,7 @@ const UpcomingRevisionsCard = ({
             <span className="text-[11px] text-muted">+{queue.length - candidates.length} more in queue</span>
             <Link
               to="/revision"
+              onClick={handleRevisionClick}
               className="text-[11px] font-mono font-medium text-accent hover:underline flex items-center gap-1"
             >
               <span>Start session</span>
@@ -185,6 +204,7 @@ const UpcomingRevisionsCard = ({
             <span className="text-[11px] text-muted">Spaced cadence active</span>
             <Link
               to="/revision"
+              onClick={handleRevisionClick}
               className="text-[11px] font-mono text-accent hover:underline font-medium"
             >
               Open queue →

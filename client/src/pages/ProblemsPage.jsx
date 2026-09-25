@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { fetchProblems, deleteProblem } from '../api/problems';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
+import { DEMO_PROBLEMS } from '../data/demoData';
 import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, ChevronLeft, ChevronRight, SlidersHorizontal, Globe } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
@@ -399,6 +401,7 @@ const ProblemsPage = () => {
     document.title = 'Problems · DSA Tracker';
   }, []);
 
+  const { isAuthenticated } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -437,10 +440,23 @@ const ProblemsPage = () => {
     if (p !== null && p !== platform) setPlatform(p);
 
     if (searchParams.get('new') === '1' || searchParams.get('add') === 'true' || searchParams.get('add') === '1') {
-      setEditingProblem(null);
-      setIsFormOpen(true);
+      if (!isAuthenticated) {
+        window.dispatchEvent(
+          new CustomEvent('open-auth-gate', {
+            detail: {
+              title: 'Add a Problem',
+              description:
+                'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+              contextAction: 'Add Problem',
+            },
+          })
+        );
+      } else {
+        setEditingProblem(null);
+        setIsFormOpen(true);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isAuthenticated]);
 
   const [viewMode, setViewMode] = useState(() =>
     localStorage.getItem('problems_view') || 'table'
@@ -472,6 +488,44 @@ const ProblemsPage = () => {
   const loadProblems = useCallback(async () => {
     setIsLoading(true);
     setError('');
+
+    // If guest: filter static DEMO_PROBLEMS in-memory with zero backend API requests
+    if (!isAuthenticated) {
+      let filtered = [...DEMO_PROBLEMS];
+      if (search.trim()) {
+        const q = search.trim().toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.title?.toLowerCase().includes(q) ||
+            (Array.isArray(p.topics) && p.topics.some((t) => t.toLowerCase().includes(q)))
+        );
+      }
+      if (difficulty) {
+        filtered = filtered.filter(
+          (p) => p.difficulty?.toLowerCase() === difficulty.toLowerCase()
+        );
+      }
+      if (status) {
+        filtered = filtered.filter(
+          (p) => (p.status || p.latestAttempt?.status) === status
+        );
+      }
+      if (topic.trim()) {
+        const tQuery = topic.trim().toLowerCase();
+        filtered = filtered.filter(
+          (p) => Array.isArray(p.topics) && p.topics.some((t) => t.toLowerCase() === tQuery)
+        );
+      }
+      if (platform) {
+        filtered = filtered.filter(
+          (p) => p.platform?.toLowerCase() === platform.toLowerCase()
+        );
+      }
+      setProblems(filtered);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetchProblems({
         search: search.trim() || undefined,
@@ -488,7 +542,13 @@ const ProblemsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [search, difficulty, status, topic, platform, toast]);
+  }, [isAuthenticated, search, difficulty, status, topic, platform, toast]);
+
+  // Clean catalog reset upon authentication boundary transitions
+  useEffect(() => {
+    setProblems([]);
+    setIsLoading(true);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const timer = setTimeout(() => { loadProblems(); }, 250);
@@ -496,22 +556,90 @@ const ProblemsPage = () => {
   }, [loadProblems]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const handleProblemCreated = () => {
       loadProblems();
     };
     window.addEventListener('problem-created', handleProblemCreated);
     return () => window.removeEventListener('problem-created', handleProblemCreated);
-  }, [loadProblems]);
+  }, [isAuthenticated, loadProblems]);
 
   const toggleView = (mode) => {
     setViewMode(mode);
     localStorage.setItem('problems_view', mode);
   };
 
-  const handleOpenAdd = () => { setEditingProblem(null); setIsFormOpen(true); };
-  const handleEdit = (p) => { setEditingProblem(p); setIsFormOpen(true); };
+  const handleOpenAdd = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Add a Problem',
+            description:
+              'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+            contextAction: 'Add Problem',
+          },
+        })
+      );
+      return;
+    }
+    setEditingProblem(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (p) => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Edit Problem',
+            description:
+              'Create an account to personalize problem descriptions, notes, and target complexities.',
+            contextAction: 'Edit Problem',
+          },
+        })
+      );
+      return;
+    }
+    setEditingProblem(p);
+    setIsFormOpen(true);
+  };
+
   const handleCloseForm = useCallback(() => { setIsFormOpen(false); }, []);
-  const handleDeletePrompt = (p) => { setDeletingProblem(p); };
+
+  const handleDeletePrompt = (p) => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Delete Problem',
+            description:
+              'Create an account to manage your personal problem catalog.',
+            contextAction: 'Delete Problem',
+          },
+        })
+      );
+      return;
+    }
+    setDeletingProblem(p);
+  };
+
+  const handleLogAttempt = (p) => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Log Practice Attempt',
+            description:
+              'Create an account to track your timed practice attempts, time taken, and update spaced repetition intervals.',
+            contextAction: 'Log Attempt',
+          },
+        })
+      );
+      return;
+    }
+    setLoggingProblem(p);
+  };
 
   const handleConfirmDelete = async () => {
     if (!deletingProblem) return;
@@ -909,7 +1037,7 @@ const ProblemsPage = () => {
                   problem={p}
                   onEdit={handleEdit}
                   onDelete={handleDeletePrompt}
-                  onLog={setLoggingProblem}
+                  onLog={handleLogAttempt}
                 />
               </Reveal>
             ))}
@@ -924,7 +1052,7 @@ const ProblemsPage = () => {
                   problem={p}
                   onEdit={handleEdit}
                   onDelete={handleDeletePrompt}
-                  onLog={setLoggingProblem}
+                  onLog={handleLogAttempt}
                 />
               </TiltCard>
             </Reveal>
@@ -938,7 +1066,7 @@ const ProblemsPage = () => {
           onEdit={handleEdit}
           onDelete={handleDeletePrompt}
           onOpenAdd={handleOpenAdd}
-          onLog={setLoggingProblem}
+          onLog={handleLogAttempt}
           startIndex={startIndex}
         />
       )}

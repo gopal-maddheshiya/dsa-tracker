@@ -7,6 +7,7 @@ import InstallAppBanner from './InstallAppBanner';
 import ProblemForm from '../ProblemForm';
 import CommandPalette from '../ui/CommandPalette';
 import BrandLogo from '../ui/BrandLogo';
+import AuthGateModal from '../auth/AuthGateModal';
 import {
   LayoutDashboard,
   Code2,
@@ -212,9 +213,29 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         ? location.pathname === '/profile' && !location.search.includes('tab=platforms')
         : undefined;
 
+    const handleSideNavClick = (e) => {
+      if (!user && (to === '/revision' || to.startsWith('/profile'))) {
+        e.preventDefault();
+        window.dispatchEvent(
+          new CustomEvent('open-auth-gate', {
+            detail: {
+              title: label === 'Revision' ? 'Spaced Repetition Queue' : 'Personal Profile & Analytics',
+              description:
+                label === 'Revision'
+                  ? 'Create an account to track your personalized forgetting curve and revision schedules.'
+                  : 'Create an account to track your consistency streak, activity heatmap, and target goals.',
+              contextAction: label,
+              targetUrl: to,
+            },
+          })
+        );
+      }
+    };
+
     return (
       <NavLink
         to={to}
+        onClick={handleSideNavClick}
         aria-current={isCustomActive ? 'page' : undefined}
         className={({ isActive }) => {
           const active = isCustomActive !== undefined ? isCustomActive : isActive;
@@ -356,7 +377,36 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
 
       {/* ── User Footer ───────────────────────────── */}
       <div className={`shrink-0 border-t border-line p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
-        {collapsed ? (
+        {!user ? (
+          collapsed ? (
+            <NavLink
+              to="/login"
+              className="p-2 rounded-lg text-accent hover:bg-surface-2 transition-colors cursor-pointer group relative"
+              aria-label="Sign in"
+            >
+              <User className="w-4 h-4" />
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+              >
+                Sign In
+              </span>
+            </NavLink>
+          ) : (
+            <div className="flex items-center justify-between gap-2 p-1">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-text truncate">Guest Explorer</p>
+                <p className="text-[10px] font-mono text-muted truncate">Demo Mode</p>
+              </div>
+              <NavLink
+                to="/login"
+                className="btn-primary text-xs py-1.5 px-3 rounded-lg font-semibold shrink-0"
+              >
+                Sign In
+              </NavLink>
+            </div>
+          )
+        ) : collapsed ? (
           <>
             <NavLink
               to="/profile"
@@ -461,9 +511,40 @@ const AppShell = ({ children }) => {
     setIsUserMenuOpen(false);
   }, [location.pathname]);
 
+  // Auth Gate modal state for guest interactions
+  const [authGateConfig, setAuthGateConfig] = useState({
+    isOpen: false,
+    title: 'Save your progress',
+    description: 'Create an account to track your DSA practice.',
+    contextAction: null,
+    targetUrl: null,
+  });
+
+  const openAuthGate = (config = {}) => {
+    setAuthGateConfig({
+      isOpen: true,
+      title: config.title || 'Save your progress',
+      description: config.description || 'Create an account to track your deliberate practice.',
+      contextAction: config.contextAction || null,
+      targetUrl: config.targetUrl || null,
+    });
+  };
+
+  const closeAuthGate = () => {
+    setAuthGateConfig((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  useEffect(() => {
+    const handleOpenAuthGate = (e) => {
+      openAuthGate(e.detail || {});
+    };
+    window.addEventListener('open-auth-gate', handleOpenAuthGate);
+    return () => window.removeEventListener('open-auth-gate', handleOpenAuthGate);
+  }, []);
+
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/dashboard');
   };
 
   // Live streak & revision count fetch on mount/auth (and event-driven upon problem updates)
@@ -484,6 +565,9 @@ const AppShell = ({ children }) => {
           }
         })
         .catch(() => { });
+    } else {
+      setStreak(null);
+      setRevisionCount(0);
     }
   }, [isAuthenticated]);
 
@@ -520,10 +604,20 @@ const AppShell = ({ children }) => {
 
   // Listen to open-quick-add custom event from anywhere in the app
   useEffect(() => {
-    const handleOpenQuickAdd = () => setIsQuickAddOpen(true);
+    const handleOpenQuickAdd = () => {
+      if (!isAuthenticated) {
+        openAuthGate({
+          title: 'Add a Problem',
+          description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+          contextAction: 'Add Problem',
+        });
+      } else {
+        setIsQuickAddOpen(true);
+      }
+    };
     window.addEventListener('open-quick-add', handleOpenQuickAdd);
     return () => window.removeEventListener('open-quick-add', handleOpenQuickAdd);
-  }, []);
+  }, [isAuthenticated]);
 
   // Derive initials for avatar
   const initials = useMemo(() => {
@@ -605,8 +699,9 @@ const AppShell = ({ children }) => {
     window.dispatchEvent(new CustomEvent('problem-created'));
   };
 
-  // Public pages — no sidebar or shell chrome
-  if (!isAuthenticated) {
+  // Only public standalone auth pages (login / signup) skip the shell chrome
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  if (isAuthPage) {
     return (
       <div className="min-h-dvh flex flex-col text-text bg-bg">
         {children}
@@ -697,7 +792,17 @@ const AppShell = ({ children }) => {
             {/* Exactly ONE Dominant Solid CTA: + New Problem */}
             <button
               type="button"
-              onClick={() => setIsQuickAddOpen(true)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  openAuthGate({
+                    title: 'Add a Problem',
+                    description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+                    contextAction: 'Add Problem',
+                  });
+                } else {
+                  setIsQuickAddOpen(true);
+                }
+              }}
               className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer"
               aria-label="Create new problem"
               title="Create new problem"
@@ -706,51 +811,72 @@ const AppShell = ({ children }) => {
               <span className="hidden sm:inline">New Problem</span>
             </button>
 
-            {/* User Profile Avatar & Dropdown Trigger */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsUserMenuOpen(prev => !prev);
-                }}
-                className={`flex items-center gap-1.5 p-1 rounded-md transition-colors cursor-pointer border ${
-                  isUserMenuOpen
-                    ? 'border-line bg-surface-2'
-                    : 'border-transparent hover:border-line hover:bg-surface-2'
-                }`}
-                aria-label="User menu"
-                title={user?.name || 'Account'}
-              >
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-7 h-7 rounded-full object-cover border border-line"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary">
-                    {initials}
-                  </div>
-                )}
-                <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-muted" />
-              </button>
+            {/* User Profile Avatar / Guest Controls */}
+            {!isAuthenticated ? (
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium text-accent bg-accent/10 border border-accent/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                  Demo Mode
+                </span>
+                <NavLink
+                  to="/login"
+                  className="text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg border border-line hover:border-line-hover bg-surface-2 hover:bg-surface-hover text-text transition-colors"
+                >
+                  Log In
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="hidden xs:inline-flex btn-primary text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Sign Up
+                </NavLink>
+              </div>
+            ) : (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsUserMenuOpen((prev) => !prev);
+                  }}
+                  className={`flex items-center gap-1.5 p-1 rounded-md transition-colors cursor-pointer border ${
+                    isUserMenuOpen
+                      ? 'border-line bg-surface-2'
+                      : 'border-transparent hover:border-line hover:bg-surface-2'
+                  }`}
+                  aria-label="User menu"
+                  title={user?.name || 'Account'}
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-7 h-7 rounded-full object-cover border border-line"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary">
+                      {initials}
+                    </div>
+                  )}
+                  <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-muted" />
+                </button>
 
-              {/* Dropdown Popover */}
-              {isUserMenuOpen && (
-                <UserMenuDropdown
-                  isOpen={isUserMenuOpen}
-                  onClose={() => setIsUserMenuOpen(false)}
-                  user={user}
-                  initials={initials}
-                  streak={streak}
-                  revisionCount={revisionCount}
-                  onLogout={handleLogout}
-                />
-              )}
-            </div>
+                {/* Dropdown Popover */}
+                {isUserMenuOpen && (
+                  <UserMenuDropdown
+                    isOpen={isUserMenuOpen}
+                    onClose={() => setIsUserMenuOpen(false)}
+                    user={user}
+                    initials={initials}
+                    streak={streak}
+                    revisionCount={revisionCount}
+                    onLogout={handleLogout}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </header>
 
@@ -773,10 +899,26 @@ const AppShell = ({ children }) => {
               const isRevision = label === 'Revision';
               const badge = isRevision ? revisionCount : 0;
 
+              const handleMobileNavClick = (e) => {
+                if (!isAuthenticated && (to === '/revision' || to.startsWith('/profile'))) {
+                  e.preventDefault();
+                  openAuthGate({
+                    title: label === 'Revision' ? 'Spaced Repetition Queue' : 'Personal Profile & Analytics',
+                    description:
+                      label === 'Revision'
+                        ? 'Create an account to track your personalized forgetting curve and revision schedules.'
+                        : 'Create an account to track your consistency streak, activity heatmap, and target goals.',
+                    contextAction: label,
+                    targetUrl: to,
+                  });
+                }
+              };
+
               return (
                 <NavLink
                   key={to}
                   to={to}
+                  onClick={handleMobileNavClick}
                   className={({ isActive }) => `
                     relative flex flex-col items-center justify-center py-1 px-1 rounded-md transition-colors min-h-[48px] cursor-pointer select-none
                     ${isActive ? 'text-accent font-semibold' : 'text-text-secondary hover:text-text'}
@@ -825,7 +967,27 @@ const AppShell = ({ children }) => {
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+        onOpenQuickAdd={() => {
+          if (!isAuthenticated) {
+            openAuthGate({
+              title: 'Add a Problem',
+              description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+              contextAction: 'Add Problem',
+            });
+          } else {
+            setIsQuickAddOpen(true);
+          }
+        }}
+      />
+
+      {/* Contextual Auth Gate Modal */}
+      <AuthGateModal
+        isOpen={authGateConfig.isOpen}
+        onClose={closeAuthGate}
+        title={authGateConfig.title}
+        description={authGateConfig.description}
+        contextAction={authGateConfig.contextAction}
+        targetUrl={authGateConfig.targetUrl}
       />
 
       {/* PWA Install Prompt Banner */}

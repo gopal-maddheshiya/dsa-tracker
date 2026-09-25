@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { fetchProblemById, deleteProblem } from '../api/problems';
 import { deleteAttempt } from '../api/attempts';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
+import { DEMO_PROBLEMS, getDemoProblemById } from '../data/demoData';
 import AttemptForm from '../components/AttemptForm';
 import ProblemForm from '../components/ProblemForm';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
@@ -119,6 +121,7 @@ const ProblemDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { isAuthenticated } = useAuth();
 
   const [problem, setProblem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,10 +138,94 @@ const ProblemDetailPage = () => {
   const [loadingTakeaways, setLoadingTakeaways] = useState({});
   const [openTakeaways, setOpenTakeaways] = useState({});
 
+  const handleOpenLogAttempt = (mins = '') => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Log Practice Attempt',
+            description:
+              'Create an account to track your timed practice attempts, time taken, and update spaced repetition intervals.',
+            contextAction: 'Log Attempt',
+          },
+        })
+      );
+      return;
+    }
+    setTimerElapsedMinutes(mins);
+    setEditingAttempt(null);
+    setIsAttemptModalOpen(true);
+  };
+
+  const handleOpenEditProblem = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Edit Problem',
+            description:
+              'Create an account to personalize problem descriptions, notes, and target complexities.',
+            contextAction: 'Edit Problem',
+          },
+        })
+      );
+      return;
+    }
+    setIsEditModalOpen(true);
+  };
+
+  const handleOpenDeleteProblem = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Delete Problem',
+            description:
+              'Create an account to manage your personal problem catalog.',
+            contextAction: 'Delete Problem',
+          },
+        })
+      );
+      return;
+    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleEditAttempt = (attempt) => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Edit Attempt',
+            description:
+              'Create an account to manage and modify your logged practice attempts.',
+            contextAction: 'Edit Attempt',
+          },
+        })
+      );
+      return;
+    }
+    setEditingAttempt(attempt);
+  };
+
   const handleToggleTakeaway = async (attemptId) => {
     if (!attemptId) return;
     if (openTakeaways[attemptId]) {
       setOpenTakeaways((prev) => ({ ...prev, [attemptId]: false }));
+      return;
+    }
+
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'AI Cognitive Takeaway',
+            description:
+              'Create an account to unlock AI-synthesized cognitive recall notes and mistake analysis.',
+            contextAction: 'AI Takeaway',
+          },
+        })
+      );
       return;
     }
 
@@ -173,6 +260,22 @@ const ProblemDetailPage = () => {
   const loadProblem = useCallback(async () => {
     setIsLoading(true);
     setError('');
+
+    if (!isAuthenticated) {
+      const demo =
+        getDemoProblemById(id) ||
+        DEMO_PROBLEMS.find((p) => p.id === id || p._id === id);
+      if (demo) {
+        setProblem(demo);
+        setIsLoading(false);
+        return;
+      }
+      setProblem(null);
+      setError('Problem not found in demo catalog.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await fetchProblemById(id);
       setProblem(res.data);
@@ -183,7 +286,7 @@ const ProblemDetailPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [id, toast]);
+  }, [id, isAuthenticated, toast]);
 
   useEffect(() => {
     loadProblem();
@@ -197,6 +300,10 @@ const ProblemDetailPage = () => {
   }, [problem?.title]);
 
   const handleDeleteProblem = async () => {
+    if (!isAuthenticated) {
+      handleOpenDeleteProblem();
+      return;
+    }
     if (!problem) return;
     setIsDeleting(true);
     try {
@@ -213,6 +320,18 @@ const ProblemDetailPage = () => {
   };
 
   const handleDeleteAttempt = async (attemptId) => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Delete Attempt',
+            description: 'Create an account to manage your logged practice attempts.',
+            contextAction: 'Delete Attempt',
+          },
+        })
+      );
+      return;
+    }
     if (!problem || !attemptId) return;
     if (!window.confirm('Are you sure you want to delete this attempt?')) return;
     setDeletingAttemptId(attemptId);
@@ -344,7 +463,7 @@ const ProblemDetailPage = () => {
           )}
 
           <button
-            onClick={() => setIsEditModalOpen(true)}
+            onClick={handleOpenEditProblem}
             type="button"
             className="btn-secondary text-xs flex items-center gap-1.5 h-8 px-3"
             title="Edit problem details & topics"
@@ -354,7 +473,7 @@ const ProblemDetailPage = () => {
           </button>
 
           <button
-            onClick={() => setIsDeleteModalOpen(true)}
+            onClick={handleOpenDeleteProblem}
             type="button"
             className="h-8 px-3 rounded-lg bg-danger/10 text-danger border border-danger/25 hover:bg-danger/20 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
             title="Delete this problem"
@@ -536,11 +655,7 @@ const ProblemDetailPage = () => {
         {activeTab === 'practice' && (
           <button
             id="open-log-attempt-modal-btn"
-            onClick={() => {
-              setTimerElapsedMinutes('');
-              setEditingAttempt(null);
-              setIsAttemptModalOpen(true);
-            }}
+            onClick={() => handleOpenLogAttempt('')}
             type="button"
             className="btn-primary text-xs flex items-center justify-center gap-1.5 cursor-pointer h-8.5 px-3 self-stretch sm:self-auto"
           >
@@ -555,10 +670,7 @@ const ProblemDetailPage = () => {
         <div className="space-y-5">
           {/* Practice Timer & Stopwatch */}
           <PracticeTimer
-            onLogWithTime={(mins) => {
-              setTimerElapsedMinutes(mins);
-              setIsAttemptModalOpen(true);
-            }}
+            onLogWithTime={(mins) => handleOpenLogAttempt(mins)}
           />
 
           {/* Practice History Section */}
@@ -587,7 +699,7 @@ const ProblemDetailPage = () => {
                   Use the practice timer above or click below to log your first solve attempt and schedule your recall intervals.
                 </p>
                 <button
-                  onClick={() => setIsAttemptModalOpen(true)}
+                  onClick={() => handleOpenLogAttempt('')}
                   type="button"
                   className="btn-primary text-xs mt-4 cursor-pointer"
                 >
@@ -663,7 +775,7 @@ const ProblemDetailPage = () => {
                           <div className="flex items-center gap-1">
                             <button
                               type="button"
-                              onClick={() => setEditingAttempt(attempt)}
+                              onClick={() => handleEditAttempt(attempt)}
                               className="p-1 rounded-lg text-muted hover:text-medium hover:bg-surface-2 transition-colors cursor-pointer"
                               title="Edit attempt"
                             >

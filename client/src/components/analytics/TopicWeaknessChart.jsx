@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * TopicWeaknessChart: Clean Bottlenecks Worklist.
@@ -16,6 +17,7 @@ const TopicWeaknessChart = ({
   className = '',
 }) => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   // Sort topics by struggle ratio descending, secondary sort by total attempts
   const rankedTopics = useMemo(() => {
@@ -191,7 +193,21 @@ const TopicWeaknessChart = ({
         <span className="text-[11px]">Target deliberate practice</span>
         <button
           type="button"
-          onClick={() => navigate('/profile?tab=analytics')}
+          onClick={() => {
+            if (!isAuthenticated) {
+              window.dispatchEvent(
+                new CustomEvent('open-auth-gate', {
+                  detail: {
+                    title: 'Personal Analytics Matrix',
+                    description: 'Create an account to track your comprehensive topic mastery and struggle distribution.',
+                    contextAction: 'Profile Analytics',
+                  },
+                })
+              );
+            } else {
+              navigate('/profile?tab=analytics');
+            }
+          }}
           className="text-muted hover:text-text transition-colors cursor-pointer text-[11px]"
         >
           Full matrix in Profile →

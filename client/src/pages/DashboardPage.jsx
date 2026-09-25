@@ -9,8 +9,15 @@ import {
 } from '../api/analytics';
 import { fetchProblemRecommendations } from '../api/problems';
 import { getErrorMessage } from '../utils/errorHandler';
+import {
+  DEMO_SUMMARY,
+  DEMO_TOPICS,
+  DEMO_HEATMAP,
+  DEMO_REVISION_QUEUE,
+  DEMO_RECOMMENDATIONS,
+} from '../data/demoData';
 
-import { Flame, Plus, ArrowRight } from 'lucide-react';
+import { Flame, Plus, ArrowRight, Sparkles } from 'lucide-react';
 import UnifiedHero from '../components/dashboard/UnifiedHero';
 import RoadmapActionBanner from '../components/dashboard/RoadmapActionBanner';
 import UpcomingRevisionsCard from '../components/dashboard/UpcomingRevisionsCard';
@@ -29,7 +36,7 @@ import Reveal from '../components/common/Reveal';
  * 5. Practice Rhythm: GitHub-style 52-week activity heatmap for daily consistency.
  */
 const DashboardPage = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   useEffect(() => {
     document.title = 'Dashboard · DSA Tracker';
@@ -118,15 +125,46 @@ const DashboardPage = () => {
     }
   }, []);
 
+  // Main data initialization: if guest, reset personal state and make ZERO network calls
   useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      setSummary(null);
+      setTopics([]);
+      setHeatmap([]);
+      setRevisionQueue([]);
+      setRecommendations(null);
+      setLoadingSummary(false);
+      setLoadingTopics(false);
+      setLoadingHeatmap(false);
+      setLoadingRevision(false);
+      setLoadingRecommendations(false);
+      setSummaryError(null);
+      setTopicsError(null);
+      setHeatmapError(null);
+      setRevisionError(null);
+      return;
+    }
+
     loadSummary();
     loadTopics();
     loadHeatmap();
     loadRevision();
     loadRecommendations();
-  }, [loadSummary, loadTopics, loadHeatmap, loadRevision, loadRecommendations]);
+  }, [
+    authLoading,
+    isAuthenticated,
+    loadSummary,
+    loadTopics,
+    loadHeatmap,
+    loadRevision,
+    loadRecommendations,
+  ]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const handleProblemCreated = () => {
       loadSummary();
       loadTopics();
@@ -136,39 +174,106 @@ const DashboardPage = () => {
     };
     window.addEventListener('problem-created', handleProblemCreated);
     return () => window.removeEventListener('problem-created', handleProblemCreated);
-  }, [loadSummary, loadTopics, loadHeatmap, loadRevision, loadRecommendations]);
+  }, [isAuthenticated, loadSummary, loadTopics, loadHeatmap, loadRevision, loadRecommendations]);
+
+  const handleQuickAddClick = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Add a Problem',
+            description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+            contextAction: 'Add Problem',
+          },
+        })
+      );
+    } else {
+      window.dispatchEvent(new CustomEvent('open-quick-add'));
+    }
+  };
+
+  // Synchronously resolve display data: guests always see demo data; authenticated users see personal data
+  const displaySummary = !isAuthenticated ? DEMO_SUMMARY : summary;
+  const displayTopics = !isAuthenticated ? DEMO_TOPICS : topics;
+  const displayHeatmap = !isAuthenticated ? DEMO_HEATMAP : heatmap;
+  const displayRevisionQueue = !isAuthenticated ? DEMO_REVISION_QUEUE : revisionQueue;
+  const displayRecommendations = !isAuthenticated ? DEMO_RECOMMENDATIONS : recommendations;
 
   const hasZeroData =
+    isAuthenticated &&
     !loadingSummary &&
     !summaryError &&
-    (summary?.totalProblems ?? 0) === 0 &&
-    (summary?.totalAttempts ?? 0) === 0;
+    (displaySummary?.totalProblems ?? 0) === 0 &&
+    (displaySummary?.totalAttempts ?? 0) === 0;
 
   // Greeting & Date formatting
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = user?.name?.split(' ')[0] || 'Coder';
-  const primaryWeakTopic = recommendations?.weakestTopics?.[0] || null;
+  const primaryWeakTopic = displayRecommendations?.weakestTopics?.[0] || null;
 
   const todayFormatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
   }).format(new Date());
-  const streak = summary?.currentStreak ?? 0;
+  const streak = displaySummary?.currentStreak ?? 0;
 
   return (
     <div className="space-y-6 pb-24 sm:pb-12 animate-fade-up">
+
+      {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview) ────────── */}
+      {!isAuthenticated && (
+        <Reveal delay={0} y={4}>
+          <div className="relative overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-r from-surface-2 via-surface to-surface-2 p-4 sm:p-5 shadow-lg select-none">
+            <div className="absolute inset-0 engineering-grid opacity-30 pointer-events-none" />
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shrink-0 mt-1 sm:mt-0 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+                <div className="space-y-0.5 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent">
+                      Demo Workspace
+                    </span>
+                    <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent">
+                      Interactive Preview
+                    </span>
+                  </div>
+                  <p className="text-xs text-text-secondary leading-relaxed max-w-2xl">
+                    Exploring <strong className="text-text font-semibold">399 cataloged questions</strong>, active spaced repetition, and algorithmic telemetry. Create an account to log personal attempts, save solutions, and sync LeetCode.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <Link
+                  to="/signup"
+                  className="btn-primary text-xs py-2 px-4 rounded-xl font-semibold shadow-sm inline-flex items-center gap-1.5"
+                >
+                  <span>Create Free Account</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  to="/login"
+                  className="btn-secondary text-xs py-2 px-3.5 rounded-xl font-medium"
+                >
+                  Log In
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
 
       {/* ── 1. UNIFIED GRAND HERO (Engineering Grid & Telemetry Hub) ── */}
       <Reveal delay={0} y={6}>
         <UnifiedHero
           user={user}
-          summary={summary}
-          revisionCount={revisionQueue?.length ?? 0}
-          dailyFocus={recommendations?.dailyFocus}
-          isLoading={loadingSummary}
-          onQuickAdd={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
+          summary={displaySummary}
+          revisionCount={displayRevisionQueue?.length ?? 0}
+          dailyFocus={displayRecommendations?.dailyFocus}
+          isLoading={!isAuthenticated ? false : loadingSummary}
+          onQuickAdd={handleQuickAddClick}
         />
       </Reveal>
 
@@ -254,9 +359,9 @@ const DashboardPage = () => {
           {/* ── 2. ROADMAP ACTION STRIP (Daily Deliberate Practice Drill) ── */}
           <Reveal delay={20} y={8}>
             <RoadmapActionBanner
-              dailyFocus={recommendations?.dailyFocus}
+              dailyFocus={displayRecommendations?.dailyFocus}
               primaryWeakTopic={primaryWeakTopic}
-              isLoading={loadingRecommendations}
+              isLoading={!isAuthenticated ? false : loadingRecommendations}
             />
           </Reveal>
 
@@ -266,10 +371,10 @@ const DashboardPage = () => {
             <div className="lg:col-span-7 flex flex-col h-full">
               <Reveal delay={35} y={10} className="h-full flex-1 flex flex-col">
                 <UpcomingRevisionsCard
-                  queue={revisionQueue}
-                  featuredId={recommendations?.dailyFocus?.id || recommendations?.dailyFocus?._id}
-                  isLoading={loadingRevision}
-                  error={revisionError}
+                  queue={displayRevisionQueue}
+                  featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
+                  isLoading={!isAuthenticated ? false : loadingRevision}
+                  error={!isAuthenticated ? null : revisionError}
                 />
               </Reveal>
             </div>
@@ -278,9 +383,9 @@ const DashboardPage = () => {
             <div className="lg:col-span-5 flex flex-col h-full">
               <Reveal delay={50} y={10} className="h-full flex-1 flex flex-col">
                 <TopicWeaknessChart
-                  topics={topics}
-                  isLoading={loadingTopics}
-                  error={topicsError}
+                  topics={displayTopics}
+                  isLoading={!isAuthenticated ? false : loadingTopics}
+                  error={!isAuthenticated ? null : topicsError}
                   onRetry={loadTopics}
                 />
               </Reveal>
@@ -290,9 +395,9 @@ const DashboardPage = () => {
           {/* ── 4. PRACTICE RHYTHM: 52-WEEK ACTIVITY HEATMAP ──────────── */}
           <Reveal delay={65} y={10}>
             <PracticeHeatmap
-              heatmapData={heatmap}
-              isLoading={loadingHeatmap}
-              error={heatmapError}
+              heatmapData={displayHeatmap}
+              isLoading={!isAuthenticated ? false : loadingHeatmap}
+              error={!isAuthenticated ? null : heatmapError}
               onRetry={loadHeatmap}
             />
           </Reveal>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleButton from '../components/auth/GoogleButton';
 import Rotating3DCube from '../components/auth/Rotating3DCube';
@@ -67,6 +67,11 @@ const SignupPage = () => {
 
   const { signup, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname
+    ? `${location.state.from.pathname}${location.state.from.search || ''}`
+    : (typeof location.state?.from === 'string' ? location.state.from : '/dashboard');
 
   const validate = () => {
     const newErrors = {};
@@ -86,7 +91,7 @@ const SignupPage = () => {
     setIsSubmitting(true);
     const result = await signup(name.trim(), email.trim(), password);
     setIsSubmitting(false);
-    if (result.success) navigate('/dashboard', { replace: true });
+    if (result.success) navigate(from, { replace: true });
     else setApiError(result.message);
   };
 
@@ -96,7 +101,7 @@ const SignupPage = () => {
     const result = await googleLogin(tokenPayload);
     setIsSubmitting(false);
     if (result.success) {
-      navigate('/dashboard', { replace: true });
+      navigate(from, { replace: true });
     } else {
       setApiError(result.message);
     }

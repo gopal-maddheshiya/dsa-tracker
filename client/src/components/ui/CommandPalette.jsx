@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { fetchProblems } from '../../api/problems';
+import { useAuth } from '../../context/AuthContext';
+import { DEMO_PROBLEMS } from '../../data/demoData';
 import { useDialog } from '../../hooks/useDialog';
 import {
   Search,
@@ -37,6 +39,7 @@ const DIFFICULTY_CONFIG = {
 
 const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const dialogRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
@@ -59,9 +62,20 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
     if (!isOpen) {
       setQuery('');
       setSelectedIndex(0);
+      setProblems([]);
       return;
     }
 
+    if (!isAuthenticated) {
+      setProblems(DEMO_PROBLEMS);
+      setIsLoading(false);
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+
+    setProblems([]);
     let isCancelled = false;
     const loadProblemsList = async () => {
       setIsLoading(true);
@@ -88,7 +102,7 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       isCancelled = true;
       clearTimeout(timer);
     };
-  }, [isOpen]);
+  }, [isOpen, isAuthenticated]);
 
   // Static quick actions
   const quickActions = useMemo(() => [
@@ -141,7 +155,20 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       shortcut: 'R',
       action: () => {
         onClose();
-        navigate('/revision');
+        if (!isAuthenticated) {
+          window.dispatchEvent(
+            new CustomEvent('open-auth-gate', {
+              detail: {
+                title: 'Spaced Repetition Queue',
+                description: 'Create an account to track your personalized forgetting curve and revision schedules.',
+                contextAction: 'Revision Queue',
+                targetUrl: '/revision',
+              },
+            })
+          );
+        } else {
+          navigate('/revision');
+        }
       }
     },
     {
@@ -154,7 +181,20 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       shortcut: 'U',
       action: () => {
         onClose();
-        navigate('/profile');
+        if (!isAuthenticated) {
+          window.dispatchEvent(
+            new CustomEvent('open-auth-gate', {
+              detail: {
+                title: 'Personal Profile & Analytics',
+                description: 'Create an account to track your consistency streak, activity heatmap, and target goals.',
+                contextAction: 'Profile',
+                targetUrl: '/profile',
+              },
+            })
+          );
+        } else {
+          navigate('/profile');
+        }
       }
     },
     {
@@ -167,10 +207,23 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       shortcut: 'S',
       action: () => {
         onClose();
-        navigate('/profile?tab=platforms');
+        if (!isAuthenticated) {
+          window.dispatchEvent(
+            new CustomEvent('open-auth-gate', {
+              detail: {
+                title: 'Platform Sync',
+                description: 'Create an account to connect & sync LeetCode, Codeforces, GFG, and CodeChef.',
+                contextAction: 'Platform Sync',
+                targetUrl: '/profile?tab=platforms',
+              },
+            })
+          );
+        } else {
+          navigate('/profile?tab=platforms');
+        }
       }
     }
-  ], [navigate, onClose, onOpenQuickAdd]);
+  ], [isAuthenticated, navigate, onClose, onOpenQuickAdd]);
 
   // Filter items based on user query
   const filteredActions = useMemo(() => {

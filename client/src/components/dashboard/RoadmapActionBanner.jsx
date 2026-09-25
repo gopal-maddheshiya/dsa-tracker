@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Target, ArrowRight, ExternalLink, Sparkles, CheckCircle2, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { PLATFORM_LABELS } from '../../theme/platforms';
 import { getAICoach } from '../../api/ai';
+import { useAuth } from '../../context/AuthContext';
+import { DEMO_AI_COACH } from '../../data/demoData';
 
 const DIFFICULTY_MAP = {
   easy: {
@@ -40,6 +42,7 @@ const RoadmapActionBanner = ({
   isLoading = false,
   className = '',
 }) => {
+  const { isAuthenticated } = useAuth();
   const [coachData, setCoachData] = useState(null);
   const [isCoachLoading, setIsCoachLoading] = useState(false);
   const [isCoachOpen, setIsCoachOpen] = useState(false);
@@ -53,6 +56,13 @@ const RoadmapActionBanner = ({
       setIsCoachOpen(true);
       return;
     }
+
+    if (!isAuthenticated) {
+      setCoachData(DEMO_AI_COACH);
+      setIsCoachOpen(true);
+      return;
+    }
+
     if (!dailyFocus?.id && !dailyFocus?._id) return;
 
     setIsCoachOpen(true);
