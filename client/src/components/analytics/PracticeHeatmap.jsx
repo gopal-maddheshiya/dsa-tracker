@@ -131,7 +131,7 @@ const PracticeHeatmap = ({
 
   if (isLoading) {
     return (
-      <div className={`rounded-lg border border-line-subtle/70 bg-surface/50 p-5 sm:p-6 animate-pulse select-none ${className}`}>
+      <div className={`rounded-2xl border border-line/80 card-classy p-5 sm:p-6 animate-pulse select-none ${className}`}>
         <div className="h-3 w-28 bg-surface-2 rounded-xs mb-2" />
         <div className="h-5 w-48 bg-surface-2 rounded-xs mb-5" />
         <div className="h-32 w-full bg-surface-2/40 rounded-sm" />
@@ -141,7 +141,7 @@ const PracticeHeatmap = ({
 
   if (error) {
     return (
-      <div className={`rounded-lg border border-danger/30 bg-surface/50 p-5 sm:p-6 text-xs text-text-secondary ${className}`}>
+      <div className={`rounded-2xl border border-danger/30 card-classy p-5 sm:p-6 text-xs text-text-secondary ${className}`}>
         <p className="font-semibold text-text">Practice Rhythm</p>
         <p className="text-danger mt-1">Unable to load activity data.</p>
         {onRetry && (
@@ -155,7 +155,7 @@ const PracticeHeatmap = ({
   return (
     <section
       aria-label="Practice Rhythm Heatmap"
-      className={`rounded-xl border border-line bg-surface p-4 sm:p-6 select-none transition-all ${className}`}
+      className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-6 select-none transition-all shadow-lg ${className}`}
     >
       {/* ── EDITORIAL HEADER ───────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3.5 border-b border-line">

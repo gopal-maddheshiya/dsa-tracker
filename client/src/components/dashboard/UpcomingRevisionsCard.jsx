@@ -37,7 +37,7 @@ const UpcomingRevisionsCard = ({
 }) => {
   if (isLoading) {
     return (
-      <div className={`rounded-xl border border-line bg-surface p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
+      <div className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
         <div className="flex justify-between items-center pb-3 border-b border-line-subtle">
           <div className="h-3 w-24 bg-surface-2 rounded-xs" />
           <div className="h-3 w-16 bg-surface-2 rounded-xs" />
@@ -63,7 +63,7 @@ const UpcomingRevisionsCard = ({
   return (
     <section
       aria-label="Upcoming Revisions Queue"
-      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none ${className}`}
+      className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-5 flex flex-col justify-between h-full select-none shadow-lg ${className}`}
     >
       <div className="flex-1 flex flex-col">
         {/* Header: UP NEXT + VIEW ALL */}

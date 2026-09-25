@@ -28,7 +28,7 @@ const TopicWeaknessChart = ({
 
   if (isLoading) {
     return (
-      <div className={`rounded-xl border border-line bg-surface p-4 sm:p-5 animate-pulse select-none flex flex-col justify-between h-full ${className}`}>
+      <div className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-5 animate-pulse select-none flex flex-col justify-between h-full ${className}`}>
         <div className="flex justify-between items-center pb-3 border-b border-line-subtle">
           <div className="h-3 w-28 bg-surface-2 rounded-xs" />
           <div className="h-3 w-14 bg-surface-2 rounded-xs" />
@@ -48,7 +48,7 @@ const TopicWeaknessChart = ({
 
   if (error) {
     return (
-      <div className={`rounded-xl border border-danger/30 bg-surface p-4 sm:p-5 text-xs text-text-secondary ${className}`}>
+      <div className={`rounded-2xl border border-danger/30 card-classy p-4 sm:p-5 text-xs text-text-secondary ${className}`}>
         <p className="font-semibold text-text">Top Bottlenecks</p>
         <p className="text-danger mt-1">Unable to load topic diagnostics.</p>
         {onRetry && (
@@ -63,7 +63,7 @@ const TopicWeaknessChart = ({
   return (
     <section
       aria-label="Top Algorithmic Bottlenecks"
-      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none ${className}`}
+      className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-5 flex flex-col justify-between h-full select-none shadow-lg ${className}`}
     >
       <div className="flex-1 flex flex-col">
         {/* Header: Micro-label + Catalog Link */}

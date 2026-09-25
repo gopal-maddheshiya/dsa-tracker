@@ -11,8 +11,8 @@ import { fetchProblemRecommendations } from '../api/problems';
 import { getErrorMessage } from '../utils/errorHandler';
 
 import { Flame, Plus, ArrowRight } from 'lucide-react';
-import PracticeStateBar from '../components/dashboard/PracticeStateBar';
-import TodaysFocusCard from '../components/dashboard/TodaysFocusCard';
+import UnifiedHero from '../components/dashboard/UnifiedHero';
+import RoadmapActionBanner from '../components/dashboard/RoadmapActionBanner';
 import UpcomingRevisionsCard from '../components/dashboard/UpcomingRevisionsCard';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
@@ -158,60 +158,26 @@ const DashboardPage = () => {
   const streak = summary?.currentStreak ?? 0;
 
   return (
-    <div className="space-y-6 pb-16 animate-fade-up">
+    <div className="space-y-6 pb-24 sm:pb-12 animate-fade-up">
 
-      {/* ── 1. CLEAN EDITORIAL HEADER ──────────────────────────────── */}
+      {/* ── 1. UNIFIED GRAND HERO (Engineering Grid & Telemetry Hub) ── */}
       <Reveal delay={0} y={6}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-line select-none">
-          <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-mono text-muted">
-              <span>{greeting}, {firstName}</span>
-              <span className="text-muted/40">·</span>
-              <span>{todayFormatted}</span>
-              {streak > 0 && (
-                <>
-                  <span className="text-muted/40">·</span>
-                  <span className="inline-flex items-center gap-1 text-accent font-semibold">
-                    <Flame className="w-3.5 h-3.5 text-accent" />
-                    <span>{streak}d streak</span>
-                  </span>
-                </>
-              )}
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-text">
-              Dashboard
-            </h1>
-          </div>
-
-          {/* Header Actions */}
-          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
-              className="btn-primary text-xs py-1.5 px-3.5 rounded-md font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-none"
-              title="Add a problem to catalog"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Problem</span>
-            </button>
-
-            <Link
-              to="/problems"
-              className="btn-secondary text-xs py-1.5 px-3 rounded-md font-medium text-text-secondary hover:text-text inline-flex items-center justify-center gap-1 transition-colors flex-1 sm:flex-none"
-              title="Browse complete catalog"
-            >
-              <span>Catalog</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
+        <UnifiedHero
+          user={user}
+          summary={summary}
+          revisionCount={revisionQueue?.length ?? 0}
+          dailyFocus={recommendations?.dailyFocus}
+          isLoading={loadingSummary}
+          onQuickAdd={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
+        />
       </Reveal>
 
       {/* ── ZERO DATA STATE: Clear 3-Step Setup ─────────────────────── */}
       {hasZeroData ? (
         <Reveal delay={40}>
-          <div className="rounded-lg border border-line-subtle/80 bg-surface/50 p-6 sm:p-8 space-y-6">
-            <div className="space-y-1 pb-4 border-b border-line-subtle">
+          <div className="relative overflow-hidden rounded-2xl border border-line card-classy p-6 sm:p-8 space-y-6 shadow-xl">
+            <div className="absolute inset-0 engineering-grid pointer-events-none opacity-40" />
+            <div className="relative z-10 space-y-1 pb-4 border-b border-line-subtle">
               <h2 className="text-base font-bold text-text tracking-tight">
                 Welcome to your deliberate practice workspace
               </h2>
@@ -220,9 +186,9 @@ const DashboardPage = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Step 1 */}
-              <div className="p-4 rounded-md bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
+              <div className="p-4 rounded-xl bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-mono font-bold text-accent uppercase">
                     Step 1
@@ -234,14 +200,14 @@ const DashboardPage = () => {
                 </div>
                 <Link
                   to="/profile?tab=platforms"
-                  className="btn-primary text-xs py-1.5 px-3 text-center w-full"
+                  className="btn-primary text-xs py-2 px-3 text-center w-full rounded-lg"
                 >
                   Connect Platforms →
                 </Link>
               </div>
 
               {/* Step 2 */}
-              <div className="p-4 rounded-md bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
+              <div className="p-4 rounded-xl bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-mono font-bold text-easy uppercase">
                     Step 2
@@ -254,14 +220,14 @@ const DashboardPage = () => {
                 <button
                   type="button"
                   onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
-                  className="btn-secondary text-xs py-1.5 px-3 text-center w-full cursor-pointer"
+                  className="btn-secondary text-xs py-2 px-3 text-center w-full rounded-lg cursor-pointer"
                 >
                   Add First Problem →
                 </button>
               </div>
 
               {/* Step 3 */}
-              <div className="p-4 rounded-md bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
+              <div className="p-4 rounded-xl bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-mono font-bold text-medium uppercase">
                     Step 3
@@ -273,7 +239,7 @@ const DashboardPage = () => {
                 </div>
                 <Link
                   to="/problems"
-                  className="btn-secondary text-xs py-1.5 px-3 text-center w-full"
+                  className="btn-secondary text-xs py-2 px-3 text-center w-full rounded-lg"
                 >
                   Explore Catalog →
                 </Link>
@@ -285,32 +251,23 @@ const DashboardPage = () => {
         /* ── STREAMLINED DASHBOARD COMPOSITION ───────────────────────── */
         <div className="space-y-6">
 
-          {/* ── 2. KEY METRICS: 4 KPI CARDS (Placed at the top) ──────── */}
-          <Reveal delay={15} y={6}>
-            <PracticeStateBar
-              summary={summary}
-              isLoading={loadingSummary}
-              revisionCount={revisionQueue?.length ?? 0}
-            />
-          </Reveal>
-
-          {/* ── 3. TODAY'S TARGET: CLEAN, FOCUSED DELIBERATE PRACTICE ──── */}
-          <Reveal delay={30} y={8}>
-            <TodaysFocusCard
+          {/* ── 2. ROADMAP ACTION STRIP (Daily Deliberate Practice Drill) ── */}
+          <Reveal delay={20} y={8}>
+            <RoadmapActionBanner
               dailyFocus={recommendations?.dailyFocus}
               primaryWeakTopic={primaryWeakTopic}
               isLoading={loadingRecommendations}
             />
           </Reveal>
 
-          {/* ── 4. CORE WORK GRID (2 Columns: Revision Queue & Weakness Bottlenecks) ── */}
+          {/* ── 3. CORE WORK GRID (2 Columns: Revision Queue & Weakness Bottlenecks) ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
             {/* Left (7 cols): Spaced Repetition Due Queue */}
             <div className="lg:col-span-7 flex flex-col h-full">
-              <Reveal delay={45} y={10} className="h-full flex-1 flex flex-col">
+              <Reveal delay={35} y={10} className="h-full flex-1 flex flex-col">
                 <UpcomingRevisionsCard
                   queue={revisionQueue}
-                  featuredId={recommendations?.dailyFocus?.id}
+                  featuredId={recommendations?.dailyFocus?.id || recommendations?.dailyFocus?._id}
                   isLoading={loadingRevision}
                   error={revisionError}
                 />
@@ -319,7 +276,7 @@ const DashboardPage = () => {
 
             {/* Right (5 cols): Top Algorithmic Bottlenecks */}
             <div className="lg:col-span-5 flex flex-col h-full">
-              <Reveal delay={60} y={10} className="h-full flex-1 flex flex-col">
+              <Reveal delay={50} y={10} className="h-full flex-1 flex flex-col">
                 <TopicWeaknessChart
                   topics={topics}
                   isLoading={loadingTopics}
@@ -330,8 +287,8 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* ── 5. PRACTICE RHYTHM: 52-WEEK ACTIVITY HEATMAP ──────────── */}
-          <Reveal delay={75} y={10}>
+          {/* ── 4. PRACTICE RHYTHM: 52-WEEK ACTIVITY HEATMAP ──────────── */}
+          <Reveal delay={65} y={10}>
             <PracticeHeatmap
               heatmapData={heatmap}
               isLoading={loadingHeatmap}
