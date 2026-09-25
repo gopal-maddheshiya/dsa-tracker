@@ -48,7 +48,7 @@ const formatDaysAgo = (days) => {
   return `${rounded}d ago`;
 };
 
-const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
+const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startIndex = 0 }) => {
   const [sortField, setSortField] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
   const tbodyRef = useRef(null);
@@ -63,7 +63,7 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
   };
 
   const sortedQueue = useMemo(() => {
-    if (!queue || !sortField) return queue;
+    if (!queue || !sortField) return queue || [];
     return [...queue].sort((a, b) => {
       let valA = a[sortField];
       let valB = b[sortField];
@@ -92,7 +92,7 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
   }, [queue, sortField, sortAsc]);
 
   useEffect(() => {
-    if (!tbodyRef.current) return;
+    if (isLoading || !tbodyRef.current) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const rows = tbodyRef.current.querySelectorAll('tr');
     if (!rows.length) return;
@@ -102,7 +102,7 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
       { opacity: 0, y: 8 },
       { opacity: 1, y: 0, duration: 0.3, stagger: 0.02, ease: 'power2.out', clearProps: 'all' }
     );
-  }, [sortedQueue]);
+  }, [sortedQueue, isLoading]);
 
   const renderSortIndicator = (field) => {
     if (sortField !== field) {
@@ -114,6 +114,32 @@ const RevisionTable = ({ queue, onOpenLog, onQuickLog, startIndex = 0 }) => {
       <ArrowDown className="w-3 h-3 text-accent" />
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="panel overflow-hidden animate-pulse border-line rounded-xl">
+        <div className="flex gap-4 px-6 py-4 bg-surface-2/40 border-b border-line">
+          {[36, 200, 130, 90, 80, 100, 100, 90].map((w, i) => (
+            <div key={i} className="h-3 shimmer rounded-md" style={{ width: w }} />
+          ))}
+        </div>
+        <div className="divide-y divide-line">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="flex gap-4 px-6 py-4 items-center">
+              <div className="h-3.5 w-8 shimmer rounded-md" />
+              <div className="h-3.5 w-52 shimmer rounded-md" />
+              <div className="h-3 w-28 shimmer rounded-md" />
+              <div className="h-4 w-16 shimmer rounded-md" />
+              <div className="h-3 w-12 shimmer rounded-md" />
+              <div className="h-3.5 w-24 shimmer rounded-md" />
+              <div className="h-3 w-16 shimmer rounded-md" />
+              <div className="h-7 w-20 shimmer rounded-md ml-auto" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="panel overflow-hidden border-line rounded-xl bg-surface">

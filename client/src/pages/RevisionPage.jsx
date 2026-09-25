@@ -23,6 +23,38 @@ import {
 
 import { PLATFORM_CONFIG } from '../theme/platforms';
 
+/* ── Mobile Revision Loading Skeleton (Matches MobileProblemSkeleton) ── */
+const MobileRevisionSkeleton = () => (
+  <div className="space-y-2.5">
+    {[1, 2, 3, 4].map((i) => (
+      <div key={i} className="p-3.5 bg-surface border border-line space-y-2.5 animate-pulse rounded-xl">
+        {/* Top: Title + Link */}
+        <div className="flex justify-between items-center">
+          <div className="h-4 w-44 bg-surface-2 rounded" />
+          <div className="h-3.5 w-6 bg-surface-2 rounded" />
+        </div>
+        {/* Meta row: Rank · Platform · Difficulty · Topics */}
+        <div className="flex gap-2">
+          <div className="h-3 w-8 bg-surface-2 rounded" />
+          <div className="h-3 w-12 bg-surface-2 rounded" />
+          <div className="h-3 w-14 bg-surface-2 rounded" />
+          <div className="h-3 w-16 bg-surface-2 rounded" />
+        </div>
+        {/* Urgency & Schedule Strip */}
+        <div className="pt-2 border-t border-line/40 flex justify-between items-center">
+          <div className="h-3.5 w-24 bg-surface-2 rounded" />
+          <div className="h-3.5 w-28 bg-surface-2 rounded" />
+        </div>
+        {/* Action Buttons */}
+        <div className="pt-2 border-t border-line/40 flex gap-2">
+          <div className="h-10 flex-1 bg-surface-2 rounded-lg" />
+          <div className="h-10 w-24 bg-surface-2 rounded-lg" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const RevisionPage = () => {
   useEffect(() => {
     document.title = 'Revision · DSA Tracker';
@@ -427,33 +459,52 @@ const RevisionPage = () => {
         </Reveal>
       )}
 
-      {/* ── Loading Skeleton ─────────────────────────────────────────── */}
+      {/* ── Loading Filter / Telemetry Panel Skeleton ── */}
       {isLoading && (
-        <div className="animate-pulse p-6 space-y-4 border border-line rounded-xl bg-surface">
-          <div className="flex justify-between items-center">
-            <div className="h-4 w-40 bg-surface-2 rounded-md" />
-            <div className="h-4 w-24 bg-surface-2 rounded-md" />
+        <div className="p-3.5 sm:p-4 border border-line bg-surface rounded-xl space-y-3.5 animate-pulse">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-surface-2" />
+              <div className="space-y-1.5">
+                <div className="h-4 w-28 bg-surface-2 rounded" />
+                <div className="h-3 w-40 bg-surface-2 rounded" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="h-8 w-16 bg-surface-2 rounded-md" />
+              <div className="h-8 w-20 bg-surface-2 rounded-md" />
+              <div className="h-8 w-24 bg-surface-2 rounded-md" />
+            </div>
           </div>
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-16 bg-surface-2 rounded-lg" />
-            ))}
+          <div className="pt-3 border-t border-line/60 flex flex-col sm:flex-row gap-3">
+            <div className="h-10 flex-1 bg-surface-2 rounded-lg" />
+            <div className="h-10 w-full sm:w-48 bg-surface-2 rounded-lg" />
+            <div className="h-10 w-full sm:w-40 bg-surface-2 rounded-lg" />
           </div>
         </div>
       )}
 
-      {/* ── Error State ──────────────────────────────────────────────── */}
-      {error && !isLoading && (
+      {/* ── Content: Loading Skeleton / Error / Empty / List ─────────── */}
+      {isLoading ? (
+        <div className="space-y-3">
+          {/* DESKTOP TABLE SKELETON (Matches ProblemTable) */}
+          <div className="hidden md:block">
+            <RevisionTable isLoading={true} />
+          </div>
+
+          {/* MOBILE CARDS SKELETON (Matches MobileProblemSkeleton) */}
+          <div className="block md:hidden">
+            <MobileRevisionSkeleton />
+          </div>
+        </div>
+      ) : error ? (
         <div className="p-8 text-center border border-danger/25 rounded-xl bg-danger/10">
           <p className="text-xs text-danger mb-3">{error}</p>
           <button onClick={loadQueue} type="button" className="btn-secondary text-xs cursor-pointer">
             Retry
           </button>
         </div>
-      )}
-
-      {/* ── Empty Queue (All Done!) ─────────────────────────────────── */}
-      {!isLoading && !error && queue.length === 0 && (
+      ) : queue.length === 0 ? (
         <div className="border border-dashed p-12 sm:p-14 text-center border-line bg-surface rounded-xl">
           <div className="w-12 h-12 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center mx-auto mb-4 text-success">
             <CheckCircle2 className="w-6 h-6" />
@@ -468,10 +519,7 @@ const RevisionPage = () => {
             </Link>
           </div>
         </div>
-      )}
-
-      {/* ── Empty Filter Results ─────────────────────────────────────── */}
-      {!isLoading && !error && queue.length > 0 && filteredQueue.length === 0 && (
+      ) : filteredQueue.length === 0 ? (
         <div className="p-10 text-center border border-line bg-surface rounded-xl">
           <p className="text-xs text-muted">No overdue problems match your selected filters.</p>
           <button
@@ -483,10 +531,7 @@ const RevisionPage = () => {
             <span>Reset Filters</span>
           </button>
         </div>
-      )}
-
-      {/* ── Queue Items List: Desktop Table + Mobile Cards ───────────── */}
-      {!isLoading && !error && filteredQueue.length > 0 && (
+      ) : (
         <div className="space-y-3">
           {/* DESKTOP TABLE VIEW */}
           <div className="hidden md:block">
