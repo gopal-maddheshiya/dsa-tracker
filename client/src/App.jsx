@@ -18,18 +18,10 @@ const SignupPage = lazy(() => import('./pages/SignupPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 import ErrorBoundary from './components/ErrorBoundary';
+import LogoAssembleLoader from './components/ui/LogoAssembleLoader';
 
 // Sleek workspace route loading skeleton
-const RouteLoader = () => (
-  <div className="min-h-[50vh] flex flex-col items-center justify-center animate-fade-up">
-    <div className="w-10 h-10 rounded-xl bg-surface border border-line flex items-center justify-center mb-3">
-      <span className="w-4 h-4 border-2 border-line border-t-accent rounded-full animate-spin" />
-    </div>
-    <span className="text-xs text-muted uppercase tracking-wider font-medium">
-      Loading workspace…
-    </span>
-  </div>
-);
+const RouteLoader = () => <LogoAssembleLoader fullScreen={false} />;
 
 function App() {
   return (
