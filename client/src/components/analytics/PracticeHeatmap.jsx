@@ -243,7 +243,7 @@ const PracticeHeatmap = ({
       </div>
 
       {/* ── QUIET LEGEND & RANGE METRIC ─────────────────────────────── */}
-      <div className="pt-3 border-t border-line-subtle/50 mt-3 sm:mt-4 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] text-muted font-mono">
+      <div className="pt-3 border-t border-line mt-3 sm:mt-4 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] text-muted font-mono">
         <span>364 calendar days tracked</span>
 
         <div className="flex items-center gap-1.5">

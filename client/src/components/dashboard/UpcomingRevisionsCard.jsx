@@ -72,7 +72,7 @@ const UpcomingRevisionsCard = ({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted">
               Recall Queue
             </span>
-            <span className="text-[11px] font-mono font-medium text-accent px-1.5 py-0.2 rounded bg-accent/10 border border-accent/20 tabular-nums">
+            <span className="text-[11px] font-mono font-medium text-accent px-2 py-0.5 rounded-full bg-accent/15 border border-accent/25 tabular-nums">
               {queue.length} due
             </span>
           </div>
@@ -119,7 +119,7 @@ const UpcomingRevisionsCard = ({
                 <Link
                   key={item.problemId}
                   to={`/problems/${item.problemId}`}
-                  className="py-2 px-2 -mx-2 flex items-center justify-between gap-2.5 sm:gap-3 group transition-colors hover:bg-surface-2/60 rounded-md"
+                  className="py-2 px-2 -mx-2 flex items-center justify-between gap-2.5 sm:gap-3 group transition-colors hover:bg-surface-hover/70 rounded-md"
                   title={item.title}
                 >
                   {/* Left: Index + Title + Topic Tag */}
@@ -131,7 +131,7 @@ const UpcomingRevisionsCard = ({
                       {item.title}
                     </p>
                     {primaryTopic && (
-                      <span className="hidden md:inline-block px-1.5 py-0.2 rounded bg-surface-2 border border-line-subtle text-[10px] font-mono text-muted shrink-0">
+                      <span className="hidden md:inline-block px-2 py-0.5 rounded-full bg-surface-2 border border-line-subtle text-[10px] font-mono text-muted shrink-0">
                         #{primaryTopic.toLowerCase().replace(/\s+/g, '-')}
                       </span>
                     )}
@@ -147,9 +147,9 @@ const UpcomingRevisionsCard = ({
                     </div>
 
                     <span
-                      className={`text-[10px] font-mono font-medium w-14 text-center px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] font-mono font-medium w-14 text-center px-1.5 py-0.5 rounded-full ${
                         urgency === 'TODAY'
-                          ? 'text-accent bg-accent/10 border border-accent/20'
+                          ? 'text-accent bg-accent/15 border border-accent/25'
                           : 'text-muted bg-surface-2 border border-line-subtle'
                       }`}
                     >

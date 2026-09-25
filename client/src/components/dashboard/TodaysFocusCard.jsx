@@ -9,28 +9,27 @@ const DIFFICULTY_MAP = {
     label: 'Easy',
     dotClass: 'semantic-dot-easy',
     textClass: 'text-easy',
-    chipClass: 'bg-easy/10 border-easy/25',
+    chipClass: 'bg-easy/15 border-easy/30 text-easy',
   },
   medium: {
     label: 'Medium',
     dotClass: 'semantic-dot-medium',
     textClass: 'text-medium',
-    chipClass: 'bg-medium/10 border-medium/25',
+    chipClass: 'bg-medium/15 border-medium/30 text-medium',
   },
   hard: {
     label: 'Hard',
     dotClass: 'semantic-dot-hard',
     textClass: 'text-hard',
-    chipClass: 'bg-hard/10 border-hard/25',
+    chipClass: 'bg-hard/15 border-hard/30 text-hard',
   },
 };
 
 /**
- * TodaysFocusCard: Clean, High-Focus Deliberate Practice Target.
+ * TodaysFocusCard: LeetCode Daily Challenge Focus Card.
  *
- * Designed with quiet confidence:
- * Clear problem hierarchy, authentic practice rationale,
- * and direct 1-click solve actions without fake lighting or visual clutter.
+ * Clean, scannable deliberate practice target with LeetCode's
+ * iconic badges, high scannability, and direct 1-click solve actions.
  */
 const TodaysFocusCard = ({
   dailyFocus,
@@ -148,11 +147,12 @@ const TodaysFocusCard = ({
       aria-label="Today's Primary Target"
       className={`rounded-xl border border-line bg-surface p-4 sm:p-6 transition-all ${className}`}
     >
-      {/* ── TOP METADATA STRIP ────────────────────────────────────────── */}
+      {/* ── TOP METADATA STRIP (LeetCode Daily Challenge Style) ── */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 border-b border-line">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent">
-            Today's Target
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-accent">
+            <Target className="w-3.5 h-3.5 text-accent stroke-[2.5]" />
+            <span>Daily Challenge</span>
           </span>
           <span className="text-muted/40 font-mono text-xs">·</span>
           <span className="text-xs text-muted font-medium">
@@ -164,7 +164,7 @@ const TodaysFocusCard = ({
           <div className="text-xs text-muted font-mono inline-flex items-center gap-1.5">
             <span>Target gap:</span>
             <span className="text-text font-semibold">{primaryWeakTopic.topic}</span>
-            <span className="text-danger font-semibold tabular-nums">
+            <span className="text-hard font-semibold tabular-nums">
               ({Math.round(primaryWeakTopic.struggleRatio * 100)}% struggle)
             </span>
           </div>
@@ -187,14 +187,14 @@ const TodaysFocusCard = ({
               </Link>
             </h2>
 
-            {/* Clean Metadata Badges */}
-            <div className="flex flex-wrap items-center gap-2 pt-2 text-xs text-text-secondary select-none">
-              <div className={`inline-flex items-center gap-1.5 font-medium px-2 py-0.5 rounded border ${diffInfo.chipClass}`}>
+            {/* LeetCode Rounded Pill Badges */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 text-xs select-none">
+              <span className={`inline-flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full border text-xs ${diffInfo.chipClass}`}>
                 <span className={diffInfo.dotClass} />
-                <span className={diffInfo.textClass}>{diffInfo.label}</span>
-              </div>
+                <span>{diffInfo.label}</span>
+              </span>
 
-              <span className="px-2 py-0.5 rounded bg-surface-2 border border-line font-mono text-[11px] text-text-secondary">
+              <span className="px-2.5 py-0.5 rounded-full bg-surface-2 border border-line-subtle font-mono text-[11px] text-text-secondary">
                 {platformLabel}
               </span>
 
@@ -203,7 +203,7 @@ const TodaysFocusCard = ({
                   {dailyFocus.topics.slice(0, 3).map((t) => (
                     <span
                       key={t}
-                      className="px-2 py-0.5 rounded bg-surface-2/60 border border-line-subtle text-[11px] font-mono text-muted hover:text-text transition-colors"
+                      className="px-2.5 py-0.5 rounded-full bg-surface-2/80 hover:bg-surface-2 border border-line-subtle text-[11px] font-mono text-muted hover:text-text transition-colors"
                     >
                       #{t.toLowerCase().replace(/\s+/g, '-')}
                     </span>
@@ -227,7 +227,7 @@ const TodaysFocusCard = ({
               to={`/problems/${dailyFocus.id}`}
               className="btn-primary text-xs py-2 px-4 rounded-md font-semibold inline-flex items-center justify-center gap-2 cursor-pointer shadow-none w-full sm:w-auto"
             >
-              <span>Solve & Log Attempt</span>
+              <span>Solve Challenge</span>
               <ArrowRight className="w-3.5 h-3.5" />
               <kbd className="hidden sm:inline-block px-1.5 py-0.2 rounded-xs bg-black/25 text-[10px] font-mono font-normal opacity-75">
                 ↵

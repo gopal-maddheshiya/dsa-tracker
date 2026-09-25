@@ -42,12 +42,17 @@ const PracticeStateBar = ({
   const medSolved = diffBreakdown.find((d) => d.difficulty?.toLowerCase() === 'medium')?.solved ?? 0;
   const hardSolved = diffBreakdown.find((d) => d.difficulty?.toLowerCase() === 'hard')?.solved ?? 0;
 
+  const totalCalculated = totalSolved > 0 ? totalSolved : (easySolved + medSolved + hardSolved);
+  const easyPct = totalCalculated > 0 ? (easySolved / totalCalculated) * 100 : 0;
+  const medPct = totalCalculated > 0 ? (medSolved / totalCalculated) * 100 : 0;
+  const hardPct = totalCalculated > 0 ? (hardSolved / totalCalculated) * 100 : 0;
+
   return (
     <div
       aria-label="Practice State Telemetry"
       className={`grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 select-none ${className}`}
     >
-      {/* ── CARD 1: SOLVED PROBLEMS ─────────────────────────────── */}
+      {/* ── CARD 1: SOLVED PROBLEMS (LeetCode Multi-Segment Visual) ── */}
       <Link
         to="/problems?status=solved"
         className="p-3.5 sm:p-5 rounded-lg border border-line bg-surface hover:bg-surface-2/40 hover:border-line/80 transition-colors flex flex-col justify-between"
@@ -63,14 +68,37 @@ const PracticeStateBar = ({
             </span>
             <span className="text-[11px] sm:text-xs text-muted">problems</span>
           </div>
+
+          {/* LeetCode Iconic Segmented Progress Track */}
+          <div className="mt-2.5 h-1.5 w-full rounded-full bg-surface-2 overflow-hidden flex gap-0.5">
+            {easySolved > 0 && (
+              <div style={{ width: `${easyPct}%` }} className="h-full bg-easy rounded-xs transition-all duration-300" title={`Easy: ${easySolved}`} />
+            )}
+            {medSolved > 0 && (
+              <div style={{ width: `${medPct}%` }} className="h-full bg-medium rounded-xs transition-all duration-300" title={`Medium: ${medSolved}`} />
+            )}
+            {hardSolved > 0 && (
+              <div style={{ width: `${hardPct}%` }} className="h-full bg-hard rounded-xs transition-all duration-300" title={`Hard: ${hardSolved}`} />
+            )}
+          </div>
         </div>
 
-        <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-line-subtle flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs font-mono">
-          <span className="text-easy font-semibold">{easySolved}E</span>
-          <span className="text-muted/40">·</span>
-          <span className="text-medium font-semibold">{medSolved}M</span>
-          <span className="text-muted/40">·</span>
-          <span className="text-hard font-semibold">{hardSolved}H</span>
+        <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-line-subtle flex items-center justify-between text-[11px] sm:text-xs font-mono">
+          <span className="flex items-center gap-1 text-easy font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-easy" />
+            <span>{easySolved}</span>
+            <span className="text-[10px] text-muted hidden sm:inline">E</span>
+          </span>
+          <span className="flex items-center gap-1 text-medium font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-medium" />
+            <span>{medSolved}</span>
+            <span className="text-[10px] text-muted hidden sm:inline">M</span>
+          </span>
+          <span className="flex items-center gap-1 text-hard font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-hard" />
+            <span>{hardSolved}</span>
+            <span className="text-[10px] text-muted hidden sm:inline">H</span>
+          </span>
         </div>
       </Link>
 

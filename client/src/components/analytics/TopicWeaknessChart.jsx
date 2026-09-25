@@ -72,7 +72,7 @@ const TopicWeaknessChart = ({
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted">
               Top Bottlenecks
             </span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-surface-2 border border-line-subtle text-muted">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-2 border border-line-subtle text-muted">
               Struggle Ratio
             </span>
           </div>
@@ -121,10 +121,10 @@ const TopicWeaknessChart = ({
                 <div
                   key={item.topic}
                   onClick={() => navigate(`/problems?topic=${encodeURIComponent(item.topic)}`)}
-                  className={`py-2 px-2 -mx-2 flex items-center justify-between text-xs cursor-pointer group rounded transition-colors ${
+                  className={`py-2 px-2 -mx-2 flex items-center justify-between text-xs cursor-pointer group rounded-md transition-colors ${
                     isFirst
                       ? 'bg-surface-2/60 border-l-2 border-l-accent pl-2.5'
-                      : 'hover:bg-surface-2/40'
+                      : 'hover:bg-surface-hover/70'
                   }`}
                   title={`Filter catalog by ${item.topic}`}
                 >
@@ -147,7 +147,7 @@ const TopicWeaknessChart = ({
                       {item.topic}
                     </span>
                     {isFirst && (
-                      <span className="hidden sm:inline-block px-1.5 py-0.2 rounded bg-accent/15 border border-accent/25 text-[9px] font-mono text-accent font-bold uppercase shrink-0">
+                      <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-accent/15 border border-accent/25 text-[9px] font-mono text-accent font-bold uppercase shrink-0">
                         Top Gap
                       </span>
                     )}
