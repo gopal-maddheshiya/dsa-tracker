@@ -266,7 +266,7 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
     <aside
       aria-label="Desktop Navigation"
       className={`
-        flex flex-col h-full bg-[#131317] border-r border-line
+        flex flex-col h-full bg-surface border-r border-line
         transition-all duration-150 ease-in-out select-none
         ${collapsed ? 'w-[68px] overflow-visible' : 'w-[240px] overflow-hidden'}
       `}
@@ -632,7 +632,7 @@ const AppShell = ({ children }) => {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* ── Top Header Ribbon (56px) ─────────────── */}
-        <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 border-b border-line bg-[#131317]/95 backdrop-blur-md shrink-0">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 border-b border-line bg-surface/90 backdrop-blur-md shrink-0">
 
           {/* Left: Mobile Brand Logo OR Desktop Breadcrumbs */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -766,7 +766,7 @@ const AppShell = ({ children }) => {
         {/* ── Fixed Bottom Tab Bar Navigation (< lg) ── */}
         <nav
           aria-label="Bottom Tab Navigation"
-          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#131317]/95 backdrop-blur-md border-t border-line pb-safe select-none"
+          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface/95 backdrop-blur-md border-t border-line pb-safe select-none"
         >
           <div className="grid grid-cols-4 items-center w-full max-w-md mx-auto px-2 py-1">
             {WORKSPACE_LINKS.map(({ to, label, Icon }) => {
