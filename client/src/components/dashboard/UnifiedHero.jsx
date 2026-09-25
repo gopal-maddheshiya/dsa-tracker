@@ -53,8 +53,14 @@ const UnifiedHero = ({
           </div>
 
           {/* Right Column Skeleton */}
-          <div className="lg:col-span-5 p-5 bg-surface-2/40 border border-line rounded-xl space-y-4">
-            <div className="h-4 w-40 bg-surface-2 rounded-xs" />
+          <div className="lg:col-span-5 space-y-5 lg:pl-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-surface-2 shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <div className="h-4 w-40 bg-surface-2 rounded-xs" />
+                <div className="h-3 w-56 bg-surface-2 rounded-xs" />
+              </div>
+            </div>
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-full bg-surface-2 shrink-0" />
               <div className="space-y-2 flex-1">
@@ -62,7 +68,7 @@ const UnifiedHero = ({
                 <div className="h-3 w-32 bg-surface-2 rounded-xs" />
               </div>
             </div>
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2.5 pt-2">
               <div className="h-2 w-full bg-surface-2 rounded-full" />
               <div className="h-2 w-full bg-surface-2 rounded-full" />
               <div className="h-2 w-full bg-surface-2 rounded-full" />
@@ -106,14 +112,15 @@ const UnifiedHero = ({
   return (
     <div className="relative overflow-hidden rounded-2xl border border-line/80 card-classy p-5 sm:p-7 lg:p-8 select-none shadow-2xl">
       {/* ── Architectural Engineering Grid Overlay ── */}
-      <div className="absolute inset-0 engineering-grid pointer-events-none opacity-85 z-0" />
+      <div className="absolute inset-0 engineering-grid pointer-events-none opacity-90 z-0" />
 
-      {/* ── Subtle Ambient Glows (Classy & Warm) ── */}
+      {/* ── Subtle Ambient Glows (Classy Atmospheric Portfolio Blueprint) ── */}
+      <div className="pointer-events-none absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl z-0" />
       <div className="pointer-events-none absolute -top-24 -left-20 w-80 h-80 bg-accent/8 rounded-full blur-3xl z-0" />
       <div className="pointer-events-none absolute -bottom-24 -right-20 w-80 h-80 bg-easy/5 rounded-full blur-3xl z-0" />
 
       {/* ── Main Content Grid ── */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
         {/* ── LEFT COLUMN (7 cols): Editorial Deliberate Practice Headline ── */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
@@ -246,23 +253,23 @@ const UnifiedHero = ({
 
         </div>
 
-        {/* ── RIGHT COLUMN (5 cols): Contained Progress Card (Matches Screenshot) ── */}
-        <div className="lg:col-span-5 bg-surface/90 border border-line/90 rounded-xl p-5 sm:p-6 backdrop-blur-md space-y-5 shadow-lg">
+        {/* ── RIGHT COLUMN (5 cols): Open & Floating on the Big Grid Canvas (Matches Reference Screenshot) ── */}
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-5 lg:pl-6">
 
-          {/* Motivational Mini-Banner */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-surface-2/50 border border-line-subtle/80">
-            <div className="p-2 rounded-md bg-accent/15 border border-accent/25 text-accent shrink-0">
-              <Rocket className="w-4 h-4" />
+          {/* Motivational Momentum Header (Floating, No Box) */}
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/25 text-accent shrink-0 shadow-xs">
+              <Rocket className="w-5 h-5" />
             </div>
             <div className="space-y-0.5">
-              <h4 className="text-xs font-semibold text-text">You're building momentum!</h4>
-              <p className="text-[11px] text-muted leading-relaxed">
+              <h4 className="text-sm font-semibold text-text">You're building momentum!</h4>
+              <p className="text-xs text-text-secondary leading-relaxed">
                 Every problem solved unlocks intuition and resets forgetting curves.
               </p>
             </div>
           </div>
 
-          {/* Circular Progress + Total Progress Metric */}
+          {/* Circular Progress + Total Progress Metric (Floating on Canvas) */}
           <div className="flex items-center gap-5 pt-1">
             {/* SVG Circular Progress Ring */}
             <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
@@ -317,8 +324,8 @@ const UnifiedHero = ({
             </div>
           </div>
 
-          {/* Tiered Difficulty Progress Bars (Matches Screenshot Exactly) */}
-          <div className="space-y-3 pt-2 border-t border-line-subtle/80">
+          {/* Tiered Difficulty Progress Bars (Floating on Canvas) */}
+          <div className="space-y-3 pt-1">
             {/* Easy Bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center text-xs">
