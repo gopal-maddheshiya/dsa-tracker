@@ -23,19 +23,19 @@ const AppBackground = () => {
       {/* 1. Deep Obsidian Base Gradient */}
       <div className="absolute inset-0 bg-[#0b0d11]" />
 
-      {/* 2. Top Specular Amber Spotlight (LeetCode Accent Glow) */}
+      {/* 2. Top Specular Amber Spotlight (Calm Atmospheric Whisper) */}
       <div
-        className="absolute -top-[120px] left-1/2 -translate-x-1/2 w-[1000px] max-w-[120vw] h-[520px] rounded-full blur-[140px] opacity-75 pointer-events-none"
+        className="absolute -top-[140px] left-1/2 -translate-x-1/2 w-[900px] max-w-[120vw] h-[450px] rounded-full blur-[160px] opacity-35 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 161, 22, 0.13) 0%, rgba(255, 161, 22, 0.04) 45%, transparent 75%)',
+          background: 'radial-gradient(circle, rgba(255, 161, 22, 0.07) 0%, rgba(255, 161, 22, 0.015) 45%, transparent 70%)',
         }}
       />
 
-      {/* 3. Cool Algorithmic Teal Resonance (Bottom-Right) */}
+      {/* 3. Cool Algorithmic Teal Resonance (Bottom-Right, Subdued) */}
       <div
-        className="absolute -bottom-[120px] -right-[80px] w-[650px] max-w-[100vw] h-[650px] rounded-full blur-[160px] opacity-35 pointer-events-none"
+        className="absolute -bottom-[120px] -right-[80px] w-[600px] max-w-[100vw] h-[600px] rounded-full blur-[160px] opacity-20 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(0, 184, 163, 0.12) 0%, rgba(0, 184, 163, 0.025) 50%, transparent 75%)',
+          background: 'radial-gradient(circle, rgba(0, 184, 163, 0.06) 0%, transparent 65%)',
         }}
       />
 

@@ -42,11 +42,11 @@ const UnifiedHero = ({
 
   // Dynamic Coder Level & Title Calculation
   const getLevelInfo = (solved) => {
-    if (solved >= 300) return { level: 5, title: 'Grandmaster', badge: 'text-amber-300 border-amber-500/40 bg-amber-500/15' };
-    if (solved >= 150) return { level: 4, title: 'Pattern Specialist', badge: 'text-purple-300 border-purple-500/40 bg-purple-500/15' };
-    if (solved >= 60) return { level: 3, title: 'Pattern Practitioner', badge: 'text-blue-300 border-blue-500/40 bg-blue-500/15' };
-    if (solved >= 20) return { level: 2, title: 'Pattern Apprentice', badge: 'text-emerald-300 border-emerald-500/40 bg-emerald-500/15' };
-    return { level: 1, title: 'Pattern Novice', badge: 'text-text-secondary border-line bg-surface-2' };
+    if (solved >= 300) return { level: 5, title: 'Grandmaster' };
+    if (solved >= 150) return { level: 4, title: 'Pattern Specialist' };
+    if (solved >= 60) return { level: 3, title: 'Pattern Practitioner' };
+    if (solved >= 20) return { level: 2, title: 'Pattern Apprentice' };
+    return { level: 1, title: 'Pattern Novice' };
   };
 
   const levelInfo = getLevelInfo(totalCalculated);
@@ -77,18 +77,18 @@ const UnifiedHero = ({
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-text">
-              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-text via-text to-accent">{firstName}</span>
+              Welcome back, {firstName}
             </h1>
 
             {/* Level Badge */}
-            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-mono font-bold ${levelInfo.badge}`}>
-              <Trophy className="w-3 h-3 text-current" />
-              <span>LVL {levelInfo.level} · {levelInfo.title.toUpperCase()}</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-line-subtle bg-surface-2/90 text-[10px] font-mono font-medium text-text-secondary">
+              <Trophy className="w-3 h-3 text-accent" />
+              <span>LVL {levelInfo.level} · {levelInfo.title}</span>
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-text-secondary">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
             <span>Active Curriculum:</span>
             <strong className="text-text font-semibold">Non-Linear Structures (Trees & Graphs)</strong>
           </div>
@@ -99,15 +99,15 @@ const UnifiedHero = ({
           <button
             type="button"
             onClick={onQuickAdd}
-            className="btn-primary text-xs py-1.5 px-3 rounded-lg font-semibold inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="text-xs py-1.5 px-3 rounded-lg font-semibold inline-flex items-center gap-1.5 cursor-pointer bg-surface-2 hover:bg-surface-hover border border-line-subtle hover:border-line text-text transition-colors shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.5] text-accent" />
             <span>Add Problem</span>
           </button>
 
           <Link
             to="/problems"
-            className="text-xs font-medium text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line-subtle py-1.5 px-3 rounded-lg inline-flex items-center gap-1 transition-colors"
+            className="text-xs font-medium text-muted hover:text-text bg-surface-2/60 hover:bg-surface-hover border border-line-subtle/70 py-1.5 px-3 rounded-lg inline-flex items-center gap-1 transition-colors"
           >
             <span>Catalog</span>
             <ArrowRight className="w-3 h-3" />
@@ -168,7 +168,7 @@ const UnifiedHero = ({
 
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-black font-mono text-accent tabular-nums">
+              <span className="text-xl sm:text-2xl font-black font-mono text-text tabular-nums">
                 {streak != null && streak > 0 ? streak : 0}
               </span>
               <span className="text-xs font-mono text-muted">Days</span>
@@ -180,7 +180,7 @@ const UnifiedHero = ({
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
             <span className="text-muted">Target Cadence</span>
-            <span className="font-bold text-accent">Daily Velocity</span>
+            <span className="font-medium text-text-secondary">Daily Velocity</span>
           </div>
         </div>
 
@@ -213,7 +213,7 @@ const UnifiedHero = ({
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
             <span className="text-muted">Status</span>
-            <span className={`font-bold px-1.5 py-0.2 rounded ${revisionCount > 0 ? 'text-accent bg-accent/15 border border-accent/30' : 'text-easy bg-easy/10'}`}>
+            <span className={`font-semibold px-2 py-0.5 rounded text-[10px] ${revisionCount > 0 ? 'text-accent bg-accent/10 border border-accent/25' : 'text-easy bg-easy/10'}`}>
               {revisionCount > 0 ? `${revisionCount} Urgent` : 'Caught Up ✓'}
             </span>
           </div>
@@ -253,7 +253,7 @@ const UnifiedHero = ({
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
             <span className="text-muted">50% Complete</span>
-            <span className="font-bold text-accent flex items-center gap-0.5">
+            <span className="font-medium text-text-secondary group-hover:text-text flex items-center gap-0.5 transition-colors">
               <span>Inspect</span>
               <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
             </span>

@@ -234,16 +234,16 @@ const DashboardPage = () => {
       {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview Only) ──── */}
       {!isAuthenticated && (
         <Reveal delay={0} y={4}>
-          <div className="relative overflow-hidden rounded-xl border border-accent/25 bg-gradient-to-r from-surface-2 via-surface to-surface-2 p-2.5 sm:p-4 shadow-sm select-none">
+          <div className="relative overflow-hidden rounded-xl border border-line-subtle/80 bg-surface/85 backdrop-blur-md p-2.5 sm:p-3.5 shadow-xs select-none">
             <div className="relative z-10 flex items-center justify-between gap-2.5 sm:gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-2 h-2 rounded-full bg-accent/80 shrink-0" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent shrink-0">
+                    <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-text-secondary shrink-0">
                       Demo Workspace
                     </span>
-                    <span className="hidden sm:inline-block text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-accent/10 border border-accent/20 text-accent">
+                    <span className="hidden sm:inline-block text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
                       Interactive Preview
                     </span>
                   </div>
@@ -258,14 +258,14 @@ const DashboardPage = () => {
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <Link
                   to="/signup"
-                  className="btn-primary text-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-lg font-semibold inline-flex items-center gap-1 whitespace-nowrap"
+                  className="bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 text-xs py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg font-semibold inline-flex items-center gap-1 whitespace-nowrap transition-colors"
                 >
                   <span>Sign Up</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
                 <Link
                   to="/login"
-                  className="hidden xs:inline-block text-xs font-medium text-text-secondary hover:text-text px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-line bg-surface-2"
+                  className="hidden xs:inline-block text-xs font-medium text-text-secondary hover:text-text px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-line-subtle bg-surface-2 hover:bg-surface-hover transition-colors"
                 >
                   Log In
                 </Link>

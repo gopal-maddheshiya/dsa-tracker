@@ -370,7 +370,7 @@ const MasteryMilestonePath = ({
         {/* Title & Eyebrow */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/25">
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-text-secondary bg-surface-2 px-2 py-0.5 rounded border border-line-subtle">
               INTERACTIVE ROADMAP
             </span>
             <span className="text-xs font-mono text-muted">· NeetCode / Striver Pattern Flow</span>
@@ -398,7 +398,7 @@ const MasteryMilestonePath = ({
             <span className="text-[10px] font-mono text-muted uppercase tracking-wider block">
               Completion
             </span>
-            <span className="text-xs sm:text-sm font-bold font-mono text-accent tabular-nums">
+            <span className="text-xs sm:text-sm font-bold font-mono text-text tabular-nums">
               {skillTreeState.overallMasteryPct}%
             </span>
           </div>
@@ -418,13 +418,13 @@ const MasteryMilestonePath = ({
               onClick={() => setActiveTrackTab(track.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer inline-flex items-center gap-1.5 ${
                 isSelected
-                  ? 'bg-accent/20 text-accent border border-accent/40 font-bold shadow-[0_0_12px_-2px_rgba(255,161,22,0.25)]'
-                  : 'text-text-secondary hover:text-text hover:bg-surface-2 border border-transparent'
+                  ? 'bg-surface-2 text-text border border-line font-bold'
+                  : 'text-text-secondary hover:text-text hover:bg-surface-2/60 border border-transparent'
               }`}
             >
               {isHierarchical && <span className="text-accent">★</span>}
               <span>{track.shortTitle}</span>
-              <span className={`text-[10px] font-mono tabular-nums ${isSelected ? 'text-accent' : 'text-muted'}`}>
+              <span className="text-[10px] font-mono tabular-nums text-muted">
                 ({track.nodes.filter((n) => n.status === 'mastered').length}/{track.nodes.length})
               </span>
             </button>
@@ -435,8 +435,8 @@ const MasteryMilestonePath = ({
           onClick={() => setActiveTrackTab('all')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
             activeTrackTab === 'all'
-              ? 'bg-accent/20 text-accent border border-accent/40 font-bold shadow-[0_0_12px_-2px_rgba(255,161,22,0.25)]'
-              : 'text-text-secondary hover:text-text hover:bg-surface-2 border border-transparent'
+              ? 'bg-surface-2 text-text border border-line font-bold'
+              : 'text-text-secondary hover:text-text hover:bg-surface-2/60 border border-transparent'
           }`}
         >
           All Tracks (14)

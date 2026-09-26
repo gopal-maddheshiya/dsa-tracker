@@ -23,6 +23,10 @@ import {
   Plus,
   Globe,
   X,
+  Hash,
+  GitBranch,
+  Layers,
+  Workflow,
 } from 'lucide-react';
 import { scrollToTop } from '../common/SmoothScroll';
 
@@ -31,6 +35,13 @@ const WORKSPACE_LINKS = [
   { to: '/problems', label: 'Problems', Icon: Code2 },
   { to: '/revision', label: 'Revision', Icon: Repeat },
   { to: '/profile', label: 'Profile', Icon: User },
+];
+
+const CURATED_TRACKS = [
+  { label: 'Arrays & Hashing', topic: 'Array', Icon: Hash, count: '32' },
+  { label: 'Two Pointers & Window', topic: 'Two Pointers', Icon: Workflow, count: '22' },
+  { label: 'Trees & Graphs', topic: 'Tree', Icon: GitBranch, count: '36' },
+  { label: 'Dynamic Programming', topic: 'Dynamic Programming', Icon: Layers, count: '25' },
 ];
 
 /* ── User Profile Popover Menu (Desktop & Mobile) ───────────────────── */
@@ -196,6 +207,7 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
 /* ── Sidebar component (Desktop) ────────────────────────────────────── */
 const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
   const { user } = useAuth();
+  const location = useLocation();
 
   // Derive initials for avatar
   const initials = user?.name
@@ -205,7 +217,6 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
   const SideNavLink = ({ to, label, Icon: NavIcon }) => {
     const isRevision = label === 'Revision';
     const badge = isRevision ? revisionCount : 0;
-    const location = useLocation();
 
     const isPlatforms = to.includes('tab=platforms');
     const isCustomActive = isPlatforms
@@ -241,11 +252,11 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         className={({ isActive }) => {
           const active = isCustomActive !== undefined ? isCustomActive : isActive;
           return `
-            group relative flex items-center ${collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2'} rounded-xl text-xs select-none
+            group relative flex items-center ${collapsed ? 'justify-center w-10 h-10 mx-auto' : 'gap-3 px-3 py-2'} rounded-xl text-xs select-none
             transition-all duration-150
             ${active
-              ? 'bg-gradient-to-r from-accent/15 via-surface-2/80 to-surface-2/40 border border-accent/30 text-text font-semibold shadow-[0_0_14px_-3px_rgba(255,161,22,0.22)] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r-full before:bg-accent before:shadow-[0_0_8px_rgba(255,161,22,0.85)]'
-              : 'text-text-secondary hover:text-text hover:bg-surface-hover/80 border border-transparent'
+              ? 'bg-accent/[0.08] text-text font-semibold border border-accent/25 shadow-xs'
+              : 'text-text-secondary hover:text-text hover:bg-surface-hover/70 border border-transparent'
             }
           `;
         }}
@@ -254,15 +265,21 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
           const active = isCustomActive !== undefined ? isCustomActive : isActive;
           return (
             <>
-              <NavIcon className={`w-4 h-4 shrink-0 transition-all duration-150 ${active ? 'text-accent drop-shadow-[0_0_8px_rgba(255,161,22,0.6)] scale-105' : 'text-muted group-hover:text-text-secondary group-hover:scale-105'}`} />
+              <NavIcon
+                className={`w-4 h-4 shrink-0 transition-all duration-150 ${
+                  active ? 'text-accent scale-105' : 'text-muted group-hover:text-text-secondary group-hover:scale-105'
+                }`}
+              />
               {!collapsed ? (
                 <>
-                  <span className="truncate flex-1">{label}</span>
-                  {badge > 0 && (
-                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-accent/20 text-accent border border-accent/35 shadow-[0_0_8px_rgba(255,161,22,0.25)] tabular-nums">
+                  <span className="truncate flex-1 tracking-tight">{label}</span>
+                  {badge > 0 ? (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-accent/15 text-accent border border-accent/25 tabular-nums">
                       {badge > 99 ? '99+' : badge}
                     </span>
-                  )}
+                  ) : active ? (
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent ml-auto shrink-0 shadow-[0_0_8px_rgba(255,161,22,0.6)]" />
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -337,8 +354,56 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
           <SideNavLink key={to} to={to} label={label} Icon={NavIcon} />
         ))}
 
+        {/* ── Curated Study Tracks (fills empty middle void) ── */}
+        {!collapsed && (
+          <div className="pt-3 pb-1">
+            <div className="flex items-center justify-between px-3 pb-1.5">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
+                Study Tracks
+              </span>
+              <NavLink
+                to="/dashboard#skill-tree-roadmap"
+                className="text-[10px] font-mono text-muted hover:text-accent transition-colors flex items-center gap-0.5"
+                title="Jump to Skill Tree Roadmap"
+              >
+                <span>Roadmap</span>
+                <span className="text-[11px]">→</span>
+              </NavLink>
+            </div>
+            <div className="space-y-0.5">
+              {CURATED_TRACKS.map(({ label, topic, Icon: TrackIcon, count }) => {
+                const isTrackActive =
+                  location.pathname === '/problems' &&
+                  location.search.includes(`topic=${encodeURIComponent(topic)}`);
+                return (
+                  <NavLink
+                    key={topic}
+                    to={`/problems?topic=${encodeURIComponent(topic)}`}
+                    className={`
+                      group flex items-center justify-between px-3 py-1.5 rounded-lg text-xs select-none transition-all duration-150 border
+                      ${isTrackActive
+                        ? 'bg-accent/[0.08] text-text font-medium border-accent/20 shadow-xs'
+                        : 'text-text-secondary hover:text-text hover:bg-surface-hover/60 border-transparent'
+                      }
+                    `}
+                    title={`Filter problems by ${label}`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <TrackIcon className={`w-3.5 h-3.5 shrink-0 transition-colors ${isTrackActive ? 'text-accent' : 'text-muted group-hover:text-text-secondary'}`} />
+                      <span className="truncate text-[11px]">{label}</span>
+                    </div>
+                    <span className={`text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded border transition-colors ${isTrackActive ? 'bg-accent/15 text-accent border-accent/25 font-semibold' : 'text-muted bg-surface/60 border-line-subtle/50 group-hover:border-line-subtle'}`}>
+                      {count}
+                    </span>
+                  </NavLink>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {!collapsed ? (
-          <p className="px-3 pb-1 pt-4 text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
+          <p className="px-3 pb-1 pt-3 text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
             Integrations
           </p>
         ) : (
@@ -347,47 +412,7 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         <SideNavLink to="/profile?tab=platforms" label="Platform Sync" Icon={Globe} />
       </nav>
 
-      {/* ── Compact Sidebar Streak Telemetry Mini-Card ──────── */}
-      {!collapsed ? (
-        <NavLink
-          to="/profile"
-          className="mx-2.5 mb-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-surface-2/70 via-surface to-surface-2/40 border border-line-subtle/80 hover:border-accent/40 flex items-center justify-between text-xs transition-all duration-200 shadow-xs hover:shadow-[0_0_12px_-2px_rgba(255,161,22,0.15)] group cursor-pointer"
-          title="Practice streak cadence"
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-6 h-6 rounded-lg bg-accent/10 border border-accent/25 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors">
-              <Flame className="w-3.5 h-3.5 text-accent animate-pulse group-hover:scale-110 transition-transform" />
-            </div>
-            <div className="min-w-0">
-              <span className="block text-[11px] font-semibold text-text truncate group-hover:text-accent transition-colors">
-                Streak Cadence
-              </span>
-              <span className="block text-[9px] font-mono text-muted uppercase tracking-wider">
-                Daily Velocity
-              </span>
-            </div>
-          </div>
-          <span className="font-mono text-xs font-bold text-accent tabular-nums bg-accent/10 px-2 py-0.5 rounded-md border border-accent/25 shadow-[0_0_8px_rgba(255,161,22,0.2)]">
-            {streak != null && streak > 0 ? `${streak}d` : '0d'}
-          </span>
-        </NavLink>
-      ) : (
-        <NavLink
-          to="/profile"
-          className="group relative mx-auto mb-2.5 w-10 h-10 rounded-xl hover:bg-surface-2/80 flex items-center justify-center text-text-secondary hover:text-accent transition-all select-none border border-line-subtle/60 hover:border-accent/40 shadow-xs cursor-pointer"
-          aria-label={`${streak || 0} day streak`}
-        >
-          <Flame className="w-4 h-4 text-accent animate-pulse group-hover:scale-110 transition-transform" />
-          <span
-            role="tooltip"
-            className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
-          >
-            {streak != null && streak > 0 ? `${streak} day streak` : '0 day streak'}
-          </span>
-        </NavLink>
-      )}
-
-      {/* ── User Footer ───────────────────────────── */}
+      {/* ── Unified Master Profile & Telemetry Dock ────────────── */}
       <div className={`shrink-0 border-t border-line-subtle/80 p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
         {!user ? (
           collapsed ? (
@@ -408,11 +433,11 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
               </span>
             </NavLink>
           ) : (
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-surface-2/80 via-surface-2/50 to-surface border border-line-subtle/90 shadow-xs relative overflow-hidden">
+            <div className="p-2.5 rounded-xl bg-surface-2/70 border border-line-subtle/80 shadow-xs relative overflow-hidden">
               <div className="flex items-center justify-between gap-2.5 mb-2">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-accent radar-beacon shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent/80 shrink-0" />
                     <p className="text-xs font-bold text-text truncate">Guest Explorer</p>
                   </div>
                   <p className="text-[10px] font-mono text-muted truncate mt-0.5">Public Demo Mode</p>
@@ -420,10 +445,10 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
               </div>
               <NavLink
                 to="/login"
-                className="w-full flex items-center justify-center gap-1.5 bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-400 text-bg text-xs py-1.5 px-3 rounded-lg font-extrabold shadow-[0_2px_12px_-2px_rgba(255,161,22,0.45)] hover:shadow-[0_4px_16px_-2px_rgba(255,161,22,0.6)] transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-1.5 bg-surface hover:bg-surface-hover text-text hover:border-line border border-line-subtle text-xs py-1.5 px-3 rounded-lg font-semibold transition-all cursor-pointer shadow-xs group"
               >
                 <span>Sign In to Save</span>
-                <span className="text-xs">→</span>
+                <span className="text-xs text-muted group-hover:translate-x-0.5 transition-transform">→</span>
               </NavLink>
             </div>
           )
@@ -456,6 +481,21 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
                 {user?.name || 'Profile'}
               </span>
             </NavLink>
+
+            <NavLink
+              to="/profile"
+              className="group relative w-10 h-10 rounded-xl hover:bg-surface-2/80 flex items-center justify-center text-text-secondary hover:text-accent transition-all select-none border border-line-subtle/60 hover:border-accent/40 shadow-xs cursor-pointer"
+              aria-label={`${streak || 0} day streak`}
+            >
+              <Flame className="w-4 h-4 text-accent animate-pulse group-hover:scale-110 transition-transform" />
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+              >
+                {streak != null && streak > 0 ? `${streak} day streak` : '0 day streak'}
+              </span>
+            </NavLink>
+
             <button
               onClick={onLogout}
               className="group relative p-2 rounded-xl text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
@@ -471,38 +511,68 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
             </button>
           </>
         ) : (
-          <div className="flex items-center justify-between gap-2.5 p-1.5 rounded-xl bg-surface-2/40 hover:bg-surface-2/80 border border-transparent hover:border-line-subtle transition-all">
-            <NavLink to="/profile" className="flex items-center gap-2.5 min-w-0 flex-1 group">
-              <div className="relative shrink-0">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover border border-line group-hover:border-accent transition-colors shadow-xs"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-surface-2 border border-line flex items-center justify-center shrink-0 text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
-                    {initials}
-                  </div>
-                )}
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-easy border-2 border-surface" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-text truncate group-hover:text-accent transition-colors">
-                  {user?.name || 'DSA Learner'}
-                </p>
-                <p className="text-[10px] font-mono text-muted truncate">{user?.email}</p>
-              </div>
-            </NavLink>
-            <button
-              onClick={onLogout}
-              className="p-1.5 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors shrink-0 cursor-pointer"
-              title="Sign out"
-              aria-label="Sign out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+          <div className="rounded-xl bg-surface-2/60 hover:bg-surface-2/80 border border-line-subtle/80 hover:border-line-subtle transition-all duration-200 p-2.5 shadow-xs">
+            {/* Identity row */}
+            <div className="flex items-center justify-between gap-2.5">
+              <NavLink to="/profile" className="flex items-center gap-2.5 min-w-0 flex-1 group/user cursor-pointer">
+                <div className="relative shrink-0">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover border border-line group-hover/user:border-accent transition-colors shadow-xs"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-surface border border-line flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary group-hover/user:text-accent group-hover/user:border-accent transition-colors">
+                      {initials}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-easy ring-2 ring-surface-2" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-text truncate group-hover/user:text-accent transition-colors leading-tight">
+                    {user?.name || 'DSA Learner'}
+                  </p>
+                  <p className="text-[10px] font-mono text-muted truncate mt-0.5">{user?.email}</p>
+                </div>
+              </NavLink>
+              <button
+                onClick={onLogout}
+                className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0 cursor-pointer"
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Integrated Telemetry Row: Streak & Revision Due */}
+            <div className="mt-2.5 pt-2 border-t border-line-subtle/60 grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+              <NavLink
+                to="/profile"
+                className="flex items-center gap-1.5 px-2 py-1 rounded-md text-muted hover:text-text hover:bg-surface/80 border border-transparent hover:border-line-subtle/50 transition-all group/stat"
+                title="Daily practice streak"
+              >
+                <Flame className="w-3.5 h-3.5 text-accent shrink-0 group-hover/stat:scale-110 transition-transform" />
+                <span className="text-text font-bold tabular-nums">
+                  {streak != null && streak > 0 ? `${streak}d` : '0d'}
+                </span>
+                <span className="text-[9px] uppercase tracking-wider text-muted">streak</span>
+              </NavLink>
+
+              <NavLink
+                to="/revision"
+                className="flex items-center gap-1.5 px-2 py-1 rounded-md text-muted hover:text-text hover:bg-surface/80 border border-transparent hover:border-line-subtle/50 transition-all group/stat justify-end"
+                title="Spaced repetition queue"
+              >
+                <Repeat className="w-3 h-3 text-accent shrink-0 group-hover/stat:rotate-45 transition-transform" />
+                <span className="text-text font-bold tabular-nums">
+                  {revisionCount || 0}
+                </span>
+                <span className="text-[9px] uppercase tracking-wider text-muted">due</span>
+              </NavLink>
+            </div>
           </div>
         )}
       </div>
@@ -802,7 +872,7 @@ const AppShell = ({ children }) => {
             <button
               type="button"
               onClick={handleNewProblemClick}
-              className="h-9 w-9 sm:w-auto sm:px-3.5 rounded-xl bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-400 text-bg font-bold text-xs flex items-center justify-center gap-1.5 shadow-[0_2px_10px_-2px_rgba(255,161,22,0.4)] hover:shadow-[0_4px_14px_-2px_rgba(255,161,22,0.55)] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="h-9 w-9 sm:w-auto sm:px-3.5 rounded-xl bg-accent text-bg hover:bg-accent-hover font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
               aria-label="Create new problem"
               title="Create new problem"
             >
@@ -813,19 +883,19 @@ const AppShell = ({ children }) => {
             {/* User Profile Avatar / Guest Controls */}
             {!isAuthenticated ? (
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium text-accent bg-accent/10 border border-accent/25">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium text-text-secondary bg-surface-2 border border-line-subtle">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
                   Demo Mode
                 </span>
                 <NavLink
                   to="/login"
-                  className="h-9 px-3 rounded-xl border border-line-subtle hover:border-line-hover bg-surface-2/80 hover:bg-surface-2 text-text font-semibold text-xs flex items-center justify-center transition-colors active:scale-95"
+                  className="h-9 px-3 rounded-xl border border-line-subtle hover:border-line bg-surface-2 hover:bg-surface-hover text-text font-semibold text-xs flex items-center justify-center transition-colors active:scale-95"
                 >
                   Log In
                 </NavLink>
                 <NavLink
                   to="/signup"
-                  className="hidden lg:inline-flex h-9 px-3.5 rounded-xl bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 font-semibold text-xs items-center justify-center transition-colors active:scale-95"
+                  className="hidden lg:inline-flex h-9 px-3.5 rounded-xl bg-surface-2 hover:bg-surface-hover text-text border border-line-subtle hover:border-line font-semibold text-xs items-center justify-center transition-colors active:scale-95"
                 >
                   Sign Up
                 </NavLink>

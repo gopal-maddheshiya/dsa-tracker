@@ -136,27 +136,24 @@ const RoadmapActionBanner = ({
   return (
     <section
       aria-label="Today's Practice Mission"
-      className={`relative kpi-card p-4 sm:p-5 lg:p-6 select-none border-accent/40 shadow-[0_4px_24px_-4px_rgba(255,161,22,0.18)] ${className}`}
+      className={`relative kpi-card p-4 sm:p-5 lg:p-6 select-none border border-line-subtle/80 hover:border-line shadow-xs ${className}`}
     >
-      {/* Specular Top Amber Glow Beam */}
-      <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-[1.5px] bg-gradient-to-r from-transparent via-accent to-transparent pointer-events-none" />
+      {/* Specular Top Subtle Reflection */}
+      <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent pointer-events-none" />
 
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
         
         {/* Left Side: Mission Context & Dominant Problem Details */}
         <div className="space-y-2 sm:space-y-2.5 flex-1 min-w-0">
           
-          {/* Eyebrow with Beacon */}
+          {/* Eyebrow */}
           <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="radar-beacon absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
-            </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent/90" />
+            <span className="text-[10px] font-mono uppercase tracking-wider text-text-secondary font-semibold">
               TODAY'S MISSION
             </span>
             <span className="text-muted/40">·</span>
-            <span className="text-[11px] text-text-secondary font-medium">
+            <span className="text-[11px] text-muted font-medium">
               Next pattern step in curriculum
             </span>
           </div>
@@ -222,7 +219,7 @@ const RoadmapActionBanner = ({
             onClick={handleToggleCoach}
             className={`text-xs font-medium py-2 px-3 rounded-lg inline-flex items-center gap-1.5 cursor-pointer transition-colors border ${
               isCoachOpen
-                ? 'bg-accent/15 border-accent/35 text-accent shadow-[0_0_12px_-3px_rgba(255,161,22,0.25)]'
+                ? 'bg-surface-2 border-line text-text'
                 : 'bg-surface-2/80 hover:bg-surface-2 border-line-subtle text-text-secondary hover:text-text'
             }`}
             title="Toggle cognitive coaching hint"
@@ -232,10 +229,10 @@ const RoadmapActionBanner = ({
             {isCoachOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           </button>
 
-          {/* Primary: Solve Target → (Dominant Visual CTA with Ambient Drop Glow) */}
+          {/* Primary: Solve Target → (Refined Clean CTA) */}
           <Link
             to={`/problems/${targetProblemId}`}
-            className="bg-gradient-to-r from-accent via-amber-500 to-accent-hover text-bg text-xs sm:text-sm py-2 sm:py-2.5 px-4 sm:px-5 rounded-lg font-extrabold inline-flex items-center justify-center gap-2 shadow-[0_2px_14px_-2px_rgba(255,161,22,0.45)] hover:shadow-[0_4px_20px_-2px_rgba(255,161,22,0.65)] active:scale-[0.98] transition-all tracking-tight flex-1 sm:flex-none cursor-pointer"
+            className="bg-accent hover:bg-accent-hover text-bg text-xs sm:text-sm py-2 sm:py-2.5 px-4 sm:px-5 rounded-lg font-bold inline-flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all tracking-tight flex-1 sm:flex-none cursor-pointer"
           >
             <span>Solve Target</span>
             <ArrowRight className="w-4 h-4" />
