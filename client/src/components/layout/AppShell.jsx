@@ -4,6 +4,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchProfileAnalytics, fetchRevisionQueue } from '../../api/analytics';
 import InstallAppBanner from './InstallAppBanner';
+import AppBackground from './AppBackground';
 import ProblemForm from '../ProblemForm';
 import CommandPalette from '../ui/CommandPalette';
 import BrandLogo from '../ui/BrandLogo';
@@ -240,11 +241,11 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         className={({ isActive }) => {
           const active = isCustomActive !== undefined ? isCustomActive : isActive;
           return `
-            group relative flex items-center gap-3 px-3 py-2 rounded-md text-xs select-none
-            transition-colors duration-150
+            group relative flex items-center ${collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2'} rounded-xl text-xs select-none
+            transition-all duration-150
             ${active
-              ? 'bg-surface-2 text-text font-medium before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-r-xs before:bg-accent'
-              : 'text-text-secondary hover:text-text hover:bg-surface-hover'
+              ? 'bg-gradient-to-r from-accent/15 via-surface-2/80 to-surface-2/40 border border-accent/30 text-text font-semibold shadow-[0_0_14px_-3px_rgba(255,161,22,0.22)] before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r-full before:bg-accent before:shadow-[0_0_8px_rgba(255,161,22,0.85)]'
+              : 'text-text-secondary hover:text-text hover:bg-surface-hover/80 border border-transparent'
             }
           `;
         }}
@@ -253,12 +254,12 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
           const active = isCustomActive !== undefined ? isCustomActive : isActive;
           return (
             <>
-              <NavIcon className={`w-4 h-4 shrink-0 transition-colors ${active ? 'text-accent' : 'text-muted group-hover:text-text-secondary'}`} />
+              <NavIcon className={`w-4 h-4 shrink-0 transition-all duration-150 ${active ? 'text-accent drop-shadow-[0_0_8px_rgba(255,161,22,0.6)] scale-105' : 'text-muted group-hover:text-text-secondary group-hover:scale-105'}`} />
               {!collapsed ? (
                 <>
                   <span className="truncate flex-1">{label}</span>
                   {badge > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-sm text-[11px] font-mono font-medium bg-surface-2 text-text-secondary border border-line tabular-nums">
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-accent/20 text-accent border border-accent/35 shadow-[0_0_8px_rgba(255,161,22,0.25)] tabular-nums">
                       {badge > 99 ? '99+' : badge}
                     </span>
                   )}
@@ -266,11 +267,11 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
               ) : (
                 <>
                   {badge > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-accent" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent shadow-[0_0_6px_rgba(255,161,22,0.9)] ring-2 ring-surface" />
                   )}
                   <span
                     role="tooltip"
-                    className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+                    className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
                   >
                     {label}{badge > 0 ? ` (${badge})` : ''}
                   </span>
@@ -287,26 +288,27 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
     <aside
       aria-label="Desktop Navigation"
       className={`
-        flex flex-col h-full bg-surface border-r border-line
-        transition-all duration-150 ease-in-out select-none
+        flex flex-col h-full bg-surface/90 backdrop-blur-xl border-r border-line-subtle/80 shadow-[1px_0_15px_-3px_rgba(0,0,0,0.5)]
+        transition-all duration-200 ease-in-out select-none relative
         ${collapsed ? 'w-[68px] overflow-visible' : 'w-[240px] overflow-hidden'}
       `}
     >
       {/* ── Brand Header ──────────────────────────── */}
-      <div className="flex items-center h-14 px-3.5 border-b border-line shrink-0">
+      <div className="flex items-center h-14 px-3.5 border-b border-line-subtle/80 shrink-0 relative">
         <NavLink to="/dashboard" className="flex items-center gap-2 min-w-0" title="DSA Tracker">
           <BrandLogo size="md" showText={!collapsed} />
         </NavLink>
         {!collapsed && (
           <button
             onClick={onToggle}
-            className="ml-auto p-1.5 rounded-md text-text-secondary hover:text-text hover:bg-surface-hover transition-colors cursor-pointer"
+            className="ml-auto p-1.5 rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 border border-transparent hover:border-line-subtle transition-all cursor-pointer"
             title="Collapse sidebar"
             aria-label="Collapse sidebar"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
         )}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/25 to-transparent pointer-events-none" />
       </div>
 
       {/* ── Navigation Items ──────────────────────── */}
@@ -314,19 +316,19 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         {collapsed ? (
           <button
             onClick={onToggle}
-            className="group relative w-full flex items-center justify-center p-2 mb-2 rounded-md text-text-secondary hover:text-text hover:bg-surface-hover transition-colors cursor-pointer"
+            className="group relative w-10 h-10 mx-auto flex items-center justify-center mb-2 rounded-xl text-text-secondary hover:text-text hover:bg-surface-hover transition-colors cursor-pointer border border-transparent hover:border-line-subtle"
             aria-label="Expand sidebar"
           >
             <ChevronRight className="w-4 h-4" />
             <span
               role="tooltip"
-              className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+              className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
             >
               Expand sidebar
             </span>
           </button>
         ) : (
-          <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-muted select-none">
+          <p className="px-3 pb-1 pt-2 text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
             Workspace
           </p>
         )}
@@ -336,73 +338,92 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         ))}
 
         {!collapsed ? (
-          <p className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-muted select-none">
+          <p className="px-3 pb-1 pt-4 text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
             Integrations
           </p>
         ) : (
-          <div className="my-2 border-t border-line-subtle" />
+          <div className="my-2 border-t border-line-subtle/50" />
         )}
         <SideNavLink to="/profile?tab=platforms" label="Platform Sync" Icon={Globe} />
       </nav>
 
-      {/* ── Compact Sidebar Streak Telemetry ──────── */}
+      {/* ── Compact Sidebar Streak Telemetry Mini-Card ──────── */}
       {!collapsed ? (
         <NavLink
           to="/profile"
-          className="mx-2.5 mb-2 px-2.5 py-1.5 rounded-md text-text-secondary hover:text-text hover:bg-surface-hover flex items-center gap-2 text-xs transition-colors select-none"
-          title="Practice streak"
+          className="mx-2.5 mb-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-surface-2/70 via-surface to-surface-2/40 border border-line-subtle/80 hover:border-accent/40 flex items-center justify-between text-xs transition-all duration-200 shadow-xs hover:shadow-[0_0_12px_-2px_rgba(255,161,22,0.15)] group cursor-pointer"
+          title="Practice streak cadence"
         >
-          <Flame className="w-3.5 h-3.5 text-accent shrink-0" />
-          <span className="font-medium text-text tabular-nums">
-            {streak != null && streak > 0 ? `${streak} day streak` : 'Daily practice'}
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-lg bg-accent/10 border border-accent/25 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors">
+              <Flame className="w-3.5 h-3.5 text-accent animate-pulse group-hover:scale-110 transition-transform" />
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[11px] font-semibold text-text truncate group-hover:text-accent transition-colors">
+                Streak Cadence
+              </span>
+              <span className="block text-[9px] font-mono text-muted uppercase tracking-wider">
+                Daily Velocity
+              </span>
+            </div>
+          </div>
+          <span className="font-mono text-xs font-bold text-accent tabular-nums bg-accent/10 px-2 py-0.5 rounded-md border border-accent/25 shadow-[0_0_8px_rgba(255,161,22,0.2)]">
+            {streak != null && streak > 0 ? `${streak}d` : '0d'}
           </span>
         </NavLink>
       ) : (
-        streak != null && streak > 0 && (
-          <NavLink
-            to="/profile"
-            className="group relative mx-auto mb-2 w-9 h-9 rounded-md hover:bg-surface-hover flex items-center justify-center text-text-secondary hover:text-accent transition-colors select-none"
-            aria-label={`${streak} day streak`}
+        <NavLink
+          to="/profile"
+          className="group relative mx-auto mb-2.5 w-10 h-10 rounded-xl hover:bg-surface-2/80 flex items-center justify-center text-text-secondary hover:text-accent transition-all select-none border border-line-subtle/60 hover:border-accent/40 shadow-xs cursor-pointer"
+          aria-label={`${streak || 0} day streak`}
+        >
+          <Flame className="w-4 h-4 text-accent animate-pulse group-hover:scale-110 transition-transform" />
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
           >
-            <Flame className="w-4 h-4 text-accent" />
-            <span
-              role="tooltip"
-              className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
-            >
-              {streak} day streak
-            </span>
-          </NavLink>
-        )
+            {streak != null && streak > 0 ? `${streak} day streak` : '0 day streak'}
+          </span>
+        </NavLink>
       )}
 
       {/* ── User Footer ───────────────────────────── */}
-      <div className={`shrink-0 border-t border-line p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
+      <div className={`shrink-0 border-t border-line-subtle/80 p-2.5 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
         {!user ? (
           collapsed ? (
             <NavLink
               to="/login"
-              className="p-2 rounded-lg text-accent hover:bg-surface-2 transition-colors cursor-pointer group relative"
+              className="w-10 h-10 rounded-xl text-accent hover:bg-surface-2/80 flex items-center justify-center transition-all cursor-pointer group relative border border-line-subtle/60 hover:border-accent/40 shadow-xs"
               aria-label="Sign in"
             >
-              <User className="w-4 h-4" />
+              <div className="relative">
+                <User className="w-4 h-4" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-accent radar-beacon" />
+              </div>
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+                className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
               >
-                Sign In
+                Sign In to Save
               </span>
             </NavLink>
           ) : (
-            <div className="flex items-center justify-between gap-2 p-1">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-text truncate">Guest Explorer</p>
-                <p className="text-[10px] font-mono text-muted truncate">Demo Mode</p>
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-surface-2/80 via-surface-2/50 to-surface border border-line-subtle/90 shadow-xs relative overflow-hidden">
+              <div className="flex items-center justify-between gap-2.5 mb-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-accent radar-beacon shrink-0" />
+                    <p className="text-xs font-bold text-text truncate">Guest Explorer</p>
+                  </div>
+                  <p className="text-[10px] font-mono text-muted truncate mt-0.5">Public Demo Mode</p>
+                </div>
               </div>
               <NavLink
                 to="/login"
-                className="btn-primary text-xs py-1.5 px-3 rounded-lg font-semibold shrink-0"
+                className="w-full flex items-center justify-center gap-1.5 bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-400 text-bg text-xs py-1.5 px-3 rounded-lg font-extrabold shadow-[0_2px_12px_-2px_rgba(255,161,22,0.45)] hover:shadow-[0_4px_16px_-2px_rgba(255,161,22,0.6)] transition-all cursor-pointer"
               >
-                Sign In
+                <span>Sign In to Save</span>
+                <span className="text-xs">→</span>
               </NavLink>
             </div>
           )
@@ -413,64 +434,70 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
               className="group relative cursor-pointer"
               aria-label="Profile"
             >
-              {user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-7 h-7 rounded-full object-cover border border-line group-hover:border-accent transition-colors"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
-                  {initials}
-                </div>
-              )}
+              <div className="relative">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-9 h-9 rounded-full object-cover border border-line group-hover:border-accent transition-colors shadow-xs"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
+                    {initials}
+                  </div>
+                )}
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-easy border-2 border-surface" />
+              </div>
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+                className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
               >
                 {user?.name || 'Profile'}
               </span>
             </NavLink>
             <button
               onClick={onLogout}
-              className="group relative p-1.5 rounded-md text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
+              className="group relative p-2 rounded-xl text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
               aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-full ml-3 px-2 py-1 rounded-sm bg-surface-2 text-text text-xs font-medium whitespace-nowrap border border-line shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
+                className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-surface-2/95 backdrop-blur-md text-text text-xs font-medium whitespace-nowrap border border-line-subtle shadow-dropdown opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150 z-50"
               >
                 Sign out
               </span>
             </button>
           </>
         ) : (
-          <div className="flex items-center justify-between gap-2.5">
+          <div className="flex items-center justify-between gap-2.5 p-1.5 rounded-xl bg-surface-2/40 hover:bg-surface-2/80 border border-transparent hover:border-line-subtle transition-all">
             <NavLink to="/profile" className="flex items-center gap-2.5 min-w-0 flex-1 group">
-              {user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-7 h-7 rounded-full object-cover border border-line group-hover:border-accent transition-colors shrink-0"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-surface-2 border border-line flex items-center justify-center shrink-0 text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
-                  {initials}
-                </div>
-              )}
+              <div className="relative shrink-0">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover border border-line group-hover:border-accent transition-colors shadow-xs"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-surface-2 border border-line flex items-center justify-center shrink-0 text-xs font-semibold text-text-secondary group-hover:text-accent transition-colors">
+                    {initials}
+                  </div>
+                )}
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-easy border-2 border-surface" />
+              </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-text truncate group-hover:text-accent transition-colors">
-                  {user?.name || 'User'}
+                <p className="text-xs font-semibold text-text truncate group-hover:text-accent transition-colors">
+                  {user?.name || 'DSA Learner'}
                 </p>
-                <p className="text-[11px] text-muted truncate">{user?.email}</p>
+                <p className="text-[10px] font-mono text-muted truncate">{user?.email}</p>
               </div>
             </NavLink>
             <button
               onClick={onLogout}
-              className="p-1.5 rounded-md text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors shrink-0 cursor-pointer"
+              className="p-1.5 rounded-lg text-text-secondary hover:text-danger hover:bg-danger/10 transition-colors shrink-0 cursor-pointer"
               title="Sign out"
               aria-label="Sign out"
             >
@@ -627,26 +654,17 @@ const AppShell = ({ children }) => {
     return (user?.email?.[0] ?? 'U').toUpperCase();
   }, [user]);
 
-  // Contextual breadcrumb determination (pure typography, no pills)
-  const breadcrumb = useMemo(() => {
-    const p = location.pathname;
-    if (p.startsWith('/dashboard')) {
-      return { section: 'Workspace', page: 'Dashboard', subpage: 'Overview' };
+  const handleNewProblemClick = () => {
+    if (!isAuthenticated) {
+      openAuthGate({
+        title: 'Add a Problem',
+        description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
+        contextAction: 'Add Problem',
+      });
+    } else {
+      setIsQuickAddOpen(true);
     }
-    if (p === '/problems') {
-      return { section: 'Workspace', page: 'Problems', subpage: 'Catalog & Tracker' };
-    }
-    if (p.startsWith('/problems/')) {
-      return { section: 'Workspace', page: 'Problems', subpage: 'Problem Details' };
-    }
-    if (p.startsWith('/revision')) {
-      return { section: 'Workspace', page: 'Revision', subpage: 'Spaced Repetition' };
-    }
-    if (p.startsWith('/profile')) {
-      return { section: 'Account', page: 'Profile', subpage: 'Analytics & Settings' };
-    }
-    return { section: 'Workspace', page: 'App', subpage: '' };
-  }, [location.pathname]);
+  };
 
   // Dynamic Chrome / Browser Tab Title
   useEffect(() => {
@@ -703,14 +721,16 @@ const AppShell = ({ children }) => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
   if (isAuthPage) {
     return (
-      <div className="min-h-dvh flex flex-col text-text bg-bg">
+      <div className="min-h-dvh flex flex-col text-text bg-bg relative">
+        <AppBackground />
         {children}
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh flex text-text bg-bg">
+    <div className="min-h-dvh flex text-text bg-bg relative">
+      <AppBackground />
 
       {/* ── Desktop sidebar ─────────────────────── */}
       <div className="hidden lg:flex shrink-0 h-screen sticky top-0 z-20">
@@ -727,106 +747,85 @@ const AppShell = ({ children }) => {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* ── Top Header Ribbon (56px) ─────────────── */}
-        <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 sm:px-6 border-b border-line bg-surface shrink-0">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-3 sm:px-5 lg:px-6 border-b border-line-subtle/80 bg-surface/85 backdrop-blur-xl shrink-0 relative">
+          {/* Subtle Top Specular Beam */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent pointer-events-none" />
 
-          {/* Left: Mobile Brand Logo OR Desktop Breadcrumbs */}
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <NavLink to="/dashboard" className="flex items-center gap-2 lg:hidden shrink-0 select-none" title="DSA Tracker">
-              <BrandLogo size="sm" showText={true} textClassName="text-sm font-semibold tracking-tight inline" />
+          {/* Left Zone: Mobile Brand Logo (< lg) */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Mobile Brand Logo */}
+            <NavLink
+              to="/dashboard"
+              className="flex items-center gap-2 lg:hidden shrink-0 select-none group"
+              title="DSA Tracker"
+            >
+              <BrandLogo size="sm" showText={true} textClassName="text-sm font-bold tracking-tight inline group-hover:text-accent transition-colors" />
             </NavLink>
-
-            {/* Desktop Breadcrumbs (Pure typography, no pills, subtle separators) */}
-            <nav aria-label="Breadcrumb" className="hidden lg:flex items-center gap-2 text-xs select-none">
-              <span className="text-[11px] font-semibold text-muted uppercase tracking-wider">
-                {breadcrumb.section}
-              </span>
-              <span className="text-muted/40 font-mono select-none">/</span>
-              <span className="text-text-secondary font-medium">
-                {breadcrumb.page}
-              </span>
-              {breadcrumb.subpage && (
-                <>
-                  <span className="text-muted/40 font-mono select-none">/</span>
-                  <span className="text-text font-semibold">
-                    {breadcrumb.subpage}
-                  </span>
-                </>
-              )}
-            </nav>
           </div>
 
-          {/* Center: Global Problem Search / Cmd+K */}
-          <div className="hidden md:flex items-center justify-center flex-1 max-w-md mx-6">
+          {/* Center Zone: Sleek Obsidian Glass Command Bar (sm and up) */}
+          <div className="hidden sm:flex items-center justify-center flex-1 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-3 sm:mx-6">
             <button
               type="button"
               onClick={handleSearchPillClick}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-md bg-surface-2/60 hover:bg-surface-2 border border-line text-muted hover:text-text-secondary transition-colors w-full text-xs cursor-pointer group"
-              title="Search problems and topics (Press / or Ctrl+K)"
+              className="relative flex items-center justify-between w-full h-9 px-3.5 rounded-full bg-surface-2/40 hover:bg-surface-2/70 border border-line-subtle/90 hover:border-accent/40 text-text-secondary/80 hover:text-text transition-all duration-200 shadow-xs hover:shadow-[0_0_12px_-2px_rgba(255,161,22,0.15)] group cursor-pointer"
+              title="Search problems, patterns, tags (⌘K or /)"
             >
-              <Search className="w-3.5 h-3.5 text-muted group-hover:text-text-secondary transition-colors shrink-0" />
-              <span className="truncate flex-1 text-left font-normal text-muted group-hover:text-text-secondary">Search problems, topics...</span>
-              <div className="flex items-center gap-1 shrink-0 font-mono text-[11px] text-muted">
-                <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.2 rounded-xs bg-surface border border-line text-[10px]">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Search className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors shrink-0" />
+                <span className="truncate text-xs font-normal text-text-secondary/80 group-hover:text-text transition-colors">
+                  Search problems, patterns, tags...
+                </span>
+              </div>
+              <div className="flex items-center gap-1 shrink-0 ml-2">
+                <kbd className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-surface/90 border border-line-subtle font-mono text-[10px] text-muted group-hover:text-text-secondary transition-colors select-none">
                   ⌘K
-                </kbd>
-                <kbd className="inline-flex items-center px-1.5 py-0.2 rounded-xs bg-surface border border-line text-[10px]">
-                  /
                 </kbd>
               </div>
             </button>
           </div>
 
-          {/* Right: Actions & User Profile */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Mobile search trigger button */}
+          {/* Right Zone: Quick Search (Phone only), + New Problem, and User/Auth Controls */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Phone-only compact search icon button (< sm) */}
             <button
               type="button"
-              onClick={() => setIsCommandPaletteOpen(true)}
-              className="md:hidden flex items-center justify-center w-8 h-8 rounded-md text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+              onClick={handleSearchPillClick}
+              className="sm:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-surface-2/60 hover:bg-surface-2 border border-line-subtle/80 hover:border-accent/40 text-text-secondary hover:text-accent transition-all active:scale-95 cursor-pointer shadow-xs"
               aria-label="Search problems"
-              title="Search problems"
+              title="Search problems (⌘K or /)"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
             </button>
 
-            {/* Exactly ONE Dominant Solid CTA: + New Problem */}
+            {/* + New Problem CTA (Harmonized h-9 height across all screen sizes) */}
             <button
               type="button"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  openAuthGate({
-                    title: 'Add a Problem',
-                    description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
-                    contextAction: 'Add Problem',
-                  });
-                } else {
-                  setIsQuickAddOpen(true);
-                }
-              }}
-              className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold cursor-pointer"
+              onClick={handleNewProblemClick}
+              className="h-9 w-9 sm:w-auto sm:px-3.5 rounded-xl bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-400 text-bg font-bold text-xs flex items-center justify-center gap-1.5 shadow-[0_2px_10px_-2px_rgba(255,161,22,0.4)] hover:shadow-[0_4px_14px_-2px_rgba(255,161,22,0.55)] active:scale-95 transition-all cursor-pointer shrink-0"
               aria-label="Create new problem"
               title="Create new problem"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span className="hidden sm:inline">New Problem</span>
             </button>
 
             {/* User Profile Avatar / Guest Controls */}
             {!isAuthenticated ? (
-              <div className="flex items-center gap-2">
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium text-accent bg-accent/10 border border-accent/25">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium text-accent bg-accent/10 border border-accent/25">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   Demo Mode
                 </span>
                 <NavLink
                   to="/login"
-                  className="text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg border border-line hover:border-line-hover bg-surface-2 hover:bg-surface-hover text-text transition-colors"
+                  className="h-9 px-3 rounded-xl border border-line-subtle hover:border-line-hover bg-surface-2/80 hover:bg-surface-2 text-text font-semibold text-xs flex items-center justify-center transition-colors active:scale-95"
                 >
                   Log In
                 </NavLink>
                 <NavLink
                   to="/signup"
-                  className="hidden xs:inline-flex btn-primary text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors"
+                  className="hidden lg:inline-flex h-9 px-3.5 rounded-xl bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 font-semibold text-xs items-center justify-center transition-colors active:scale-95"
                 >
                   Sign Up
                 </NavLink>
@@ -840,10 +839,10 @@ const AppShell = ({ children }) => {
                     e.stopPropagation();
                     setIsUserMenuOpen((prev) => !prev);
                   }}
-                  className={`flex items-center gap-1.5 p-1 rounded-md transition-colors cursor-pointer border ${
+                  className={`h-9 flex items-center gap-1.5 sm:gap-2 px-1.5 sm:px-2 rounded-xl transition-all cursor-pointer border ${
                     isUserMenuOpen
-                      ? 'border-line bg-surface-2'
-                      : 'border-transparent hover:border-line hover:bg-surface-2'
+                      ? 'border-accent/40 bg-surface-2 shadow-[0_0_10px_-2px_rgba(255,161,22,0.2)]'
+                      : 'border-line-subtle/80 hover:border-line bg-surface-2/50 hover:bg-surface-2'
                   }`}
                   aria-label="User menu"
                   title={user?.name || 'Account'}
@@ -852,11 +851,11 @@ const AppShell = ({ children }) => {
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-7 h-7 rounded-full object-cover border border-line"
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg object-cover border border-line"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-surface border border-line flex items-center justify-center text-xs font-semibold text-accent">
                       {initials}
                     </div>
                   )}
@@ -892,7 +891,7 @@ const AppShell = ({ children }) => {
         {/* ── Fixed Bottom Tab Bar Navigation (< lg) ── */}
         <nav
           aria-label="Bottom Tab Navigation"
-          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface border-t border-line pb-safe select-none"
+          className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface/90 backdrop-blur-xl border-t border-line-subtle pb-safe select-none shadow-[0_-2px_15px_-3px_rgba(0,0,0,0.6)]"
         >
           <div className="grid grid-cols-4 items-center w-full max-w-md mx-auto px-2 py-1">
             {WORKSPACE_LINKS.map(({ to, label, Icon }) => {
@@ -928,12 +927,12 @@ const AppShell = ({ children }) => {
                     <>
                       {/* Quiet Top Indicator Line */}
                       {isActive && (
-                        <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full bg-accent" />
+                        <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2.5px] rounded-full bg-accent shadow-[0_0_8px_rgba(255,161,22,0.85)]" />
                       )}
 
                       {/* Icon Container */}
                       <div className="relative flex items-center justify-center w-8 h-6">
-                        <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-accent' : 'text-text-secondary'}`} />
+                        <Icon className={`w-4 h-4 transition-all duration-150 ${isActive ? 'text-accent drop-shadow-[0_0_6px_rgba(255,161,22,0.5)] scale-105' : 'text-text-secondary'}`} />
                         {badge > 0 && (
                           <span className="absolute -top-1 -right-2 min-w-[15px] h-[15px] px-1 rounded-sm bg-surface-2 text-text border border-line text-[9px] font-mono font-medium tabular-nums flex items-center justify-center">
                             {badge > 9 ? '9+' : badge}

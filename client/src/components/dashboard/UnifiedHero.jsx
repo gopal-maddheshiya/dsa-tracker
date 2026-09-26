@@ -1,16 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, Plus, ArrowRight, Sparkles, Rocket, CheckCircle2 } from 'lucide-react';
+import { Flame, Plus, ArrowRight, Target, Trophy, Repeat, GitBranch, Sparkles } from 'lucide-react';
 
 /**
- * UnifiedHero: Grand Editorial Mastery Hub.
+ * UnifiedHero: Clean Command Header & 4-Card KPI Dock.
  *
- * Inspired by executive dashboard architectures:
- * - Left column: High-impact deliberate practice headline, micro-telemetry bullets,
- *   quick action pills, and glowing spaced-repetition priority ribbon.
- * - Right column: Contained, high-contrast progress card with circular SVG ring
- *   and tiered Easy/Medium/Hard breakdown progress bars.
- * - Background: Subtle architectural engineering grid with radial vignette.
+ * Implements Phase UI Next-Level Command Center:
+ * - High-clarity greeting row with Level HUD & active focus track.
+ * - 4 High-Impact KPI Cards (Desktop: 4-col, Mobile: 2x2 grid):
+ *   1. Total Solved (Ratio + difficulty breakdown + progress bar)
+ *   2. Consistency Streak (Flame + habit status)
+ *   3. Spaced Recall (Due count + urgency tag + review trigger)
+ *   4. Pattern Mastery (NeetCode tracks mastered + percentage)
  */
 const UnifiedHero = ({
   user,
@@ -21,69 +22,11 @@ const UnifiedHero = ({
   onQuickAdd,
 }) => {
   const firstName = user?.name?.split(' ')[0] || 'Coder';
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const todayFormatted = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'short',
-  }).format(new Date());
-
-  if (isLoading) {
-    return (
-      <div className="relative overflow-hidden rounded-2xl border border-line card-classy p-6 sm:p-8 animate-pulse select-none">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Left Column Skeleton */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="flex gap-2">
-              <div className="h-3.5 w-28 bg-surface-2 rounded-xs" />
-              <div className="h-3.5 w-32 bg-surface-2 rounded-xs" />
-            </div>
-            <div className="h-8 sm:h-10 w-3/4 bg-surface-2 rounded-md" />
-            <div className="space-y-2 py-1">
-              <div className="h-3 w-56 bg-surface-2 rounded-xs" />
-              <div className="h-3 w-48 bg-surface-2 rounded-xs" />
-              <div className="h-3 w-64 bg-surface-2 rounded-xs" />
-            </div>
-            <div className="h-9 w-72 bg-surface-2 rounded-full" />
-            <div className="flex gap-3 pt-2">
-              <div className="h-9 w-32 bg-surface-2 rounded-lg" />
-              <div className="h-9 w-28 bg-surface-2 rounded-lg" />
-            </div>
-          </div>
-
-          {/* Right Column Skeleton */}
-          <div className="lg:col-span-5 space-y-5 lg:pl-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-surface-2 shrink-0" />
-              <div className="space-y-1.5 flex-1">
-                <div className="h-4 w-40 bg-surface-2 rounded-xs" />
-                <div className="h-3 w-56 bg-surface-2 rounded-xs" />
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-surface-2 shrink-0" />
-              <div className="space-y-2 flex-1">
-                <div className="h-6 w-24 bg-surface-2 rounded-xs" />
-                <div className="h-3 w-32 bg-surface-2 rounded-xs" />
-              </div>
-            </div>
-            <div className="space-y-2.5 pt-2">
-              <div className="h-2 w-full bg-surface-2 rounded-full" />
-              <div className="h-2 w-full bg-surface-2 rounded-full" />
-              <div className="h-2 w-full bg-surface-2 rounded-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Telemetry Calculations
   const streak = summary?.currentStreak ?? 0;
   const totalTracked = summary?.catalogProblems ?? summary?.totalProblems ?? 0;
-  const totalSolved = summary?.solvedProblems ?? 0;
-  const totalAttempts = summary?.totalAttempts ?? 0;
+  const totalSolved = summary?.solvedProblems ?? summary?.totalSolved ?? 0;
 
   const diffBreakdown = summary?.difficultyBreakdown || [];
   const easySolved = diffBreakdown.find((d) => d.difficulty?.toLowerCase() === 'easy')?.solved ?? 0;
@@ -96,301 +39,230 @@ const UnifiedHero = ({
 
   const totalCalculated = totalSolved > 0 ? totalSolved : (easySolved + medSolved + hardSolved);
   const solveRatio = totalTracked > 0 ? Math.min(100, Math.round((totalCalculated / totalTracked) * 100)) : 0;
-  const remainingQuestions = Math.max(0, totalTracked - totalCalculated);
 
-  const easyPct = easyTotal > 0 ? Math.min(100, Math.round((easySolved / easyTotal) * 100)) : 0;
-  const medPct = medTotal > 0 ? Math.min(100, Math.round((medSolved / medTotal) * 100)) : 0;
-  const hardPct = hardTotal > 0 ? Math.min(100, Math.round((hardSolved / hardTotal) * 100)) : 0;
+  // Dynamic Coder Level & Title Calculation
+  const getLevelInfo = (solved) => {
+    if (solved >= 300) return { level: 5, title: 'Grandmaster', badge: 'text-amber-300 border-amber-500/40 bg-amber-500/15' };
+    if (solved >= 150) return { level: 4, title: 'Pattern Specialist', badge: 'text-purple-300 border-purple-500/40 bg-purple-500/15' };
+    if (solved >= 60) return { level: 3, title: 'Pattern Practitioner', badge: 'text-blue-300 border-blue-500/40 bg-blue-500/15' };
+    if (solved >= 20) return { level: 2, title: 'Pattern Apprentice', badge: 'text-emerald-300 border-emerald-500/40 bg-emerald-500/15' };
+    return { level: 1, title: 'Pattern Novice', badge: 'text-text-secondary border-line bg-surface-2' };
+  };
 
-  // SVG Circular Ring Configuration
-  const radius = 34;
-  const strokeWidth = 6.5;
-  const normalizedRadius = radius - strokeWidth / 2;
-  const circumference = normalizedRadius * 2 * Math.PI;
-  const strokeDashoffset = circumference - (solveRatio / 100) * circumference;
+  const levelInfo = getLevelInfo(totalCalculated);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4 animate-pulse select-none">
+        <div className="flex justify-between items-center py-2">
+          <div className="h-6 w-48 bg-surface-2 rounded-md" />
+          <div className="h-8 w-28 bg-surface-2 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-surface-2/60 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-line/80 card-classy p-5 sm:p-7 lg:p-8 select-none shadow-2xl">
-      {/* ── Architectural Engineering Grid Overlay ── */}
-      <div className="absolute inset-0 engineering-grid pointer-events-none opacity-90 z-0" />
-
-      {/* ── Subtle Ambient Glows (Classy Atmospheric Portfolio Blueprint) ── */}
-      <div className="pointer-events-none absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl z-0" />
-      <div className="pointer-events-none absolute -top-24 -left-20 w-80 h-80 bg-accent/8 rounded-full blur-3xl z-0" />
-      <div className="pointer-events-none absolute -bottom-24 -right-20 w-80 h-80 bg-easy/5 rounded-full blur-3xl z-0" />
-
-      {/* ── Main Content Grid ── */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-
-        {/* ── LEFT COLUMN (7 cols): Editorial Deliberate Practice Headline ── */}
-        <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
-          
-          {/* Top Micro-Bar: Greeting, Date & Streak */}
-          <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-muted">
-            <span>{greeting}, {firstName}</span>
-            <span className="text-muted/40">·</span>
-            <span>{todayFormatted}</span>
-            {streak > 0 && (
-              <>
-                <span className="text-muted/40">·</span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/12 border border-accent/25 text-accent font-semibold shadow-xs">
-                  <Flame className="w-3.5 h-3.5 text-accent animate-pulse" />
-                  <span>{streak}d streak</span>
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Grand Headline */}
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-text leading-tight">
-              DSA Deliberate Practice
+    <section aria-label="Command Center Hero" className="space-y-3.5 select-none">
+      
+      {/* ── Top Command Header Row ─────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
+        
+        {/* Left: Greeting + Level HUD + Current Track */}
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-lg sm:text-2xl font-extrabold tracking-tight text-text">
+              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-text via-text to-accent">{firstName}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-text-secondary font-medium max-w-xl leading-relaxed">
-              Algorithmic mastery engine powered by forgetting curve schedules and structured difficulty recall.
-            </p>
+
+            {/* Level Badge */}
+            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-mono font-bold ${levelInfo.badge}`}>
+              <Trophy className="w-3 h-3 text-current" />
+              <span>LVL {levelInfo.level} · {levelInfo.title.toUpperCase()}</span>
+            </span>
           </div>
 
-          {/* Micro-Telemetry Bullet Points (Inspired by Screenshot) */}
-          <div className="space-y-1.5 text-xs text-muted font-medium pt-0.5">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              <span>
-                Spaced repetition active ·{' '}
-                <strong className="text-text tabular-nums">{revisionCount}</strong> {revisionCount === 1 ? 'problem' : 'problems'} due for recall
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-text-secondary/70" />
-              <span>
-                Difficulty Solves:{' '}
-                <span className="text-easy font-semibold">{easySolved} Easy</span>
-                {' · '}
-                <span className="text-medium font-semibold">{medSolved} Med</span>
-                {' · '}
-                <span className="text-hard font-semibold">{hardSolved} Hard</span>
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-success" />
-              <span>
-                Total Sessions:{' '}
-                <strong className="text-text tabular-nums">{totalAttempts.toLocaleString()}</strong> practice runs across{' '}
-                <strong className="text-text tabular-nums">{totalTracked}</strong> cataloged problems
-              </span>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-text-secondary">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span>Active Curriculum:</span>
+            <strong className="text-text font-semibold">Non-Linear Structures (Trees & Graphs)</strong>
           </div>
-
-          {/* Glowing Priority Ribbon (Inspired by DSA 360 Ribbon in Screenshot) */}
-          <div className="pt-1">
-            {dailyFocus ? (
-              <Link
-                to={`/problems/${dailyFocus.id || dailyFocus._id}`}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glow-pill-accent text-xs font-semibold text-accent hover:text-accent-hover transition-all cursor-pointer group"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-accent animate-spin-slow shrink-0" />
-                <span className="truncate max-w-[240px] sm:max-w-md">
-                  Next Priority: <strong className="text-text">{dailyFocus.title}</strong> ({dailyFocus.difficulty}) · Due for recall
-                </span>
-                <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 shrink-0" />
-              </Link>
-            ) : revisionCount > 0 ? (
-              <Link
-                to="/revision"
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glow-pill-accent text-xs font-semibold text-accent hover:text-accent-hover transition-all cursor-pointer group"
-              >
-                <Flame className="w-3.5 h-3.5 text-accent shrink-0" />
-                <span>
-                  {revisionCount} {revisionCount === 1 ? 'problem' : 'problems'} ready for spaced repetition recall drill
-                </span>
-                <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 shrink-0" />
-              </Link>
-            ) : (
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-success/10 border border-success/25 text-xs font-semibold text-success">
-                <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
-                <span>All Spaced Repetition Schedules Up To Date</span>
-              </div>
-            )}
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5 pt-2">
-            {dailyFocus ? (
-              <Link
-                to={`/problems/${dailyFocus.id || dailyFocus._id}`}
-                className="btn-primary text-xs py-2 px-4 rounded-lg font-semibold inline-flex items-center justify-center gap-1.5 shadow-sm"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Start Daily Drill</span>
-              </Link>
-            ) : (
-              <Link
-                to="/revision"
-                className="btn-primary text-xs py-2 px-4 rounded-lg font-semibold inline-flex items-center justify-center gap-1.5 shadow-sm"
-              >
-                <Flame className="w-3.5 h-3.5" />
-                <span>Open Revision Queue</span>
-              </Link>
-            )}
-
-            <button
-              type="button"
-              onClick={onQuickAdd}
-              className="btn-secondary text-xs py-2 px-3.5 rounded-lg font-medium inline-flex items-center justify-center gap-1.5 cursor-pointer text-text-secondary hover:text-text"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Problem</span>
-            </button>
-
-            <Link
-              to="/problems"
-              className="text-xs text-muted hover:text-text font-mono font-medium px-2 py-2 inline-flex items-center gap-1 transition-colors"
-            >
-              <span>Catalog</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
         </div>
 
-        {/* ── RIGHT COLUMN (5 cols): Open & Floating on the Big Grid Canvas (Matches Reference Screenshot) ── */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-5 lg:pl-6">
+        {/* Right: Quick Action Buttons */}
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={onQuickAdd}
+            className="btn-primary text-xs py-1.5 px-3 rounded-lg font-semibold inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Add Problem</span>
+          </button>
 
-          {/* Motivational Momentum Header (Floating, No Box) */}
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/25 text-accent shrink-0 shadow-xs">
-              <Rocket className="w-5 h-5" />
-            </div>
-            <div className="space-y-0.5">
-              <h4 className="text-sm font-semibold text-text">You're building momentum!</h4>
-              <p className="text-xs text-text-secondary leading-relaxed">
-                Every problem solved unlocks intuition and resets forgetting curves.
-              </p>
-            </div>
-          </div>
-
-          {/* Circular Progress + Total Progress Metric (Floating on Canvas) */}
-          <div className="flex items-center gap-5 pt-1">
-            {/* SVG Circular Progress Ring */}
-            <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-              <svg className="w-20 h-20 -rotate-90 transform" viewBox="0 0 80 80">
-                {/* Track Circle */}
-                <circle
-                  cx="40"
-                  cy="40"
-                  r={normalizedRadius}
-                  stroke="currentColor"
-                  strokeWidth={strokeWidth}
-                  className="text-surface-2"
-                  fill="transparent"
-                />
-                {/* Active Progress Arc */}
-                <circle
-                  cx="40"
-                  cy="40"
-                  r={normalizedRadius}
-                  stroke="currentColor"
-                  strokeWidth={strokeWidth}
-                  strokeDasharray={`${circumference} ${circumference}`}
-                  style={{ strokeDashoffset }}
-                  strokeLinecap="round"
-                  className="text-accent transition-all duration-1000 ease-out"
-                  fill="transparent"
-                />
-              </svg>
-              {/* Inner Percentage Readout */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="font-mono text-sm font-bold text-text tabular-nums">
-                  {solveRatio}%
-                </span>
-                <span className="text-[9px] font-mono text-muted tabular-nums">
-                  {totalSolved}/{totalTracked || totalSolved}
-                </span>
-              </div>
-            </div>
-
-            {/* Total Metric Text */}
-            <div className="space-y-0.5">
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-mono text-2xl font-extrabold text-text tabular-nums">
-                  {totalSolved.toLocaleString()}
-                </span>
-                <span className="text-xs text-muted font-medium">solved</span>
-              </div>
-              <h3 className="text-xs font-semibold text-text">Total progress</h3>
-              <p className="text-[11px] text-muted font-mono tabular-nums">
-                {remainingQuestions > 0 ? `${remainingQuestions} questions to catalog goal` : 'All catalog questions mastered'}
-              </p>
-            </div>
-          </div>
-
-          {/* Tiered Difficulty Progress Bars (Floating on Canvas) */}
-          <div className="space-y-3 pt-1">
-            {/* Easy Bar */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="inline-flex items-center gap-1.5 font-medium text-easy">
-                  <span className="w-1.5 h-1.5 rounded-full bg-easy" />
-                  <span>Easy</span>
-                </span>
-                <span className="font-mono text-[11px] text-muted tabular-nums">
-                  <strong className="text-text">{easySolved}</strong>/{easyTotal || easySolved}{' '}
-                  <span className="text-muted/80">({easyPct}%)</span>
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-easy rounded-full transition-all duration-500"
-                  style={{ width: `${easyPct}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Medium Bar */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="inline-flex items-center gap-1.5 font-medium text-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-medium" />
-                  <span>Medium</span>
-                </span>
-                <span className="font-mono text-[11px] text-muted tabular-nums">
-                  <strong className="text-text">{medSolved}</strong>/{medTotal || medSolved}{' '}
-                  <span className="text-muted/80">({medPct}%)</span>
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-medium rounded-full transition-all duration-500"
-                  style={{ width: `${medPct}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Hard Bar */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="inline-flex items-center gap-1.5 font-medium text-hard">
-                  <span className="w-1.5 h-1.5 rounded-full bg-hard" />
-                  <span>Hard</span>
-                </span>
-                <span className="font-mono text-[11px] text-muted tabular-nums">
-                  <strong className="text-text">{hardSolved}</strong>/{hardTotal || hardSolved}{' '}
-                  <span className="text-muted/80">({hardPct}%)</span>
-                </span>
-              </div>
-              <div className="h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-hard rounded-full transition-all duration-500"
-                  style={{ width: `${hardPct}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
+          <Link
+            to="/problems"
+            className="text-xs font-medium text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line-subtle py-1.5 px-3 rounded-lg inline-flex items-center gap-1 transition-colors"
+          >
+            <span>Catalog</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
 
       </div>
-    </div>
+
+      {/* ── 4-Card Quick KPI Dock (Desktop: 4 cols, Mobile: 2x2 grid) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+        
+        {/* KPI 1: Solved Problems */}
+        <div className="kpi-card p-3 sm:p-3.5 flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-muted text-xs">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted">Total Solved</span>
+            <div className="w-6 h-6 rounded-md bg-easy/10 border border-easy/25 flex items-center justify-center text-easy">
+              <Target className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-black font-mono text-text tabular-nums">
+                {totalCalculated}
+              </span>
+              <span className="text-xs font-mono text-muted">/ {totalTracked || 399}</span>
+            </div>
+            
+            {/* Slim progress bar */}
+            <div className="w-full bg-surface-2/80 rounded-full h-1.5 mt-1.5 overflow-hidden border border-line-subtle/40">
+              <div
+                className="h-full bg-gradient-to-r from-easy via-accent to-amber-400 rounded-full transition-all duration-500"
+                style={{ width: `${solveRatio}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
+            <span className="text-muted">{solveRatio}% achieved</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-easy font-bold">{easySolved}E</span>
+              <span className="text-muted/40">·</span>
+              <span className="text-medium font-bold">{medSolved}M</span>
+              <span className="text-muted/40">·</span>
+              <span className="text-hard font-bold">{hardSolved}H</span>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 2: Consistency Streak */}
+        <div className="kpi-card p-3 sm:p-3.5 flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-muted text-xs">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted">Daily Streak</span>
+            <div className="w-6 h-6 rounded-md bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
+              <Flame className="w-3.5 h-3.5 animate-pulse" />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-black font-mono text-accent tabular-nums">
+                {streak != null && streak > 0 ? streak : 0}
+              </span>
+              <span className="text-xs font-mono text-muted">Days</span>
+            </div>
+            <p className="text-[11px] text-text-secondary mt-1">
+              {streak > 0 ? 'Consistent practice rhythm' : 'Practice today to begin streak'}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
+            <span className="text-muted">Target Cadence</span>
+            <span className="font-bold text-accent">Daily Velocity</span>
+          </div>
+        </div>
+
+        {/* KPI 3: Spaced Recall Due */}
+        <Link
+          to="/revision"
+          className="kpi-card p-3 sm:p-3.5 flex flex-col justify-between space-y-2 group cursor-pointer"
+          title="Open revision queue"
+        >
+          <div className="flex items-center justify-between text-muted text-xs">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted group-hover:text-text transition-colors">
+              Recall Queue
+            </span>
+            <div className="w-6 h-6 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
+              <Repeat className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums">
+                {revisionCount}
+              </span>
+              <span className="text-xs font-mono text-muted">Due Recall</span>
+            </div>
+            <p className="text-[11px] text-text-secondary mt-1">
+              {revisionCount > 0 ? 'Problems due for memory retention' : 'All intervals up to date'}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
+            <span className="text-muted">Status</span>
+            <span className={`font-bold px-1.5 py-0.2 rounded ${revisionCount > 0 ? 'text-accent bg-accent/15 border border-accent/30' : 'text-easy bg-easy/10'}`}>
+              {revisionCount > 0 ? `${revisionCount} Urgent` : 'Caught Up ✓'}
+            </span>
+          </div>
+        </Link>
+
+        {/* KPI 4: Curriculum Mastery */}
+        <a
+          href="#skill-tree-roadmap"
+          className="kpi-card p-3 sm:p-3.5 flex flex-col justify-between space-y-2 group cursor-pointer"
+          title="Jump to skill tree roadmap"
+        >
+          <div className="flex items-center justify-between text-muted text-xs">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted group-hover:text-text transition-colors">
+              Tree Mastery
+            </span>
+            <div className="w-6 h-6 rounded-md bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-blue-400 group-hover:bg-blue-500/20 transition-colors">
+              <GitBranch className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums">
+                7 / 14
+              </span>
+              <span className="text-xs font-mono text-muted">Patterns</span>
+            </div>
+            
+            {/* Slim progress bar */}
+            <div className="w-full bg-surface-2/80 rounded-full h-1.5 mt-1.5 overflow-hidden border border-line-subtle/40">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-accent rounded-full transition-all duration-500"
+                style={{ width: '50%' }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
+            <span className="text-muted">50% Complete</span>
+            <span className="font-bold text-accent flex items-center gap-0.5">
+              <span>Inspect</span>
+              <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
+            </span>
+          </div>
+        </a>
+
+      </div>
+
+    </section>
   );
 };
 

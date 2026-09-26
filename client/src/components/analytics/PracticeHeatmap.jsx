@@ -155,16 +155,16 @@ const PracticeHeatmap = ({
   return (
     <section
       aria-label="Practice Rhythm Heatmap"
-      className={`rounded-2xl border border-line/80 card-classy p-4 sm:p-6 select-none transition-all shadow-lg ${className}`}
+      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 select-none transition-all overflow-hidden max-w-full ${className}`}
     >
       {/* ── EDITORIAL HEADER ───────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3.5 border-b border-line">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 border-b border-line">
         <div>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted block">
-            Practice Rhythm
+          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted block">
+            PRACTICE RHYTHM
           </span>
           <p className="text-xs sm:text-sm font-semibold text-text mt-0.5 tabular-nums">
-            {activeDays} active days <span className="text-muted/40 font-normal">·</span> {totalAttempts} attempts <span className="text-muted/40 font-normal">·</span> 52-week matrix
+            {activeDays} active days <span className="text-muted/40 font-normal">·</span> {totalAttempts} attempts
           </p>
         </div>
 

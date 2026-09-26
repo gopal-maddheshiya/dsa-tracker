@@ -6,6 +6,8 @@ const InstallAppBanner = () => {
   const [showBanner, setShowBanner] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
+  const [hasScrolledPastHero, setHasScrolledPastHero] = useState(false);
+
   useEffect(() => {
     // Check if already installed as standalone PWA
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
@@ -33,6 +35,22 @@ const InstallAppBanner = () => {
       setDeferredPrompt(null);
     });
 
+    // On desktop, display unobtrusively; on mobile, wait until scroll to not obstruct primary CTA
+    if (window.innerWidth >= 1024) {
+      setHasScrolledPastHero(true);
+    } else {
+      const handleScroll = () => {
+        if (window.scrollY > 160) {
+          setHasScrolledPastHero(true);
+        }
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     };
@@ -53,46 +71,38 @@ const InstallAppBanner = () => {
     localStorage.setItem('dsa_pwa_dismissed', 'true');
   };
 
-  if (!showBanner || isInstalled) return null;
+  if (!showBanner || isInstalled || !hasScrolledPastHero) return null;
 
   return (
-    <div className="fixed bottom-20 lg:bottom-5 right-4 sm:right-5 z-50 max-w-sm w-[calc(100vw-32px)] sm:w-[calc(100vw-40px)] animate-fade-up mb-safe">
-      <div className="p-4 rounded-xl bg-surface border border-line shadow-dropdown flex items-start gap-3.5 relative overflow-hidden">
-        <div className="w-9 h-9 rounded-lg bg-surface-2 border border-line flex items-center justify-center text-accent shrink-0">
-          <Download className="w-4 h-4" />
-        </div>
-
-        <div className="flex-1 min-w-0 pr-4">
-          <h4 className="text-xs font-semibold text-text tracking-tight">Install DSATracker App</h4>
-          <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
-            Install to your desktop or home screen for faster practice and offline access.
-          </p>
-
-          <div className="flex items-center gap-2 mt-3">
-            <button
-              type="button"
-              onClick={handleInstallClick}
-              className="btn-primary text-xs px-3 py-1.5"
-            >
-              Install App
-            </button>
-            <button
-              type="button"
-              onClick={handleDismiss}
-              className="btn-secondary text-xs px-2.5 py-1.5"
-            >
-              Later
-            </button>
+    <div className="fixed bottom-16 lg:bottom-5 right-3 left-auto z-30 max-w-[280px] sm:max-w-sm animate-fade-up select-none pointer-events-auto">
+      <div className="p-2 sm:p-2.5 rounded-xl bg-surface/95 backdrop-blur-md border border-line shadow-lg flex items-center justify-between gap-3 relative">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-surface-2 border border-line-subtle flex items-center justify-center text-accent shrink-0">
+            <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-text leading-tight truncate">Install App</p>
+            <p className="text-[10px] text-muted leading-tight truncate hidden xs:block">Offline practice</p>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleDismiss}
-          className="absolute top-3 right-3 text-muted hover:text-text transition-colors p-1"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={handleInstallClick}
+            className="btn-primary text-[11px] font-semibold py-1 px-2 rounded-md leading-none whitespace-nowrap cursor-pointer"
+          >
+            Install
+          </button>
+          <button
+            type="button"
+            onClick={handleDismiss}
+            aria-label="Dismiss install prompt"
+            className="text-muted hover:text-text p-1 rounded-md transition-colors cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );

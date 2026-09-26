@@ -17,23 +17,26 @@ import {
   DEMO_RECOMMENDATIONS,
 } from '../data/demoData';
 
-import { Flame, Plus, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Target, GitBranch, BarChart3 } from 'lucide-react';
 import UnifiedHero from '../components/dashboard/UnifiedHero';
 import RoadmapActionBanner from '../components/dashboard/RoadmapActionBanner';
+import MasteryMilestonePath from '../components/dashboard/MasteryMilestonePath';
 import UpcomingRevisionsCard from '../components/dashboard/UpcomingRevisionsCard';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
+import CompactPerformanceCard from '../components/analytics/CompactPerformanceCard';
 import Reveal from '../components/common/Reveal';
 
 /**
- * DashboardPage: Streamlined Deliberate Practice Workspace.
+ * DashboardPage: Next-Level DSA Command Center.
  *
- * Core Layout Architecture:
- * 1. Header: Greeting, Date, Streak status, and direct "+ Add Problem" / "Catalog" shortcuts.
- * 2. Top Telemetry: 4 essential KPI cards (Solved with Easy/Med/Hard breakdown, Revision Due, Streak, Tracked).
- * 3. Primary Focus: Today's Target problem with clean metadata, practice rationale, and 1-click solve CTA.
- * 4. Core Work Grid: Spaced Repetition Due Queue (left) paired with Algorithmic Bottlenecks (right).
- * 5. Practice Rhythm: GitHub-style 52-week activity heatmap for daily consistency.
+ * Implements Phase Next-Level Architecture:
+ * - Top: Command Header & 4-Card Quick KPI Dock (UnifiedHero).
+ * - Mobile (< lg): Responsive Segmented Workspace [Focus Today] | [Skill Tree] | [Analytics].
+ * - Desktop (>= lg): Dual-Wing Command Layout:
+ *   - Left Wing (8 cols): Today's Mission + Intelligent Skill Tree Roadmap.
+ *   - Right Wing (4 cols): Spaced Recall Queue + Topic Gaps Bottlenecks.
+ *   - Bottom Canvas: Full-width Practice Rhythm Heatmap & Weekly Signal.
  */
 const DashboardPage = () => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -41,6 +44,23 @@ const DashboardPage = () => {
   useEffect(() => {
     document.title = 'Dashboard · DSA Tracker';
   }, []);
+
+  // Responsive desktop detection (>= 1024px)
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth >= 1024;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Mobile Segmented Workspace State: 'focus' | 'roadmap' | 'analytics'
+  const [mobileTab, setMobileTab] = useState('focus');
 
   const [summary, setSummary] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
@@ -192,7 +212,7 @@ const DashboardPage = () => {
     }
   };
 
-  // Synchronously resolve display data: guests always see demo data; authenticated users see personal data
+  // Synchronously resolve display data
   const displaySummary = !isAuthenticated ? DEMO_SUMMARY : summary;
   const displayTopics = !isAuthenticated ? DEMO_TOPICS : topics;
   const displayHeatmap = !isAuthenticated ? DEMO_HEATMAP : heatmap;
@@ -206,56 +226,46 @@ const DashboardPage = () => {
     (displaySummary?.totalProblems ?? 0) === 0 &&
     (displaySummary?.totalAttempts ?? 0) === 0;
 
-  // Greeting & Date formatting
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const firstName = user?.name?.split(' ')[0] || 'Coder';
   const primaryWeakTopic = displayRecommendations?.weakestTopics?.[0] || null;
 
-  const todayFormatted = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'short',
-  }).format(new Date());
-  const streak = displaySummary?.currentStreak ?? 0;
-
   return (
-    <div className="space-y-6 pb-24 sm:pb-12 animate-fade-up">
+    <div className="space-y-5 sm:space-y-6 pb-24 sm:pb-12 animate-fade-up min-w-0 max-w-full overflow-x-clip">
 
-      {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview) ────────── */}
+      {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview Only) ──── */}
       {!isAuthenticated && (
         <Reveal delay={0} y={4}>
-          <div className="relative overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-r from-surface-2 via-surface to-surface-2 p-4 sm:p-5 shadow-lg select-none">
-            <div className="absolute inset-0 engineering-grid opacity-30 pointer-events-none" />
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shrink-0 mt-1 sm:mt-0 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
-                <div className="space-y-0.5 min-w-0">
+          <div className="relative overflow-hidden rounded-xl border border-accent/25 bg-gradient-to-r from-surface-2 via-surface to-surface-2 p-2.5 sm:p-4 shadow-sm select-none">
+            <div className="relative z-10 flex items-center justify-between gap-2.5 sm:gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-accent">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent shrink-0">
                       Demo Workspace
                     </span>
-                    <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent">
+                    <span className="hidden sm:inline-block text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-accent/10 border border-accent/20 text-accent">
                       Interactive Preview
                     </span>
                   </div>
-                  <p className="text-xs text-text-secondary leading-relaxed max-w-2xl">
-                    Exploring <strong className="text-text font-semibold">399 cataloged questions</strong>, active spaced repetition, and algorithmic telemetry. Create an account to log personal attempts, save solutions, and sync LeetCode.
+                  <p className="text-xs text-text-secondary leading-tight truncate sm:whitespace-normal">
+                    <span className="hidden sm:inline">Exploring </span>
+                    <strong className="text-text font-semibold">399 cataloged questions</strong>
+                    <span className="hidden sm:inline"> and algorithmic telemetry. Create an account to log personal attempts and sync LeetCode.</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <Link
                   to="/signup"
-                  className="btn-primary text-xs py-2 px-4 rounded-xl font-semibold shadow-sm inline-flex items-center gap-1.5"
+                  className="btn-primary text-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-lg font-semibold inline-flex items-center gap-1 whitespace-nowrap"
                 >
-                  <span>Create Free Account</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Sign Up</span>
+                  <ArrowRight className="w-3 h-3" />
                 </Link>
                 <Link
                   to="/login"
-                  className="btn-secondary text-xs py-2 px-3.5 rounded-xl font-medium"
+                  className="hidden xs:inline-block text-xs font-medium text-text-secondary hover:text-text px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-line bg-surface-2"
                 >
                   Log In
                 </Link>
@@ -265,8 +275,8 @@ const DashboardPage = () => {
         </Reveal>
       )}
 
-      {/* ── 1. UNIFIED GRAND HERO (Engineering Grid & Telemetry Hub) ── */}
-      <Reveal delay={0} y={6}>
+      {/* ── 1. COMMAND HEADER & 4-CARD KPI DOCK ── */}
+      <Reveal delay={0} y={4}>
         <UnifiedHero
           user={user}
           summary={displaySummary}
@@ -280,8 +290,7 @@ const DashboardPage = () => {
       {/* ── ZERO DATA STATE: Clear 3-Step Setup ─────────────────────── */}
       {hasZeroData ? (
         <Reveal delay={40}>
-          <div className="relative overflow-hidden rounded-2xl border border-line card-classy p-6 sm:p-8 space-y-6 shadow-xl">
-            <div className="absolute inset-0 engineering-grid pointer-events-none opacity-40" />
+          <div className="relative overflow-hidden rounded-xl border border-line bg-surface p-6 sm:p-8 space-y-6 shadow-md">
             <div className="relative z-10 space-y-1 pb-4 border-b border-line-subtle">
               <h2 className="text-base font-bold text-text tracking-tight">
                 Welcome to your deliberate practice workspace
@@ -352,12 +361,11 @@ const DashboardPage = () => {
             </div>
           </div>
         </Reveal>
-      ) : (
-        /* ── STREAMLINED DASHBOARD COMPOSITION ───────────────────────── */
+      ) : isDesktop ? (
+        /* ── DESKTOP BALANCED COMMAND WORKSPACE (>= 1024px) ─────────── */
         <div className="space-y-6">
-
-          {/* ── 2. ROADMAP ACTION STRIP (Daily Deliberate Practice Drill) ── */}
-          <Reveal delay={20} y={8}>
+          {/* 1. Today's Practice Target Spotlight */}
+          <Reveal delay={15} y={4}>
             <RoadmapActionBanner
               dailyFocus={displayRecommendations?.dailyFocus}
               primaryWeakTopic={primaryWeakTopic}
@@ -365,35 +373,41 @@ const DashboardPage = () => {
             />
           </Reveal>
 
-          {/* ── 3. CORE WORK GRID (2 Columns: Revision Queue & Weakness Bottlenecks) ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-            {/* Left (7 cols): Spaced Repetition Due Queue */}
-            <div className="lg:col-span-7 flex flex-col h-full">
-              <Reveal delay={35} y={10} className="h-full flex-1 flex flex-col">
-                <UpcomingRevisionsCard
-                  queue={displayRevisionQueue}
-                  featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
-                  isLoading={!isAuthenticated ? false : loadingRevision}
-                  error={!isAuthenticated ? null : revisionError}
-                />
-              </Reveal>
-            </div>
+          {/* 2. Interactive DSA Skill Tree (Full Width 12-cols) */}
+          <Reveal delay={25} y={6}>
+            <MasteryMilestonePath
+              summary={displaySummary}
+              topics={displayTopics}
+              dailyFocus={displayRecommendations?.dailyFocus}
+            />
+          </Reveal>
 
-            {/* Right (5 cols): Top Algorithmic Bottlenecks */}
-            <div className="lg:col-span-5 flex flex-col h-full">
-              <Reveal delay={50} y={10} className="h-full flex-1 flex flex-col">
-                <TopicWeaknessChart
-                  topics={displayTopics}
-                  isLoading={!isAuthenticated ? false : loadingTopics}
-                  error={!isAuthenticated ? null : topicsError}
-                  onRetry={loadTopics}
-                />
-              </Reveal>
-            </div>
+          {/* 3. Deliberate Practice Workbench: 2-Column Balanced Twin Cards (Equal Height) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* Left: Spaced Repetition Recall Queue */}
+            <Reveal delay={30} y={6} className="h-full flex flex-col">
+              <UpcomingRevisionsCard
+                queue={displayRevisionQueue}
+                featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
+                maxItems={5}
+                isLoading={!isAuthenticated ? false : loadingRevision}
+                error={!isAuthenticated ? null : revisionError}
+              />
+            </Reveal>
+
+            {/* Right: Topic Bottlenecks & Gaps */}
+            <Reveal delay={35} y={6} className="h-full flex flex-col">
+              <TopicWeaknessChart
+                topics={displayTopics}
+                isLoading={!isAuthenticated ? false : loadingTopics}
+                error={!isAuthenticated ? null : topicsError}
+                onRetry={loadTopics}
+              />
+            </Reveal>
           </div>
 
-          {/* ── 4. PRACTICE RHYTHM: 52-WEEK ACTIVITY HEATMAP ──────────── */}
-          <Reveal delay={65} y={10}>
+          {/* 4. Full Width Bottom Canvas: Practice Rhythm & Velocity */}
+          <Reveal delay={40} y={6}>
             <PracticeHeatmap
               heatmapData={displayHeatmap}
               isLoading={!isAuthenticated ? false : loadingHeatmap}
@@ -402,8 +416,124 @@ const DashboardPage = () => {
             />
           </Reveal>
 
+          <Reveal delay={45} y={6}>
+            <CompactPerformanceCard
+              heatmapData={displayHeatmap}
+              summary={displaySummary}
+              isLoading={!isAuthenticated ? false : loadingSummary}
+            />
+          </Reveal>
+        </div>
+      ) : (
+        /* ── MOBILE SEGMENTED WORKSPACE (< 1024px) ─────────────────────── */
+        <div className="space-y-4">
+          
+          {/* Segmented Controller Tab Bar */}
+          <div className="flex items-center p-1 rounded-xl bg-surface-2 border border-line-subtle select-none shadow-xs">
+            <button
+              type="button"
+              onClick={() => setMobileTab('focus')}
+              className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
+                mobileTab === 'focus'
+                  ? 'bg-accent text-bg shadow-[0_2px_10px_-2px_rgba(255,161,22,0.45)]'
+                  : 'text-text-secondary hover:text-text'
+              }`}
+            >
+              <Target className="w-3.5 h-3.5" />
+              <span>Focus Today</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileTab('roadmap')}
+              className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
+                mobileTab === 'roadmap'
+                  ? 'bg-accent text-bg shadow-[0_2px_10px_-2px_rgba(255,161,22,0.45)]'
+                  : 'text-text-secondary hover:text-text'
+              }`}
+            >
+              <GitBranch className="w-3.5 h-3.5" />
+              <span>Skill Tree</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileTab('analytics')}
+              className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
+                mobileTab === 'analytics'
+                  ? 'bg-accent text-bg shadow-[0_2px_10px_-2px_rgba(255,161,22,0.45)]'
+                  : 'text-text-secondary hover:text-text'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Analytics</span>
+            </button>
+          </div>
+
+          {/* TAB 1: FOCUS TODAY (< 1024px) */}
+          {mobileTab === 'focus' && (
+            <div className="space-y-4 animate-fade-in">
+              <RoadmapActionBanner
+                dailyFocus={displayRecommendations?.dailyFocus}
+                primaryWeakTopic={primaryWeakTopic}
+                isLoading={!isAuthenticated ? false : loadingRecommendations}
+              />
+
+              <UpcomingRevisionsCard
+                queue={displayRevisionQueue}
+                featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
+                maxItems={4}
+                isLoading={!isAuthenticated ? false : loadingRevision}
+                error={!isAuthenticated ? null : revisionError}
+              />
+
+              <CompactPerformanceCard
+                heatmapData={displayHeatmap}
+                summary={displaySummary}
+                isLoading={!isAuthenticated ? false : loadingSummary}
+              />
+            </div>
+          )}
+
+          {/* TAB 2: SKILL TREE ROADMAP (< 1024px) */}
+          {mobileTab === 'roadmap' && (
+            <div className="space-y-4 animate-fade-in">
+              <MasteryMilestonePath
+                summary={displaySummary}
+                topics={displayTopics}
+                dailyFocus={displayRecommendations?.dailyFocus}
+              />
+            </div>
+          )}
+
+          {/* TAB 3: ANALYTICS & RHYTHM (< 1024px) */}
+          {mobileTab === 'analytics' && (
+            <div className="space-y-4 animate-fade-in">
+              <TopicWeaknessChart
+                topics={displayTopics}
+                isLoading={!isAuthenticated ? false : loadingTopics}
+                error={!isAuthenticated ? null : topicsError}
+                onRetry={loadTopics}
+              />
+
+              <PracticeHeatmap
+                heatmapData={displayHeatmap}
+                isLoading={!isAuthenticated ? false : loadingHeatmap}
+                error={!isAuthenticated ? null : heatmapError}
+                onRetry={loadHeatmap}
+              />
+
+              <CompactPerformanceCard
+                heatmapData={displayHeatmap}
+                summary={displaySummary}
+                isLoading={!isAuthenticated ? false : loadingSummary}
+              />
+            </div>
+          )}
+
         </div>
       )}
+
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Target, ArrowRight, ExternalLink, Sparkles, CheckCircle2, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Target, ArrowRight, ExternalLink, Sparkles, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { PLATFORM_LABELS } from '../../theme/platforms';
 import { getAICoach } from '../../api/ai';
 import { useAuth } from '../../context/AuthContext';
@@ -9,32 +9,27 @@ import { DEMO_AI_COACH } from '../../data/demoData';
 const DIFFICULTY_MAP = {
   easy: {
     label: 'Easy',
-    dotClass: 'semantic-dot-easy',
-    textClass: 'text-easy',
-    chipClass: 'bg-easy/15 border-easy/30 text-easy',
+    chipClass: 'bg-easy/10 border-easy/25 text-easy',
   },
   medium: {
     label: 'Medium',
-    dotClass: 'semantic-dot-medium',
-    textClass: 'text-medium',
-    chipClass: 'bg-medium/15 border-medium/30 text-medium',
+    chipClass: 'bg-medium/10 border-medium/25 text-medium',
   },
   hard: {
     label: 'Hard',
-    dotClass: 'semantic-dot-hard',
-    textClass: 'text-hard',
-    chipClass: 'bg-hard/15 border-hard/30 text-hard',
+    chipClass: 'bg-hard/10 border-hard/25 text-hard',
   },
 };
 
 /**
- * RoadmapActionBanner: Daily Deliberate Recall Action Strip.
+ * RoadmapActionBanner: Today's Practice Mission Spotlight.
  *
- * Inspired by the "Plan Your DSA Journey" roadmap banner in executive learning dashboards:
- * - High-visibility callout for today's highest priority deliberate practice problem.
- * - Explains spaced repetition rationale.
- * - Direct 1-click CTA button to start solving or view details.
- * - Optional AI Coaching note expander.
+ * Implements Phase UI Next-Level Command Center:
+ * - High-contrast obsidian glass card with specular top accent.
+ * - Eyebrow with animated radar beacon.
+ * - Problem title with platform & topic pills.
+ * - Clear single-sentence retention rationale.
+ * - One dominant Solve Target CTA + AI Coach toggle.
  */
 const RoadmapActionBanner = ({
   dailyFocus,
@@ -79,126 +74,168 @@ const RoadmapActionBanner = ({
 
   if (isLoading) {
     return (
-      <div className={`rounded-xl border border-line card-classy p-5 animate-pulse select-none ${className}`}>
+      <div className={`kpi-card p-5 sm:p-6 animate-pulse select-none ${className}`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="w-12 h-12 rounded-xl bg-surface-2 shrink-0" />
-            <div className="space-y-2 flex-1">
-              <div className="h-3 w-40 bg-surface-2 rounded-xs" />
-              <div className="h-5 w-64 bg-surface-2 rounded-xs" />
-              <div className="h-3 w-80 bg-surface-2 rounded-xs" />
-            </div>
+          <div className="space-y-2.5 flex-1">
+            <div className="h-3 w-32 bg-surface-2 rounded-xs" />
+            <div className="h-6 w-60 bg-surface-2 rounded-md" />
+            <div className="h-3 w-72 bg-surface-2 rounded-xs" />
           </div>
-          <div className="h-10 w-36 bg-surface-2 rounded-xl shrink-0" />
+          <div className="h-10 w-32 bg-surface-2 rounded-lg shrink-0" />
         </div>
       </div>
     );
   }
 
-  // If no problem is due today, show a clean caught-up roadmap banner
+  // If no problem is due today, show caught-up state
   if (!dailyFocus) {
     return (
-      <div className={`rounded-xl border border-line/80 card-classy p-5 sm:p-6 select-none ${className}`}>
+      <div className={`kpi-card p-5 sm:p-6 select-none ${className}`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-4">
-            <div className="p-3 rounded-xl bg-success/12 border border-success/25 text-success shrink-0">
-              <CheckCircle2 className="w-6 h-6" />
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="p-2.5 rounded-lg bg-easy/10 border border-easy/25 text-easy shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-muted font-bold">
-                  YOUR DAILY ROADMAP · Deliberate Recall
-                </span>
-              </div>
-              <h3 className="text-base sm:text-lg font-bold text-text">
-                Spaced Repetition Queue is Caught Up!
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted font-bold block">
+                TODAY'S MISSION
+              </span>
+              <h3 className="text-sm sm:text-base font-bold text-text">
+                Spaced Repetition Queue is Caught Up
               </h3>
-              <p className="text-xs text-muted max-w-xl leading-relaxed">
-                All scheduled intervals are up to date. Explore new topics or catalog new problems to expand your coverage.
+              <p className="text-xs text-text-secondary max-w-xl">
+                All scheduled recall intervals are optimal. Explore new topics or catalog problems to expand coverage.
               </p>
             </div>
           </div>
 
           <Link
             to="/problems"
-            className="btn-primary text-xs py-2.5 px-4.5 rounded-xl font-semibold inline-flex items-center justify-center gap-2 shrink-0"
+            className="btn-primary text-xs py-2 px-4 rounded-lg font-semibold inline-flex items-center justify-center gap-1.5 shrink-0"
           >
             <span>Explore Catalog</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
     );
   }
 
-  const diff = DIFFICULTY_MAP[dailyFocus.difficulty] || DIFFICULTY_MAP.medium;
+  const diffKey = dailyFocus.difficulty?.toLowerCase() || 'medium';
+  const diff = DIFFICULTY_MAP[diffKey] || DIFFICULTY_MAP.medium;
   const platform = PLATFORM_LABELS[dailyFocus.platform] || PLATFORM_LABELS.other;
-  const weakTopicName = typeof primaryWeakTopic === 'string'
-    ? primaryWeakTopic
-    : primaryWeakTopic?.topic || primaryWeakTopic?.name || null;
+  const topics = Array.isArray(dailyFocus.topics)
+    ? dailyFocus.topics
+    : typeof dailyFocus.topic === 'string'
+    ? [dailyFocus.topic]
+    : [];
+
+  const targetProblemId = dailyFocus.id || dailyFocus._id;
+  const externalUrl = dailyFocus.problemUrl || dailyFocus.url || null;
 
   return (
-    <div className={`rounded-xl border border-line/80 card-classy p-5 sm:p-6 select-none transition-all ${className}`}>
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <section
+      aria-label="Today's Practice Mission"
+      className={`relative kpi-card p-4 sm:p-5 lg:p-6 select-none border-accent/40 shadow-[0_4px_24px_-4px_rgba(255,161,22,0.18)] ${className}`}
+    >
+      {/* Specular Top Amber Glow Beam */}
+      <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-[1.5px] bg-gradient-to-r from-transparent via-accent to-transparent pointer-events-none" />
+
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
         
-        {/* Left Side: Target Icon + Details */}
-        <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
-          <div className="p-3 rounded-xl bg-accent/12 border border-accent/25 text-accent shrink-0 shadow-xs">
-            <Target className="w-6 h-6" />
+        {/* Left Side: Mission Context & Dominant Problem Details */}
+        <div className="space-y-2 sm:space-y-2.5 flex-1 min-w-0">
+          
+          {/* Eyebrow with Beacon */}
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="radar-beacon absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-bold">
+              TODAY'S MISSION
+            </span>
+            <span className="text-muted/40">·</span>
+            <span className="text-[11px] text-text-secondary font-medium">
+              Next pattern step in curriculum
+            </span>
           </div>
 
-          <div className="space-y-1.5 flex-1 min-w-0">
-            {/* Overline & Category */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-bold">
-                YOUR DAILY ROADMAP · Deliberate Practice Target
-              </span>
-              {weakTopicName && (
-                <span className="text-[10px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
-                  Focus Area: #{weakTopicName}
-                </span>
-              )}
-            </div>
+          {/* Problem Title */}
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-text leading-tight max-w-xl">
+            <Link
+              to={`/problems/${targetProblemId}`}
+              className="hover:text-accent transition-colors"
+            >
+              {dailyFocus.title}
+            </Link>
+          </h2>
 
-            {/* Target Title & Metadata */}
-            <div className="flex flex-wrap items-baseline gap-2">
-              <h3 className="text-base sm:text-lg font-bold text-text truncate max-w-md">
-                {dailyFocus.title}
-              </h3>
-              <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${diff.chipClass}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${diff.dotClass}`} />
-                <span>{diff.label}</span>
+          {/* Metadata Chips: Difficulty · Platform · Topics */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+            <span className={`px-2 py-0.5 rounded-md font-mono text-[11px] font-bold border ${diff.chipClass}`}>
+              {diff.label}
+            </span>
+            <span className="px-2 py-0.5 rounded-md font-mono text-[11px] bg-surface-2 border border-line-subtle text-text-secondary">
+              {platform.label}
+            </span>
+            {topics.slice(0, 3).map((topic) => (
+              <span
+                key={topic}
+                className="px-2 py-0.5 rounded-md font-mono text-[11px] bg-surface-2/60 border border-line-subtle/60 text-muted"
+              >
+                {topic}
               </span>
-              <span className="font-mono text-xs text-muted font-medium">
-                {platform.label}
-              </span>
-            </div>
-
-            {/* Subtext Rationale */}
-            <p className="text-xs text-text-secondary leading-relaxed max-w-2xl line-clamp-2">
-              {dailyFocus.rationale || 'Prioritized based on your forgetting curve interval to solidify algorithmic pattern retention.'}
-            </p>
+            ))}
           </div>
+
+          {/* Why this problem? */}
+          <p className="text-xs text-text-secondary leading-relaxed max-w-2xl pt-0.5">
+            <strong className="text-text font-medium">Why today: </strong>
+            <span>
+              {dailyFocus.rationale || 'Prioritized based on your spaced repetition curve to solidify algorithmic pattern retention.'}
+            </span>
+          </p>
+
         </div>
 
-        {/* Right Side: CTAs */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
+        {/* Right Side: Actions (Dominant Solve Target + Secondary Coach + Platform) */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 shrink-0 pt-1 lg:pt-0">
+          
+          {/* Tertiary: Open on platform */}
+          {externalUrl && (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono text-muted hover:text-text px-2 py-2 inline-flex items-center gap-1 transition-colors"
+              title="Open problem on platform"
+            >
+              <span>Platform</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+
+          {/* Secondary: Coach Toggle (Engineering hint) */}
           <button
             type="button"
             onClick={handleToggleCoach}
-            className={`btn-secondary text-xs py-2.5 px-3.5 rounded-xl font-medium inline-flex items-center gap-1.5 cursor-pointer transition-all ${
-              isCoachOpen ? 'bg-accent/15 border-accent/35 text-accent' : 'text-text-secondary hover:text-text'
+            className={`text-xs font-medium py-2 px-3 rounded-lg inline-flex items-center gap-1.5 cursor-pointer transition-colors border ${
+              isCoachOpen
+                ? 'bg-accent/15 border-accent/35 text-accent shadow-[0_0_12px_-3px_rgba(255,161,22,0.25)]'
+                : 'bg-surface-2/80 hover:bg-surface-2 border-line-subtle text-text-secondary hover:text-text'
             }`}
-            title="Toggle AI Coach cognitive hints"
+            title="Toggle cognitive coaching hint"
           >
             <Sparkles className={`w-3.5 h-3.5 ${isCoachLoading ? 'animate-spin' : 'text-accent'}`} />
-            <span>AI Coach</span>
-            {isCoachOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            <span>AI Hint</span>
+            {isCoachOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           </button>
 
+          {/* Primary: Solve Target → (Dominant Visual CTA with Ambient Drop Glow) */}
           <Link
-            to={`/problems/${dailyFocus.id || dailyFocus._id}`}
-            className="btn-primary text-xs py-2.5 px-4.5 rounded-xl font-semibold inline-flex items-center justify-center gap-2 shadow-sm flex-1 sm:flex-none"
+            to={`/problems/${targetProblemId}`}
+            className="bg-gradient-to-r from-accent via-amber-500 to-accent-hover text-bg text-xs sm:text-sm py-2 sm:py-2.5 px-4 sm:px-5 rounded-lg font-extrabold inline-flex items-center justify-center gap-2 shadow-[0_2px_14px_-2px_rgba(255,161,22,0.45)] hover:shadow-[0_4px_20px_-2px_rgba(255,161,22,0.65)] active:scale-[0.98] transition-all tracking-tight flex-1 sm:flex-none cursor-pointer"
           >
             <span>Solve Target</span>
             <ArrowRight className="w-4 h-4" />
@@ -209,21 +246,21 @@ const RoadmapActionBanner = ({
 
       {/* Expandable AI Coach Insight Panel */}
       {isCoachOpen && (
-        <div className="mt-4 pt-4 border-t border-line/60 animate-fade-in space-y-2.5">
+        <div className="mt-3.5 pt-3.5 border-t border-line-subtle/80 animate-fade-in space-y-2">
           <div className="flex items-center gap-2 text-xs font-mono text-accent font-semibold">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Cognitive Recall Notes for {dailyFocus.title}:</span>
+            <Sparkles className="w-3 h-3" />
+            <span>Cognitive Recall Notes · {dailyFocus.title}:</span>
           </div>
           {isCoachLoading ? (
-            <div className="space-y-2 py-2">
+            <div className="space-y-1.5 py-1">
               <div className="h-3 w-3/4 bg-surface-2 rounded-xs animate-pulse" />
               <div className="h-3 w-1/2 bg-surface-2 rounded-xs animate-pulse" />
             </div>
           ) : coachData ? (
-            <div className="text-xs text-text-secondary leading-relaxed bg-surface-2/40 p-3.5 rounded-lg border border-line">
+            <div className="text-xs text-text-secondary leading-relaxed bg-surface-2/60 p-3 rounded-lg border border-line-subtle space-y-1.5">
               <p className="font-medium text-text">{coachData.summary || coachData.takeaway}</p>
               {coachData.hints?.length > 0 && (
-                <ul className="list-disc list-inside mt-2 space-y-1 text-muted">
+                <ul className="list-disc list-inside space-y-1 text-muted pt-1">
                   {coachData.hints.map((hint, idx) => (
                     <li key={idx}>{hint}</li>
                   ))}
@@ -231,13 +268,13 @@ const RoadmapActionBanner = ({
               )}
             </div>
           ) : (
-            <p className="text-xs text-muted italic">
-              Focus on identifying the pattern first (e.g. hash map prefix sums or two-pointer window) before writing code. Time target: ~25 mins.
-            </p>
+            <div className="text-xs text-text-secondary bg-surface-2/60 p-3 rounded-lg border border-line-subtle">
+              <p>Focus on identifying the core pattern before writing code. Aim for clean O(N) auxiliary space management.</p>
+            </div>
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
