@@ -118,7 +118,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
     return (
       <div className="panel overflow-hidden animate-pulse border-line rounded-xl">
         <div className="flex gap-3 px-4 py-3.5 bg-surface-2/40 border-b border-line items-center">
-          {[40, 240, 160, 90, 60, 110, 110, 140].map((w, i) => (
+          {[40, 240, 110, 90, 60, 110, 110, 140].map((w, i) => (
             <div key={i} className="h-3 shimmer rounded-md shrink-0" style={{ width: w }} />
           ))}
         </div>
@@ -127,7 +127,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
             <div key={i} className="flex gap-3 px-4 py-3.5 items-center">
               <div className="h-3.5 w-8 shimmer rounded-md shrink-0" />
               <div className="h-4 flex-1 shimmer rounded-md min-w-[140px]" />
-              <div className="h-3.5 w-36 shimmer rounded-md shrink-0" />
+              <div className="h-3.5 w-24 shimmer rounded-md shrink-0" />
               <div className="h-3.5 w-20 shimmer rounded-md shrink-0" />
               <div className="h-3.5 w-14 shimmer rounded-md shrink-0" />
               <div className="h-3.5 w-24 shimmer rounded-md shrink-0" />
@@ -156,7 +156,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                   {renderSortIndicator('title')}
                 </div>
               </th>
-              <th className="w-48 sm:w-56 py-3 px-3 whitespace-nowrap">Topics</th>
+              <th className="w-36 sm:w-40 py-3 px-3 whitespace-nowrap">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
                 className="w-28 py-3 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
@@ -232,24 +232,22 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                     </div>
                   </td>
 
-                  {/* Topic Badges */}
+                  {/* Single Topic Tag + count */}
                   <td className="py-3 px-3 whitespace-nowrap">
                     {item.topics?.length > 0 ? (
-                      <div className="flex items-center gap-1.5">
-                        {item.topics.slice(0, 2).map((t) => (
+                      <div className="inline-flex items-center gap-1.5">
+                        <span
+                          className="text-xs font-mono text-text-secondary bg-surface-2/70 border border-line/60 px-2 py-0.5 rounded"
+                          title={item.topics.join(', ')}
+                        >
+                          #{item.topics[0]}
+                        </span>
+                        {item.topics.length > 1 && (
                           <span
-                            key={t}
-                            className="text-xs font-mono text-text-secondary bg-surface-2/70 border border-line/60 px-2 py-0.5 rounded"
+                            className="text-[11px] font-mono text-muted px-1.5 py-0.5 rounded bg-surface-2 border border-line/40 cursor-help shrink-0 hover:text-text hover:border-line transition-colors"
+                            title={item.topics.slice(1).join(', ')}
                           >
-                            #{t}
-                          </span>
-                        ))}
-                        {item.topics.length > 2 && (
-                          <span
-                            className="text-[11px] font-mono text-muted px-1.5 py-0.5 rounded bg-surface-2 border border-line/40 cursor-help shrink-0"
-                            title={item.topics.slice(2).join(', ')}
-                          >
-                            +{item.topics.length - 2}
+                            +{item.topics.length - 1}
                           </span>
                         )}
                       </div>
