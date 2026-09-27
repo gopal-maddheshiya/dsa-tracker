@@ -589,7 +589,7 @@
     background-color: var(--surface);
   }
   .data-table thead th {
-    padding: 0.625rem 0.75rem;
+    padding: 0.75rem 0.875rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
@@ -605,7 +605,7 @@
     background-color: var(--surface-2);
   }
   .data-table tbody td {
-    padding: 0.625rem 0.75rem;
+    padding: 0.75rem 0.875rem;
     color: var(--text);
   }
 
