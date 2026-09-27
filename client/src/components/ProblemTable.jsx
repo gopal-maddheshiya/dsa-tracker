@@ -110,22 +110,22 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
   if (isLoading) {
     return (
       <div className="panel overflow-hidden animate-pulse border-line rounded-xl">
-        <div className="flex gap-4 px-6 py-4 bg-surface-2/40 border-b border-line">
-          {[40, 220, 140, 90, 80, 90, 60, 100].map((w, i) => (
-            <div key={i} className="h-3 shimmer rounded-md" style={{ width: w }} />
+        <div className="flex gap-2 sm:gap-3 px-3 py-3 bg-surface-2/40 border-b border-line items-center">
+          {[36, 180, 100, 70, 50, 75, 45, 120].map((w, i) => (
+            <div key={i} className="h-3 shimmer rounded-md shrink-0" style={{ width: w }} />
           ))}
         </div>
         <div className="divide-y divide-line">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex gap-4 px-6 py-4 items-center">
-              <div className="h-3.5 w-8 shimmer rounded-md" />
-              <div className="h-3.5 w-56 shimmer rounded-md" />
-              <div className="h-3 w-32 shimmer rounded-md" />
-              <div className="h-4 w-16 shimmer rounded-md" />
-              <div className="h-3 w-12 shimmer rounded-md" />
-              <div className="h-3 w-20 shimmer rounded-md" />
-              <div className="h-3 w-10 shimmer rounded-md mx-auto" />
-              <div className="h-4 w-20 shimmer rounded-md ml-auto" />
+            <div key={i} className="flex gap-2 sm:gap-3 px-3 py-3 items-center">
+              <div className="h-3 w-7 shimmer rounded-md shrink-0" />
+              <div className="h-3.5 w-48 shimmer rounded-md flex-1 min-w-[120px]" />
+              <div className="h-3 w-24 shimmer rounded-md shrink-0" />
+              <div className="h-3 w-16 shimmer rounded-md shrink-0" />
+              <div className="h-3 w-12 shimmer rounded-md shrink-0" />
+              <div className="h-3 w-20 shimmer rounded-md shrink-0" />
+              <div className="h-3 w-10 shimmer rounded-md shrink-0 mx-auto" />
+              <div className="h-4 w-28 shimmer rounded-md shrink-0 ml-auto" />
             </div>
           ))}
         </div>
@@ -168,33 +168,33 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
   return (
     <div className="panel overflow-hidden border-line rounded-xl bg-surface">
       <div className="overflow-x-auto">
-        <table className="data-table min-w-[760px] w-full text-left">
+        <table className="data-table w-full text-left">
           <thead>
             <tr className="border-b border-line bg-surface-2/40 text-muted text-xs tracking-wider">
-              <th className="w-12 text-center py-3.5 px-3 whitespace-nowrap">#</th>
+              <th className="w-9 sm:w-10 text-center py-2.5 px-1.5 whitespace-nowrap">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap min-w-[240px]"
+                className="py-2.5 px-2 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap min-w-[140px]"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Problem</span>
                   {renderSortIndicator('title')}
                 </div>
               </th>
-              <th className="py-3.5 px-3 whitespace-nowrap min-w-[160px]">Topics</th>
+              <th className="w-24 sm:w-32 py-2.5 px-1.5 whitespace-nowrap">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="w-28 py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-20 sm:w-22 py-2.5 px-1.5 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Difficulty</span>
                   {renderSortIndicator('difficulty')}
                 </div>
               </th>
-              <th className="w-24 py-3.5 px-3 whitespace-nowrap">Platform</th>
+              <th className="w-14 sm:w-16 py-2.5 px-1.5 whitespace-nowrap">Platform</th>
               <th
                 onClick={() => handleSort('status')}
-                className="w-32 py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-22 sm:w-26 py-2.5 px-1.5 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Status</span>
@@ -203,14 +203,14 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               </th>
               <th
                 onClick={() => handleSort('sessions')}
-                className="w-24 text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-16 sm:w-18 text-center py-2.5 px-1 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center justify-center gap-1.5">
                   <span>Sessions</span>
                   {renderSortIndicator('sessions')}
                 </div>
               </th>
-              <th className="w-36 text-right py-3.5 px-4 whitespace-nowrap">Actions</th>
+              <th className="w-34 sm:w-38 text-right py-2.5 px-2 sm:px-3 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef} className="divide-y divide-line">
@@ -226,17 +226,17 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   className="hover:bg-surface-2 transition-colors duration-150 group relative"
                 >
                   {/* # Index Column with subtle hover accent */}
-                  <td className="text-center text-xs tabular-nums text-muted py-3.5 px-3 whitespace-nowrap relative">
+                  <td className="text-center text-xs tabular-nums text-muted py-2.5 px-1.5 whitespace-nowrap relative">
                     <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
 
                   {/* Problem Title & External Link */}
-                  <td className="py-3.5 px-3 min-w-[240px]">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <td className="py-2.5 px-2 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
-                        className="font-semibold text-text group-hover:text-accent transition-colors truncate text-sm tracking-tight leading-snug"
+                        className="font-semibold text-text group-hover:text-accent transition-colors truncate text-xs sm:text-sm tracking-tight leading-snug flex-1 min-w-0"
                         title={problem.title}
                       >
                         {problem.title}
@@ -249,30 +249,28 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           title="Open original problem in new tab"
                           className="text-muted hover:text-accent transition-colors shrink-0 p-1 -m-1 rounded hover:bg-surface-2"
                         >
-                          <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                          <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
                         </a>
                       )}
                     </div>
                   </td>
 
                   {/* Topic Inline Monospace Tags */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     {problem.topics?.length > 0 ? (
-                      <div className="flex items-center gap-1.5 whitespace-nowrap">
-                        {problem.topics.slice(0, 2).map((t) => (
+                      <div className="flex items-center gap-1 whitespace-nowrap">
+                        <span
+                          className="text-[11px] font-mono text-text-secondary/85 hover:text-text transition-colors truncate max-w-[85px] sm:max-w-none"
+                          title={`#${problem.topics[0]}`}
+                        >
+                          #{problem.topics[0]}
+                        </span>
+                        {problem.topics.length > 1 && (
                           <span
-                            key={t}
-                            className="text-[11px] font-mono text-text-secondary/85 hover:text-text transition-colors whitespace-nowrap"
+                            className="text-[10px] font-mono text-muted whitespace-nowrap px-1 py-0.2 rounded bg-surface-2 border border-line-subtle cursor-help shrink-0"
+                            title={problem.topics.slice(1).join(', ')}
                           >
-                            #{t}
-                          </span>
-                        ))}
-                        {problem.topics.length > 2 && (
-                          <span
-                            className="text-[10px] font-mono text-muted whitespace-nowrap cursor-help"
-                            title={problem.topics.slice(2).join(', ')}
-                          >
-                            +{problem.topics.length - 2}
+                            +{problem.topics.length - 1}
                           </span>
                         )}
                       </div>
@@ -282,17 +280,17 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   </td>
 
                   {/* Difficulty Semantic Dot + Text */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     <div className="flex items-center gap-1.5 text-xs font-medium">
-                      <span className={`w-1.5 h-1.5 rounded-full ${diff.dot || 'bg-muted'}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full ${diff.dot || 'bg-muted'} shrink-0`} />
                       <span className={diff.text || 'text-muted'}>{diff.label}</span>
                     </div>
                   </td>
 
                   {/* Brand Platform Quiet Text + Indicator */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     <div className="flex items-center gap-1.5 text-xs font-medium" title={platformCfg.label}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot} shrink-0`} />
                       <span className={`font-mono text-[11px] font-semibold ${platformCfg.text}`}>
                         {platformCfg.short}
                       </span>
@@ -300,30 +298,30 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   </td>
 
                   {/* Status Semantic Dot + Text */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     {statusCfg ? (
                       <div className="flex items-center gap-1.5 text-xs font-medium">
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                        <span className={statusCfg.text}>{statusCfg.label}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} shrink-0`} />
+                        <span className={`${statusCfg.text} truncate`}>{statusCfg.label}</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1.5 text-xs text-muted">
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted/40" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted/40 shrink-0" />
                         <span>Unattempted</span>
                       </div>
                     )}
                   </td>
 
                   {/* Session Count */}
-                  <td className="text-center py-3 px-3 whitespace-nowrap">
-                    <span className="inline-block text-xs font-medium tabular-nums text-muted px-2 py-0.5 rounded bg-surface-2/60 border border-line/60 whitespace-nowrap">
+                  <td className="text-center py-2.5 px-1 whitespace-nowrap">
+                    <span className="inline-block text-[11px] font-medium tabular-nums text-muted px-1.5 py-0.2 rounded bg-surface-2/60 border border-line/60 whitespace-nowrap">
                       {problem.attemptCount || 0}
                     </span>
                   </td>
 
                   {/* Icon Actions */}
-                  <td className="text-right py-3 px-4 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5 text-xs">
+                  <td className="text-right py-2.5 px-2 sm:px-3 whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1 text-xs">
                       {/* 1-Click Quick Log Attempt */}
                       {onLog && (
                         <button
@@ -331,9 +329,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                           onClick={() => onLog(problem)}
                           title={`Log attempt for "${problem.title}"`}
                           aria-label={`Log attempt for "${problem.title}"`}
-                          className="h-8 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 transition-all text-xs font-semibold flex items-center gap-1 shrink-0 active:scale-95 mr-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
+                          className="h-7.5 px-2 rounded-md text-success bg-success/12 hover:bg-success/20 border border-success/25 transition-all text-[11px] font-semibold flex items-center gap-1 shrink-0 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
                         >
-                          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                          <Plus className="w-3 h-3 stroke-[2.5]" />
                           <span>Log</span>
                         </button>
                       )}
@@ -343,7 +341,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         to={`/problems/${problem.id || problem._id}`}
                         title="View problem details"
                         aria-label={`View ${problem.title}`}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-md text-muted hover:text-text hover:bg-surface-2 border border-line bg-surface transition-all shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
@@ -354,7 +352,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         onClick={() => onEdit(problem)}
                         title="Edit problem details"
                         aria-label={`Edit ${problem.title}`}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-accent/12 border border-line bg-surface hover:border-accent/25 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-md text-muted hover:text-accent hover:bg-accent/12 border border-line bg-surface hover:border-accent/25 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
@@ -365,7 +363,7 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                         onClick={() => onDelete(problem)}
                         title="Delete problem"
                         aria-label={`Delete ${problem.title}`}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/12 border border-line bg-surface hover:border-danger/25 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-md text-muted hover:text-danger hover:bg-danger/12 border border-line bg-surface hover:border-danger/25 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

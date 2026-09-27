@@ -117,22 +117,22 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
   if (isLoading) {
     return (
       <div className="panel overflow-hidden animate-pulse border-line rounded-xl">
-        <div className="flex gap-4 px-6 py-4 bg-surface-2/40 border-b border-line">
-          {[36, 200, 130, 90, 80, 100, 100, 90].map((w, i) => (
+        <div className="flex gap-2 sm:gap-4 px-3 sm:px-6 py-3.5 bg-surface-2/40 border-b border-line">
+          {[32, 160, 100, 70, 50, 80, 80, 80].map((w, i) => (
             <div key={i} className="h-3 shimmer rounded-md" style={{ width: w }} />
           ))}
         </div>
         <div className="divide-y divide-line">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex gap-4 px-6 py-4 items-center">
-              <div className="h-3.5 w-8 shimmer rounded-md" />
-              <div className="h-3.5 w-52 shimmer rounded-md" />
-              <div className="h-3 w-28 shimmer rounded-md" />
-              <div className="h-4 w-16 shimmer rounded-md" />
-              <div className="h-3 w-12 shimmer rounded-md" />
-              <div className="h-3.5 w-24 shimmer rounded-md" />
+            <div key={i} className="flex gap-2 sm:gap-4 px-3 sm:px-6 py-3 items-center">
+              <div className="h-3.5 w-6 shimmer rounded-md" />
+              <div className="h-3.5 flex-1 shimmer rounded-md" />
+              <div className="h-3 w-20 shimmer rounded-md" />
+              <div className="h-4 w-14 shimmer rounded-md" />
+              <div className="h-3 w-10 shimmer rounded-md" />
+              <div className="h-3.5 w-18 shimmer rounded-md" />
               <div className="h-3 w-16 shimmer rounded-md" />
-              <div className="h-7 w-20 shimmer rounded-md ml-auto" />
+              <div className="h-7 w-24 shimmer rounded-md ml-auto" />
             </div>
           ))}
         </div>
@@ -143,33 +143,33 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
   return (
     <div className="panel overflow-hidden border-line rounded-xl bg-surface">
       <div className="overflow-x-auto">
-        <table className="data-table min-w-[850px] w-full text-left">
+        <table className="data-table w-full text-left">
           <thead>
             <tr className="border-b border-line bg-surface-2/40 text-muted text-xs tracking-wider">
-              <th className="w-12 text-center py-3.5 px-3 whitespace-nowrap">#</th>
+              <th className="w-9 sm:w-10 text-center py-2.5 px-1.5 whitespace-nowrap">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap min-w-[240px]"
+                className="py-2.5 px-2 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap min-w-[140px]"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Problem</span>
                   {renderSortIndicator('title')}
                 </div>
               </th>
-              <th className="py-3.5 px-3 whitespace-nowrap min-w-[160px]">Topics</th>
+              <th className="w-24 sm:w-32 py-2.5 px-1.5 whitespace-nowrap">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="w-28 py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-20 sm:w-22 py-2.5 px-1.5 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Difficulty</span>
                   {renderSortIndicator('difficulty')}
                 </div>
               </th>
-              <th className="w-24 py-3 px-3 whitespace-nowrap">Platform</th>
+              <th className="w-14 sm:w-16 py-2.5 px-1.5 whitespace-nowrap">Platform</th>
               <th
                 onClick={() => handleSort('urgency')}
-                className="w-40 py-3 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-22 sm:w-26 py-2.5 px-1.5 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Urgency</span>
@@ -178,14 +178,14 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
               </th>
               <th
                 onClick={() => handleSort('lastPracticed')}
-                className="w-36 py-3 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-22 sm:w-26 py-2.5 px-1.5 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Last Practiced</span>
                   {renderSortIndicator('lastPracticed')}
                 </div>
               </th>
-              <th className="w-36 text-right py-3 px-4 whitespace-nowrap">Actions</th>
+              <th className="w-34 sm:w-38 text-right py-2.5 px-2 sm:px-3 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef} className="divide-y divide-line">
@@ -203,17 +203,17 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                   className="hover:bg-surface-2 transition-colors duration-150 group relative"
                 >
                   {/* # Index Column with hover accent indicator */}
-                  <td className="text-center text-xs tabular-nums text-muted py-3 px-3 whitespace-nowrap relative">
+                  <td className="text-center text-xs tabular-nums text-muted py-2.5 px-1.5 whitespace-nowrap relative">
                     <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {String(startIndex + idx + 1).padStart(2, '0')}
                   </td>
 
                   {/* Problem Title & External Link */}
-                  <td className="py-3 px-3 min-w-[240px]">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <td className="py-2.5 px-2 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       <Link
                         to={`/problems/${item.problemId}`}
-                        className="font-semibold text-text group-hover:text-accent transition-colors truncate text-sm tracking-tight leading-snug"
+                        className="font-semibold text-text group-hover:text-accent transition-colors truncate text-xs sm:text-sm tracking-tight leading-snug flex-1 min-w-0"
                         title={item.title}
                       >
                         {item.title}
@@ -233,23 +233,21 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                   </td>
 
                   {/* Topic Tags */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     {item.topics?.length > 0 ? (
-                      <div className="flex items-center gap-1.5 whitespace-nowrap">
-                        {item.topics.slice(0, 2).map((t) => (
+                      <div className="flex items-center gap-1">
+                        <span
+                          className="text-[11px] font-mono text-text-secondary/85 hover:text-text transition-colors truncate max-w-[85px] inline-block"
+                          title={item.topics.join(', ')}
+                        >
+                          #{item.topics[0]}
+                        </span>
+                        {item.topics.length > 1 && (
                           <span
-                            key={t}
-                            className="text-[11px] font-mono text-text-secondary/85 hover:text-text transition-colors whitespace-nowrap"
+                            className="text-[10px] font-mono px-1 py-0.5 rounded bg-surface-2 text-muted whitespace-nowrap cursor-help shrink-0"
+                            title={item.topics.slice(1).join(', ')}
                           >
-                            #{t}
-                          </span>
-                        ))}
-                        {item.topics.length > 2 && (
-                          <span
-                            className="text-[10px] font-mono text-muted whitespace-nowrap cursor-help"
-                            title={item.topics.slice(2).join(', ')}
-                          >
-                            +{item.topics.length - 2}
+                            +{item.topics.length - 1}
                           </span>
                         )}
                       </div>
@@ -259,7 +257,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                   </td>
 
                   {/* Difficulty Semantic Dot + Text */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     <div className="flex items-center gap-1.5 text-xs font-medium">
                       <span className={`w-1.5 h-1.5 rounded-full ${diff.dot || 'bg-muted'}`} />
                       <span className={diff.text || 'text-muted'}>{diff.label}</span>
@@ -267,7 +265,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                   </td>
 
                   {/* Platform Abbreviation + Dot Indicator */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     <div className="flex items-center gap-1.5 text-xs font-medium" title={platformCfg.label}>
                       <span className={`w-1.5 h-1.5 rounded-full ${platformCfg.dot}`} />
                       <span className={`font-mono text-[11px] font-semibold ${platformCfg.text}`}>
@@ -277,37 +275,36 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                   </td>
 
                   {/* Recall Urgency Semantic Dot + Score Tooltip */}
-                  <td className="py-3 px-3 whitespace-nowrap">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
                     <div
                       className="inline-flex items-center gap-1.5 cursor-help"
-                      title={urgency.tooltip}
+                      title={`${urgency.tooltip} (Score: ${item.priorityScore.toFixed(2)})`}
                     >
-                      <span className={`w-2 h-2 rounded-full ${urgency.dot}`} />
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${urgency.dot}`} />
                       <span className={`text-xs font-semibold ${urgency.text}`}>
                         {urgency.label}
-                      </span>
-                      <span className="text-[10px] font-mono text-muted tabular-nums ml-0.5">
-                        ({item.priorityScore.toFixed(2)})
                       </span>
                     </div>
                   </td>
 
                   {/* Last Practiced & Schedule */}
-                  <td className="py-3 px-3 whitespace-nowrap">
-                    <div className="flex flex-col">
+                  <td className="py-2.5 px-1.5 whitespace-nowrap">
+                    <div className="flex flex-col leading-tight">
                       <span className="text-xs text-text font-medium tabular-nums">{daysFormatted}</span>
-                      <span className="text-[10px] text-muted">{statusCfg.cycle} · {statusCfg.label}</span>
+                      <span className="text-[10px] text-muted truncate max-w-[90px]" title={`${statusCfg.cycle} · ${statusCfg.label}`}>
+                        {statusCfg.cycle}
+                      </span>
                     </div>
                   </td>
 
                   {/* Actions */}
-                  <td className="text-right py-3 px-4 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5 text-xs">
+                  <td className="text-right py-2.5 px-2 sm:px-3 whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1 text-xs">
                       {/* 1-Tap Quick Mark Solved */}
                       <button
                         type="button"
                         onClick={() => onQuickLog(item, 'solved')}
-                        className="h-8 px-2.5 rounded-lg text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
+                        className="h-7.5 px-2 rounded-md text-success bg-surface-2 hover:bg-success/15 border border-line hover:border-success/30 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
                         title="Quick 1-Tap: Mark Solved"
                         aria-label={`Mark ${item.title} as solved`}
                       >
@@ -319,7 +316,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                       <button
                         type="button"
                         onClick={() => onOpenLog(item)}
-                        className="h-8 px-2.5 rounded-lg text-success bg-success/12 hover:bg-success/20 border border-success/25 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
+                        className="h-7.5 px-2 rounded-md text-success bg-success/12 hover:bg-success/20 border border-success/25 text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-success"
                         title="Log recall practice attempt"
                         aria-label={`Log recall attempt for ${item.title}`}
                       >
@@ -330,7 +327,7 @@ const RevisionTable = ({ queue, isLoading = false, onOpenLog, onQuickLog, startI
                       {/* View details */}
                       <Link
                         to={`/problems/${item.problemId}`}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-text border border-line hover:border-line/80 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                        className="w-7.5 h-7.5 flex items-center justify-center rounded-md bg-surface-2 text-muted hover:text-text border border-line hover:border-line/80 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                         title="View problem details"
                         aria-label={`View ${item.title} details`}
                       >
