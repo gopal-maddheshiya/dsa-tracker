@@ -58,6 +58,9 @@ const UnifiedHero = ({
   const weeklySolved = summary?.weeklySolved ?? (totalSolved > 0 ? Math.min(totalSolved, weeklyTarget) : 0);
   const weeklyProgress = Math.min(100, Math.round((weeklySolved / weeklyTarget) * 100));
 
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
   // Calculate days until interview if set
   let daysUntilInterview = null;
   if (goals.targetInterviewDate) {
@@ -90,15 +93,15 @@ const UnifiedHero = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
         {/* Left: Greeting + Target Companies Pill + Focus */}
         <div className="flex items-start gap-3">
-          {/* Coder Initial Avatar */}
-          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-accent/30 text-accent font-mono font-bold flex items-center justify-center text-sm shadow-xs shrink-0 mt-0.5">
+          {/* Coder Initial Avatar with subtle amber ring */}
+          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-accent/40 text-accent font-mono font-bold flex items-center justify-center text-sm shadow-[0_0_12px_rgba(255,161,22,0.15)] shrink-0 mt-0.5">
             {initial}
           </div>
 
           <div className="space-y-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-lg sm:text-2xl font-black tracking-tight text-text">
-                Welcome back, {firstName}
+                {timeGreeting}, {firstName}
               </h1>
 
               {/* Target Companies Badge */}
@@ -110,9 +113,13 @@ const UnifiedHero = ({
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
                 <span className="text-accent font-bold">TARGET:</span>
                 <span className="text-text font-semibold">{targetCompanies.join(', ')}</span>
-                {daysUntilInterview && (
+                {daysUntilInterview ? (
                   <span className="text-muted border-l border-line-subtle pl-1.5">
                     {daysUntilInterview}d to interview
+                  </span>
+                ) : (
+                  <span className="text-muted/60 border-l border-line-subtle pl-1.5 hidden md:inline">
+                    Set target date →
                   </span>
                 )}
               </Link>

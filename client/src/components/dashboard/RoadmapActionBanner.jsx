@@ -246,7 +246,12 @@ const RoadmapActionBanner = ({
         <div className="mt-4 pt-4 border-t border-line animate-fade-in space-y-2.5">
           <div className="flex items-center justify-between text-xs font-mono text-accent font-semibold">
             <div className="flex items-center gap-2">
-              <Terminal className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1.5 mr-1">
+                <span className="w-2 h-2 rounded-full bg-hard/70" />
+                <span className="w-2 h-2 rounded-full bg-medium/70" />
+                <span className="w-2 h-2 rounded-full bg-easy/70" />
+              </div>
+              <Terminal className="w-3.5 h-3.5 text-accent" />
               <span>Cognitive Recall Notes · {dailyFocus.title}</span>
             </div>
             <span className="text-[10px] text-muted">Complexity & Pattern Anchor</span>
@@ -258,8 +263,14 @@ const RoadmapActionBanner = ({
               <div className="h-3 w-1/2 bg-surface-2 rounded animate-pulse" />
             </div>
           ) : coachData ? (
-            <div className="text-xs text-text-secondary leading-relaxed bg-[#1e1e1e] p-3.5 rounded-lg border border-line space-y-2 font-mono">
-              <p className="text-text font-medium leading-normal">{coachData.summary || coachData.takeaway}</p>
+            <div className="text-xs text-text-secondary leading-relaxed bg-[#181818] p-3.5 rounded-lg border border-line space-y-2.5 font-mono shadow-inner">
+              <div className="flex items-center gap-2 text-[11px] text-accent/80 font-bold border-b border-line-subtle/50 pb-1.5">
+                <span>$</span>
+                <span className="text-text-secondary">pattern-digest --target "{dailyFocus.title}"</span>
+              </div>
+              <p className="text-text font-medium leading-normal pl-3 border-l-2 border-accent/40">
+                {coachData.summary || coachData.takeaway}
+              </p>
               {coachData.hints?.length > 0 && (
                 <ul className="list-disc list-inside space-y-1 text-muted pt-1 border-t border-line-subtle/40">
                   {coachData.hints.map((hint, idx) => (
@@ -269,8 +280,10 @@ const RoadmapActionBanner = ({
               )}
             </div>
           ) : (
-            <div className="text-xs text-text-secondary bg-[#1e1e1e] p-3.5 rounded-lg border border-line font-mono">
-              <p>Focus on identifying the core pattern before writing code. Aim for clean O(N) auxiliary space management.</p>
+            <div className="text-xs text-text-secondary bg-[#181818] p-3.5 rounded-lg border border-line font-mono shadow-inner">
+              <p className="pl-3 border-l-2 border-accent/40">
+                Focus on identifying the core pattern before writing code. Aim for clean O(N) auxiliary space management.
+              </p>
             </div>
           )}
         </div>

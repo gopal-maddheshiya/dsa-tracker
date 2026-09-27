@@ -345,7 +345,7 @@ const DashboardPage = () => {
         </Reveal>
       ) : (
         /* ── DELIBERATE PRACTICE COMMAND WORKSPACE ──────────────────── */
-        <div className="space-y-6">
+        <div className="space-y-6 sm:space-y-7">
           {/* 1. Today's Practice Target Spotlight */}
           <Reveal delay={15} y={4}>
             <RoadmapActionBanner
@@ -356,43 +356,68 @@ const DashboardPage = () => {
           </Reveal>
 
           {/* 2. Deliberate Practice Workbench: 2-Column Balanced Twin Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-            {/* Left: Spaced Repetition Recall Queue */}
-            <Reveal delay={25} y={6} className="h-full flex flex-col">
-              <UpcomingRevisionsCard
-                queue={displayRevisionQueue}
-                featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
-                maxItems={5}
-                isLoading={!isAuthenticated ? false : loadingRevision}
-                error={!isAuthenticated ? null : revisionError}
-              />
-            </Reveal>
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+              <span>Deliberate Practice Workbench</span>
+              <span className="text-muted/40 hidden sm:inline">·</span>
+              <span className="text-[11px] text-muted font-normal lowercase tracking-normal hidden sm:inline">
+                active recall & topic bottleneck matrix
+              </span>
+            </div>
 
-            {/* Right: Topic Bottlenecks & Gaps */}
-            <Reveal delay={30} y={6} className="h-full flex flex-col">
-              <TopicWeaknessChart
-                topics={displayTopics}
-                isLoading={!isAuthenticated ? false : loadingTopics}
-                error={!isAuthenticated ? null : topicsError}
-                onRetry={loadTopics}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+              {/* Left: Spaced Repetition Recall Queue */}
+              <Reveal delay={25} y={6} className="h-full flex flex-col">
+                <UpcomingRevisionsCard
+                  queue={displayRevisionQueue}
+                  featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
+                  maxItems={5}
+                  isLoading={!isAuthenticated ? false : loadingRevision}
+                  error={!isAuthenticated ? null : revisionError}
+                />
+              </Reveal>
+
+              {/* Right: Topic Bottlenecks & Gaps */}
+              <Reveal delay={30} y={6} className="h-full flex flex-col">
+                <TopicWeaknessChart
+                  topics={displayTopics}
+                  isLoading={!isAuthenticated ? false : loadingTopics}
+                  error={!isAuthenticated ? null : topicsError}
+                  onRetry={loadTopics}
+                />
+              </Reveal>
+            </div>
+          </div>
+
+          {/* 3. Full Width Bottom Canvas: Practice Rhythm & Heatmap */}
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-easy" />
+              <span>Practice Rhythm & Consistency</span>
+            </div>
+
+            <Reveal delay={35} y={6}>
+              <PracticeHeatmap
+                heatmapData={displayHeatmap}
+                isLoading={!isAuthenticated ? false : loadingHeatmap}
+                error={!isAuthenticated ? null : heatmapError}
+                onRetry={loadHeatmap}
               />
             </Reveal>
           </div>
 
-          {/* 3. Full Width Bottom Canvas: Practice Rhythm & Heatmap */}
-          <Reveal delay={35} y={6}>
-            <PracticeHeatmap
-              heatmapData={displayHeatmap}
-              isLoading={!isAuthenticated ? false : loadingHeatmap}
-              error={!isAuthenticated ? null : heatmapError}
-              onRetry={loadHeatmap}
-            />
-          </Reveal>
-
           {/* 4. AI 7-Day Cognitive Retrospective */}
-          <Reveal delay={40} y={6}>
-            <WeeklyReviewSection />
-          </Reveal>
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+              <span>Cognitive Retrospective & Synthesis</span>
+            </div>
+
+            <Reveal delay={40} y={6}>
+              <WeeklyReviewSection />
+            </Reveal>
+          </div>
         </div>
       )}
     </div>
