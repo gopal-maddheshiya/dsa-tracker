@@ -3,7 +3,6 @@ const router = express.Router();
 const {
   signup,
   login,
-  googleAuth,
   getMe,
   updateProfile,
   changePassword,
@@ -24,7 +23,6 @@ const authLimiter = createRateLimiter({
 
 router.post('/signup', authLimiter, signup);
 router.post('/login', authLimiter, login);
-router.post('/google', authLimiter, googleAuth);
 router.post('/forgot-password', authLimiter, forgotPassword);
 router.post('/reset-password', authLimiter, resetPassword);
 

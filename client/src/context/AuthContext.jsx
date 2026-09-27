@@ -94,39 +94,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google login handler
-  const googleLogin = async (tokenPayload) => {
-    try {
-      let body;
-      if (typeof tokenPayload === 'string') {
-        // If it's a 3-part JWT, send as credential; otherwise send as accessToken
-        if (tokenPayload.split('.').length === 3) {
-          body = { credential: tokenPayload };
-        } else {
-          body = { accessToken: tokenPayload };
-        }
-      } else {
-        body = tokenPayload;
-      }
-      const response = await api.post('/auth/google', body);
-      const { token: receivedToken, user: receivedUser } = response.data;
-
-      localStorage.setItem('token', receivedToken);
-      setToken(receivedToken);
-      setUser(receivedUser);
-
-      return { success: true };
-    } catch (error) {
-      let errorMessage = 'Google login failed. Please try again.';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.request) {
-        errorMessage = 'Cannot connect to backend server. Please verify the backend is running.';
-      }
-      return { success: false, message: errorMessage };
-    }
-  };
-
   // Logout handler
   const logout = () => {
     localStorage.removeItem('token');
@@ -148,8 +115,6 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         login,
         signup,
-        googleLogin,
-        googleAuth: googleLogin,
         logout,
         updateUser,
       }}

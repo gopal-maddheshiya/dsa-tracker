@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Attempt = require('../models/Attempt');
 const generateToken = require('../utils/generateToken');
@@ -124,116 +123,6 @@ const login = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-  }
-};
-
-/**
- * @route   POST /api/auth/google
- * @desc    Authenticate or register user with Google OAuth ID token
- * @access  Public
- */
-const googleAuth = async (req, res, next) => {
-  try {
-    const { credential, accessToken } = req.body;
-
-    if (!credential && !accessToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'Google credential or access token is required',
-      });
-    }
-
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      return res.status(500).json({
-        success: false,
-        message: 'Google authentication is not configured on this server (GOOGLE_CLIENT_ID missing)',
-      });
-    }
-    let googleId, email, name, picture;
-
-    // Check if credential is a valid 3-part JWT
-    const isJwt = credential && typeof credential === 'string' && credential.split('.').length === 3;
-
-    if (isJwt) {
-      const client = new OAuth2Client(clientId);
-      const ticket = await client.verifyIdToken({
-        idToken: credential,
-        audience: clientId,
-      });
-      const payload = ticket.getPayload();
-      if (!payload || !payload.email) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid Google token payload',
-        });
-      }
-      googleId = payload.sub;
-      email = payload.email;
-      name = payload.name;
-      picture = payload.picture;
-    } else {
-      // Access token (or non-JWT token passed in credential/accessToken)
-      const tokenToUse = accessToken || credential;
-      const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${tokenToUse}` },
-      });
-      if (!userInfoRes.ok) {
-        return res.status(401).json({
-          success: false,
-          message: 'Failed to retrieve Google user profile',
-        });
-      }
-      const userInfo = await userInfoRes.json();
-      googleId = userInfo.sub;
-      email = userInfo.email;
-      name = userInfo.name;
-      picture = userInfo.picture;
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // Check if user exists by googleId or email
-    let user = await User.findOne({
-      $or: [{ googleId }, { email: normalizedEmail }],
-    });
-
-    if (user) {
-      let shouldSave = false;
-      if (!user.googleId) {
-        user.googleId = googleId;
-        shouldSave = true;
-      }
-      if (!user.avatar && picture) {
-        user.avatar = picture;
-        shouldSave = true;
-      }
-      if (shouldSave) {
-        await user.save();
-      }
-    } else {
-      user = await User.create({
-        name: name ? name.trim() : 'Google User',
-        email: normalizedEmail,
-        googleId,
-        avatar: picture || null,
-      });
-    }
-
-    // Generate internal JWT token
-    const token = generateToken(user._id);
-
-    return res.status(200).json({
-      success: true,
-      token,
-      user: user.toSafeObject(),
-    });
-  } catch (error) {
-    console.error('Google Auth Error:', error.message);
-    return res.status(401).json({
-      success: false,
-      message: 'Google authentication failed: ' + error.message,
-    });
   }
 };
 
@@ -639,7 +528,6 @@ const updateUserGoals = async (req, res, next) => {
 module.exports = {
   signup,
   login,
-  googleAuth,
   getMe,
   updateProfile,
   changePassword,
