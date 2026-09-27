@@ -160,6 +160,26 @@ const getSummary = async (req, res, next) => {
       }
     }
 
+    // Count unique problems solved in current week (since Monday 00:00:00)
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7;
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const weeklySolvedAgg = await Attempt.aggregate([
+      {
+        $match: {
+          userId,
+          status: 'solved',
+          attemptedAt: { $gte: startOfWeek },
+        },
+      },
+      { $group: { _id: '$problemId' } },
+      { $count: 'count' },
+    ]);
+    const weeklySolved = weeklySolvedAgg.length > 0 ? weeklySolvedAgg[0].count : 0;
+
     return res.status(200).json({
       success: true,
       data: {
@@ -174,6 +194,7 @@ const getSummary = async (req, res, next) => {
         platformBreakdown: platformMap,
         currentStreak,
         longestStreak,
+        weeklySolved,
       },
     });
   } catch (error) {

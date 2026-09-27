@@ -216,13 +216,13 @@ const DashboardPage = () => {
       {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview Only) ──── */}
       {!isAuthenticated && (
         <Reveal delay={0} y={4}>
-          <div className="relative overflow-hidden rounded-xl border border-line-subtle/80 bg-surface/85 backdrop-blur-md p-2.5 sm:p-3.5 shadow-xs select-none">
+          <div className="relative overflow-hidden rounded-xl border border-line bg-surface p-3 sm:p-3.5 shadow-xs select-none">
             <div className="relative z-10 flex items-center justify-between gap-2.5 sm:gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-2 h-2 rounded-full bg-accent/80 shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-text-secondary shrink-0">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-secondary shrink-0">
                       Demo Workspace
                     </span>
                     <span className="hidden sm:inline-block text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">

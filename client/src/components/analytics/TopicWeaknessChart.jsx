@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 /**
  * TopicWeaknessChart: Right Wing of Deliberate Practice Workbench.
  *
- * Implements Phase UI-3.5 Level 1 Workbench surface:
- * - Compact analytical rows showing top struggle topics.
- * - #1 priority gap subtle highlight (no giant red walls).
- * - Matches Recall Queue vertically with hairline separators.
+ * Implements Premium Topic Bottlenecks & Accuracy Gaps Matrix:
+ * - Scannable analytical rows showing top struggle topics.
+ * - #1 priority gap highlighted with amber badge and intensity bar.
+ * - Matches Recall Queue vertically with hairline separators and #323232 hover.
  */
 const TopicWeaknessChart = ({
   topics = [],
@@ -33,29 +33,29 @@ const TopicWeaknessChart = ({
 
   if (isLoading) {
     return (
-      <div className={`p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
+      <div className={`rounded-xl border border-line bg-surface p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
         <div className="flex justify-between items-center pb-3 border-b border-line-subtle">
-          <div className="h-3 w-28 bg-surface-2 rounded-xs" />
-          <div className="h-3 w-16 bg-surface-2 rounded-xs" />
+          <div className="h-3.5 w-32 bg-surface-2 rounded" />
+          <div className="h-3 w-16 bg-surface-2 rounded" />
         </div>
-        <div className="space-y-3 py-4">
+        <div className="space-y-3 py-4 flex-1">
           {[1, 2, 3, 4, 5].slice(0, maxItems).map((i) => (
             <div key={i} className="flex justify-between items-center py-2">
-              <div className="h-3.5 w-32 bg-surface-2 rounded-xs" />
-              <div className="h-3 w-16 bg-surface-2 rounded-xs" />
+              <div className="h-3.5 w-36 bg-surface-2 rounded" />
+              <div className="h-3.5 w-16 bg-surface-2 rounded" />
             </div>
           ))}
         </div>
-        <div className="h-3 w-28 bg-surface-2 rounded-xs mt-2" />
+        <div className="h-3 w-28 bg-surface-2 rounded mt-2" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`rounded-xl border border-danger/30 bg-surface p-4 sm:p-5 text-xs text-text-secondary ${className}`}>
+      <div className={`rounded-xl border border-hard/30 bg-surface p-4 sm:p-5 text-xs text-text-secondary ${className}`}>
         <p className="font-semibold text-text">Top Bottlenecks</p>
-        <p className="text-danger mt-1">Unable to load topic diagnostics.</p>
+        <p className="text-hard mt-1">Unable to load topic diagnostics.</p>
         {onRetry && (
           <button onClick={onRetry} className="text-accent underline mt-2 cursor-pointer font-medium">
             Retry
@@ -67,7 +67,7 @@ const TopicWeaknessChart = ({
 
   return (
     <div
-      className={`flex flex-col justify-between h-full select-none ${className || 'rounded-xl border border-line bg-surface p-4 sm:p-5'}`}
+      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none shadow-xs hover:border-line-subtle transition-all ${className}`}
     >
       <div className="flex-1 flex flex-col">
         {/* Header: Title + Subtitle Question + Tag + Catalog Link */}
@@ -75,21 +75,21 @@ const TopicWeaknessChart = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted">
-                TOPIC GAPS
+                TOPIC BOTTLENECKS
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
-                Struggle Ratio
+              <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
+                Struggle Rate
               </span>
             </div>
             <p className="text-xs text-text-secondary mt-0.5">
-              What should I strengthen?
+              Accuracy gaps & retention bottlenecks
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => navigate('/problems')}
-            className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group cursor-pointer"
+            className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group cursor-pointer font-medium"
           >
             <span>Catalog</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -113,8 +113,8 @@ const TopicWeaknessChart = ({
 
         {/* Bottleneck Rows */}
         {rankedTopics.length === 0 ? (
-          <div className="py-10 text-center space-y-1 my-auto">
-            <p className="text-xs font-semibold text-text">No bottlenecks detected</p>
+          <div className="py-10 text-center space-y-1.5 my-auto">
+            <p className="text-xs font-bold text-text">No bottlenecks detected</p>
             <p className="text-[11px] text-muted">
               Log problem attempts with notes to generate struggle diagnostics.
             </p>
@@ -133,8 +133,8 @@ const TopicWeaknessChart = ({
                   onClick={() => navigate(`/problems?topic=${encodeURIComponent(topicName)}`)}
                   className={`py-2.5 px-2 -mx-1.5 flex items-center justify-between text-xs cursor-pointer group rounded-lg transition-all duration-150 ${
                     isFirst
-                      ? 'bg-surface-2/50 border border-accent/20 shadow-xs'
-                      : 'hover:bg-surface-hover/80 hover:pl-2.5 border border-transparent hover:border-line-subtle/50'
+                      ? 'bg-surface-2/60 border border-accent/25 shadow-xs'
+                      : 'hover:bg-surface-2/70 hover:pl-2.5 border border-transparent hover:border-line-subtle/50'
                   }`}
                   title={`Filter catalog by ${topicName}`}
                 >
@@ -150,14 +150,14 @@ const TopicWeaknessChart = ({
                     <span
                       className={`truncate transition-colors ${
                         isFirst
-                          ? 'font-semibold text-text group-hover:text-accent'
+                          ? 'font-bold text-text group-hover:text-accent'
                           : 'font-medium text-text-secondary group-hover:text-text'
                       }`}
                     >
                       {topicName}
                     </span>
                     {isFirst && (
-                      <span className="hidden sm:inline-block px-1.5 py-0.2 rounded-full bg-accent/10 border border-accent/25 text-[9px] font-mono text-accent font-bold uppercase shrink-0 shadow-[0_0_8px_rgba(255,161,22,0.2)]">
+                      <span className="hidden sm:inline-block px-1.5 py-0.2 rounded-full bg-accent/15 border border-accent/30 text-[9px] font-mono text-accent font-bold uppercase shrink-0 shadow-[0_0_8px_rgba(255,161,22,0.2)]">
                         Top Gap
                       </span>
                     )}
@@ -176,7 +176,7 @@ const TopicWeaknessChart = ({
                     </div>
 
                     <span
-                      className={`font-medium min-w-[32px] text-right ${
+                      className={`font-semibold min-w-[32px] text-right ${
                         isFirst ? 'text-accent font-bold' : 'text-text-secondary'
                       }`}
                     >
@@ -218,7 +218,7 @@ const TopicWeaknessChart = ({
               navigate('/profile?tab=analytics');
             }
           }}
-          className="text-muted hover:text-text transition-colors cursor-pointer text-[11px]"
+          className="text-muted hover:text-text transition-colors cursor-pointer text-[11px] font-medium"
         >
           Full matrix in Profile →
         </button>

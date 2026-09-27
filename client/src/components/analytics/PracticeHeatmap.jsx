@@ -120,20 +120,20 @@ const PracticeHeatmap = ({
     return labels;
   }, [weeks]);
 
-  // Color mapping based on attempt count (restrained tonal palette)
+  // Color mapping based on attempt count (authentic LeetCode green palette)
   const getCellColor = (count) => {
-    if (count === null || count === undefined || count === 0) return 'bg-surface-2/60';
-    if (count === 1) return 'bg-easy/30';
-    if (count === 2) return 'bg-easy/55';
-    if (count <= 4) return 'bg-easy/80';
-    return 'bg-easy';
+    if (count === null || count === undefined || count === 0) return 'bg-[#323232] hover:bg-[#3c3c3c]';
+    if (count === 1) return 'bg-easy/30 hover:bg-easy/45';
+    if (count === 2) return 'bg-easy/55 hover:bg-easy/70';
+    if (count <= 4) return 'bg-easy/80 hover:bg-easy/95';
+    return 'bg-easy hover:brightness-110';
   };
 
   if (isLoading) {
     return (
-      <div className={`rounded-2xl border border-line/80 card-classy p-5 sm:p-6 animate-pulse select-none ${className}`}>
-        <div className="h-3 w-28 bg-surface-2 rounded-xs mb-2" />
-        <div className="h-5 w-48 bg-surface-2 rounded-xs mb-5" />
+      <div className={`rounded-xl border border-line bg-surface p-4 sm:p-5 animate-pulse select-none ${className}`}>
+        <div className="h-3.5 w-32 bg-surface-2 rounded mb-2" />
+        <div className="h-5 w-48 bg-surface-2 rounded mb-5" />
         <div className="h-32 w-full bg-surface-2/40 rounded-sm" />
       </div>
     );
@@ -141,9 +141,9 @@ const PracticeHeatmap = ({
 
   if (error) {
     return (
-      <div className={`rounded-2xl border border-danger/30 card-classy p-5 sm:p-6 text-xs text-text-secondary ${className}`}>
+      <div className={`rounded-xl border border-hard/30 bg-surface p-4 sm:p-5 text-xs text-text-secondary ${className}`}>
         <p className="font-semibold text-text">Practice Rhythm</p>
-        <p className="text-danger mt-1">Unable to load activity data.</p>
+        <p className="text-hard mt-1">Unable to load activity data.</p>
         {onRetry && (
           <button onClick={onRetry} className="text-accent underline mt-2 cursor-pointer font-medium">
             Retry
@@ -155,8 +155,11 @@ const PracticeHeatmap = ({
   return (
     <section
       aria-label="Practice Rhythm Heatmap"
-      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 select-none transition-all overflow-hidden max-w-full ${className}`}
+      className={`relative rounded-xl border border-line bg-surface p-4 sm:p-5 select-none transition-all overflow-hidden max-w-full shadow-xs hover:border-line-subtle ${className}`}
     >
+      {/* Specular Top Subtle Reflection */}
+      <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent pointer-events-none" />
+
       {/* ── EDITORIAL HEADER ───────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 border-b border-line">
         <div>
@@ -176,7 +179,7 @@ const PracticeHeatmap = ({
               {formatDisplayDate(hoveredCell.date)}
             </span>
           ) : (
-            <span className="text-muted/70 text-[10px] sm:text-[11px]">364 calendar days cadence</span>
+            <span className="text-muted/70 text-[10px] sm:text-[11px]">52-week rolling activity</span>
           )}
         </div>
       </div>
@@ -229,7 +232,7 @@ const PracticeHeatmap = ({
                         onMouseEnter={() => setHoveredCell(day)}
                         onMouseLeave={() => setHoveredCell(null)}
                         className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-[2px] cursor-pointer transition-colors ${cellColor} ${
-                          isToday ? 'ring-1 ring-accent ring-offset-1 ring-offset-background' : ''
+                          isToday ? 'ring-1 ring-accent ring-offset-1 ring-offset-[#282828]' : ''
                         }`}
                         title={`${day.count} solves on ${day.date}`}
                       />
@@ -249,11 +252,11 @@ const PracticeHeatmap = ({
         <div className="flex items-center gap-1.5">
           <span>Less</span>
           <div className="flex gap-1 items-center">
-            <span className="w-2.5 h-2.5 rounded-[2px] bg-surface-2/60" />
-            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy/30" />
-            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy/55" />
-            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy/80" />
-            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy" />
+            <span className="w-2.5 h-2.5 rounded-[2px] bg-[#323232]" title="0 solves" />
+            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy/30" title="1 solve" />
+            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy/55" title="2 solves" />
+            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy/80" title="3-4 solves" />
+            <span className="w-2.5 h-2.5 rounded-[2px] bg-easy" title="5+ solves" />
           </div>
           <span>More</span>
         </div>

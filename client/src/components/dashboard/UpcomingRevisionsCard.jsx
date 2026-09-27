@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 
 const DIFFICULTY_MAP = {
-  easy: { label: 'Easy', dotClass: 'semantic-dot-easy', textClass: 'text-easy' },
-  medium: { label: 'Med', dotClass: 'semantic-dot-medium', textClass: 'text-medium' },
-  hard: { label: 'Hard', dotClass: 'semantic-dot-hard', textClass: 'text-hard' },
+  easy: { label: 'Easy', dotClass: 'w-1.5 h-1.5 rounded-full bg-easy', textClass: 'text-easy' },
+  medium: { label: 'Med', dotClass: 'w-1.5 h-1.5 rounded-full bg-medium', textClass: 'text-medium' },
+  hard: { label: 'Hard', dotClass: 'w-1.5 h-1.5 rounded-full bg-hard', textClass: 'text-hard' },
 };
 
 const getRelativeUrgency = (dateStr) => {
@@ -23,10 +23,10 @@ const getRelativeUrgency = (dateStr) => {
 /**
  * UpcomingRevisionsCard: Left Wing of Deliberate Practice Workbench.
  *
- * Implements Phase UI-3.5 Level 1 Workbench surface:
- * - High-scannability queue with index, problem title, difficulty dot, and relative urgency.
- * - Flat hairline rows with subtle hover (zero nested cards).
- * - Matches Top Bottlenecks vertically.
+ * Implements Premium Spaced Repetition Queue:
+ * - Scannable tabular rows with difficulty dots and urgency indicators.
+ * - Flat hairline rows with subtle #323232 hover.
+ * - Balanced vertical height matching Topic Bottlenecks.
  */
 const UpcomingRevisionsCard = ({
   queue = [],
@@ -36,23 +36,22 @@ const UpcomingRevisionsCard = ({
   error = null,
   className = '',
 }) => {
-
   if (isLoading) {
     return (
-      <div className={`p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
+      <div className={`rounded-xl border border-line bg-surface p-4 sm:p-5 animate-pulse flex flex-col justify-between h-full select-none ${className}`}>
         <div className="flex justify-between items-center pb-3 border-b border-line-subtle">
-          <div className="h-3 w-28 bg-surface-2 rounded-xs" />
-          <div className="h-3 w-16 bg-surface-2 rounded-xs" />
+          <div className="h-3.5 w-32 bg-surface-2 rounded" />
+          <div className="h-3 w-16 bg-surface-2 rounded" />
         </div>
-        <div className="space-y-3 py-4">
+        <div className="space-y-3 py-4 flex-1">
           {[1, 2, 3, 4, 5].slice(0, maxItems).map((i) => (
             <div key={i} className="flex justify-between items-center py-2">
-              <div className="h-3.5 w-40 bg-surface-2 rounded-xs" />
-              <div className="h-3 w-16 bg-surface-2 rounded-xs" />
+              <div className="h-3.5 w-44 bg-surface-2 rounded" />
+              <div className="h-3.5 w-16 bg-surface-2 rounded" />
             </div>
           ))}
         </div>
-        <div className="h-3 w-28 bg-surface-2 rounded-xs mt-2" />
+        <div className="h-3 w-28 bg-surface-2 rounded mt-2" />
       </div>
     );
   }
@@ -64,7 +63,7 @@ const UpcomingRevisionsCard = ({
 
   return (
     <div
-      className={`flex flex-col justify-between h-full select-none ${className || 'rounded-xl border border-line bg-surface p-4 sm:p-5'}`}
+      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none shadow-xs hover:border-line-subtle transition-all ${className}`}
     >
       <div className="flex-1 flex flex-col">
         {/* Header: Title + Subtitle Question + Due Count + View All Link */}
@@ -74,18 +73,18 @@ const UpcomingRevisionsCard = ({
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted">
                 RECALL QUEUE
               </span>
-              <span className="text-[10px] font-mono font-medium text-accent px-1.5 py-0.2 rounded-full bg-accent/10 border border-accent/20 tabular-nums">
+              <span className="text-[10px] font-mono font-bold text-accent px-2 py-0.2 rounded-full bg-accent/10 border border-accent/25 tabular-nums">
                 {queue.length} due
               </span>
             </div>
             <p className="text-xs text-text-secondary mt-0.5">
-              What should I revisit?
+              Ebbinghaus memory curve intervals
             </p>
           </div>
 
           <Link
             to="/revision"
-            className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group"
+            className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group font-medium"
           >
             <span>View all</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -109,9 +108,9 @@ const UpcomingRevisionsCard = ({
 
         {/* Work Queue Rows */}
         {candidates.length === 0 ? (
-          <div className="py-10 text-center space-y-1 my-auto">
-            <p className="text-xs font-semibold text-text">Queue is clear</p>
-            <p className="text-[11px] text-muted">Zero pending recalls. Retention memory is optimal.</p>
+          <div className="py-10 text-center space-y-1.5 my-auto">
+            <p className="text-xs font-bold text-text">Recall queue is clear</p>
+            <p className="text-[11px] text-muted">Zero pending intervals. Algorithmic retention is optimal.</p>
           </div>
         ) : (
           <div className="divide-y divide-line-subtle/40 pt-0.5 flex-1 flex flex-col justify-around">
@@ -125,7 +124,7 @@ const UpcomingRevisionsCard = ({
                 <Link
                   key={targetId || idx}
                   to={`/problems/${targetId}`}
-                  className="py-2.5 px-2 -mx-1.5 flex items-center justify-between gap-2.5 group transition-all duration-150 hover:bg-surface-hover/80 hover:pl-2.5 rounded-lg border border-transparent hover:border-line-subtle/50"
+                  className="py-2.5 px-2 -mx-1.5 flex items-center justify-between gap-2.5 group transition-all duration-150 hover:bg-surface-2/70 hover:pl-2.5 rounded-lg border border-transparent hover:border-line-subtle/50"
                   title={item.title}
                 >
                   {/* Left: Index + Title */}
@@ -142,7 +141,7 @@ const UpcomingRevisionsCard = ({
                   <div className="flex items-center gap-3 shrink-0 select-none">
                     <div className="inline-flex items-center justify-end gap-1.5 font-mono text-[11px] w-auto sm:w-14">
                       <span className={diffInfo.dotClass} />
-                      <span className={`font-medium ${diffInfo.textClass} hidden sm:inline`}>
+                      <span className={`font-semibold ${diffInfo.textClass} hidden sm:inline`}>
                         {diffInfo.label}
                       </span>
                     </div>
@@ -151,6 +150,8 @@ const UpcomingRevisionsCard = ({
                       className={`text-[10px] font-mono font-bold w-16 text-center px-1.5 py-0.5 rounded-full ${
                         urgency === 'TODAY'
                           ? 'text-accent bg-accent/15 border border-accent/35 shadow-[0_0_8px_rgba(255,161,22,0.25)]'
+                          : urgency === 'TOMORROW'
+                          ? 'text-medium bg-medium/10 border border-medium/25'
                           : 'text-muted bg-surface-2 border border-line-subtle'
                       }`}
                     >
@@ -171,11 +172,11 @@ const UpcomingRevisionsCard = ({
       {/* Footer Info */}
       <div className="pt-3 border-t border-line mt-auto flex items-center justify-between text-xs text-muted font-mono">
         <span className="text-[11px] text-muted">
-          {queue.length > 5 ? `+${queue.length - candidates.length} more in queue` : 'Spaced cadence active'}
+          {queue.length > 5 ? `+${queue.length - candidates.length} more in queue` : 'Spaced repetition active'}
         </span>
         <Link
           to="/revision"
-          className="text-[11px] font-mono text-accent hover:underline flex items-center gap-1 font-medium"
+          className="text-[11px] font-mono text-accent hover:underline flex items-center gap-1 font-semibold"
         >
           <span>Start session</span>
           <ArrowRight className="w-3 h-3" />

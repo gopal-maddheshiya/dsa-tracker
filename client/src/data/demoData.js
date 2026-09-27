@@ -23,6 +23,8 @@ export const DEMO_SUMMARY = {
   solvedProblems: 5,
   totalAttempts: 22,
   currentStreak: 5,
+  longestStreak: 12,
+  weeklySolved: 4,
   difficultyBreakdown: [
     { difficulty: 'easy', solved: 3, total: 3 },
     { difficulty: 'medium', solved: 1, total: 3 },

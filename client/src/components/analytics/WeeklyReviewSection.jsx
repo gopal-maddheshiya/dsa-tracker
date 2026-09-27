@@ -89,10 +89,10 @@ const WeeklyReviewSection = ({ className = '' }) => {
   if (loading) {
     return (
       <div
-        className={`rounded-xl border border-line-subtle/80 bg-surface/85 backdrop-blur-md p-5 sm:p-6 space-y-4 animate-pulse select-none ${className}`}
+        className={`rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-4 animate-pulse select-none ${className}`}
       >
         <div className="flex items-center justify-between">
-          <div className="h-4 w-40 bg-surface-2 rounded-xs" />
+          <div className="h-4 w-40 bg-surface-2 rounded" />
           <div className="h-4 w-24 bg-surface-2 rounded-full" />
         </div>
         <div className="h-6 w-3/4 bg-surface-2 rounded-md" />
@@ -109,7 +109,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
   if (error && !review) {
     return (
       <div
-        className={`rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-3 select-none ${className}`}
+        className={`rounded-xl border border-hard/30 bg-surface p-5 sm:p-6 space-y-3 select-none ${className}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted font-bold">
@@ -119,7 +119,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
           <button
             type="button"
             onClick={() => loadReview(true)}
-            className="text-xs font-mono text-accent hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs font-mono text-accent hover:underline flex items-center gap-1 cursor-pointer font-medium"
           >
             <RefreshCw className="w-3 h-3" />
             <span>Retry</span>
@@ -138,7 +138,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
   if (isZeroActivity) {
     return (
       <div
-        className={`relative overflow-hidden rounded-xl border border-line-subtle/80 bg-surface/85 backdrop-blur-md p-5 sm:p-6 space-y-4 select-none ${className}`}
+        className={`relative overflow-hidden rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-4 select-none shadow-xs ${className}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -191,7 +191,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
   return (
     <section
       aria-label="AI 7-Day Retrospective"
-      className={`relative overflow-hidden rounded-xl border border-line-subtle/80 hover:border-line bg-surface/85 backdrop-blur-md p-5 sm:p-6 space-y-5 shadow-xs transition-all ${className}`}
+      className={`relative overflow-hidden rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-5 shadow-xs hover:border-line-subtle transition-all ${className}`}
     >
       {/* Specular Top Ambient Highlight */}
       <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-px bg-gradient-to-r from-transparent via-accent/25 to-transparent pointer-events-none" />
