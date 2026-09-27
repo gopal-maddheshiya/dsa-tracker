@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Code2,
   Copy,
   Check,
   Edit3,
   Save,
-  X,
   Terminal,
   Sparkles,
   Maximize2,
   Minimize2,
   WrapText,
-  Palette,
-  CheckCircle2,
   Cpu,
   Database
 } from 'lucide-react';

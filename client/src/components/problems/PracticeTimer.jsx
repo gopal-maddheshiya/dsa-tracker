@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Play, Pause, RotateCcw, Clock, Zap, CheckCircle2,
-  ChevronDown, ChevronUp, Maximize2, Minimize2, Sparkles, ShieldAlert
+  ChevronDown, ChevronUp, Maximize2, Minimize2, ShieldAlert
 } from 'lucide-react';
 
 const PRESETS = [

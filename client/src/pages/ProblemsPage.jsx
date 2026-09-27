@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import { DEMO_PROBLEMS } from '../data/demoData';
-import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, ChevronLeft, ChevronRight, SlidersHorizontal, Globe } from 'lucide-react';
+import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, Globe } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';

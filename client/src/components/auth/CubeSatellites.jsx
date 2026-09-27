@@ -6,11 +6,7 @@ import {
   Flame,
   Sparkles,
   PieChart,
-  Zap,
-  TrendingUp,
   Target,
-  Code2,
-  Layers,
 } from 'lucide-react';
 import { colors } from '../../theme/colors';
 

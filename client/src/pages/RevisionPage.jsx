@@ -20,11 +20,8 @@ import {
   Sparkles,
   Search,
   X,
-  Globe,
   CheckCircle2,
 } from 'lucide-react';
-
-import { PLATFORM_CONFIG } from '../theme/platforms';
 
 /* ── Mobile Revision Loading Skeleton (Matches MobileProblemSkeleton) ── */
 const MobileRevisionSkeleton = () => (

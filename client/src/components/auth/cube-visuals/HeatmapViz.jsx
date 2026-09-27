@@ -1,5 +1,4 @@
-import React from 'react';
-import { accent, easy, line, surface2, textSecondary } from '../../../theme/colors';
+import { accent, easy, line, surface2 } from '../../../theme/colors';
 
 const WEEKS = 20;
 const DAYS = 7;

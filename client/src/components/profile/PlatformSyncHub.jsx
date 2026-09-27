@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import {
   RotateCcw, CheckCircle2, ExternalLink,
-  Unlink, ShieldCheck, Zap, Trophy, Flame, Layers, Sparkles,
-  ArrowRight, RefreshCw, Globe, Award, Star, X, Link2
+  Unlink, ShieldCheck, Zap, Flame, Sparkles,
+  ArrowRight, RefreshCw, Globe, X
 } from 'lucide-react';
 import { getSyncStatus, connectPlatform, disconnectPlatform, syncPlatform, syncAllPlatforms, batchImportPlatform } from '../../api/sync';
 import { useToast } from '../../context/ToastContext';

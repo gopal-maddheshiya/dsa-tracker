@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { X, Sparkles, CheckCircle2, ShieldCheck, Flame, ArrowRight, Brain } from 'lucide-react';
+import { X, CheckCircle2, ArrowRight } from 'lucide-react';
 import BrandLogo from '../ui/BrandLogo';
 
 /**

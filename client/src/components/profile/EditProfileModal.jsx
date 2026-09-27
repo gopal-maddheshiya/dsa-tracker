@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { X, User, Lock, Eye, EyeOff, ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, LogOut } from 'lucide-react';
+import { X, User, Lock, Eye, EyeOff, AlertCircle, LogOut } from 'lucide-react';
 import { updateProfile, changePassword } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';

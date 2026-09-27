@@ -6,7 +6,6 @@ const User = require('../models/User');
 const {
   REVISION_INTERVALS,
   STRUGGLE_WEIGHTS,
-  SOLVED_MAX_ELAPSED_DAYS,
   calculatePriorityScore,
 } = require('../utils/revisionRules');
 

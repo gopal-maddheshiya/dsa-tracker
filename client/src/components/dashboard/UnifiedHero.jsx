@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, Plus, ArrowRight, Target, Trophy, Repeat, GitBranch, Sparkles } from 'lucide-react';
+import { Flame, Plus, ArrowRight, Target, Trophy, Repeat, GitBranch } from 'lucide-react';
 import { SKILL_TREE_TRACKS } from './MasteryMilestonePath';
 
 /**

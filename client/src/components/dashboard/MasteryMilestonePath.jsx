@@ -4,16 +4,11 @@ import {
   Check,
   Lock,
   Sparkles,
-  ArrowRight,
-  ExternalLink,
-  ChevronRight,
   X,
   Zap,
   Layers,
   GitBranch,
   Trophy,
-  Flame,
-  Compass,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 

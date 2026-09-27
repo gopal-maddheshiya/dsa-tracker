@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Upload, FileJson, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, FileCheck } from 'lucide-react';
+import { X, Upload, CheckCircle2, AlertCircle, RefreshCw, FileCheck } from 'lucide-react';
 import { importProblems } from '../../api/problems';
 import { useToast } from '../../context/ToastContext';
 import { useDialog } from '../../hooks/useDialog';

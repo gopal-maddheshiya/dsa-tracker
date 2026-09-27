@@ -6,10 +6,7 @@ import {
   X,
   Sparkles,
   Lock,
-  Unlock,
   CheckCircle2,
-  ChevronRight,
-  Target,
   ArrowRight
 } from 'lucide-react';
 import { useDialog } from '../../hooks/useDialog';

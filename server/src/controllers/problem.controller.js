@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
-const {
-  REVISION_INTERVALS,
-  STRUGGLE_WEIGHTS,
-  SOLVED_MAX_ELAPSED_DAYS,
-  calculatePriorityScore,
-} = require('../utils/revisionRules');
+const { calculatePriorityScore } = require('../utils/revisionRules');
 
 const VALID_PLATFORMS = ['leetcode', 'gfg', 'codechef', 'hackerrank', 'codeforces', 'atcoder', 'other'];
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];

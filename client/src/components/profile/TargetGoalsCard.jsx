@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Target, Calendar, Building2, Flame, CheckCircle2, Edit3, X, Plus, Sparkles, AlertCircle } from 'lucide-react';
+import { Target, Calendar, Building2, Flame, CheckCircle2, Edit3, X, Plus, Sparkles } from 'lucide-react';
 import { fetchGoals, updateGoals } from '../../api/auth';
 import { useToast } from '../../context/ToastContext';
 import { useDialog } from '../../hooks/useDialog';

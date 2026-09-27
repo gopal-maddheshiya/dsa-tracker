@@ -7,7 +7,6 @@ import {
   Plus,
   CheckCircle2,
   Eye,
-  Flame,
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
