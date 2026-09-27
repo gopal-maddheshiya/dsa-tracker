@@ -927,7 +927,7 @@ const AppShell = ({ children }) => {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-28 lg:pb-8 max-w-7xl w-full mx-auto outline-none focus:outline-none"
+          className="flex-1 p-3 sm:p-5 md:p-6 lg:p-8 pb-20 sm:pb-24 md:pb-28 lg:pb-8 max-w-7xl w-full mx-auto outline-none focus:outline-none"
         >
           {children}
         </main>

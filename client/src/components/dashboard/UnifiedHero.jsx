@@ -88,33 +88,33 @@ const UnifiedHero = ({
   }
 
   return (
-    <section aria-label="Command Center Hero" className="space-y-3.5 select-none">
+    <section aria-label="Command Center Hero" className="space-y-3 select-none">
       {/* ── Top Command Header Row ─────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pt-0.5 sm:pt-1">
         {/* Left: Greeting + Target Companies Pill + Focus */}
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
           {/* Coder Initial Avatar with subtle amber ring */}
-          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-accent/40 text-accent font-mono font-bold flex items-center justify-center text-sm shadow-[0_0_12px_rgba(255,161,22,0.15)] shrink-0 mt-0.5">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface-2 border border-accent/40 text-accent font-mono font-bold flex items-center justify-center text-xs sm:text-sm shadow-[0_0_12px_rgba(255,161,22,0.15)] shrink-0 mt-0.5">
             {initial}
           </div>
 
-          <div className="space-y-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-lg sm:text-2xl font-black tracking-tight text-text">
+          <div className="space-y-1 min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <h1 className="text-base sm:text-2xl font-black tracking-tight text-text leading-tight">
                 {timeGreeting}, {firstName}
               </h1>
 
               {/* Target Companies Badge */}
               <Link
                 to="/profile"
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-line-subtle bg-surface-2/90 hover:border-line hover:bg-surface-hover text-[10px] font-mono font-medium text-text-secondary transition-colors"
+                className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full border border-line-subtle bg-surface-2/90 hover:border-line hover:bg-surface-hover text-[10px] font-mono font-medium text-text-secondary transition-colors max-w-full"
                 title="Edit target companies in profile"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
                 <span className="text-accent font-bold">TARGET:</span>
-                <span className="text-text font-semibold">{targetCompanies.join(', ')}</span>
+                <span className="text-text font-semibold truncate max-w-[110px] xs:max-w-none">{targetCompanies.join(', ')}</span>
                 {daysUntilInterview ? (
-                  <span className="text-muted border-l border-line-subtle pl-1.5">
+                  <span className="text-muted border-l border-line-subtle pl-1.5 hidden xs:inline">
                     {daysUntilInterview}d to interview
                   </span>
                 ) : (
@@ -125,24 +125,24 @@ const UnifiedHero = ({
               </Link>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-text-secondary">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-text-secondary">
               <span className="w-1.5 h-1.5 rounded-full bg-easy shrink-0" />
-              <span>Today's Focus:</span>
-              <strong className="text-text font-semibold truncate max-w-xs sm:max-w-md">
+              <span className="shrink-0 text-muted">Focus:</span>
+              <strong className="text-text font-medium truncate max-w-[200px] xs:max-w-xs sm:max-w-md">
                 {dailyFocus?.title
-                  ? `${dailyFocus.title} (${dailyFocus.topics?.slice(0, 2).join(', ') || 'Target'})`
+                  ? `${dailyFocus.title} (${dailyFocus.topics?.slice(0, 1).join(', ') || 'Target'})`
                   : 'Deliberate Practice Curriculum'}
               </strong>
             </div>
           </div>
         </div>
 
-        {/* Right: Quick Action Buttons */}
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 pl-13 sm:pl-0">
+        {/* Right: Quick Action Buttons (clean full-width grid on mobile, inline on sm) */}
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 pt-0.5 sm:pt-0">
           <button
             type="button"
             onClick={onQuickAdd}
-            className="text-xs py-1.5 px-3.5 rounded-lg font-semibold inline-flex items-center gap-1.5 cursor-pointer bg-surface-2 hover:bg-surface-hover border border-line-subtle hover:border-line text-text transition-colors shadow-xs"
+            className="flex-1 sm:flex-initial justify-center text-xs py-1.5 px-3 sm:px-3.5 rounded-lg font-semibold inline-flex items-center gap-1.5 cursor-pointer bg-surface-2 hover:bg-surface-hover border border-line-subtle hover:border-line text-text transition-colors shadow-xs active:scale-[0.98]"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5] text-accent" />
             <span>Add Problem</span>
@@ -150,7 +150,7 @@ const UnifiedHero = ({
 
           <Link
             to="/problems"
-            className="text-xs font-medium text-text-secondary hover:text-text bg-surface-2/60 hover:bg-surface-hover border border-line-subtle/80 hover:border-line py-1.5 px-3 rounded-lg inline-flex items-center gap-1 transition-colors"
+            className="flex-1 sm:flex-initial justify-center text-xs font-medium text-text-secondary hover:text-text bg-surface-2/60 hover:bg-surface-hover border border-line-subtle/80 hover:border-line py-1.5 px-3 rounded-lg inline-flex items-center gap-1 transition-colors active:scale-[0.98]"
           >
             <span>Catalog</span>
             <ArrowRight className="w-3 h-3" />
@@ -159,12 +159,12 @@ const UnifiedHero = ({
       </div>
 
       {/* ── 4-Card Quick KPI Dock (Desktop: 4 cols, Mobile: 2x2 grid) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         {/* KPI 1: Solved Problems with LeetCode Tri-Color Segmented Bar */}
-        <div className="kpi-card p-3.5 sm:p-4 flex flex-col justify-between space-y-2 border border-line hover:border-line-subtle/80 bg-surface">
+        <div className="kpi-card p-2.5 sm:p-4 flex flex-col justify-between space-y-2 border border-line hover:border-line-subtle/80 bg-surface">
           <div className="flex items-center justify-between text-muted text-xs">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted">
-              Total Solved
+            <span className="text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-wider text-muted truncate">
+              Solved
             </span>
             <span className="text-[10px] font-mono font-bold text-easy bg-easy/10 border border-easy/25 px-1.5 py-0.2 rounded-full tabular-nums">
               {solveRatio}%
@@ -173,14 +173,14 @@ const UnifiedHero = ({
 
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-black font-mono text-text tabular-nums leading-none">
+              <span className="text-xl sm:text-3xl font-black font-mono text-text tabular-nums leading-none">
                 {totalCalculated}
               </span>
-              <span className="text-xs font-mono text-muted">/ {totalTracked}</span>
+              <span className="text-[11px] sm:text-xs font-mono text-muted">/ {totalTracked}</span>
             </div>
 
             {/* LeetCode Authentic Tri-Color Segmented Progress Bar */}
-            <div className="w-full bg-surface-2 rounded-full h-1.5 mt-2.5 overflow-hidden flex border border-line-subtle/40">
+            <div className="w-full bg-surface-2 rounded-full h-1.5 mt-2 sm:mt-2.5 overflow-hidden flex border border-line-subtle/40">
               {easyPct > 0 && (
                 <div
                   className="h-full bg-easy transition-all duration-500"
@@ -223,24 +223,24 @@ const UnifiedHero = ({
         </div>
 
         {/* KPI 2: Consistency Streak */}
-        <div className="kpi-card p-3.5 sm:p-4 flex flex-col justify-between space-y-2 border border-line hover:border-line-subtle/80 bg-surface">
+        <div className="kpi-card p-2.5 sm:p-4 flex flex-col justify-between space-y-2 border border-line hover:border-line-subtle/80 bg-surface">
           <div className="flex items-center justify-between text-muted text-xs">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted">
+            <span className="text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-wider text-muted truncate">
               Daily Streak
             </span>
-            <div className="w-6 h-6 rounded-md bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
-              <Flame className="w-3.5 h-3.5" />
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
+              <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </div>
           </div>
 
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-black font-mono text-text tabular-nums leading-none">
+              <span className="text-xl sm:text-3xl font-black font-mono text-text tabular-nums leading-none">
                 {streak != null && streak > 0 ? streak : 0}
               </span>
-              <span className="text-xs font-mono text-muted">Days</span>
+              <span className="text-[11px] sm:text-xs font-mono text-muted">Days</span>
             </div>
-            <p className="text-[11px] text-text-secondary mt-1.5 flex items-center gap-1.5">
+            <p className="text-[11px] text-text-secondary mt-1.5 hidden sm:flex items-center gap-1.5">
               {streak > 0 ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
@@ -256,7 +256,7 @@ const UnifiedHero = ({
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-1 border-t border-line-subtle/40">
-            <span className="text-muted">Target: {dailyTarget}/day</span>
+            <span className="text-muted">Target: {dailyTarget}/d</span>
             <span className="font-semibold text-text-secondary bg-surface-2 px-1.5 py-0.2 rounded border border-line-subtle">
               Best: {longestStreak}d
             </span>
@@ -266,34 +266,34 @@ const UnifiedHero = ({
         {/* KPI 3: Spaced Recall Due */}
         <Link
           to="/revision"
-          className="kpi-card p-3.5 sm:p-4 flex flex-col justify-between space-y-2 group cursor-pointer border border-line hover:border-accent/40 bg-surface transition-all"
+          className="kpi-card p-2.5 sm:p-4 flex flex-col justify-between space-y-2 group cursor-pointer border border-line hover:border-accent/40 bg-surface transition-all"
           title="Open revision queue"
         >
           <div className="flex items-center justify-between text-muted text-xs">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted group-hover:text-text transition-colors">
+            <span className="text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-wider text-muted group-hover:text-text transition-colors truncate">
               Recall Queue
             </span>
-            <div className="w-6 h-6 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
-              <Repeat className="w-3.5 h-3.5" />
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
+              <Repeat className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </div>
           </div>
 
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums leading-none">
+              <span className="text-xl sm:text-3xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums leading-none">
                 {revisionCount}
               </span>
-              <span className="text-xs font-mono text-muted">Due Recall</span>
+              <span className="text-[11px] sm:text-xs font-mono text-muted">Due</span>
             </div>
-            <p className="text-[11px] text-text-secondary mt-1.5">
+            <p className="text-[11px] text-text-secondary mt-1.5 hidden sm:block">
               {revisionCount > 0 ? 'Problems due for memory retention' : 'All intervals up to date'}
             </p>
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-1 border-t border-line-subtle/40">
-            <span className="text-muted">Ebbinghaus Curve</span>
+            <span className="text-muted">Spaced</span>
             <span
-              className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
+              className={`font-semibold px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] ${
                 revisionCount > 0
                   ? 'text-accent bg-accent/10 border border-accent/25 shadow-[0_0_8px_rgba(255,161,22,0.2)]'
                   : 'text-easy bg-easy/10 border border-easy/25'
@@ -307,28 +307,28 @@ const UnifiedHero = ({
         {/* KPI 4: Weekly Goal Cadence */}
         <Link
           to="/profile"
-          className="kpi-card p-3.5 sm:p-4 flex flex-col justify-between space-y-2 group cursor-pointer border border-line hover:border-purple-500/40 bg-surface transition-all"
+          className="kpi-card p-2.5 sm:p-4 flex flex-col justify-between space-y-2 group cursor-pointer border border-line hover:border-purple-500/40 bg-surface transition-all"
           title="Configure weekly target in Profile"
         >
           <div className="flex items-center justify-between text-muted text-xs">
-            <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted group-hover:text-text transition-colors">
-              Weekly Target
+            <span className="text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-wider text-muted group-hover:text-text transition-colors truncate">
+              Weekly Goal
             </span>
-            <div className="w-6 h-6 rounded-md bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
-              <Calendar className="w-3.5 h-3.5" />
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+              <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </div>
           </div>
 
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums leading-none">
+              <span className="text-xl sm:text-3xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums leading-none">
                 {weeklySolved}
               </span>
-              <span className="text-xs font-mono text-muted">/ {weeklyTarget} wk</span>
+              <span className="text-[11px] sm:text-xs font-mono text-muted">/ {weeklyTarget} wk</span>
             </div>
 
             {/* Weekly Target Progress Fill */}
-            <div className="w-full bg-surface-2 rounded-full h-1.5 mt-2.5 overflow-hidden border border-line-subtle/40">
+            <div className="w-full bg-surface-2 rounded-full h-1.5 mt-2 sm:mt-2.5 overflow-hidden border border-line-subtle/40">
               <div
                 className="h-full bg-gradient-to-r from-purple-500 to-accent rounded-full transition-all duration-500"
                 style={{ width: `${weeklyProgress}%` }}
@@ -337,9 +337,9 @@ const UnifiedHero = ({
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-1 border-t border-line-subtle/40">
-            <span className="text-muted">{weeklyProgress}% of goal</span>
+            <span className="text-muted">{weeklyProgress}% goal</span>
             <span className="font-medium text-text-secondary group-hover:text-text flex items-center gap-0.5 transition-colors">
-              <span>Edit Goal</span>
+              <span className="hidden xs:inline">Edit</span>
               <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
             </span>
           </div>

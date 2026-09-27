@@ -191,29 +191,29 @@ const WeeklyReviewSection = ({ className = '' }) => {
   return (
     <section
       aria-label="AI 7-Day Retrospective"
-      className={`relative overflow-hidden rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-5 shadow-xs hover:border-line-subtle transition-all ${className}`}
+      className={`relative overflow-hidden rounded-xl border border-line bg-surface p-3.5 sm:p-6 space-y-4 sm:space-y-5 shadow-xs hover:border-line-subtle transition-all ${className}`}
     >
       {/* Specular Top Ambient Highlight */}
       <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-px bg-gradient-to-r from-transparent via-accent/25 to-transparent pointer-events-none" />
 
       {/* ── HEADER: Eyebrow + Badges + Re-analyze ───────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 rounded-md bg-accent/15 border border-accent/30 text-accent">
-            <Sparkles className="w-4 h-4" />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <div className="p-1 sm:p-1.5 rounded-md bg-accent/15 border border-accent/30 text-accent shrink-0">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-secondary">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-secondary truncate">
                 AI 7-Day Retrospective
               </span>
               {!isAuthenticated && (
-                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
-                  Interactive Preview
+                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted shrink-0">
+                  Preview
                 </span>
               )}
             </div>
-            <span className="text-[11px] text-muted font-medium">
+            <span className="text-[10px] sm:text-[11px] text-muted font-medium hidden xs:inline">
               Grounded performance synthesis & cognitive trajectory
             </span>
           </div>
@@ -233,7 +233,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
             type="button"
             onClick={handleRefreshClick}
             disabled={refreshing}
-            className="text-xs font-mono py-1 px-2.5 rounded-lg border border-line-subtle bg-surface-2/80 hover:bg-surface-2 text-text-secondary hover:text-text inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-[11px] sm:text-xs font-mono py-1 px-2 sm:px-2.5 rounded-lg border border-line-subtle bg-surface-2/80 hover:bg-surface-2 text-text-secondary hover:text-text inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Refresh weekly telemetry analysis"
           >
             <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin text-accent' : ''}`} />
@@ -243,8 +243,8 @@ const WeeklyReviewSection = ({ className = '' }) => {
       </div>
 
       {/* ── HEADLINE & SUMMARY ──────────────────────────────────────── */}
-      <div className="space-y-1.5">
-        <h3 className="text-base sm:text-lg font-bold text-text tracking-tight leading-snug">
+      <div className="space-y-1">
+        <h3 className="text-sm sm:text-lg font-bold text-text tracking-tight leading-snug">
           {review?.headline || 'Weekly Practice Rhythm & Pattern Analysis'}
         </h3>
         <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-3xl">
@@ -253,13 +253,13 @@ const WeeklyReviewSection = ({ className = '' }) => {
       </div>
 
       {/* ── DUAL SIGNAL DOCK: Strongest Signal vs Biggest Gap ───────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-0.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3.5 pt-0.5">
         {/* Strongest Signal */}
-        <div className="p-3.5 rounded-xl bg-easy/5 border border-easy/25 flex items-start gap-3">
+        <div className="p-3 sm:p-3.5 rounded-xl bg-easy/5 border border-easy/25 flex items-start gap-2.5 sm:gap-3">
           <div className="p-1 rounded-md bg-easy/15 text-easy shrink-0 mt-0.5">
-            <CheckCircle2 className="w-4 h-4" />
+            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
-          <div className="space-y-1 min-w-0">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-easy block">
               Strongest Signal
             </span>
@@ -270,11 +270,11 @@ const WeeklyReviewSection = ({ className = '' }) => {
         </div>
 
         {/* Biggest Gap */}
-        <div className="p-3.5 rounded-xl bg-accent/5 border border-accent/25 flex items-start gap-3">
+        <div className="p-3 sm:p-3.5 rounded-xl bg-accent/5 border border-accent/25 flex items-start gap-2.5 sm:gap-3">
           <div className="p-1 rounded-md bg-accent/15 text-accent shrink-0 mt-0.5">
-            <AlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
-          <div className="space-y-1 min-w-0">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block">
               Primary Bottleneck
             </span>
@@ -287,7 +287,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
 
       {/* ── RECOMMENDED FOCUS BANNER ───────────────────────────────── */}
       {review?.recommendedFocus && (
-        <div className="p-3 rounded-lg bg-surface-2/70 border border-line-subtle flex items-start sm:items-center gap-2.5">
+        <div className="p-2.5 sm:p-3 rounded-lg bg-surface-2/70 border border-line-subtle flex items-start sm:items-center gap-2 sm:gap-2.5">
           <Compass className="w-4 h-4 text-accent shrink-0 mt-0.5 sm:mt-0" />
           <div className="text-xs text-text-secondary leading-snug">
             <strong className="text-text font-semibold">Recommended Focus: </strong>
@@ -298,7 +298,7 @@ const WeeklyReviewSection = ({ className = '' }) => {
 
       {/* ── 3-STEP ACTION PLAN ───────────────────────────────────────── */}
       {review?.actionPlan && review.actionPlan.length > 0 && (
-        <div className="space-y-2.5 pt-1">
+        <div className="space-y-2 sm:space-y-2.5 pt-0.5 sm:pt-1">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted">
               Prioritized Action Plan · Next 3 Steps
@@ -312,24 +312,24 @@ const WeeklyReviewSection = ({ className = '' }) => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3">
             {review.actionPlan.map((step, idx) => (
               <div
                 key={idx}
-                className="p-3.5 rounded-xl bg-surface-2/40 border border-line-subtle hover:border-line transition-all flex flex-col justify-between space-y-2.5"
+                className="p-3 sm:p-3.5 rounded-xl bg-surface-2/40 border border-line-subtle hover:border-line transition-all flex flex-col justify-between space-y-2 sm:space-y-2.5"
               >
-                <div className="space-y-1.5">
+                <div className="space-y-1 sm:space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono font-bold text-accent">
                       STEP 0{idx + 1}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface border border-line-subtle text-text-secondary font-medium">
+                    <span className="text-[9px] sm:text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded bg-surface border border-line-subtle text-text-secondary font-medium">
                       ⏱ {step.minutes || 20}m
                     </span>
                   </div>
                   <h4 className="text-xs font-bold text-text leading-snug">{step.action}</h4>
                 </div>
-                <p className="text-[11px] text-muted leading-relaxed border-t border-line-subtle/50 pt-2">
+                <p className="text-[11px] text-muted leading-relaxed border-t border-line-subtle/50 pt-1.5 sm:pt-2">
                   <span className="font-medium text-text-secondary">Why: </span>
                   {step.reason}
                 </p>

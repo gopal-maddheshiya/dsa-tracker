@@ -212,16 +212,16 @@ const DashboardPage = () => {
   const primaryWeakTopic = displayRecommendations?.weakestTopics?.[0] || null;
 
   return (
-    <div className="space-y-5 sm:space-y-6 pb-24 sm:pb-12 animate-fade-up min-w-0 max-w-full overflow-x-clip">
+    <div className="space-y-4 sm:space-y-6 pb-20 sm:pb-12 animate-fade-up min-w-0 max-w-full overflow-x-clip">
       {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview Only) ──── */}
       {!isAuthenticated && (
         <Reveal delay={0} y={4}>
-          <div className="relative overflow-hidden rounded-xl border border-line bg-surface p-3 sm:p-3.5 shadow-xs select-none">
-            <div className="relative z-10 flex items-center justify-between gap-2.5 sm:gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
+          <div className="relative overflow-hidden rounded-xl border border-line bg-surface p-2.5 sm:p-3.5 shadow-xs select-none">
+            <div className="relative z-10 flex items-center justify-between gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-secondary shrink-0">
                       Demo Workspace
                     </span>
@@ -229,7 +229,7 @@ const DashboardPage = () => {
                       Interactive Preview
                     </span>
                   </div>
-                  <p className="text-xs text-text-secondary leading-tight truncate sm:whitespace-normal">
+                  <p className="text-[11px] sm:text-xs text-text-secondary leading-tight truncate sm:whitespace-normal">
                     <span className="hidden sm:inline">Exploring </span>
                     <strong className="text-text font-semibold">{displaySummary?.catalogProblems ?? 10} cataloged questions</strong>
                     <span className="hidden sm:inline"> and deliberate practice telemetry. Create an account to log personal attempts and configure recall intervals.</span>
@@ -345,7 +345,7 @@ const DashboardPage = () => {
         </Reveal>
       ) : (
         /* ── DELIBERATE PRACTICE COMMAND WORKSPACE ──────────────────── */
-        <div className="space-y-6 sm:space-y-7">
+        <div className="space-y-4 sm:space-y-6">
           {/* 1. Today's Practice Target Spotlight */}
           <Reveal delay={15} y={4}>
             <RoadmapActionBanner
@@ -356,8 +356,8 @@ const DashboardPage = () => {
           </Reveal>
 
           {/* 2. Deliberate Practice Workbench: 2-Column Balanced Twin Cards */}
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2 text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
+          <div className="space-y-2 sm:space-y-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               <span>Deliberate Practice Workbench</span>
               <span className="text-muted/40 hidden sm:inline">·</span>
@@ -366,7 +366,7 @@ const DashboardPage = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
               {/* Left: Spaced Repetition Recall Queue */}
               <Reveal delay={25} y={6} className="h-full flex flex-col">
                 <UpcomingRevisionsCard
@@ -391,8 +391,8 @@ const DashboardPage = () => {
           </div>
 
           {/* 3. Full Width Bottom Canvas: Practice Rhythm & Heatmap */}
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2 text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
+          <div className="space-y-2 sm:space-y-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-easy" />
               <span>Practice Rhythm & Consistency</span>
             </div>
@@ -408,8 +408,8 @@ const DashboardPage = () => {
           </div>
 
           {/* 4. AI 7-Day Cognitive Retrospective */}
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2 text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
+          <div className="space-y-2 sm:space-y-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               <span>Cognitive Retrospective & Synthesis</span>
             </div>

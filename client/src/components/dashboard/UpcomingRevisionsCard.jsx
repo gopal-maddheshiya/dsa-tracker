@@ -63,28 +63,28 @@ const UpcomingRevisionsCard = ({
 
   return (
     <div
-      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none shadow-xs hover:border-line-subtle transition-all ${className}`}
+      className={`rounded-xl border border-line bg-surface p-3.5 sm:p-5 flex flex-col justify-between h-full select-none shadow-xs hover:border-line-subtle transition-all ${className}`}
     >
       <div className="flex-1 flex flex-col">
         {/* Header: Title + Subtitle Question + Due Count + View All Link */}
-        <div className="flex items-center justify-between pb-3 border-b border-line">
+        <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-line">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-muted">
                 RECALL QUEUE
               </span>
-              <span className="text-[10px] font-mono font-bold text-accent px-2 py-0.2 rounded-full bg-accent/10 border border-accent/25 tabular-nums">
+              <span className="text-[9px] sm:text-[10px] font-mono font-bold text-accent px-1.5 sm:px-2 py-0.2 rounded-full bg-accent/10 border border-accent/25 tabular-nums">
                 {queue.length} due
               </span>
             </div>
-            <p className="text-xs text-text-secondary mt-0.5">
+            <p className="text-[11px] sm:text-xs text-text-secondary mt-0.5 hidden xs:block">
               Ebbinghaus memory curve intervals
             </p>
           </div>
 
           <Link
             to="/revision"
-            className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group font-medium"
+            className="text-[10px] sm:text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group font-medium"
           >
             <span>View all</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -93,14 +93,14 @@ const UpcomingRevisionsCard = ({
 
         {/* Column Headers */}
         {candidates.length > 0 && (
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted/60 px-1 pt-2.5 pb-1 select-none border-b border-line-subtle/30">
-            <div className="flex items-center gap-2.5">
-              <span className="w-5 tabular-nums">#</span>
+          <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-muted/60 px-1 pt-2 pb-1 select-none border-b border-line-subtle/30">
+            <div className="flex items-center gap-2">
+              <span className="w-4 sm:w-5 tabular-nums">#</span>
               <span>Problem</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <span className="w-14 text-right hidden sm:inline">Difficulty</span>
-              <span className="w-16 text-center">Timing</span>
+              <span className="w-14 sm:w-16 text-center">Timing</span>
               <span className="w-3" />
             </div>
           </div>
@@ -108,7 +108,7 @@ const UpcomingRevisionsCard = ({
 
         {/* Work Queue Rows */}
         {candidates.length === 0 ? (
-          <div className="py-10 text-center space-y-1.5 my-auto">
+          <div className="py-8 sm:py-10 text-center space-y-1.5 my-auto">
             <p className="text-xs font-bold text-text">Recall queue is clear</p>
             <p className="text-[11px] text-muted">Zero pending intervals. Algorithmic retention is optimal.</p>
           </div>
@@ -124,12 +124,12 @@ const UpcomingRevisionsCard = ({
                 <Link
                   key={targetId || idx}
                   to={`/problems/${targetId}`}
-                  className="py-2.5 px-2 -mx-1.5 flex items-center justify-between gap-2.5 group transition-all duration-150 hover:bg-surface-2/70 hover:pl-2.5 rounded-lg border border-transparent hover:border-line-subtle/50"
+                  className="py-2 sm:py-2.5 px-1.5 sm:px-2 -mx-0.5 sm:-mx-1.5 flex items-center justify-between gap-2 sm:gap-2.5 group transition-all duration-150 hover:bg-surface-2/70 hover:pl-2 rounded-lg border border-transparent hover:border-line-subtle/50"
                   title={item.title}
                 >
                   {/* Left: Index + Title */}
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span className="text-[11px] font-mono text-muted/60 w-5 shrink-0 tabular-nums">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-[10px] sm:text-[11px] font-mono text-muted/60 w-4 sm:w-5 shrink-0 tabular-nums">
                       {String(idx + 1).padStart(2, '0')}
                     </span>
                     <p className="text-xs font-medium text-text group-hover:text-accent truncate transition-colors">
@@ -138,7 +138,7 @@ const UpcomingRevisionsCard = ({
                   </div>
 
                   {/* Right: Difficulty + Relative due timing */}
-                  <div className="flex items-center gap-3 shrink-0 select-none">
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0 select-none">
                     <div className="inline-flex items-center justify-end gap-1.5 font-mono text-[11px] w-auto sm:w-14">
                       <span className={diffInfo.dotClass} />
                       <span className={`font-semibold ${diffInfo.textClass} hidden sm:inline`}>
@@ -147,7 +147,7 @@ const UpcomingRevisionsCard = ({
                     </div>
 
                     <span
-                      className={`text-[10px] font-mono font-bold w-16 text-center px-1.5 py-0.5 rounded-full ${
+                      className={`text-[9px] sm:text-[10px] font-mono font-bold w-14 sm:w-16 text-center px-1 sm:px-1.5 py-0.5 rounded-full ${
                         urgency === 'TODAY'
                           ? 'text-accent bg-accent/15 border border-accent/35 shadow-[0_0_8px_rgba(255,161,22,0.25)]'
                           : urgency === 'TOMORROW'

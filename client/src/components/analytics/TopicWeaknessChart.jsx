@@ -67,21 +67,21 @@ const TopicWeaknessChart = ({
 
   return (
     <div
-      className={`rounded-xl border border-line bg-surface p-4 sm:p-5 flex flex-col justify-between h-full select-none shadow-xs hover:border-line-subtle transition-all ${className}`}
+      className={`rounded-xl border border-line bg-surface p-3.5 sm:p-5 flex flex-col justify-between h-full select-none shadow-xs hover:border-line-subtle transition-all ${className}`}
     >
       <div className="flex-1 flex flex-col">
         {/* Header: Title + Subtitle Question + Tag + Catalog Link */}
-        <div className="flex items-center justify-between pb-3 border-b border-line">
+        <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-line">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-muted">
                 TOPIC BOTTLENECKS
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
+              <span className="text-[9px] sm:text-[10px] font-mono px-1.5 sm:px-2 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
                 Struggle Rate
               </span>
             </div>
-            <p className="text-xs text-text-secondary mt-0.5">
+            <p className="text-[11px] sm:text-xs text-text-secondary mt-0.5 hidden xs:block">
               Accuracy gaps & retention bottlenecks
             </p>
           </div>
@@ -89,7 +89,7 @@ const TopicWeaknessChart = ({
           <button
             type="button"
             onClick={() => navigate('/problems')}
-            className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group cursor-pointer font-medium"
+            className="text-[10px] sm:text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group cursor-pointer font-medium"
           >
             <span>Catalog</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
@@ -98,13 +98,13 @@ const TopicWeaknessChart = ({
 
         {/* Column Headers */}
         {rankedTopics.length > 0 && (
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted/60 px-1 pt-2.5 pb-1 select-none border-b border-line-subtle/30">
-            <div className="flex items-center gap-2.5">
-              <span className="w-5 tabular-nums">#</span>
+          <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-muted/60 px-1 pt-2 pb-1 select-none border-b border-line-subtle/30">
+            <div className="flex items-center gap-2">
+              <span className="w-4 sm:w-5 tabular-nums">#</span>
               <span>Topic</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <span className="w-16 text-right">Struggle</span>
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <span className="w-14 sm:w-16 text-right">Struggle</span>
               <span className="w-14 text-right hidden xl:inline">Volume</span>
               <span className="w-3" />
             </div>
@@ -113,7 +113,7 @@ const TopicWeaknessChart = ({
 
         {/* Bottleneck Rows */}
         {rankedTopics.length === 0 ? (
-          <div className="py-10 text-center space-y-1.5 my-auto">
+          <div className="py-8 sm:py-10 text-center space-y-1.5 my-auto">
             <p className="text-xs font-bold text-text">No bottlenecks detected</p>
             <p className="text-[11px] text-muted">
               Log problem attempts with notes to generate struggle diagnostics.
@@ -131,17 +131,17 @@ const TopicWeaknessChart = ({
                 <div
                   key={topicName || idx}
                   onClick={() => navigate(`/problems?topic=${encodeURIComponent(topicName)}`)}
-                  className={`py-2.5 px-2 -mx-1.5 flex items-center justify-between text-xs cursor-pointer group rounded-lg transition-all duration-150 ${
+                  className={`py-2 sm:py-2.5 px-1.5 sm:px-2 -mx-0.5 sm:-mx-1.5 flex items-center justify-between text-xs cursor-pointer group rounded-lg transition-all duration-150 ${
                     isFirst
                       ? 'bg-surface-2/60 border border-accent/25 shadow-xs'
-                      : 'hover:bg-surface-2/70 hover:pl-2.5 border border-transparent hover:border-line-subtle/50'
+                      : 'hover:bg-surface-2/70 hover:pl-2 border border-transparent hover:border-line-subtle/50'
                   }`}
                   title={`Filter catalog by ${topicName}`}
                 >
                   {/* Left: Index + Topic + #1 Priority Tag */}
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                  <div className="flex items-center gap-2 min-w-0 pr-2 flex-1">
                     <span
-                      className={`font-mono text-[11px] tabular-nums shrink-0 w-5 ${
+                      className={`font-mono text-[10px] sm:text-[11px] tabular-nums shrink-0 w-4 sm:w-5 ${
                         isFirst ? 'text-accent font-bold' : 'text-muted/60'
                       }`}
                     >
@@ -164,9 +164,9 @@ const TopicWeaknessChart = ({
                   </div>
 
                   {/* Right: Intensity bar + Struggle Percent + Solves + Arrow */}
-                  <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 font-mono text-[11px] tabular-nums select-none">
+                  <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 font-mono text-[11px] tabular-nums select-none">
                     {/* Slim intensity bar */}
-                    <div className="w-8 sm:w-10 h-1 rounded-full bg-surface-2 overflow-hidden border border-line-subtle/40 hidden xs:block">
+                    <div className="w-7 sm:w-10 h-1 rounded-full bg-surface-2 overflow-hidden border border-line-subtle/40 hidden xs:block">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           isFirst ? 'bg-gradient-to-r from-accent to-amber-400 shadow-[0_0_6px_rgba(255,161,22,0.4)]' : 'bg-muted/70'
@@ -176,7 +176,7 @@ const TopicWeaknessChart = ({
                     </div>
 
                     <span
-                      className={`font-semibold min-w-[32px] text-right ${
+                      className={`font-semibold min-w-[28px] sm:min-w-[32px] text-right text-xs sm:text-[11px] ${
                         isFirst ? 'text-accent font-bold' : 'text-text-secondary'
                       }`}
                     >

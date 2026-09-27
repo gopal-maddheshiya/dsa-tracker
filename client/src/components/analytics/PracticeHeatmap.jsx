@@ -155,37 +155,42 @@ const PracticeHeatmap = ({
   return (
     <section
       aria-label="Practice Rhythm Heatmap"
-      className={`relative rounded-xl border border-line bg-surface p-4 sm:p-5 select-none transition-all overflow-hidden max-w-full shadow-xs hover:border-line-subtle ${className}`}
+      className={`relative rounded-xl border border-line bg-surface p-3.5 sm:p-5 select-none transition-all overflow-hidden max-w-full shadow-xs hover:border-line-subtle ${className}`}
     >
       {/* Specular Top Subtle Reflection */}
       <div className="absolute top-0 inset-x-8 sm:inset-x-16 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent pointer-events-none" />
 
       {/* ── EDITORIAL HEADER ───────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 border-b border-line">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 pb-2.5 sm:pb-3 border-b border-line">
         <div>
-          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-muted block">
-            PRACTICE RHYTHM
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-muted block">
+              PRACTICE RHYTHM
+            </span>
+            <span className="text-[9px] font-mono text-muted/60 sm:hidden">
+              · Swipe to scrub →
+            </span>
+          </div>
           <p className="text-xs sm:text-sm font-semibold text-text mt-0.5 tabular-nums">
             {activeDays} active days <span className="text-muted/40 font-normal">·</span> {totalAttempts} attempts
           </p>
         </div>
 
         {/* Live Hover Readout or Contextual Subtitle */}
-        <div className="text-xs font-mono text-muted min-h-[20px] sm:min-h-[24px] flex items-center">
+        <div className="text-xs font-mono text-muted min-h-0 sm:min-h-[24px] flex items-center">
           {hoveredCell && hoveredCell.count !== null ? (
-            <span className="text-text font-medium bg-surface-2 px-2.5 py-0.5 rounded border border-line-subtle animate-fade-in text-[11px]">
+            <span className="text-text font-medium bg-surface-2 px-2.5 py-0.5 rounded border border-line-subtle animate-fade-in text-[10px] sm:text-[11px]">
               <span className="text-accent font-semibold tabular-nums">+{hoveredCell.count}</span> solve{hoveredCell.count === 1 ? '' : 's'} on{' '}
               {formatDisplayDate(hoveredCell.date)}
             </span>
           ) : (
-            <span className="text-muted/70 text-[10px] sm:text-[11px]">52-week rolling activity</span>
+            <span className="text-muted/70 text-[10px] sm:text-[11px] hidden sm:inline">52-week rolling activity</span>
           )}
         </div>
       </div>
 
       {/* ── HEATMAP GRID WITH STRUCTURAL FRAMEWORK ─────────────────── */}
-      <div className="pt-4 max-w-full overflow-x-auto pb-2 scrollbar-thin">
+      <div className="pt-3 sm:pt-4 max-w-full overflow-x-auto pb-2 overscroll-x-contain touch-pan-x scrollbar-thin">
         <div className="inline-block min-w-full">
           {/* Month Labels Bar */}
           <div className="flex text-[10px] font-mono text-muted mb-2 pl-7 sm:pl-8 h-4">
@@ -246,10 +251,10 @@ const PracticeHeatmap = ({
       </div>
 
       {/* ── QUIET LEGEND & RANGE METRIC ─────────────────────────────── */}
-      <div className="pt-3 border-t border-line mt-3 sm:mt-4 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] text-muted font-mono">
-        <span>364 calendar days tracked</span>
+      <div className="pt-2.5 sm:pt-3 border-t border-line mt-2.5 sm:mt-4 flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-muted font-mono">
+        <span className="truncate">364 days tracked</span>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <span>Less</span>
           <div className="flex gap-1 items-center">
             <span className="w-2.5 h-2.5 rounded-[2px] bg-[#323232]" title="0 solves" />
