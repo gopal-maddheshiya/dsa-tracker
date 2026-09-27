@@ -149,7 +149,7 @@ const ProfileHeader = ({
                   {profile?.effectiveTotalSolved ?? profile?.totalSolved ?? 0}
                 </span>
                 <span className="text-muted text-[11px]">
-                  solved {profile?.platformTotalSolved > 0 ? `(${profile.platformTotalSolved} platform)` : `/ ${profile?.totalProblems ?? 0}`}
+                  solved / {profile?.totalProblems ?? 0}
                 </span>
               </div>
             </div>

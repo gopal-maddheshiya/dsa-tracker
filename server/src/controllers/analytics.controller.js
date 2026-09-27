@@ -532,6 +532,7 @@ const getProfile = async (req, res, next) => {
     const totalAttempts = allAttempts.length;
     const totalSolved = diffSolved.easy + diffSolved.medium + diffSolved.hard;
     const effectiveTotalSolved = totalSolved;
+    const platformTotalSolved = 0;
     const activeDays = daySet.size;
 
     // ── Milestones / Badges (calculated from effective solved) ──────
