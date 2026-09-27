@@ -309,16 +309,16 @@ const DashboardPage = () => {
                   <span className="text-[10px] font-mono font-bold text-accent uppercase">
                     Step 1
                   </span>
-                  <h3 className="text-sm font-semibold text-text">Connect Platforms</h3>
+                  <h3 className="text-sm font-semibold text-text">Set Your Goals</h3>
                   <p className="text-xs text-muted leading-relaxed">
-                    Auto-sync solved problems, ratings, and stats from LeetCode, Codeforces, GFG, or CodeChef.
+                    Define daily targets, target companies, and interview dates to anchor your prep roadmap.
                   </p>
                 </div>
                 <Link
-                  to="/profile?tab=platforms"
+                  to="/profile"
                   className="btn-primary text-xs py-2 px-3 text-center w-full rounded-lg"
                 >
-                  Connect Platforms →
+                  Set Goals →
                 </Link>
               </div>
 

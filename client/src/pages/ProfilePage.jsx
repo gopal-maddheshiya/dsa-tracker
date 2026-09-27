@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Target, Globe, Trophy, BarChart3, Database } from 'lucide-react';
+import { Target, Trophy, BarChart3, Database } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { fetchProblems } from '../api/problems';
 import { useProfileData } from '../hooks/useProfileData';
@@ -9,7 +9,6 @@ import Reveal from '../components/common/Reveal';
 // Profile modular components
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileOverviewTab from '../components/profile/tabs/ProfileOverviewTab';
-import ProfilePlatformsTab from '../components/profile/tabs/ProfilePlatformsTab';
 import ProfileMilestonesTab, { ALL_MILESTONES } from '../components/profile/tabs/ProfileMilestonesTab';
 import ProfileActivityTab from '../components/profile/tabs/ProfileActivityTab';
 import ProfileSettingsTab from '../components/profile/tabs/ProfileSettingsTab';
@@ -40,7 +39,7 @@ const ProfilePage = () => {
 
   // Tab navigation & URL search params synchronization
   const [searchParams, setSearchParams] = useSearchParams();
-  const validTabs = useMemo(() => ['overview', 'platforms', 'milestones', 'activity', 'settings'], []);
+  const validTabs = useMemo(() => ['overview', 'milestones', 'activity', 'settings'], []);
   const initialTab = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(validTabs.includes(initialTab) ? initialTab : 'overview');
 
@@ -187,27 +186,6 @@ const ProfilePage = () => {
             <span>Overview & Goals</span>
           </button>
 
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'platforms'}
-            onClick={() => handleTabChange('platforms')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'platforms'
-                ? 'bg-accent text-white shadow-md shadow-accent/25'
-                : 'text-secondary hover:text-text hover:bg-surface-2'
-            }`}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>Connected Platforms</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                activeTab === 'platforms' ? 'bg-white/20 text-white' : 'bg-accent/15 text-accent'
-              }`}
-            >
-              4 Hubs
-            </span>
-          </button>
 
           <button
             type="button"
@@ -275,10 +253,6 @@ const ProfilePage = () => {
         <ProfileOverviewTab profile={profile} memberSince={memberSince} />
       )}
 
-      {/* ── Tab: Connected Platforms ────────────────────────────── */}
-      {activeTab === 'platforms' && (
-        <ProfilePlatformsTab onSyncSuccess={refresh} />
-      )}
 
       {/* ── Tab 2: Milestones & Badges ───────────────────────────── */}
       {activeTab === 'milestones' && (

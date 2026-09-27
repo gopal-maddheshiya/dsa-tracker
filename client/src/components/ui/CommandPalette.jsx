@@ -18,7 +18,7 @@ import {
   AlertCircle,
   RotateCcw,
   ArrowRight,
-  Globe,
+  Upload,
   X
 } from 'lucide-react';
 import { PLATFORM_CONFIG } from '../../theme/platforms';
@@ -194,28 +194,28 @@ const CommandPalette = ({ isOpen, onClose, onOpenQuickAdd }) => {
       }
     },
     {
-      id: 'action-platforms',
+      id: 'action-import',
       type: 'action',
-      title: 'Platform Sync & Integrations',
-      subtitle: 'Connect & sync LeetCode, Codeforces, GFG, and CodeChef',
-      icon: Globe,
-      badge: 'Sync',
-      shortcut: 'S',
+      title: 'Import & Export Data',
+      subtitle: 'Backup or bulk-import problems via CSV / JSON',
+      icon: Upload,
+      badge: 'Data',
+      shortcut: 'I',
       action: () => {
         onClose();
         if (!isAuthenticated) {
           window.dispatchEvent(
             new CustomEvent('open-auth-gate', {
               detail: {
-                title: 'Platform Sync',
-                description: 'Create an account to connect & sync LeetCode, Codeforces, GFG, and CodeChef.',
-                contextAction: 'Platform Sync',
-                targetUrl: '/profile?tab=platforms',
+                title: 'Data Portability',
+                description: 'Create an account to import and export your problems and revision history.',
+                contextAction: 'Data Portability',
+                targetUrl: '/profile?tab=settings',
               },
             })
           );
         } else {
-          navigate('/profile?tab=platforms');
+          navigate('/profile?tab=settings');
         }
       }
     }

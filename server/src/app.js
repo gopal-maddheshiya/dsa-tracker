@@ -4,7 +4,6 @@ const healthRoutes = require('./routes/healthRoutes');
 const authRoutes = require('./routes/auth.routes');
 const problemRoutes = require('./routes/problem.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
-const syncRoutes = require('./routes/sync.routes');
 const aiRoutes = require('./routes/ai.routes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const { securityHeaders } = require('./middleware/securityHeaders');
@@ -59,7 +58,6 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/sync', syncRoutes);
 app.use('/api/ai', aiRoutes);
 
 // Error Handling Middleware

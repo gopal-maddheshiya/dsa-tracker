@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
-const User = require('../models/User');
 
 const {
   REVISION_INTERVALS,
@@ -87,56 +86,17 @@ const getSummary = async (req, res, next) => {
       }
     });
 
-    // ── Platform Totals (from connected LeetCode, CF, GFG, CodeChef) ─────
-    const userDoc = await User.findById(userId).select('connectedPlatforms').lean();
-    let platformTotalSolved = 0;
-    const platformDifficulty = { easy: 0, medium: 0, hard: 0 };
-    let hasPlatformDifficulty = false;
+    const platformTotalSolved = 0;
+    const effectiveSolvedProblems = solvedProblems;
+    const effectiveTotalProblems = totalProblems;
 
-    if (userDoc?.connectedPlatforms) {
-      for (const [pKey, p] of Object.entries(userDoc.connectedPlatforms)) {
-        if (p && p.isConnected && p.stats) {
-          const solved = Number(p.stats.totalSolved) || 0;
-          platformTotalSolved += solved;
+    const effectiveEasySolved = solvedDiffMap.easy;
+    const effectiveMedSolved = solvedDiffMap.medium;
+    const effectiveHardSolved = solvedDiffMap.hard;
 
-          if (pKey === 'leetcode' && p.stats) {
-            if (p.stats.easy != null) {
-              platformDifficulty.easy += Number(p.stats.easy) || 0;
-              hasPlatformDifficulty = true;
-            }
-            if (p.stats.medium != null) {
-              platformDifficulty.medium += Number(p.stats.medium) || 0;
-              hasPlatformDifficulty = true;
-            }
-            if (p.stats.hard != null) {
-              platformDifficulty.hard += Number(p.stats.hard) || 0;
-              hasPlatformDifficulty = true;
-            }
-          }
-
-          if (platformMap[pKey] !== undefined) {
-            platformMap[pKey] = Math.max(platformMap[pKey], solved);
-          }
-        }
-      }
-    }
-
-    const effectiveSolvedProblems = Math.max(solvedProblems, platformTotalSolved);
-    const effectiveTotalProblems = Math.max(totalProblems, effectiveSolvedProblems);
-
-    const effectiveEasySolved = hasPlatformDifficulty && platformTotalSolved > solvedProblems
-      ? Math.max(solvedDiffMap.easy, platformDifficulty.easy)
-      : solvedDiffMap.easy;
-    const effectiveMedSolved = hasPlatformDifficulty && platformTotalSolved > solvedProblems
-      ? Math.max(solvedDiffMap.medium, platformDifficulty.medium)
-      : solvedDiffMap.medium;
-    const effectiveHardSolved = hasPlatformDifficulty && platformTotalSolved > solvedProblems
-      ? Math.max(solvedDiffMap.hard, platformDifficulty.hard)
-      : solvedDiffMap.hard;
-
-    const effectiveEasyCount = Math.max(diffMap.easy, effectiveEasySolved);
-    const effectiveMedCount = Math.max(diffMap.medium, effectiveMedSolved);
-    const effectiveHardCount = Math.max(diffMap.hard, effectiveHardSolved);
+    const effectiveEasyCount = diffMap.easy;
+    const effectiveMedCount = diffMap.medium;
+    const effectiveHardCount = diffMap.hard;
 
     const difficultyBreakdown = [
       { difficulty: 'easy', count: effectiveEasyCount, solved: effectiveEasySolved },
@@ -567,23 +527,11 @@ const getProfile = async (req, res, next) => {
       if (diffSolved[diffKey] !== undefined) diffSolved[diffKey] = d.count;
     });
 
-    // ── Platform Totals (from connected LeetCode, CF, GFG, CodeChef) ─────
-    const userDoc = await User.findById(userId).select('connectedPlatforms').lean();
-    let platformTotalSolved = 0;
-    if (userDoc?.connectedPlatforms) {
-      for (const p of Object.values(userDoc.connectedPlatforms)) {
-        if (p && p.isConnected && p.stats) {
-          const solved = Number(p.stats.totalSolved) || 0;
-          platformTotalSolved += solved;
-        }
-      }
-    }
-
     // ── Totals ─────────────────────────────────────────────────────
     const totalProblems = await Problem.countDocuments({ userId });
     const totalAttempts = allAttempts.length;
     const totalSolved = diffSolved.easy + diffSolved.medium + diffSolved.hard;
-    const effectiveTotalSolved = Math.max(totalSolved, platformTotalSolved);
+    const effectiveTotalSolved = totalSolved;
     const activeDays = daySet.size;
 
     // ── Milestones / Badges (calculated from effective solved) ──────

@@ -11,7 +11,7 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
-  Globe,
+  Upload,
 } from 'lucide-react';
 
 import { PLATFORM_CONFIG } from '../theme/platforms';
@@ -156,9 +156,9 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
           <button onClick={onOpenAdd} type="button" className="btn-primary text-xs">
             + Add First Problem
           </button>
-          <Link to="/profile?tab=platforms" className="btn-secondary text-xs flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-accent" />
-            <span>Sync from Platforms</span>
+          <Link to="/profile?tab=settings" className="btn-secondary text-xs flex items-center gap-1.5">
+            <Upload className="w-3.5 h-3.5 text-accent" />
+            <span>Import CSV / JSON</span>
           </Link>
         </div>
       </div>

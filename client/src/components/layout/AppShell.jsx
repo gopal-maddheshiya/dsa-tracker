@@ -21,7 +21,6 @@ import {
   Flame,
   Search,
   Plus,
-  Globe,
   X,
   Hash,
   GitBranch,
@@ -187,14 +186,6 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
             <span>Profile & Analytics</span>
           </NavLink>
           <NavLink
-            to="/profile?tab=platforms"
-            onClick={onClose}
-            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-hover transition-colors"
-          >
-            <Globe className="w-3.5 h-3.5 text-muted" />
-            <span>Platform Sync</span>
-          </NavLink>
-          <NavLink
             to="/problems"
             onClick={onClose}
             className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-hover transition-colors"
@@ -245,12 +236,7 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
     const isRevision = label === 'Revision';
     const badge = isRevision ? revisionCount : 0;
 
-    const isPlatforms = to.includes('tab=platforms');
-    const isCustomActive = isPlatforms
-      ? location.pathname === '/profile' && location.search.includes('tab=platforms')
-      : to === '/profile'
-        ? location.pathname === '/profile' && !location.search.includes('tab=platforms')
-        : undefined;
+    const isCustomActive = undefined;
 
     const handleSideNavClick = (e) => {
       if (!user && to.startsWith('/profile')) {
@@ -426,14 +412,6 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
           </div>
         )}
 
-        {!collapsed ? (
-          <p className="px-3 pb-1 pt-3 text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
-            Integrations
-          </p>
-        ) : (
-          <div className="my-2 border-t border-line-subtle/50" />
-        )}
-        <SideNavLink to="/profile?tab=platforms" label="Platform Sync" Icon={Globe} />
       </nav>
 
       {/* ── Unified Master Profile & Telemetry Dock ────────────── */}

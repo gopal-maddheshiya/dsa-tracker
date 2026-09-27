@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import { DEMO_PROBLEMS } from '../data/demoData';
-import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, Globe } from 'lucide-react';
+import { Download, Dices, Search, Tag, X, CheckCircle2, Edit2, Trash2, Plus, ExternalLink, FolderOpen, Eye, Upload } from 'lucide-react';
 
 import ProblemTable from '../components/ProblemTable';
 import ProblemForm from '../components/ProblemForm';
@@ -233,9 +233,9 @@ const MobileEmptyState = ({ onOpenAdd, hasFilters, onResetFilters }) => (
         <button onClick={onOpenAdd} className="btn-primary text-xs">
           + Add First Problem
         </button>
-        <Link to="/profile?tab=platforms" className="btn-secondary text-xs flex items-center justify-center gap-1.5">
-          <Globe className="w-3.5 h-3.5 text-accent" />
-          <span>Sync from Platforms</span>
+        <Link to="/profile?tab=settings" className="btn-secondary text-xs flex items-center justify-center gap-1.5">
+          <Upload className="w-3.5 h-3.5 text-accent" />
+          <span>Import CSV / JSON</span>
         </Link>
       </div>
     )}

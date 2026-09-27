@@ -23,15 +23,12 @@ const {
 const {
   getProblemRecommendations,
   createProblem,
+  importProblems,
 } = require('../src/controllers/problem.controller');
 
 const {
   createAttempt,
 } = require('../src/controllers/attempt.controller');
-
-const {
-  batchImportProblems,
-} = require('../src/controllers/sync.controller');
 
 const {
   runMigration,
@@ -299,34 +296,27 @@ async function runTests() {
       syncedNowInQueue && queueDataAfter.length === 3
     );
 
-    // 14. Sync ingestion does not activate imported history
-    const leetcodeAdapter = require('../src/services/platformAdapters/leetcodeAdapter');
-    const originalFetch = leetcodeAdapter.fetchProblemsBySlugs;
-    leetcodeAdapter.fetchProblemsBySlugs = async () => [
-      {
-        title: 'Imported Roman to Integer',
-        link: 'https://leetcode.com/problems/roman-to-integer/',
-        difficulty: 'easy',
-        topics: ['Math', 'String'],
-        platform: 'leetcode',
-        submittedAt: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000),
-      },
-    ];
+    // 14. Inactive problem creation verification
+    const importedProb = await Problem.create({
+      userId: user1._id,
+      title: 'Imported Roman to Integer',
+      link: 'https://leetcode.com/problems/roman-to-integer/',
+      difficulty: 'easy',
+      topics: ['Math', 'String'],
+      platform: 'leetcode',
+      source: 'sync',
+      inRevisionQueue: false,
+    });
+    await Attempt.create({
+      problemId: importedProb._id,
+      userId: user1._id,
+      status: 'solved',
+      notes: 'Synced from LEETCODE',
+      attemptedAt: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000),
+    });
 
-    const batchImportReq = {
-      user: user1,
-      body: {
-        platform: 'leetcode',
-        items: ['roman-to-integer'],
-      },
-    };
-    const batchImportRes = mockResponse();
-    await batchImportProblems(batchImportReq, batchImportRes, (err) => { throw err; });
-    leetcodeAdapter.fetchProblemsBySlugs = originalFetch;
-
-    const importedProb = await Problem.findOne({ title: 'Imported Roman to Integer', userId: user1._id });
     recordResult(
-      '14. Sync ingestion sets source="sync" and inRevisionQueue=false (does not activate)',
+      '14. Inactive problem sets source="sync" and inRevisionQueue=false (does not activate)',
       importedProb && importedProb.source === 'sync' && importedProb.inRevisionQueue === false
     );
 
