@@ -1,17 +1,13 @@
 import React from 'react';
 
 /**
- * AppBackground: World-Class Linear/Raycast-Inspired Obsidian Matrix Canvas.
+ * AppBackground: Authentic LeetCode Dark Mode Canvas.
  *
- * Architecture & Performance:
- * - Rendered at `fixed inset-0 pointer-events-none -z-10` with `aria-hidden="true"`.
- * - Zero repaint cost on scroll via CSS hardware acceleration (`transform: translate3d(0,0,0)`).
- * - Multi-layered atmospheric lighting:
- *   1. Deep Obsidian Base (#0b0d11).
- *   2. Top Specular Amber Spotlight (LeetCode iconic warm glow).
- *   3. Algorithmic Teal Resonance (Cool lower-right balance).
- *   4. Subtle Indigo Whisper (Chromatic depth).
- *   5. Mathematically Vignetted Precision 28px Dot Matrix.
+ * Design Architecture:
+ * - Pure LeetCode matte charcoal base (#1a1a1a).
+ * - Subtle ambient LeetCode amber spotlight at the top horizon (#ffa116).
+ * - Soft algorithmic teal whisper (#00b8a3) in the lower quadrant.
+ * - Hardware accelerated, zero repaint cost on scroll.
  */
 const AppBackground = () => {
   return (
@@ -20,38 +16,41 @@ const AppBackground = () => {
       style={{ transform: 'translate3d(0, 0, 0)' }}
       aria-hidden="true"
     >
-      {/* 1. Deep Obsidian Base Gradient */}
-      <div className="absolute inset-0 bg-[#0b0d11]" />
+      {/* 1. Authentic LeetCode Matte Charcoal Base */}
+      <div className="absolute inset-0 bg-[#1a1a1a]" />
 
-      {/* 2. Top Specular Amber Spotlight (Calm Atmospheric Whisper) */}
+      {/* 2. LeetCode Signature Amber Atmospheric Crest */}
       <div
-        className="absolute -top-[140px] left-1/2 -translate-x-1/2 w-[900px] max-w-[120vw] h-[450px] rounded-full blur-[160px] opacity-35 pointer-events-none"
+        className="absolute -top-[160px] left-1/2 -translate-x-1/2 w-[1000px] max-w-[120vw] h-[480px] rounded-full blur-[140px] opacity-40 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 161, 22, 0.07) 0%, rgba(255, 161, 22, 0.015) 45%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, rgba(255, 161, 22, 0.08) 0%, rgba(255, 161, 22, 0.02) 45%, transparent 70%)',
         }}
       />
 
-      {/* 3. Cool Algorithmic Teal Resonance (Bottom-Right, Subdued) */}
+      {/* 3. Subtle Algorithmic Teal Horizon Resonance */}
       <div
-        className="absolute -bottom-[120px] -right-[80px] w-[600px] max-w-[100vw] h-[600px] rounded-full blur-[160px] opacity-20 pointer-events-none"
+        className="absolute -bottom-[100px] -right-[80px] w-[500px] max-w-[90vw] h-[500px] rounded-full blur-[150px] opacity-25 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(0, 184, 163, 0.06) 0%, transparent 65%)',
+          background: 'radial-gradient(circle, rgba(0, 184, 163, 0.05) 0%, transparent 65%)',
         }}
       />
 
-      {/* 4. Center-Left Indigo Whisper (Deep Space Chromatic Balance) */}
+      {/* 4. Fine Clean Grid Texture (Developer Console Vibe) */}
       <div
-        className="absolute top-[32%] -left-[160px] w-[500px] h-[500px] rounded-full blur-[160px] opacity-20 pointer-events-none"
+        className="absolute inset-0 opacity-40 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.10) 0%, transparent 70%)',
+          backgroundImage: `
+            linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px)
+          `,
+          backgroundSize: '32px 32px',
+          maskImage: 'radial-gradient(ellipse 90% 70% at 50% 15%, black 40%, transparent 90%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 90% 70% at 50% 15%, black 40%, transparent 90%)',
         }}
       />
 
-      {/* 5. Vignetted Precision Dot-Matrix Grid */}
-      <div className="absolute inset-0 bg-dot-grid opacity-80" />
-
-      {/* 6. Subtle Ambient Specular Horizon Beam (Subtle Light Crest) */}
-      <div className="absolute top-0 inset-x-0 h-[300px] bg-gradient-to-b from-accent/[0.035] via-transparent to-transparent pointer-events-none" />
+      {/* 5. Top Specular Border Glow Beam */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#ffa116]/25 to-transparent pointer-events-none" />
     </div>
   );
 };

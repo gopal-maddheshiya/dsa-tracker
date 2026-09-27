@@ -4,21 +4,21 @@
 
 @layer base {
   :root {
-    /* ── LeetCode Surface Elevation Tokens (Deep Obsidian & Precision Slate) ── */
-    --bg: #0b0d11;
-    --bg-rgb: 11, 13, 17;
-    --surface: #17191e;
-    --surface-rgb: 23, 25, 30;
-    --surface-2: #20232a;
-    --surface-2-rgb: 32, 35, 42;
-    --surface-hover: #292d36;
-    --surface-hover-rgb: 41, 45, 54;
+    /* ── LeetCode Surface Elevation Tokens (Authentic Charcoal & Matte Slate) ── */
+    --bg: #1a1a1a;
+    --bg-rgb: 26, 26, 26;
+    --surface: #282828;
+    --surface-rgb: 40, 40, 40;
+    --surface-2: #323232;
+    --surface-2-rgb: 50, 50, 50;
+    --surface-hover: #3c3c3c;
+    --surface-hover-rgb: 60, 60, 60;
 
     /* ── LeetCode Hairline Borders & Subtle Dividers ── */
-    --line: #2d313c;
-    --line-rgb: 45, 49, 60;
-    --line-subtle: #1c1e25;
-    --line-subtle-rgb: 28, 30, 37;
+    --line: #383838;
+    --line-rgb: 56, 56, 56;
+    --line-subtle: #2c2c2c;
+    --line-subtle-rgb: 44, 44, 44;
 
     /* ── Typography & Contrast Hierarchy ── */
     --text: #eff1f6;
@@ -951,26 +951,23 @@
 
 /* ── Command Center KPI Card & Segmented Dock Primitives ── */
 .kpi-card {
-  background: linear-gradient(180deg, rgba(32, 35, 42, 0.75) 0%, rgba(23, 25, 30, 0.65) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 10px -2px rgba(0, 0, 0, 0.35);
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  transition: all 0.15s ease-in-out;
 }
 .kpi-card:hover {
-  border-color: rgba(var(--accent-rgb), 0.35);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 6px 20px -3px rgba(0, 0, 0, 0.5);
+  border-color: var(--surface-hover);
+  background: #2b2b2b;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.35);
   transform: translateY(-1px);
 }
 
 .segmented-dock {
-  background: rgba(32, 35, 42, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: 0 4px 20px -3px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
 }
 
 /* ── World-Class Developer Obsidian Dot Matrix Background ── */
