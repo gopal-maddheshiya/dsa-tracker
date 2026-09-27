@@ -25,6 +25,7 @@ import UpcomingRevisionsCard from '../components/dashboard/UpcomingRevisionsCard
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
 import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
 import CompactPerformanceCard from '../components/analytics/CompactPerformanceCard';
+import WeeklyReviewSection from '../components/analytics/WeeklyReviewSection';
 import Reveal from '../components/common/Reveal';
 
 /**
@@ -249,7 +250,7 @@ const DashboardPage = () => {
                   </div>
                   <p className="text-xs text-text-secondary leading-tight truncate sm:whitespace-normal">
                     <span className="hidden sm:inline">Exploring </span>
-                    <strong className="text-text font-semibold">399 cataloged questions</strong>
+                    <strong className="text-text font-semibold">{displaySummary?.catalogProblems ?? 10} cataloged questions</strong>
                     <span className="hidden sm:inline"> and algorithmic telemetry. Create an account to log personal attempts and sync LeetCode.</span>
                   </p>
                 </div>
@@ -280,6 +281,7 @@ const DashboardPage = () => {
         <UnifiedHero
           user={user}
           summary={displaySummary}
+          topics={displayTopics}
           revisionCount={displayRevisionQueue?.length ?? 0}
           dailyFocus={displayRecommendations?.dailyFocus}
           isLoading={!isAuthenticated ? false : loadingSummary}
@@ -373,19 +375,10 @@ const DashboardPage = () => {
             />
           </Reveal>
 
-          {/* 2. Interactive DSA Skill Tree (Full Width 12-cols) */}
-          <Reveal delay={25} y={6}>
-            <MasteryMilestonePath
-              summary={displaySummary}
-              topics={displayTopics}
-              dailyFocus={displayRecommendations?.dailyFocus}
-            />
-          </Reveal>
-
-          {/* 3. Deliberate Practice Workbench: 2-Column Balanced Twin Cards (Equal Height) */}
+          {/* 2. Deliberate Practice Workbench: 2-Column Balanced Twin Cards (Elevated Above Fold) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
             {/* Left: Spaced Repetition Recall Queue */}
-            <Reveal delay={30} y={6} className="h-full flex flex-col">
+            <Reveal delay={25} y={6} className="h-full flex flex-col">
               <UpcomingRevisionsCard
                 queue={displayRevisionQueue}
                 featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
@@ -396,7 +389,7 @@ const DashboardPage = () => {
             </Reveal>
 
             {/* Right: Topic Bottlenecks & Gaps */}
-            <Reveal delay={35} y={6} className="h-full flex flex-col">
+            <Reveal delay={30} y={6} className="h-full flex flex-col">
               <TopicWeaknessChart
                 topics={displayTopics}
                 isLoading={!isAuthenticated ? false : loadingTopics}
@@ -406,8 +399,22 @@ const DashboardPage = () => {
             </Reveal>
           </div>
 
-          {/* 4. Full Width Bottom Canvas: Practice Rhythm & Velocity */}
-          <Reveal delay={40} y={6}>
+          {/* 3. Interactive DSA Skill Tree Roadmap */}
+          <Reveal delay={35} y={6}>
+            <MasteryMilestonePath
+              summary={displaySummary}
+              topics={displayTopics}
+              dailyFocus={displayRecommendations?.dailyFocus}
+            />
+          </Reveal>
+
+          {/* 4. AI 7-Day Cognitive Retrospective */}
+          <Reveal delay={38} y={6}>
+            <WeeklyReviewSection />
+          </Reveal>
+
+          {/* 5. Full Width Bottom Canvas: Practice Rhythm & Velocity */}
+          <Reveal delay={42} y={6}>
             <PracticeHeatmap
               heatmapData={displayHeatmap}
               isLoading={!isAuthenticated ? false : loadingHeatmap}
@@ -416,7 +423,7 @@ const DashboardPage = () => {
             />
           </Reveal>
 
-          <Reveal delay={45} y={6}>
+          <Reveal delay={46} y={6}>
             <CompactPerformanceCard
               heatmapData={displayHeatmap}
               summary={displaySummary}
@@ -509,6 +516,8 @@ const DashboardPage = () => {
           {/* TAB 3: ANALYTICS & RHYTHM (< 1024px) */}
           {mobileTab === 'analytics' && (
             <div className="space-y-4 animate-fade-in">
+              <WeeklyReviewSection />
+
               <TopicWeaknessChart
                 topics={displayTopics}
                 isLoading={!isAuthenticated ? false : loadingTopics}

@@ -23,11 +23,13 @@ export default {
         bg: withOpacity('--bg'),
         surface: {
           DEFAULT: withOpacity('--surface'),
+          1: withOpacity('--surface'),
           2: withOpacity('--surface-2'),
           hover: withOpacity('--surface-hover'),
           elevated: withOpacity('--surface'),
           muted: withOpacity('--surface-2'),
         },
+        'surface-1': withOpacity('--surface'),
         'surface-2': withOpacity('--surface-2'),
         'surface-hover': withOpacity('--surface-hover'),
         line: {
@@ -57,9 +59,9 @@ export default {
       borderRadius: {
         sm: '4px',
         md: '8px',
-        lg: '12px',
+        lg: '10px',
         xl: '12px',
-        '2xl': '12px',
+        '2xl': '16px',
       },
       boxShadow: {
         modal: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',

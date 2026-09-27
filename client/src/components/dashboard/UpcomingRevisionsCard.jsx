@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 
 const DIFFICULTY_MAP = {
   easy: { label: 'Easy', dotClass: 'semantic-dot-easy', textClass: 'text-easy' },
@@ -37,22 +36,6 @@ const UpcomingRevisionsCard = ({
   error = null,
   className = '',
 }) => {
-  const { isAuthenticated } = useAuth();
-
-  const handleRevisionClick = (e) => {
-    if (!isAuthenticated) {
-      e.preventDefault();
-      window.dispatchEvent(
-        new CustomEvent('open-auth-gate', {
-          detail: {
-            title: 'Spaced Repetition Queue',
-            description: 'Create an account to track your personalized forgetting curve and revision schedules.',
-            contextAction: 'Revision Queue',
-          },
-        })
-      );
-    }
-  };
 
   if (isLoading) {
     return (
@@ -102,7 +85,6 @@ const UpcomingRevisionsCard = ({
 
           <Link
             to="/revision"
-            onClick={handleRevisionClick}
             className="text-[11px] font-mono text-muted hover:text-text transition-colors flex items-center gap-1 group"
           >
             <span>View all</span>
@@ -193,7 +175,6 @@ const UpcomingRevisionsCard = ({
         </span>
         <Link
           to="/revision"
-          onClick={handleRevisionClick}
           className="text-[11px] font-mono text-accent hover:underline flex items-center gap-1 font-medium"
         >
           <span>Start session</span>

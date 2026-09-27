@@ -10,10 +10,10 @@ const variants = {
 };
 
 const sizes = {
-  xs: 'px-2.5 py-1 text-xs gap-1 rounded-lg',
-  sm: 'px-3 py-1.5 text-xs gap-1.5 rounded-lg',
-  md: 'px-4 py-2 text-sm gap-2 rounded-lg',
-  lg: 'px-5 py-2.5 text-sm gap-2 rounded-lg',
+  xs: 'h-7 px-2.5 text-xs gap-1 rounded-md',
+  sm: 'h-8 sm:h-9 px-3 text-xs gap-1.5 rounded-lg',
+  md: 'h-9 sm:h-10 px-4 text-sm gap-2 rounded-lg',
+  lg: 'h-10 sm:h-11 px-5 text-sm gap-2 rounded-xl',
 };
 
 /**

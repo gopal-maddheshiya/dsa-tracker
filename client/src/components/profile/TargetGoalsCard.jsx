@@ -10,6 +10,14 @@ const PRESET_COMPANIES = [
   'Uber', 'Atlassian', 'Stripe', 'Salesforce', 'Adobe', 'Bloomberg'
 ];
 
+const fmtInterviewDate = (d) => {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return isNaN(dt.getTime())
+    ? '—'
+    : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
 const TargetGoalsCard = () => {
   const toast = useToast();
   const modalRef = useRef(null);
@@ -41,7 +49,14 @@ const TargetGoalsCard = () => {
         const g = res.data.goals || {};
         setDailyTarget(g.dailyTarget || 2);
         setWeeklyTarget(g.weeklyTarget || 10);
-        setTargetInterviewDate(g.targetInterviewDate ? new Date(g.targetInterviewDate).toISOString().split('T')[0] : '');
+        let dateStr = '';
+        if (g.targetInterviewDate) {
+          const dt = new Date(g.targetInterviewDate);
+          if (!isNaN(dt.getTime())) {
+            dateStr = dt.toISOString().split('T')[0];
+          }
+        }
+        setTargetInterviewDate(dateStr);
         setTargetCompanies(g.targetCompanies || []);
       }
     } catch (err) {
@@ -260,7 +275,7 @@ const TargetGoalsCard = () => {
                 </span>
               </div>
               <p className="text-xs text-muted truncate">
-                {new Date(goals.targetInterviewDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {fmtInterviewDate(goals.targetInterviewDate)}
               </p>
             </div>
           ) : (

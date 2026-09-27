@@ -72,9 +72,9 @@ const RevisionMobileCard = ({ item, index = 0, onOpenLog, onQuickLog, startIndex
         >
           {item.title}
         </Link>
-        {item.link && (
+        {(item.link || item.problemUrl) && (
           <a
-            href={item.link}
+            href={item.link || item.problemUrl}
             target="_blank"
             rel="noreferrer"
             className="w-10 h-10 -mr-1 -mt-1 flex items-center justify-center rounded-lg text-muted hover:text-accent active:bg-surface-2 transition-colors shrink-0"

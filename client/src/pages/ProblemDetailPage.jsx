@@ -409,7 +409,9 @@ const ProblemDetailPage = () => {
     };
   } else {
     const intervalDays = REVISION_INTERVALS[latestAttempt.status] || 7;
-    const daysSince = Math.max(0, Math.floor((Date.now() - new Date(latestAttempt.attemptedAt).getTime()) / (1000 * 60 * 60 * 24)));
+    const rawAttemptDate = latestAttempt.attemptedAt || latestAttempt.createdAt;
+    const parsedDate = rawAttemptDate && !isNaN(new Date(rawAttemptDate).getTime()) ? new Date(rawAttemptDate) : new Date();
+    const daysSince = Math.max(0, Math.floor((Date.now() - parsedDate.getTime()) / (1000 * 60 * 60 * 24)));
     const daysRemaining = intervalDays - daysSince;
 
     if (daysRemaining < 0) {
@@ -449,9 +451,9 @@ const ProblemDetailPage = () => {
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
-          {problem.link && (
+          {(problem.link || problem.problemUrl) && (
             <a
-              href={problem.link}
+              href={problem.link || problem.problemUrl}
               target="_blank"
               rel="noreferrer"
               className="btn-secondary text-xs flex items-center gap-1.5 h-8 px-3 transition-all hover:border-accent hover:text-accent"
@@ -556,7 +558,9 @@ const ProblemDetailPage = () => {
               <Calendar className="w-3.5 h-3.5 text-muted" />
             </div>
             <span className="text-xs text-muted mt-1 block truncate tabular-nums">
-              {new Date(problem.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+              {problem.createdAt && !isNaN(new Date(problem.createdAt).getTime())
+                ? new Date(problem.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
+                : 'Recently Added'}
             </span>
           </div>
         </div>
@@ -710,15 +714,21 @@ const ProblemDetailPage = () => {
               <div className="space-y-2.5">
                 {attempts.map((attempt, index) => {
                   const cfg = STATUS_CONFIG[attempt.status] || { label: attempt.status, text: 'text-muted', bg: 'bg-surface-2 border-line' };
-                  const attemptDate = new Date(attempt.attemptedAt).toLocaleDateString('en-IN', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  });
-                  const attemptTime = new Date(attempt.attemptedAt).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  });
+                  const rawAttemptDate = attempt.attemptedAt || attempt.createdAt;
+                  const isValidDate = rawAttemptDate && !isNaN(new Date(rawAttemptDate).getTime());
+                  const attemptDate = isValidDate
+                    ? new Date(rawAttemptDate).toLocaleDateString('en-IN', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : 'Recent';
+                  const attemptTime = isValidDate
+                    ? new Date(rawAttemptDate).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : '';
                   const isLatest = index === 0;
 
                   return (

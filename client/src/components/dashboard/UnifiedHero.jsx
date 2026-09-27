@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Flame, Plus, ArrowRight, Target, Trophy, Repeat, GitBranch, Sparkles } from 'lucide-react';
+import { SKILL_TREE_TRACKS } from './MasteryMilestonePath';
 
 /**
  * UnifiedHero: Clean Command Header & 4-Card KPI Dock.
@@ -16,6 +17,7 @@ import { Flame, Plus, ArrowRight, Target, Trophy, Repeat, GitBranch, Sparkles } 
 const UnifiedHero = ({
   user,
   summary,
+  topics = [],
   revisionCount = 0,
   dailyFocus = null,
   isLoading = false,
@@ -50,6 +52,34 @@ const UnifiedHero = ({
   };
 
   const levelInfo = getLevelInfo(totalCalculated);
+
+  // Dynamic Pattern Mastery calculation (consistent with MasteryMilestonePath)
+  const mastery = useMemo(() => {
+    const topicMap = new Map();
+    (topics || []).forEach((t) => {
+      const name = (t.topic || t.name || '').toLowerCase();
+      topicMap.set(name, t.solvedCount || 0);
+    });
+
+    let total = 0;
+    let mastered = 0;
+    (SKILL_TREE_TRACKS || []).forEach((track) => {
+      track.nodes.forEach((node) => {
+        total += 1;
+        let matchedSolved = 0;
+        node.matchKeywords.forEach((kw) => {
+          matchedSolved += topicMap.get(kw.toLowerCase()) || 0;
+        });
+        const required = node.defaultTotal || 15;
+        const solvedCount = (!user || !user.id) && node.defaultSolved ? node.defaultSolved : matchedSolved;
+        if (solvedCount >= Math.round(required * 0.65)) {
+          mastered += 1;
+        }
+      });
+    });
+    const pct = total > 0 ? Math.round((mastered / total) * 100) : 0;
+    return { mastered, total: total || 14, pct };
+  }, [user, topics]);
 
   if (isLoading) {
     return (
@@ -89,8 +119,10 @@ const UnifiedHero = ({
 
           <div className="flex items-center gap-2 text-xs text-text-secondary">
             <span className="w-1.5 h-1.5 rounded-full bg-accent/80" />
-            <span>Active Curriculum:</span>
-            <strong className="text-text font-semibold">Non-Linear Structures (Trees & Graphs)</strong>
+            <span>Active Focus:</span>
+            <strong className="text-text font-semibold truncate max-w-xs sm:max-w-md">
+              {dailyFocus?.title ? `${dailyFocus.title} (${dailyFocus.topics?.slice(0, 2).join(', ') || 'Target'})` : 'Curriculum Deliberate Practice'}
+            </strong>
           </div>
         </div>
 
@@ -133,7 +165,7 @@ const UnifiedHero = ({
               <span className="text-xl sm:text-2xl font-black font-mono text-text tabular-nums">
                 {totalCalculated}
               </span>
-              <span className="text-xs font-mono text-muted">/ {totalTracked || 399}</span>
+              <span className="text-xs font-mono text-muted">/ {totalTracked}</span>
             </div>
             
             {/* Slim progress bar */}
@@ -237,7 +269,7 @@ const UnifiedHero = ({
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-xl sm:text-2xl font-black font-mono text-text group-hover:text-accent transition-colors tabular-nums">
-                7 / 14
+                {mastery.mastered} / {mastery.total}
               </span>
               <span className="text-xs font-mono text-muted">Patterns</span>
             </div>
@@ -246,13 +278,13 @@ const UnifiedHero = ({
             <div className="w-full bg-surface-2/80 rounded-full h-1.5 mt-1.5 overflow-hidden border border-line-subtle/40">
               <div
                 className="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-accent rounded-full transition-all duration-500"
-                style={{ width: '50%' }}
+                style={{ width: `${mastery.pct}%` }}
               />
             </div>
           </div>
 
           <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 border-t border-line-subtle/40">
-            <span className="text-muted">50% Complete</span>
+            <span className="text-muted">{mastery.pct}% Complete</span>
             <span className="font-medium text-text-secondary group-hover:text-text flex items-center gap-0.5 transition-colors">
               <span>Inspect</span>
               <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />

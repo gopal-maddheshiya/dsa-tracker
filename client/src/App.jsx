@@ -44,10 +44,10 @@ function App() {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/problems" element={<ProblemsPage />} />
                   <Route path="/problems/:id" element={<ProblemDetailPage />} />
+                  <Route path="/revision" element={<RevisionPage />} />
 
                   {/* Strictly Protected Personal Routes */}
                   <Route element={<PrivateRoute />}>
-                    <Route path="/revision" element={<RevisionPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                   </Route>
 

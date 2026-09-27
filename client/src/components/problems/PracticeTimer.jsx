@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Play, Pause, RotateCcw, Clock, Zap, CheckCircle2,
@@ -59,6 +59,25 @@ const PracticeTimer = ({ onLogWithTime, problemTitle = '' }) => {
     return () => clearInterval(timerRef.current);
   }, [isRunning, mode]);
 
+  const handleTogglePlay = useCallback(() => {
+    if (isFinished && mode === 'countdown') {
+      setSeconds(targetMinutes * 60);
+      setIsFinished(false);
+    }
+    setIsRunning((prev) => !prev);
+  }, [isFinished, mode, targetMinutes]);
+
+  const handleReset = useCallback(() => {
+    setIsRunning(false);
+    setIsFinished(false);
+    if (mode === 'stopwatch') {
+      setSeconds(0);
+      setTotalElapsed(0);
+    } else {
+      setSeconds(targetMinutes * 60);
+    }
+  }, [mode, targetMinutes]);
+
   // Global Keyboard Shortcuts: Space (Play/Pause), R (Reset), Esc (Exit Zen Mode)
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -78,26 +97,7 @@ const PracticeTimer = ({ onLogWithTime, problemTitle = '' }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  });
-
-  const handleTogglePlay = () => {
-    if (isFinished && mode === 'countdown') {
-      setSeconds(targetMinutes * 60);
-      setIsFinished(false);
-    }
-    setIsRunning((prev) => !prev);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setIsFinished(false);
-    if (mode === 'stopwatch') {
-      setSeconds(0);
-      setTotalElapsed(0);
-    } else {
-      setSeconds(targetMinutes * 60);
-    }
-  };
+  }, [handleTogglePlay, handleReset, isZenMode]);
 
   const handleSelectPreset = (m) => {
     setMode('countdown');
@@ -308,6 +308,7 @@ const PracticeTimer = ({ onLogWithTime, problemTitle = '' }) => {
 
           <button
             type="button"
+            data-testid="zen-mode-toggle"
             onClick={() => setIsZenMode(true)}
             className="p-2 rounded-xl text-muted hover:text-text hover:bg-surface-2 transition-colors cursor-pointer border border-line"
             title="Open Fullscreen Zen Focus Mode"

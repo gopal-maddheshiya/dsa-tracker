@@ -22,6 +22,31 @@ const ProfileHeader = ({
   onTabChange,
   onOpenEditModal,
 }) => {
+  const [imgError, setImgError] = React.useState(false);
+
+  React.useEffect(() => {
+    setImgError(false);
+  }, [user?.avatar]);
+
+  const safeRank = rank || {
+    label: 'Novice',
+    color: colors.easy,
+    progress: 0,
+    next: null,
+  };
+
+  const safeInitials =
+    initials ||
+    (user?.name
+      ? user.name
+          .trim()
+          .split(/\s+/)
+          .map((n) => n[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase()
+      : (user?.email?.[0]?.toUpperCase() || 'U'));
+
   return (
     <Reveal delay={0} y={15}>
       <div className="bg-gradient-to-br from-surface via-surface to-surface-2/60 border border-line/90 shadow-md rounded-2xl p-5 sm:p-7 relative overflow-hidden">
@@ -36,27 +61,28 @@ const ProfileHeader = ({
             <div className="flex items-start sm:items-center gap-4 sm:gap-5">
               {/* Avatar with rank glowing border */}
               <div className="relative shrink-0">
-                {user?.avatar ? (
+                {user?.avatar && !imgError ? (
                   <img
                     src={user.avatar}
                     alt={user?.name || 'User'}
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 shadow-sm transition-all"
                     style={{
-                      borderColor: rank.color,
-                      boxShadow: `0 0 20px -4px ${rank.color}35`,
+                      borderColor: safeRank.color,
+                      boxShadow: `0 0 20px -4px ${safeRank.color}35`,
                     }}
+                    onError={() => setImgError(true)}
                     referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold transition-all bg-surface-2 border-2 shadow-sm"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold transition-all bg-surface-2 border-2 shadow-sm select-none"
                     style={{
-                      borderColor: rank.color,
-                      color: rank.color,
-                      boxShadow: `0 0 20px -4px ${rank.color}35`,
+                      borderColor: safeRank.color,
+                      color: safeRank.color,
+                      boxShadow: `0 0 20px -4px ${safeRank.color}35`,
                     }}
                   >
-                    {initials}
+                    {safeInitials}
                   </div>
                 )}
                 {profile?.currentStreak > 0 && (
@@ -76,13 +102,13 @@ const ProfileHeader = ({
                   <span
                     className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold border shrink-0 backdrop-blur-sm"
                     style={{
-                      color: rank.color,
-                      borderColor: `${rank.color}45`,
-                      backgroundColor: `${rank.color}18`,
+                      color: safeRank.color,
+                      borderColor: `${safeRank.color}45`,
+                      backgroundColor: `${safeRank.color}18`,
                     }}
                   >
-                    {rank.Icon && <rank.Icon className="w-3.5 h-3.5" />}
-                    <span>{rank.label}</span>
+                    {safeRank.Icon && <safeRank.Icon className="w-3.5 h-3.5" />}
+                    <span>{safeRank.label}</span>
                   </span>
                   <Badge variant="online" size="sm">Active</Badge>
                 </div>
@@ -129,29 +155,29 @@ const ProfileHeader = ({
             </div>
 
             {/* Rank Progress Bar (if not max rank) */}
-            {rank.next && (
+            {safeRank.next && (
               <div className="mt-4 max-w-lg">
                 <div className="flex items-center justify-between mb-1.5 text-xs">
                   <span className="text-secondary flex items-center gap-1.5 font-medium">
-                    {rank.Icon && <rank.Icon className="w-3.5 h-3.5 text-accent" />}
-                    <span className="text-text">{rank.label}</span>
+                    {safeRank.Icon && <safeRank.Icon className="w-3.5 h-3.5 text-accent" />}
+                    <span className="text-text">{safeRank.label}</span>
                   </span>
                   <span className="text-accent font-semibold flex items-center gap-1">
-                    <span className="tabular-nums">{Math.round(rank.progress)}%</span>
-                    <span className="text-muted font-normal">to {rank.next.label}</span>
+                    <span className="tabular-nums">{Math.round(safeRank.progress)}%</span>
+                    <span className="text-muted font-normal">to {safeRank.next.label}</span>
                   </span>
                 </div>
                 <div className="h-2 rounded-full overflow-hidden bg-surface-2/80 border border-line/40 p-0.5">
                   <div
                     className="h-full rounded-full bar-animated bg-accent"
                     style={{
-                      width: `${Math.min(rank.progress, 100)}%`,
+                      width: `${Math.min(safeRank.progress, 100)}%`,
                     }}
                   />
                 </div>
                 <div className="text-[11px] text-muted mt-1 flex items-center justify-between">
                   <span className="tabular-nums">{profile?.totalSolved ?? 0} problems solved</span>
-                  <span className="tabular-nums">Goal: {rank.next.min} solved</span>
+                  <span className="tabular-nums">Goal: {safeRank.next.min} solved</span>
                 </div>
               </div>
             )}

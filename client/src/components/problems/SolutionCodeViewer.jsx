@@ -18,6 +18,7 @@ import {
   Database
 } from 'lucide-react';
 import { updateProblem } from '../../api/problems';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useDialog } from '../../hooks/useDialog';
 
@@ -64,6 +65,7 @@ const THEMES = {
 };
 
 const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
+  const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [code, setCode] = useState(problem?.solutionCode || '');
@@ -106,6 +108,22 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
     } catch {
       toast?.error ? toast.error('Failed to copy code.') : null;
     }
+  };
+
+  const handleStartEdit = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Edit Solution Code',
+            description: 'Create an account to save custom solutions, runtime complexities, and code notes.',
+            contextAction: 'Edit Solution',
+          },
+        })
+      );
+      return;
+    }
+    setIsEditing(true);
   };
 
   const handleSave = async () => {
@@ -298,7 +316,7 @@ const SolutionCodeViewer = ({ problem, onProblemUpdated }) => {
               {/* Edit / Add Code Button */}
               <button
                 type="button"
-                onClick={() => setIsEditing(true)}
+                onClick={handleStartEdit}
                 className="btn-secondary px-3 h-8 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Edit3 className="w-3.5 h-3.5" />

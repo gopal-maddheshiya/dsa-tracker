@@ -44,6 +44,44 @@ const CURATED_TRACKS = [
   { label: 'Dynamic Programming', topic: 'Dynamic Programming', Icon: Layers, count: '25' },
 ];
 
+/* ── Resilient User Avatar with Image Error Fallback ──────────────── */
+const UserAvatar = ({ user, initials, size = 'sm', className = '' }) => {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatar]);
+
+  const sizeClasses =
+    size === 'lg'
+      ? 'w-9 h-9 text-xs'
+      : size === 'md'
+      ? 'w-8 h-8 text-xs'
+      : 'w-6 h-6 sm:w-7 sm:h-7 text-[11px] sm:text-xs';
+
+  const shapeClass = size === 'sm' ? 'rounded-lg' : 'rounded-full';
+
+  if (user?.avatar && !imgError) {
+    return (
+      <img
+        src={user.avatar}
+        alt={user.name || 'User'}
+        onError={() => setImgError(true)}
+        className={`${sizeClasses} ${shapeClass} object-cover border border-line shrink-0 ${className}`}
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`${sizeClasses} ${shapeClass} bg-surface-2 border border-line flex items-center justify-center font-bold text-accent shrink-0 ${className}`}
+    >
+      {initials}
+    </div>
+  );
+};
+
 /* ── User Profile Popover Menu (Desktop & Mobile) ───────────────────── */
 const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCount, onLogout }) => {
   useEffect(() => {
@@ -85,18 +123,7 @@ const UserMenuDropdown = ({ isOpen, onClose, user, initials, streak, revisionCou
       >
         {/* User Info Header with Close button */}
         <div className="flex items-center gap-3 p-2 rounded-md bg-surface-2 border border-line/60 mb-2">
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-9 h-9 rounded-full object-cover border border-line shrink-0"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-surface border border-line flex items-center justify-center text-xs font-bold text-accent shrink-0">
-              {initials}
-            </div>
-          )}
+          <UserAvatar user={user} initials={initials} size="lg" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-text truncate">
               {user?.name || 'DSA Learner'}
@@ -226,16 +253,13 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
         : undefined;
 
     const handleSideNavClick = (e) => {
-      if (!user && (to === '/revision' || to.startsWith('/profile'))) {
+      if (!user && to.startsWith('/profile')) {
         e.preventDefault();
         window.dispatchEvent(
           new CustomEvent('open-auth-gate', {
             detail: {
-              title: label === 'Revision' ? 'Spaced Repetition Queue' : 'Personal Profile & Analytics',
-              description:
-                label === 'Revision'
-                  ? 'Create an account to track your personalized forgetting curve and revision schedules.'
-                  : 'Create an account to track your consistency streak, activity heatmap, and target goals.',
+              title: 'Personal Profile & Analytics',
+              description: 'Create an account to track your consistency streak, activity heatmap, and target goals.',
               contextAction: label,
               targetUrl: to,
             },
@@ -460,18 +484,7 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
               aria-label="Profile"
             >
               <div className="relative">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-9 h-9 rounded-full object-cover border border-line group-hover:border-accent transition-colors shadow-xs"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-surface-2 border border-line flex items-center justify-center text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
-                    {initials}
-                  </div>
-                )}
+                <UserAvatar user={user} initials={initials} size="lg" className="group-hover:border-accent transition-colors shadow-xs" />
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-easy border-2 border-surface" />
               </div>
               <span
@@ -516,18 +529,7 @@ const Sidebar = ({ collapsed, onToggle, streak, revisionCount, onLogout }) => {
             <div className="flex items-center justify-between gap-2.5">
               <NavLink to="/profile" className="flex items-center gap-2.5 min-w-0 flex-1 group/user cursor-pointer">
                 <div className="relative shrink-0">
-                  {user?.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-8 h-8 rounded-full object-cover border border-line group-hover/user:border-accent transition-colors shadow-xs"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-surface border border-line flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary group-hover/user:text-accent group-hover/user:border-accent transition-colors">
-                      {initials}
-                    </div>
-                  )}
+                  <UserAvatar user={user} initials={initials} size="md" className="group-hover/user:border-accent transition-colors shadow-xs" />
                   <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-easy ring-2 ring-surface-2" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -724,6 +726,11 @@ const AppShell = ({ children }) => {
     return (user?.email?.[0] ?? 'U').toUpperCase();
   }, [user]);
 
+  // Detect Mac vs Windows/Linux for keyboard shortcut labels
+  const isMac = useMemo(() => {
+    return typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+  }, []);
+
   const handleNewProblemClick = () => {
     if (!isAuthenticated) {
       openAuthGate({
@@ -839,7 +846,7 @@ const AppShell = ({ children }) => {
               type="button"
               onClick={handleSearchPillClick}
               className="relative flex items-center justify-between w-full h-9 px-3.5 rounded-full bg-surface-2/40 hover:bg-surface-2/70 border border-line-subtle/90 hover:border-accent/40 text-text-secondary/80 hover:text-text transition-all duration-200 shadow-xs hover:shadow-[0_0_12px_-2px_rgba(255,161,22,0.15)] group cursor-pointer"
-              title="Search problems, patterns, tags (⌘K or /)"
+              title={`Search problems, patterns, tags (${isMac ? '⌘K' : 'Ctrl+K'} or /)`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <Search className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors shrink-0" />
@@ -849,7 +856,7 @@ const AppShell = ({ children }) => {
               </div>
               <div className="flex items-center gap-1 shrink-0 ml-2">
                 <kbd className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-surface/90 border border-line-subtle font-mono text-[10px] text-muted group-hover:text-text-secondary transition-colors select-none">
-                  ⌘K
+                  {isMac ? '⌘K' : 'Ctrl K'}
                 </kbd>
               </div>
             </button>
@@ -917,18 +924,7 @@ const AppShell = ({ children }) => {
                   aria-label="User menu"
                   title={user?.name || 'Account'}
                 >
-                  {user?.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg object-cover border border-line"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-surface border border-line flex items-center justify-center text-xs font-semibold text-accent">
-                      {initials}
-                    </div>
-                  )}
+                  <UserAvatar user={user} initials={initials} size="sm" />
                   <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-muted" />
                 </button>
 
@@ -969,14 +965,11 @@ const AppShell = ({ children }) => {
               const badge = isRevision ? revisionCount : 0;
 
               const handleMobileNavClick = (e) => {
-                if (!isAuthenticated && (to === '/revision' || to.startsWith('/profile'))) {
+                if (!isAuthenticated && to.startsWith('/profile')) {
                   e.preventDefault();
                   openAuthGate({
-                    title: label === 'Revision' ? 'Spaced Repetition Queue' : 'Personal Profile & Analytics',
-                    description:
-                      label === 'Revision'
-                        ? 'Create an account to track your personalized forgetting curve and revision schedules.'
-                        : 'Create an account to track your consistency streak, activity heatmap, and target goals.',
+                    title: 'Personal Profile & Analytics',
+                    description: 'Create an account to track your consistency streak, activity heatmap, and target goals.',
                     contextAction: label,
                     targetUrl: to,
                   });

@@ -145,9 +145,9 @@ const MobileProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         )}
 
         <div className="flex items-center gap-1.5 shrink-0">
-          {problem.link && (
+          {(problem.link || problem.problemUrl) && (
             <a
-              href={problem.link}
+              href={problem.link || problem.problemUrl}
               target="_blank"
               rel="noreferrer"
               className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-2 text-muted hover:text-accent border border-line active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
@@ -295,9 +295,9 @@ const ProblemCard = ({ problem, onEdit, onDelete, onLog }) => {
         >
           {problem.title}
         </Link>
-        {problem.link && (
+        {(problem.link || problem.problemUrl) && (
           <a
-            href={problem.link}
+            href={problem.link || problem.problemUrl}
             target="_blank"
             rel="noreferrer"
             className="text-muted hover:text-accent transition-colors shrink-0 p-1 -m-1 rounded hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
@@ -766,7 +766,7 @@ const ProblemsPage = () => {
       `"${(p.topics || []).join('; ').replace(/"/g, '""')}"`,
       p.latestAttempt?.status || 'unattempted',
       p.attemptCount || 0,
-      `"${p.link || ''}"`,
+      `"${p.link || p.problemUrl || ''}"`,
       p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : '',
     ]);
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');

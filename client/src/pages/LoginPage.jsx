@@ -281,7 +281,7 @@ const LoginPage = () => {
               </div>
               
               <p className="text-xs text-text-secondary mb-3 leading-relaxed">
-                Explore full dashboard with 35 preloaded DSA problems & streaks without signing up.
+                Explore full dashboard with 10 benchmark DSA problems & streaks without signing up.
               </p>
 
               <button

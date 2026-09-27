@@ -289,7 +289,9 @@ const CodeChefLogo = ({ className = 'w-6 h-6' }) => (
 
 const fmtRelativeTime = (d) => {
   if (!d) return 'Never synced';
-  const diffSec = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
+  const time = new Date(d).getTime();
+  if (isNaN(time)) return 'Never synced';
+  const diffSec = Math.floor((Date.now() - time) / 1000);
   if (diffSec < 60) return 'Just now';
   if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
   if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;

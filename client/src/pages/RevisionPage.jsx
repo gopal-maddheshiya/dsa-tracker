@@ -2,8 +2,10 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchRevisionQueue } from '../api/analytics';
 import { createAttempt } from '../api/attempts';
+import { useAuth } from '../context/AuthContext';
 import { getErrorMessage } from '../utils/errorHandler';
 import { useToast } from '../context/ToastContext';
+import { DEMO_REVISION_QUEUE } from '../data/demoData';
 import AttemptForm from '../components/AttemptForm';
 import RevisionTable from '../components/RevisionTable';
 import RevisionMobileCard from '../components/RevisionMobileCard';
@@ -19,6 +21,7 @@ import {
   Search,
   X,
   Globe,
+  CheckCircle2,
 } from 'lucide-react';
 
 import { PLATFORM_CONFIG } from '../theme/platforms';
@@ -60,6 +63,7 @@ const RevisionPage = () => {
     document.title = 'Revision · DSA Tracker';
   }, []);
 
+  const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [queue, setQueue] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +80,14 @@ const RevisionPage = () => {
   const loadQueue = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+
+    // If guest: use deterministic DEMO_REVISION_QUEUE with zero network requests
+    if (!isAuthenticated) {
+      setQueue(DEMO_REVISION_QUEUE);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await fetchRevisionQueue();
       if (res?.success) setQueue(res.data || []);
@@ -84,7 +96,7 @@ const RevisionPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     loadQueue();
@@ -163,6 +175,19 @@ const RevisionPage = () => {
   const startIndex = pageSize === 'all' ? 0 : (currentPage - 1) * pageSize;
 
   const handleOpenLog = (item) => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Log Revision Attempt',
+            description:
+              'Create an account to update your spaced repetition intervals and track revision history.',
+            contextAction: 'Log Revision',
+          },
+        })
+      );
+      return;
+    }
     setLoggingProblem({
       id: item.problemId,
       title: item.title,
@@ -176,6 +201,19 @@ const RevisionPage = () => {
   };
 
   const handleQuickLog = async (item, status = 'solved') => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent('open-auth-gate', {
+          detail: {
+            title: 'Quick Recall Revision',
+            description:
+              'Create an account to advance problem stages and calibrate your forgetting curve intervals.',
+            contextAction: 'Quick Recall',
+          },
+        })
+      );
+      return;
+    }
     try {
       await createAttempt(item.problemId, {
         status,
@@ -224,6 +262,7 @@ const RevisionPage = () => {
 
           <button
             type="button"
+            data-testid="how-scoring-works-btn"
             onClick={() => setShowFormula(!showFormula)}
             className="btn-secondary self-start sm:self-auto text-xs flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer"
           >

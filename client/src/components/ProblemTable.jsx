@@ -174,27 +174,27 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               <th className="w-12 text-center py-3.5 px-3 whitespace-nowrap">#</th>
               <th
                 onClick={() => handleSort('title')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap min-w-[240px]"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Problem</span>
                   {renderSortIndicator('title')}
                 </div>
               </th>
-              <th className="py-3.5 px-3 whitespace-nowrap">Topics</th>
+              <th className="py-3.5 px-3 whitespace-nowrap min-w-[160px]">Topics</th>
               <th
                 onClick={() => handleSort('difficulty')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-28 py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Difficulty</span>
                   {renderSortIndicator('difficulty')}
                 </div>
               </th>
-              <th className="py-3.5 px-3 whitespace-nowrap">Platform</th>
+              <th className="w-24 py-3.5 px-3 whitespace-nowrap">Platform</th>
               <th
                 onClick={() => handleSort('status')}
-                className="py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-32 py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center gap-1.5">
                   <span>Status</span>
@@ -203,14 +203,14 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
               </th>
               <th
                 onClick={() => handleSort('sessions')}
-                className="text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
+                className="w-24 text-center py-3.5 px-3 cursor-pointer select-none hover:text-text transition-colors group whitespace-nowrap"
               >
                 <div className="flex items-center justify-center gap-1.5">
                   <span>Sessions</span>
                   {renderSortIndicator('sessions')}
                 </div>
               </th>
-              <th className="text-right py-3.5 px-4 whitespace-nowrap">Actions</th>
+              <th className="w-36 text-right py-3.5 px-4 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody ref={tbodyRef} className="divide-y divide-line">
@@ -232,18 +232,18 @@ const ProblemTable = ({ problems, isLoading, error, onEdit, onDelete, onOpenAdd,
                   </td>
 
                   {/* Problem Title & External Link */}
-                  <td className="py-3.5 px-3">
-                    <div className="flex items-center gap-2 max-w-md lg:max-w-xl">
+                  <td className="py-3.5 px-3 min-w-[240px]">
+                    <div className="flex items-center gap-2 min-w-0">
                       <Link
                         to={`/problems/${problem.id || problem._id}`}
-                        className="font-semibold text-text group-hover:text-accent transition-colors line-clamp-1 text-sm tracking-tight leading-snug"
+                        className="font-semibold text-text group-hover:text-accent transition-colors truncate text-sm tracking-tight leading-snug"
                         title={problem.title}
                       >
                         {problem.title}
                       </Link>
-                      {problem.link && (
+                      {(problem.link || problem.problemUrl) && (
                         <a
-                          href={problem.link}
+                          href={problem.link || problem.problemUrl}
                           target="_blank"
                           rel="noreferrer"
                           title="Open original problem in new tab"
