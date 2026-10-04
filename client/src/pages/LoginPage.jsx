@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthShell from '../components/auth/AuthShell';
 import PasswordInput from '../components/auth/PasswordInput';
 import FormAlert from '../components/common/FormAlert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 
@@ -73,6 +73,23 @@ export default function LoginPage() {
         console.error('Unexpected login error:', err);
         setServerError("Couldn't connect to the server. Please try again.");
       }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    setServerError('');
+    setFieldErrors({});
+
+    try {
+      await login('demo@dsa-tracker.local', 'Demo1234!');
+      navigate(destination, { replace: true });
+    } catch (err) {
+      console.error('Demo login error:', err);
+      setServerError('Unable to sign in with demo account. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -162,6 +179,32 @@ export default function LoginPage() {
             <span>Sign in</span>
           )}
         </button>
+
+        {/* Divider */}
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-line" />
+          </div>
+          <div className="relative flex justify-center text-[10px] font-mono text-muted uppercase tracking-wider">
+            <span className="bg-surface px-2">or explore demo</span>
+          </div>
+        </div>
+
+        {/* 1-Click Demo Sign In */}
+        <div className="space-y-2">
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={handleDemoLogin}
+            className="w-full py-2 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-subtle"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
+            <span>Sign in as Demo User (35 Problems)</span>
+          </button>
+          <p className="text-[11px] text-center text-muted font-mono">
+            Demo account: <span className="text-text-secondary">demo@dsa-tracker.local</span> / <span className="text-text-secondary">Demo1234!</span>
+          </p>
+        </div>
       </form>
 
       {/* Switch to Signup */}
