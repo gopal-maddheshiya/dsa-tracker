@@ -1,68 +1,78 @@
 /**
- * High-performance sliding-window in-memory rate limiter middleware.
- * Protects auth endpoints against credential stuffing and brute-force attacks.
+ * Lightweight In-Memory Rate Limiting Middleware
+ * Zero external dependencies. Enforces request limits per IP over a sliding window.
+ * Automatically bypassed during automated test runs (NODE_ENV === 'test').
  */
-const createRateLimiter = ({
-  windowMs = 15 * 60 * 1000, // 15 minutes
-  max = 20, // Max requests per window
-  message = 'Too many requests from this IP address. Please try again later.',
-} = {}) => {
+
+/**
+ * Creates an in-memory rate limiting middleware
+ * @param {Object} options
+ * @param {number} [options.windowMs=900000] - Window duration in milliseconds (default: 15 minutes)
+ * @param {number} [options.max=30] - Max requests allowed per window per IP
+ * @param {string} [options.message='Too many requests. Please try again later.'] - Error message on 429
+ * @returns {Function} Express middleware
+ */
+const createRateLimiter = (options = {}) => {
+  const windowMs = options.windowMs || 15 * 60 * 1000; // 15 mins default
+  const max = options.max || 30;
+  const message = options.message || 'Too many authentication attempts. Please try again later.';
+
+  // Map of ip -> Array<timestamp>
   const hits = new Map();
 
-  // Periodic garbage collection every 5 minutes to prevent memory growth
-  setInterval(() => {
+  // Periodic cleanup every 5 minutes to prevent memory leaks
+  const interval = setInterval(() => {
     const now = Date.now();
-    for (const [ip, record] of hits.entries()) {
-      if (now - record.startTime > windowMs) {
+    for (const [ip, timestamps] of hits.entries()) {
+      const valid = timestamps.filter((t) => now - t < windowMs);
+      if (valid.length === 0) {
         hits.delete(ip);
+      } else {
+        hits.set(ip, valid);
       }
     }
-  }, 5 * 60 * 1000).unref(); // .unref() so it doesn't block server shutdown/tests
+  }, 5 * 60 * 1000);
+
+  // Allow Node process to exit even if timer is active
+  if (interval.unref) {
+    interval.unref();
+  }
 
   return (req, res, next) => {
-    // In development mode, bypass rate limiting to prevent 429 lockouts during testing and rapid page reloads
-    if (process.env.NODE_ENV !== 'production') {
+    // 1. Bypass during test execution to ensure fast, deterministic tests
+    if (process.env.NODE_ENV === 'test') {
       return next();
     }
 
-    // Determine client IP (delegates to Express req.ip when trust proxy is active)
-    const clientIp =
-      req.ip ||
-      req.headers['x-forwarded-for']?.split(',')[0].trim() ||
-      req.socket.remoteAddress ||
-      'unknown-ip';
-
+    const ip = req.ip || req.connection.remoteAddress || 'unknown-ip';
     const now = Date.now();
-    let record = hits.get(clientIp);
 
-    if (!record || now - record.startTime > windowMs) {
-      record = {
-        count: 1,
-        startTime: now,
-      };
-      hits.set(clientIp, record);
-    } else {
-      record.count += 1;
-    }
+    const timestamps = hits.get(ip) || [];
+    const validTimestamps = timestamps.filter((t) => now - t < windowMs);
 
-    const remaining = Math.max(0, max - record.count);
-    const resetTime = Math.ceil((record.startTime + windowMs) / 1000);
-
-    // Standard rate limit headers
-    res.setHeader('RateLimit-Limit', max);
-    res.setHeader('RateLimit-Remaining', remaining);
-    res.setHeader('RateLimit-Reset', resetTime);
-
-    if (record.count > max) {
-      res.setHeader('Retry-After', Math.ceil((record.startTime + windowMs - now) / 1000));
+    if (validTimestamps.length >= max) {
+      const retryAfterSec = Math.ceil((validTimestamps[0] + windowMs - now) / 1000);
+      res.setHeader('Retry-After', retryAfterSec > 0 ? retryAfterSec : 1);
       return res.status(429).json({
         success: false,
         message,
       });
     }
 
+    validTimestamps.push(now);
+    hits.set(ip, validTimestamps);
     next();
   };
 };
 
-module.exports = { createRateLimiter };
+// Default rate limiter for sensitive authentication endpoints (30 attempts / 15 mins)
+const authLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: 'Too many authentication attempts. Please try again in 15 minutes.',
+});
+
+module.exports = {
+  createRateLimiter,
+  authLimiter,
+};

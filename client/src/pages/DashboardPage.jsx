@@ -1,427 +1,343 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Plus, ArrowRight, RotateCw, BookOpen, AlertCircle } from 'lucide-react';
 import {
-  fetchAnalyticsSummary,
-  fetchTopicAnalytics,
-  fetchHeatmapAnalytics,
-  fetchRevisionQueue,
-} from '../api/analytics';
-import { fetchProblemRecommendations } from '../api/problems';
-import { getErrorMessage } from '../utils/errorHandler';
-import {
-  DEMO_SUMMARY,
-  DEMO_TOPICS,
-  DEMO_HEATMAP,
-  DEMO_REVISION_QUEUE,
-  DEMO_RECOMMENDATIONS,
-} from '../data/demoData';
-
-import { ArrowRight } from 'lucide-react';
-import UnifiedHero from '../components/dashboard/UnifiedHero';
-import RoadmapActionBanner from '../components/dashboard/RoadmapActionBanner';
-import UpcomingRevisionsCard from '../components/dashboard/UpcomingRevisionsCard';
-import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart';
-import PracticeHeatmap from '../components/analytics/PracticeHeatmap';
-import WeeklyReviewSection from '../components/analytics/WeeklyReviewSection';
-import Reveal from '../components/common/Reveal';
+  getSummary,
+  getTopics,
+  getTrend,
+  getHeatmap,
+} from '../api/analytics.api.js';
+import StatCard from '../components/analytics/StatCard.jsx';
+import TrendChart from '../components/analytics/TrendChart.jsx';
+import DifficultyChart from '../components/analytics/DifficultyChart.jsx';
+import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart.jsx';
+import HeatmapGrid from '../components/analytics/HeatmapGrid.jsx';
 
 /**
- * DashboardPage: High-Signal Deliberate Practice Command Center.
- *
- * Grounded exclusively in real telemetry:
- * 1. Top: Command Header & 4-Card Grounded KPI Dock (UnifiedHero).
- * 2. Today's Mission Spotlight: Highest priority problem due according to Ebbinghaus forgetting curve.
- * 3. Deliberate Practice Workbench (2 Columns):
- *    - Left: Spaced Recall Queue (Next 5 problems due with urgency dots).
- *    - Right: Topic Gap Matrix (Top 5 struggle topics with struggle ratios).
- * 4. Activity Rhythm: Full-width 52-week Practice Heatmap.
- * 5. Cognitive Intelligence: AI 7-Day Retrospective & Action Plan.
+ * DashboardPage: Central analytics cockpit for the DSA / Interview Prep Tracker.
+ * Integrates KPI metrics, weekly solve trend, difficulty distribution donut,
+ * topic weakness ranking, and a 12-week practice heatmap with independent section fault-tolerance.
  */
-const DashboardPage = () => {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+export default function DashboardPage() {
+  // Independent section states to allow partial resilience
+  const [summaryState, setSummaryState] = useState({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const [topicsState, setTopicsState] = useState({
+    data: [],
+    loading: true,
+    error: null,
+  });
+
+  const [trendState, setTrendState] = useState({
+    data: [],
+    loading: true,
+    error: null,
+  });
+
+  const [heatmapState, setHeatmapState] = useState({
+    data: [],
+    loading: true,
+    error: null,
+  });
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    document.title = 'Dashboard · DSA Tracker';
-  }, []);
-
-  const [summary, setSummary] = useState(null);
-  const [loadingSummary, setLoadingSummary] = useState(true);
-  const [summaryError, setSummaryError] = useState(null);
-
-  const [topics, setTopics] = useState([]);
-  const [loadingTopics, setLoadingTopics] = useState(true);
-  const [topicsError, setTopicsError] = useState(null);
-
-  const [heatmap, setHeatmap] = useState([]);
-  const [loadingHeatmap, setLoadingHeatmap] = useState(true);
-  const [heatmapError, setHeatmapError] = useState(null);
-
-  const [revisionQueue, setRevisionQueue] = useState([]);
-  const [loadingRevision, setLoadingRevision] = useState(true);
-  const [revisionError, setRevisionError] = useState(null);
-
-  const [recommendations, setRecommendations] = useState(null);
-  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
-
-  const loadSummary = useCallback(async () => {
-    setLoadingSummary(true);
-    setSummaryError(null);
-    try {
-      const res = await fetchAnalyticsSummary();
-      if (res?.success) setSummary(res.data);
-    } catch (err) {
-      setSummaryError(getErrorMessage(err, 'Unable to load summary.'));
-    } finally {
-      setLoadingSummary(false);
-    }
-  }, []);
-
-  const loadTopics = useCallback(async () => {
-    setLoadingTopics(true);
-    setTopicsError(null);
-    try {
-      const res = await fetchTopicAnalytics();
-      if (res?.success) setTopics(res.data || []);
-    } catch (err) {
-      setTopicsError(getErrorMessage(err, 'Unable to load topics.'));
-    } finally {
-      setLoadingTopics(false);
-    }
-  }, []);
-
-  const loadHeatmap = useCallback(async () => {
-    setLoadingHeatmap(true);
-    setHeatmapError(null);
-    try {
-      const res = await fetchHeatmapAnalytics();
-      if (res?.success) setHeatmap(res.data || []);
-    } catch (err) {
-      setHeatmapError(getErrorMessage(err, 'Unable to load heatmap.'));
-    } finally {
-      setLoadingHeatmap(false);
-    }
-  }, []);
-
-  const loadRevision = useCallback(async () => {
-    setLoadingRevision(true);
-    setRevisionError(null);
-    try {
-      const res = await fetchRevisionQueue();
-      if (res?.success) setRevisionQueue(res.data || []);
-    } catch (err) {
-      setRevisionError(getErrorMessage(err, 'Unable to load revision queue.'));
-    } finally {
-      setLoadingRevision(false);
-    }
-  }, []);
-
-  const loadRecommendations = useCallback(async () => {
-    setLoadingRecommendations(true);
-    try {
-      const res = await fetchProblemRecommendations();
-      if (res?.success) setRecommendations(res.data);
-    } catch (err) {
-      console.error('Failed to load recommendations:', err);
-    } finally {
-      setLoadingRecommendations(false);
-    }
-  }, []);
-
-  // Main data initialization: if guest, reset personal state and make ZERO network calls
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (!isAuthenticated) {
-      setSummary(null);
-      setTopics([]);
-      setHeatmap([]);
-      setRevisionQueue([]);
-      setRecommendations(null);
-      setLoadingSummary(false);
-      setLoadingTopics(false);
-      setLoadingHeatmap(false);
-      setLoadingRevision(false);
-      setLoadingRecommendations(false);
-      setSummaryError(null);
-      setTopicsError(null);
-      setHeatmapError(null);
-      setRevisionError(null);
-      return;
-    }
-
-    loadSummary();
-    loadTopics();
-    loadHeatmap();
-    loadRevision();
-    loadRecommendations();
-  }, [
-    authLoading,
-    isAuthenticated,
-    loadSummary,
-    loadTopics,
-    loadHeatmap,
-    loadRevision,
-    loadRecommendations,
-  ]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const handleProblemCreated = () => {
-      loadSummary();
-      loadTopics();
-      loadHeatmap();
-      loadRevision();
-      loadRecommendations();
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
     };
-    window.addEventListener('problem-created', handleProblemCreated);
-    return () => window.removeEventListener('problem-created', handleProblemCreated);
-  }, [isAuthenticated, loadSummary, loadTopics, loadHeatmap, loadRevision, loadRecommendations]);
+  }, []);
 
-  const handleQuickAddClick = () => {
-    if (!isAuthenticated) {
-      window.dispatchEvent(
-        new CustomEvent('open-auth-gate', {
-          detail: {
-            title: 'Add a Problem',
-            description: 'Create an account to catalog your custom problems, code solutions, and configure spaced repetition.',
-            contextAction: 'Add Problem',
-          },
-        })
-      );
-    } else {
-      window.dispatchEvent(new CustomEvent('open-quick-add'));
+  // 1. Fetch Summary
+  const fetchSummaryData = useCallback(async () => {
+    if (isMountedRef.current) {
+      setSummaryState((prev) => ({ ...prev, loading: true, error: null }));
     }
-  };
+    try {
+      const res = await getSummary();
+      if (isMountedRef.current) {
+        setSummaryState({
+          data: res.data || null,
+          loading: false,
+          error: null,
+        });
+      }
+    } catch (err) {
+      if (isMountedRef.current) {
+        setSummaryState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err,
+        }));
+      }
+    }
+  }, []);
 
-  // Synchronously resolve display data (demo dataset for guests)
-  const displaySummary = !isAuthenticated ? DEMO_SUMMARY : summary;
-  const displayTopics = !isAuthenticated ? DEMO_TOPICS : topics;
-  const displayHeatmap = !isAuthenticated ? DEMO_HEATMAP : heatmap;
-  const displayRevisionQueue = !isAuthenticated ? DEMO_REVISION_QUEUE : revisionQueue;
-  const displayRecommendations = !isAuthenticated ? DEMO_RECOMMENDATIONS : recommendations;
+  // 2. Fetch Topics
+  const fetchTopicsData = useCallback(async () => {
+    if (isMountedRef.current) {
+      setTopicsState((prev) => ({ ...prev, loading: true, error: null }));
+    }
+    try {
+      const res = await getTopics();
+      if (isMountedRef.current) {
+        setTopicsState({
+          data: res.data?.topics || [],
+          loading: false,
+          error: null,
+        });
+      }
+    } catch (err) {
+      if (isMountedRef.current) {
+        setTopicsState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err,
+        }));
+      }
+    }
+  }, []);
 
-  const hasZeroData =
-    isAuthenticated &&
-    !loadingSummary &&
-    !summaryError &&
-    (displaySummary?.totalProblems ?? 0) === 0 &&
-    (displaySummary?.totalAttempts ?? 0) === 0;
+  // 3. Fetch Trend
+  const fetchTrendData = useCallback(async () => {
+    if (isMountedRef.current) {
+      setTrendState((prev) => ({ ...prev, loading: true, error: null }));
+    }
+    try {
+      const res = await getTrend();
+      if (isMountedRef.current) {
+        setTrendState({
+          data: res.data?.trend || [],
+          loading: false,
+          error: null,
+        });
+      }
+    } catch (err) {
+      if (isMountedRef.current) {
+        setTrendState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err,
+        }));
+      }
+    }
+  }, []);
 
-  const primaryWeakTopic = displayRecommendations?.weakestTopics?.[0] || null;
+  // 4. Fetch Heatmap
+  const fetchHeatmapData = useCallback(async () => {
+    if (isMountedRef.current) {
+      setHeatmapState((prev) => ({ ...prev, loading: true, error: null }));
+    }
+    try {
+      const res = await getHeatmap();
+      if (isMountedRef.current) {
+        setHeatmapState({
+          data: res.data?.heatmap || [],
+          loading: false,
+          error: null,
+        });
+      }
+    } catch (err) {
+      if (isMountedRef.current) {
+        setHeatmapState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err,
+        }));
+      }
+    }
+  }, []);
+
+  // Parallel dashboard load using Promise.allSettled
+  const loadDashboard = useCallback(async () => {
+    if (isMountedRef.current) setIsRefreshing(true);
+    await Promise.allSettled([
+      fetchSummaryData(),
+      fetchTopicsData(),
+      fetchTrendData(),
+      fetchHeatmapData(),
+    ]);
+    if (isMountedRef.current) setIsRefreshing(false);
+  }, [fetchSummaryData, fetchTopicsData, fetchTrendData, fetchHeatmapData]);
+
+  // Initial mount load
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
+
+  const summary = summaryState.data;
+  const isFreshAccount =
+    !summaryState.loading &&
+    summary &&
+    summary.totalProblems === 0 &&
+    summary.totalAttempted === 0;
 
   return (
-    <div className="space-y-4 sm:space-y-6 pb-20 sm:pb-12 animate-fade-up min-w-0 max-w-full overflow-x-clip">
-      {/* ── DEMO WORKSPACE BANNER (Guest Interactive Preview Only) ──── */}
-      {!isAuthenticated && (
-        <Reveal delay={0} y={4}>
-          <div className="relative overflow-hidden rounded-xl border border-line bg-surface p-2.5 sm:p-3.5 shadow-xs select-none">
-            <div className="relative z-10 flex items-center justify-between gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-text-secondary shrink-0">
-                      Demo Workspace
-                    </span>
-                    <span className="hidden sm:inline-block text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-surface-2 border border-line-subtle text-muted">
-                      Interactive Preview
-                    </span>
-                  </div>
-                  <p className="text-[11px] sm:text-xs text-text-secondary leading-tight truncate sm:whitespace-normal">
-                    <span className="hidden sm:inline">Exploring </span>
-                    <strong className="text-text font-semibold">{displaySummary?.catalogProblems ?? 10} cataloged questions</strong>
-                    <span className="hidden sm:inline"> and deliberate practice telemetry. Create an account to log personal attempts and configure recall intervals.</span>
-                  </p>
-                </div>
-              </div>
+    <div className="space-y-6 pb-12">
+      {/* Compact Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-line pb-5">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-text">
+            Dashboard
+          </h1>
+          <p className="text-xs text-text-secondary mt-1">
+            A clear view of your DSA practice and where to focus next.
+          </p>
+        </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <Link
-                  to="/signup"
-                  className="bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 text-xs py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-lg font-semibold inline-flex items-center gap-1 whitespace-nowrap transition-colors"
-                >
-                  <span>Sign Up</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
-                <Link
-                  to="/login"
-                  className="hidden xs:inline-block text-xs font-medium text-text-secondary hover:text-text px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg border border-line-subtle bg-surface-2 hover:bg-surface-hover transition-colors"
-                >
-                  Log In
-                </Link>
-              </div>
+        {/* Action Controls */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Refresh button */}
+          <button
+            type="button"
+            onClick={loadDashboard}
+            disabled={isRefreshing}
+            title="Refresh analytics data"
+            aria-label="Refresh analytics data"
+            className="p-1.5 text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-md transition-colors disabled:opacity-50 focus-visible:ring-1 focus-visible:ring-accent"
+          >
+            <RotateCw
+              className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-accent' : ''}`}
+            />
+          </button>
+
+          {/* Phase 9 Restrained Revision Queue Teaser */}
+          <Link
+            to="/revision"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors"
+          >
+            <span>Review due problems</span>
+            <ArrowRight className="w-3.5 h-3.5 text-muted" />
+          </Link>
+
+          {/* Quick Problem Entry Shortcut */}
+          <Link
+            to="/problems"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-colors shadow-subtle"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add problem</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Fresh Account First-Use Banner */}
+      {isFreshAccount && (
+        <div className="p-4 rounded-lg bg-surface border border-line-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-subtle">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-md bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0 mt-0.5">
+              <BookOpen className="w-4 h-4" />
             </div>
-          </div>
-        </Reveal>
-      )}
-
-      {/* ── 1. COMMAND HEADER & 4-CARD KPI DOCK ── */}
-      <Reveal delay={0} y={4}>
-        <UnifiedHero
-          user={user}
-          summary={displaySummary}
-          revisionCount={displayRevisionQueue?.length ?? 0}
-          dailyFocus={displayRecommendations?.dailyFocus}
-          isLoading={!isAuthenticated ? false : loadingSummary}
-          onQuickAdd={handleQuickAddClick}
-        />
-      </Reveal>
-
-      {/* ── ZERO DATA STATE: Clear 3-Step Setup ─────────────────────── */}
-      {hasZeroData ? (
-        <Reveal delay={40}>
-          <div className="relative overflow-hidden rounded-xl border border-line bg-surface p-6 sm:p-8 space-y-6 shadow-md">
-            <div className="relative z-10 space-y-1 pb-4 border-b border-line-subtle">
-              <h2 className="text-base font-bold text-text tracking-tight">
-                Welcome to your deliberate practice workspace
-              </h2>
-              <p className="text-xs text-muted">
-                Complete these three steps to activate spaced repetition and personal telemetry.
+            <div>
+              <h3 className="text-xs font-semibold text-text">
+                No practice data yet
+              </h3>
+              <p className="text-[11px] text-text-secondary mt-0.5">
+                Add your first problem and log an attempt to start building your analytics cockpit.
               </p>
             </div>
-
-            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Step 1 */}
-              <div className="p-4 rounded-xl bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono font-bold text-accent uppercase">
-                    Step 1
-                  </span>
-                  <h3 className="text-sm font-semibold text-text">Set Your Goals</h3>
-                  <p className="text-xs text-muted leading-relaxed">
-                    Define daily targets, target companies, and interview dates to anchor your prep roadmap.
-                  </p>
-                </div>
-                <Link
-                  to="/profile"
-                  className="btn-primary text-xs py-2 px-3 text-center w-full rounded-lg"
-                >
-                  Set Goals →
-                </Link>
-              </div>
-
-              {/* Step 2 */}
-              <div className="p-4 rounded-xl bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono font-bold text-easy uppercase">
-                    Step 2
-                  </span>
-                  <h3 className="text-sm font-semibold text-text">Catalog Problems</h3>
-                  <p className="text-xs text-muted leading-relaxed">
-                    Import existing solves or add target questions with topic tags and target complexity.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-quick-add'))}
-                  className="btn-secondary text-xs py-2 px-3 text-center w-full rounded-lg cursor-pointer"
-                >
-                  Add First Problem →
-                </button>
-              </div>
-
-              {/* Step 3 */}
-              <div className="p-4 rounded-xl bg-surface-2/40 border border-line-subtle flex flex-col justify-between space-y-3">
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono font-bold text-medium uppercase">
-                    Step 3
-                  </span>
-                  <h3 className="text-sm font-semibold text-text">Start Practicing</h3>
-                  <p className="text-xs text-muted leading-relaxed">
-                    Practice with timed attempts, log takeaways, and let spaced recall manage intervals.
-                  </p>
-                </div>
-                <Link
-                  to="/problems"
-                  className="btn-secondary text-xs py-2 px-3 text-center w-full rounded-lg"
-                >
-                  Explore Catalog →
-                </Link>
-              </div>
-            </div>
           </div>
-        </Reveal>
-      ) : (
-        /* ── DELIBERATE PRACTICE COMMAND WORKSPACE ──────────────────── */
-        <div className="space-y-4 sm:space-y-6">
-          {/* 1. Today's Practice Target Spotlight */}
-          <Reveal delay={15} y={4}>
-            <RoadmapActionBanner
-              dailyFocus={displayRecommendations?.dailyFocus}
-              primaryWeakTopic={primaryWeakTopic}
-              isLoading={!isAuthenticated ? false : loadingRecommendations}
-            />
-          </Reveal>
-
-          {/* 2. Deliberate Practice Workbench: 2-Column Balanced Twin Cards */}
-          <div className="space-y-2 sm:space-y-2.5">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              <span>Deliberate Practice Workbench</span>
-              <span className="text-muted/40 hidden sm:inline">·</span>
-              <span className="text-[11px] text-muted font-normal lowercase tracking-normal hidden sm:inline">
-                active recall & topic bottleneck matrix
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
-              {/* Left: Spaced Repetition Recall Queue */}
-              <Reveal delay={25} y={6} className="h-full flex flex-col">
-                <UpcomingRevisionsCard
-                  queue={displayRevisionQueue}
-                  featuredId={displayRecommendations?.dailyFocus?.id || displayRecommendations?.dailyFocus?._id}
-                  maxItems={5}
-                  isLoading={!isAuthenticated ? false : loadingRevision}
-                  error={!isAuthenticated ? null : revisionError}
-                />
-              </Reveal>
-
-              {/* Right: Topic Bottlenecks & Gaps */}
-              <Reveal delay={30} y={6} className="h-full flex flex-col">
-                <TopicWeaknessChart
-                  topics={displayTopics}
-                  isLoading={!isAuthenticated ? false : loadingTopics}
-                  error={!isAuthenticated ? null : topicsError}
-                  onRetry={loadTopics}
-                />
-              </Reveal>
-            </div>
-          </div>
-
-          {/* 3. Full Width Bottom Canvas: Practice Rhythm & Heatmap */}
-          <div className="space-y-2 sm:space-y-2.5">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-easy" />
-              <span>Practice Rhythm & Consistency</span>
-            </div>
-
-            <Reveal delay={35} y={6}>
-              <PracticeHeatmap
-                heatmapData={displayHeatmap}
-                isLoading={!isAuthenticated ? false : loadingHeatmap}
-                error={!isAuthenticated ? null : heatmapError}
-                onRetry={loadHeatmap}
-              />
-            </Reveal>
-          </div>
-
-          {/* 4. AI 7-Day Cognitive Retrospective */}
-          <div className="space-y-2 sm:space-y-2.5">
-            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-mono text-muted uppercase tracking-wider font-semibold px-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              <span>Cognitive Retrospective & Synthesis</span>
-            </div>
-
-            <Reveal delay={40} y={6}>
-              <WeeklyReviewSection />
-            </Reveal>
-          </div>
+          <Link
+            to="/problems"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text hover:text-white bg-surface-2 hover:bg-accent border border-line hover:border-accent rounded-md transition-colors shrink-0"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Track first problem</span>
+          </Link>
         </div>
       )}
+
+      {/* Row 1: Summary Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label="Tracked problems"
+          value={summary?.totalProblems}
+          context="Across all difficulties"
+          badge="Problems"
+          badgeType="default"
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
+
+        <StatCard
+          label="Practice attempts"
+          value={summary?.totalAttempted}
+          context="Practice sessions logged"
+          badge="Sessions"
+          badgeType="accent"
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
+
+        <StatCard
+          label="Solved attempts"
+          value={summary?.totalSolved}
+          context={
+            summary?.totalAttempted > 0
+              ? `${Math.round(
+                  (summary.totalSolved / summary.totalAttempted) * 100
+                )}% of attempts solved`
+              : 'All-time solved'
+          }
+          badge="Solved"
+          badgeType="success"
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
+      </div>
+
+      {/* Row 2: Practice Solve Trend + Difficulty Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Trend Line Chart: 8 cols on desktop */}
+        <div className="lg:col-span-8">
+          <TrendChart
+            data={trendState.data}
+            loading={trendState.loading}
+            error={trendState.error}
+            onRetry={fetchTrendData}
+          />
+        </div>
+
+        {/* Difficulty Donut: 4 cols on desktop */}
+        <div className="lg:col-span-4">
+          <DifficultyChart
+            breakdown={summary?.difficultyBreakdown}
+            totalProblems={summary?.totalProblems ?? 0}
+            loading={summaryState.loading}
+            error={summaryState.error}
+            onRetry={fetchSummaryData}
+          />
+        </div>
+      </div>
+
+      {/* Row 3: Topic Weakness & Signals */}
+      <div>
+        <TopicWeaknessChart
+          topics={topicsState.data}
+          loading={topicsState.loading}
+          error={topicsState.error}
+          onRetry={fetchTopicsData}
+        />
+      </div>
+
+      {/* Row 4: 12-Week Practice Heatmap */}
+      <div>
+        <HeatmapGrid
+          data={heatmapState.data}
+          loading={heatmapState.loading}
+          error={heatmapState.error}
+          onRetry={fetchHeatmapData}
+        />
+      </div>
     </div>
   );
-};
-
-export default DashboardPage;
+}

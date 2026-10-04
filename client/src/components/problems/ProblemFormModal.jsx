@@ -1,0 +1,259 @@
+import React, { useState, useEffect } from 'react';
+import { X, Loader2 } from 'lucide-react';
+import FormAlert from '../common/FormAlert';
+import { PLATFORM_NAMES } from './ProblemBadges';
+
+const PLATFORMS = ['leetcode', 'gfg', 'codechef', 'hackerrank', 'other'];
+const DIFFICULTIES = ['easy', 'medium', 'hard'];
+
+/**
+ * ProblemFormModal
+ * Modal dialog for creating or editing a problem.
+ */
+export default function ProblemFormModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData = null,
+  title = 'Add Problem',
+}) {
+  const [formData, setFormData] = useState({
+    title: '',
+    platform: 'leetcode',
+    link: '',
+    difficulty: 'easy',
+    topics: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Populate data when editing or reset when adding
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title || '',
+        platform: initialData.platform || 'leetcode',
+        link: initialData.link || '',
+        difficulty: initialData.difficulty || 'easy',
+        topics: Array.isArray(initialData.topics)
+          ? initialData.topics.join(', ')
+          : '',
+      });
+    } else {
+      setFormData({
+        title: '',
+        platform: 'leetcode',
+        link: '',
+        difficulty: 'easy',
+        topics: '',
+      });
+    }
+    setError(null);
+  }, [initialData, isOpen]);
+
+  // Lock body scroll when modal is open and restore on close/unmount
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
+  // Handle escape key to close
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen && !loading) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, loading, onClose]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    // Validation
+    const cleanTitle = formData.title.trim();
+    if (!cleanTitle) {
+      setError('Problem title is required');
+      return;
+    }
+
+    const cleanLink = formData.link.trim();
+    if (!cleanLink || !/^https?:\/\/.+/i.test(cleanLink)) {
+      setError('Please provide a valid problem URL starting with http:// or https://');
+      return;
+    }
+
+    const parsedTopics = formData.topics
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    if (parsedTopics.length === 0) {
+      setError('Please specify at least one topic (e.g. Array, Dynamic Programming)');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onSubmit({
+        title: cleanTitle,
+        platform: formData.platform,
+        link: cleanLink,
+        difficulty: formData.difficulty,
+        topics: parsedTopics,
+      });
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Failed to save problem. Please check your inputs.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150">
+      <div
+        className="w-full max-w-lg bg-surface border border-line rounded-lg shadow-elevated overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="problem-modal-title"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+          <h2 id="problem-modal-title" className="text-sm font-semibold text-text">
+            {initialData ? 'Edit Problem' : title}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="p-1 text-muted hover:text-text rounded transition-colors disabled:opacity-50"
+            aria-label="Close dialog"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <FormAlert message={error} />
+
+          {/* Title */}
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1.5">
+              Problem Title <span className="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="e.g. Two Sum"
+              className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            />
+          </div>
+
+          {/* Platform & Difficulty Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                Platform <span className="text-danger">*</span>
+              </label>
+              <select
+                value={formData.platform}
+                onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              >
+                {PLATFORMS.map((p) => (
+                  <option key={p} value={p}>
+                    {PLATFORM_NAMES[p] || p}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                Difficulty <span className="text-danger">*</span>
+              </label>
+              <select
+                value={formData.difficulty}
+                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
+                className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              >
+                {DIFFICULTIES.map((d) => (
+                  <option key={d} value={d}>
+                    {d.charAt(0).toUpperCase() + d.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Problem Link */}
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1.5">
+              Problem URL <span className="text-danger">*</span>
+            </label>
+            <input
+              type="url"
+              required
+              value={formData.link}
+              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+              placeholder="https://leetcode.com/problems/two-sum/"
+              className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono"
+            />
+          </div>
+
+          {/* Topics */}
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1.5">
+              Topics (comma-separated) <span className="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.topics}
+              onChange={(e) => setFormData({ ...formData, topics: e.target.value })}
+              placeholder="Array, Hash Table, Two Pointer"
+              className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            />
+            <p className="text-[11px] text-muted mt-1">
+              Separate multiple topics with commas. Capitalization is preserved.
+            </p>
+          </div>
+
+          {/* Action Footer */}
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-line mt-5">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-3.5 py-1.5 text-xs text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors shadow-subtle disabled:opacity-60"
+            >
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {initialData ? 'Save Changes' : 'Create Problem'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

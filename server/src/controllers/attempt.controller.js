@@ -5,23 +5,27 @@ const Attempt = require('../models/Attempt');
 const VALID_STATUSES = ['solved', 'struggled', 'revisit_needed'];
 
 /**
+ * @desc    Log a new attempt for a problem
  * @route   POST /api/problems/:id/attempts
- * @desc    Log a new attempt for a problem (strictly scoped to authenticated user)
  * @access  Private
  */
 const createAttempt = async (req, res, next) => {
   try {
-    const { id: problemId } = req.params;
+    const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(problemId)) {
-      return res.status(404).json({
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
         success: false,
-        message: 'Problem not found',
+        message: 'Invalid problem ID format',
       });
     }
 
-    // Verify problem exists and is owned by the requesting user
-    const problem = await Problem.findOne({ _id: problemId, userId: req.user._id });
+    // 1. Verify problem exists and belongs to authenticated user
+    const problem = await Problem.findOne({
+      _id: id,
+      userId: req.user.userId,
+    });
+
     if (!problem) {
       return res.status(404).json({
         success: false,
@@ -29,64 +33,67 @@ const createAttempt = async (req, res, next) => {
       });
     }
 
-    const { status, timeTakenMinutes, notes, attemptedAt, approach, timeComplexity, spaceComplexity } = req.body;
+    const { status, timeTakenMinutes, notes, attemptedAt } = req.body;
 
-    // Validate status
-    if (!status || !VALID_STATUSES.includes(status.toLowerCase())) {
+    // 2. Validation
+    if (
+      !status ||
+      typeof status !== 'string' ||
+      !VALID_STATUSES.includes(status.toLowerCase().trim())
+    ) {
       return res.status(400).json({
         success: false,
         message: `Status is required and must be one of: ${VALID_STATUSES.join(', ')}`,
       });
     }
 
-    // Validate timeTakenMinutes (must not be negative)
     let parsedTime = null;
-    if (timeTakenMinutes !== undefined && timeTakenMinutes !== null && timeTakenMinutes !== '') {
-      parsedTime = Number(timeTakenMinutes);
-      if (isNaN(parsedTime) || parsedTime < 0) {
+    if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
+      const num = Number(timeTakenMinutes);
+      if (isNaN(num) || num < 0) {
         return res.status(400).json({
           success: false,
-          message: 'Time taken in minutes must be a non-negative number',
+          message: 'Time taken must be a non-negative number',
         });
       }
+      parsedTime = num;
     }
 
-    // Validate attemptedAt date if supplied
-    let parsedDate = Date.now();
+    let parsedDate = new Date();
     if (attemptedAt) {
       const d = new Date(attemptedAt);
       if (isNaN(d.getTime())) {
         return res.status(400).json({
           success: false,
-          message: 'attemptedAt must be a valid date',
+          message: 'Invalid attemptedAt date format',
         });
       }
       parsedDate = d;
     }
 
-    // Create attempt ensuring userId is taken solely from req.user
+    // 3. Create Attempt
     const attempt = await Attempt.create({
       problemId: problem._id,
-      userId: req.user._id,
+      userId: req.user.userId,
       status: status.toLowerCase().trim(),
       timeTakenMinutes: parsedTime,
       notes: typeof notes === 'string' ? notes.trim() : '',
-      approach: typeof approach === 'string' ? approach.trim() : '',
-      timeComplexity: typeof timeComplexity === 'string' ? timeComplexity.trim() : '',
-      spaceComplexity: typeof spaceComplexity === 'string' ? spaceComplexity.trim() : '',
       attemptedAt: parsedDate,
     });
 
-    // If problem is not currently active in revision queue (e.g. historical synced problem),
-    // manually logging an attempt activates it for active spaced repetition.
-    if (!problem.inRevisionQueue) {
-      problem.inRevisionQueue = true;
-      await problem.save();
-    }
-
     return res.status(201).json({
       success: true,
-      data: attempt.toJSON(),
+      message: 'Attempt logged successfully',
+      data: {
+        attempt: {
+          id: attempt._id.toString(),
+          problemId: attempt.problemId.toString(),
+          status: attempt.status,
+          timeTakenMinutes: attempt.timeTakenMinutes,
+          notes: attempt.notes,
+          attemptedAt: attempt.attemptedAt,
+        },
+      },
     });
   } catch (error) {
     next(error);
@@ -94,23 +101,27 @@ const createAttempt = async (req, res, next) => {
 };
 
 /**
+ * @desc    Get all attempts for a given problem
  * @route   GET /api/problems/:id/attempts
- * @desc    Get attempt history for a specific problem (verified against authenticated user)
  * @access  Private
  */
-const getAttemptsForProblem = async (req, res, next) => {
+const getAttempts = async (req, res, next) => {
   try {
-    const { id: problemId } = req.params;
+    const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(problemId)) {
-      return res.status(404).json({
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
         success: false,
-        message: 'Problem not found',
+        message: 'Invalid problem ID format',
       });
     }
 
-    // Verify ownership of the problem
-    const problem = await Problem.findOne({ _id: problemId, userId: req.user._id });
+    // Must verify problem ownership
+    const problem = await Problem.findOne({
+      _id: id,
+      userId: req.user.userId,
+    });
+
     if (!problem) {
       return res.status(404).json({
         success: false,
@@ -119,147 +130,21 @@ const getAttemptsForProblem = async (req, res, next) => {
     }
 
     const attempts = await Attempt.find({
-      problemId: problem._id,
-      userId: req.user._id,
-    }).sort({ attemptedAt: -1 });
+      problemId: id,
+      userId: req.user.userId,
+    }).sort({ attemptedAt: -1, _id: -1 });
 
     return res.status(200).json({
       success: true,
-      count: attempts.length,
-      data: attempts.map((a) => a.toJSON()),
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @route   PUT /api/problems/:id/attempts/:attemptId
- * @desc    Update a specific attempt (strictly scoped to owner and problem)
- * @access  Private
- */
-const updateAttempt = async (req, res, next) => {
-  try {
-    const { id: problemId, attemptId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(problemId) || !mongoose.Types.ObjectId.isValid(attemptId)) {
-      return res.status(404).json({
-        success: false,
-        message: 'Attempt or problem not found',
-      });
-    }
-
-    const attempt = await Attempt.findOne({
-      _id: attemptId,
-      problemId,
-      userId: req.user._id,
-    });
-
-    if (!attempt) {
-      return res.status(404).json({
-        success: false,
-        message: 'Attempt not found',
-      });
-    }
-
-    const { status, timeTakenMinutes, notes, attemptedAt } = req.body;
-
-    if (status !== undefined) {
-      if (!VALID_STATUSES.includes(status.toLowerCase())) {
-        return res.status(400).json({
-          success: false,
-          message: `Status must be one of: ${VALID_STATUSES.join(', ')}`,
-        });
-      }
-      attempt.status = status.toLowerCase().trim();
-    }
-
-    if (timeTakenMinutes !== undefined) {
-      if (timeTakenMinutes === null || timeTakenMinutes === '') {
-        attempt.timeTakenMinutes = null;
-      } else {
-        const parsedTime = Number(timeTakenMinutes);
-        if (isNaN(parsedTime) || parsedTime < 0) {
-          return res.status(400).json({
-            success: false,
-            message: 'Time taken in minutes must be a non-negative number',
-          });
-        }
-        attempt.timeTakenMinutes = parsedTime;
-      }
-    }
-
-    if (notes !== undefined) {
-      attempt.notes = typeof notes === 'string' ? notes.trim() : '';
-    }
-
-    if (req.body.approach !== undefined) {
-      attempt.approach = typeof req.body.approach === 'string' ? req.body.approach.trim() : '';
-    }
-
-    if (req.body.timeComplexity !== undefined) {
-      attempt.timeComplexity = typeof req.body.timeComplexity === 'string' ? req.body.timeComplexity.trim() : '';
-    }
-
-    if (req.body.spaceComplexity !== undefined) {
-      attempt.spaceComplexity = typeof req.body.spaceComplexity === 'string' ? req.body.spaceComplexity.trim() : '';
-    }
-
-    if (attemptedAt !== undefined) {
-      const d = new Date(attemptedAt);
-      if (isNaN(d.getTime())) {
-        return res.status(400).json({
-          success: false,
-          message: 'attemptedAt must be a valid date',
-        });
-      }
-      attempt.attemptedAt = d;
-    }
-
-    await attempt.save();
-
-    return res.status(200).json({
-      success: true,
-      data: attempt.toJSON(),
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @route   DELETE /api/problems/:id/attempts/:attemptId
- * @desc    Delete a specific attempt (strictly scoped to owner and problem)
- * @access  Private
- */
-const deleteAttempt = async (req, res, next) => {
-  try {
-    const { id: problemId, attemptId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(problemId) || !mongoose.Types.ObjectId.isValid(attemptId)) {
-      return res.status(404).json({
-        success: false,
-        message: 'Attempt or problem not found',
-      });
-    }
-
-    const attempt = await Attempt.findOneAndDelete({
-      _id: attemptId,
-      problemId,
-      userId: req.user._id,
-    });
-
-    if (!attempt) {
-      return res.status(404).json({
-        success: false,
-        message: 'Attempt not found',
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: 'Attempt deleted successfully',
-      data: attempt.toJSON(),
+      data: {
+        attempts: attempts.map((a) => ({
+          id: a._id.toString(),
+          status: a.status,
+          timeTakenMinutes: a.timeTakenMinutes,
+          notes: a.notes,
+          attemptedAt: a.attemptedAt,
+        })),
+      },
     });
   } catch (error) {
     next(error);
@@ -268,7 +153,5 @@ const deleteAttempt = async (req, res, next) => {
 
 module.exports = {
   createAttempt,
-  getAttemptsForProblem,
-  updateAttempt,
-  deleteAttempt,
+  getAttempts,
 };

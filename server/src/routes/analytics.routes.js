@@ -1,25 +1,22 @@
 const express = require('express');
-const router = express.Router();
 const {
   getSummary,
-  getTopics,
+  getTopicAnalytics,
   getTrend,
   getHeatmap,
   getRevisionQueue,
-  getProfile,
 } = require('../controllers/analytics.controller');
-const { protect } = require('../middleware/authMiddleware');
+const { requireAuth } = require('../middleware/auth.middleware');
 
-// All analytics routes require authentication
-router.use(protect);
+const router = express.Router();
+
+// All analytics endpoints require authentication
+router.use(requireAuth);
 
 router.get('/summary', getSummary);
-router.get('/topics', getTopics);
-router.get('/weakness', getTopics);
+router.get('/topics', getTopicAnalytics);
 router.get('/trend', getTrend);
 router.get('/heatmap', getHeatmap);
 router.get('/revision-queue', getRevisionQueue);
-router.get('/revision', getRevisionQueue);
-router.get('/profile', getProfile);
 
 module.exports = router;

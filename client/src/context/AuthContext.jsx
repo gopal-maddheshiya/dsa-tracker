@@ -1,135 +1,95 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api/axios';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authStorage } from '../lib/authStorage';
+import { authApi } from '../api/auth.api';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // Hydrate user session on mount if token exists
+  // Bootstrap session from stored token
   useEffect(() => {
-    const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (!storedToken) {
-        setLoading(false);
+    let isMounted = true;
+
+    async function initAuth() {
+      const token = authStorage.getToken();
+      if (!token) {
+        if (isMounted) {
+          setUser(null);
+          setLoading(false);
+        }
         return;
       }
 
       try {
-        const response = await api.get('/auth/me');
-        if (response.data?.success && response.data?.user) {
+        const response = await authApi.getMe();
+        if (isMounted && response?.data?.user) {
           setUser(response.data.user);
-          setToken(storedToken);
-        } else {
-          // Invalidate corrupted session
-          localStorage.removeItem('token');
-          setUser(null);
-          setToken(null);
         }
       } catch (error) {
-        localStorage.removeItem('token');
-        setUser(null);
-        setToken(null);
+        console.warn('Session verification failed:', error.message);
+        if (error?.status === 401 || error?.status === 403 || error?.response?.status === 401) {
+          authStorage.removeToken();
+          if (isMounted) {
+            setUser(null);
+          }
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    };
+    }
 
-    initializeAuth();
+    initAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Listen for auth-expired event from axios response interceptor
-  useEffect(() => {
-    const handleAuthExpired = () => {
-      setToken(null);
-      setUser(null);
-    };
-    window.addEventListener('auth-expired', handleAuthExpired);
-    return () => window.removeEventListener('auth-expired', handleAuthExpired);
+  const login = useCallback(async (email, password) => {
+    const res = await authApi.login({ email, password });
+    if (res?.data?.token && res?.data?.user) {
+      authStorage.setToken(res.data.token);
+      setUser(res.data.user);
+      return res.data.user;
+    }
+    throw new Error('Unexpected response format during login');
   }, []);
 
-  // Login handler
-  const login = async (email, password) => {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      const { token: receivedToken, user: receivedUser } = response.data;
-
-      localStorage.setItem('token', receivedToken);
-      setToken(receivedToken);
-      setUser(receivedUser);
-
-      return { success: true };
-    } catch (error) {
-      let errorMessage = 'Login failed. Please check your credentials.';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.request) {
-        errorMessage = 'Cannot connect to backend server. Please verify the backend is running on port 5000.';
-      }
-      return { success: false, message: errorMessage };
+  const signup = useCallback(async (name, email, password) => {
+    const res = await authApi.signup({ name, email, password });
+    if (res?.data?.token && res?.data?.user) {
+      authStorage.setToken(res.data.token);
+      setUser(res.data.user);
+      return res.data.user;
     }
-  };
+    throw new Error('Unexpected response format during signup');
+  }, []);
 
-  // Signup handler
-  const signup = async (name, email, password) => {
-    try {
-      const response = await api.post('/auth/signup', { name, email, password });
-      const { token: receivedToken, user: receivedUser } = response.data;
-
-      localStorage.setItem('token', receivedToken);
-      setToken(receivedToken);
-      setUser(receivedUser);
-
-      return { success: true };
-    } catch (error) {
-      let errorMessage = 'Signup failed. Please try again.';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.request) {
-        errorMessage = 'Cannot connect to backend server. Please verify the backend is running on port 5000.';
-      }
-      return { success: false, message: errorMessage };
-    }
-  };
-
-  // Logout handler
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
+  const logout = useCallback(() => {
+    authStorage.removeToken();
     setUser(null);
+  }, []);
+
+  const value = {
+    user,
+    loading,
+    isAuthenticated: !!user,
+    login,
+    signup,
+    logout,
   };
 
-  // Update local user state
-  const updateUser = (updatedUserData) => {
-    setUser((prev) => (prev ? { ...prev, ...updatedUserData } : updatedUserData));
-  };
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        isAuthenticated: !!user,
-        login,
-        signup,
-        logout,
-        updateUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
-
-export default AuthContext;
+}

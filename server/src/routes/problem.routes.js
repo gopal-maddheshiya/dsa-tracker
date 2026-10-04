@@ -1,42 +1,28 @@
 const express = require('express');
 const router = express.Router();
+const { requireAuth } = require('../middleware/auth.middleware');
 const {
   getProblems,
   createProblem,
   getProblemById,
   updateProblem,
   deleteProblem,
-  importProblems,
-  resolveProblemMetadata,
-  getProblemRecommendations,
 } = require('../controllers/problem.controller');
 const attemptRoutes = require('./attempt.routes');
-const { protect } = require('../middleware/authMiddleware');
 
 // All problem routes require authentication
-router.use(protect);
-
-// Nested attempts route: /api/problems/:id/attempts
-router.use('/:id/attempts', attemptRoutes);
+router.use(requireAuth);
 
 router.route('/')
   .get(getProblems)
   .post(createProblem);
 
-// Intelligent problem recommendations endpoint (must be before /:id)
-router.get('/recommendations', getProblemRecommendations);
-router.get('/recommendation', getProblemRecommendations);
-
-// URL metadata resolver endpoint (must be before /:id)
-router.post('/resolve-metadata', resolveProblemMetadata);
-
-// Bulk import endpoint (must be before /:id)
-router.post('/import', importProblems);
-
-
 router.route('/:id')
   .get(getProblemById)
   .put(updateProblem)
   .delete(deleteProblem);
+
+// Nested routes: /api/problems/:id/attempts
+router.use('/:id/attempts', attemptRoutes);
 
 module.exports = router;

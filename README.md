@@ -1,342 +1,398 @@
 # DSA / Interview Prep Tracker
 
-A focused, personal Data Structures and Algorithms preparation tracker designed to help software engineers systematically manage problem-solving history, track multi-attempt velocity, highlight topic-wise weaknesses, and prioritize revision using an interval-based spaced repetition model.
+An analytics-driven DSA practice tracker that records problems and attempts, identifies topic-level weaknesses, and builds an explainable revision queue from practice history.
 
 ---
 
-## Live Production Deployment
+## Overview
 
-- 🌐 **Live Application**: [https://dsa-tracker-gopal.vercel.app](https://dsa-tracker-gopal.vercel.app)
-- ⚙️ **Production API (Render)**: [https://dsa-tracker-api-57bl.onrender.com/api/health](https://dsa-tracker-api-57bl.onrender.com/api/health)
-- 🔑 **Instant Demo Credentials**:
-  - **Email**: `demo@dsa-tracker.local`
-  - **Password**: `DemoPassword123!`
-  *(Or register a private account on the signup page)*
+Preparing for technical software engineering interviews requires more than solving problems once. Developers often struggle with retention decay, lose track of topics where they consistently stumble, and rely on arbitrary spreadsheets or generic to-do lists that lack practice context.
 
----
+This application is built as a focused, developer-centric practice cockpit designed around a core architectural principle: **Problems and Attempts are fundamentally distinct entities**.
 
-## Current Development Status
+- A **Problem** represents canonical challenge metadata (title, platform, link, topics, difficulty).
+- An **Attempt** captures a discrete practice session in time (confidence status, duration, notes, timestamp).
 
-> **Current Milestone**: Phase 8 — Live Production Deployment (Render + Vercel + MongoDB Atlas)  
-> **Status**: Completed, Verified & Live in Production  
-> **Architecture**: React 18 + Vite (SPA on Vercel) consuming MongoDB Aggregation REST endpoints via Express 4 (on Render)
-
-The application is feature-complete, hardened against regressions, and verified across all user flows: JWT authentication, Problem CRUD, multi-attempt practice logging, native MongoDB analytics aggregation, calendar heatmaps, solve velocity charts, and a deterministic spaced-repetition revision queue.
+By preserving full attempt histories rather than overwriting problem status, the backend continuously computes topic struggle ratios, visualizes practice velocity over time, and schedules spaced revisions using a deterministic Leitner-inspired priority algorithm.
 
 ---
 
 ## Key Features
 
-- **Dedicated Problem Repository**: Catalog problems with titles, direct coding platform links, difficulty categorization (`Easy`, `Medium`, `Hard`), and multi-topic tags.
-- **Multi-Attempt Practice Timeline**: Record multiple practice attempts per problem over time, capturing duration in minutes, detailed learnings/notes, and historical dates.
-- **Automatic Status Derivation**: Status (`solved`, `struggled`, `revisit_needed`) dynamically reflects the latest practice attempt without permanent mutational locks on the problem entity.
-- **Native MongoDB Aggregation Analytics**:
-  - Summary KPI cards with unique problem solve rates.
-  - Difficulty distribution donut chart (`Recharts`).
-  - Chronological solve velocity area trend (`Recharts`).
-  - 20-week practice activity heatmap inspired by developer contribution calendars.
-  - Topic weakness rankings sorted descending by struggle ratio, with highest-struggle context insights.
-- **Deterministic Spaced Repetition**: Formula-based priority queue scheduling problems for active recall without AI/ML black boxes.
-- **Lightweight Non-Intrusive UX**: Toast feedback system, API error normalization, and accessible modal confirmation workflows.
-- **Strict User Isolation**: All problem, attempt, and analytics queries are hard-scoped to `req.user._id`.
+- **JWT Authentication**: Secure user registration and session management with salted bcrypt password hashing and token persistence.
+- **Problem Management**: Full CRUD capabilities supporting canonical problems across platforms (`leetcode`, `gfg`, `hackerrank`, `codechef`, `other`) and difficulty levels (`easy`, `medium`, `hard`).
+- **Attempt History**: Log multiple practice sessions per problem with confidence ratings (`solved`, `revisit_needed`, `struggled`), duration in minutes, and markdown-friendly notes.
+- **Search & Filtering**: Multi-criteria client- and server-side filtering by difficulty, topic, attempt status, and free-text search queries.
+- **Practice Cockpit Analytics**:
+  - **KPI Metrics**: Real-time counters for tracked problems, practice sessions, and solved attempts.
+  - **Difficulty Breakdown**: Color-coded distribution donut visualising practice allocation across Easy, Medium, and Hard tiers.
+  - **Weekly Solve Trend**: 12-week velocity chart tracking verified solved attempts.
+  - **Topic Weakness Detection**: Algorithmic ranking of categories by struggle ratio to expose preparation blind spots.
+  - **Calendar Activity Heatmap**: 12-week (84-day) intensity matrix mapping daily practice consistency.
+- **Explainable Revision Queue**: Spaced-repetition review queue ranking problems by Leitner priority score with transparent, non-judgmental explanations.
+- **Responsive Interface**: Dark-mode zinc/slate aesthetic with fluid desktop tables, responsive mobile cards, and keyboard-accessible modal dialogs.
+- **Defensive Error Handling**: Route-level React Error Boundaries, centralized Express JSON error envelopes, and automated input validation.
 
 ---
 
-## Architecture Overview
+## How It Works
 
+```text
++-----------------------------------------------------------------------------------+
+| APPLICATION ARCHITECTURE                                                          |
++-----------------------------------------------------------------------------------+
+|  [React 18 + Vite SPA]                                                            |
+|  - React Router 6 protected & public route guards                                 |
+|  - Centralized Axios client with automatic URL normalization                      |
+|  - Route-level code-splitting (isolated charts.js chunk)                          |
+|                                                                                   |
+|           | HTTPS REST Requests + Bearer JWT                                      |
+|           v                                                                       |
+|  [Node.js + Express API]                                                          |
+|  - Stateless Bearer token verification & user ownership scoping                   |
+|  - Security: nosniff, DENY, strict-origin headers, 100kb body limit, rate limiter  |
+|  - Server-side MongoDB aggregation pipelines for metrics & struggle ratios         |
+|  - Deterministic Leitner priority score calculation                               |
+|                                                                                   |
+|           | TLS Connection via Mongoose                                           |
+|           v                                                                       |
+|  [MongoDB Atlas Database]                                                         |
+|  - Collections: users, problems, attempts                                         |
+|  - Indexed queries: User.email, Problem.userId, Attempt.problemId,                |
+|    Attempt compound { userId: 1, attemptedAt: 1 }                                 |
++-----------------------------------------------------------------------------------+
 ```
+
+### Why Analytics are Backend-Owned
+All analytics aggregations and revision scores are calculated entirely on the server. This design choice ensures:
+1. **Deterministic Accuracy**: The Leitner revision priority formula and topic struggle ratios remain authoritative and consistent across all client devices.
+2. **Client Efficiency**: The browser never downloads unbounded historical attempt records to compute totals, keeping memory footprint low.
+3. **Data Protection**: Raw practice notes and cross-user timelines remain protected behind database queries scoped strictly by the authenticated JWT `userId`.
+
+---
+
+## Analytics & Revision Logic
+
+The revision engine uses a deterministic, Leitner-inspired spaced repetition model. Each problem is surfaced according to the recency and outcome of its **latest practice attempt**.
+
+### Revision Configuration
+| Latest Attempt Status | Target Revision Interval | Struggle Weight |
+| :--- | :---: | :---: |
+| `solved` | 14 days | +0 |
+| `revisit_needed` | 5 days | +1 |
+| `struggled` | 2 days | +2 |
+
+### Priority Score Formula
+$$\text{priorityScore} = \left(\frac{\text{daysSinceLastAttempt}}{\text{intervalForStatus}}\right) + \text{struggleWeight}$$
+
+- **Attempt Recency**: As elapsed days increase, `daysSinceLastAttempt / interval` grows proportionally, naturally floating older problems to the top.
+- **Struggle Amplification**: Struggling with a problem adds an immediate weight of $+2$ and shrinks the interval to $2$ days, surfacing the problem promptly for reinforcement.
+- **Revisit Flag**: Problems marked `revisit_needed` receive a $+1$ weight and a $5$-day interval for timely follow-up.
+
+### Timing Boundary States
+The interface evaluates timing status using mutually exclusive precedence:
+1. **`overdue`**: $\text{daysSinceLastAttempt} > \text{intervalDays}$ (Past target revision threshold)
+2. **`due`**: $\text{daysSinceLastAttempt} \ge \text{intervalDays}$ (Has reached target revision threshold)
+3. **`upcoming`**: $\text{daysSinceLastAttempt} < \text{intervalDays}$ (Within retention window)
+
+---
+
+## Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, Vite, Tailwind CSS, Recharts, React Router 6, Axios, Lucide React |
+| **Typography** | Inter Variable, JetBrains Mono Variable |
+| **Backend** | Node.js, Express, Mongoose, JWT (`jsonwebtoken`), bcryptjs, CORS |
+| **Database** | MongoDB Atlas (Cloud) / Local MongoDB |
+| **Testing** | Node.js Test Runner, MongoDB Memory Server (`mongodb-memory-server`), Assert |
+| **Deployment Targets** | Render (Web Service), Vercel (SPA Frontend), MongoDB Atlas (Database) |
+
+---
+
+## Project Structure
+
+```text
 dsa-tracker/
-├── .gitignore              # Multi-tier Git ignore configuration (secrets strictly excluded)
-├── README.md               # Engineering documentation & portfolio case study
-├── client/                 # Frontend Single Page Application (React + Vite + Tailwind CSS)
-│   ├── public/
+├── client/                      # Frontend Single Page Application
 │   ├── src/
-│   │   ├── api/
-│   │   │   ├── analytics.js           # Analytics & revision queue client
-│   │   │   ├── attempts.js            # Practice attempt client
-│   │   │   ├── axios.js               # Central Axios client with Bearer auth interceptor
-│   │   │   └── problems.js            # Problem CRUD client
-│   │   ├── components/
-│   │   │   ├── analytics/
-│   │   │   │   ├── LeetCodeStatsConsole.jsx # Dedicated platform solved & momentum console
-│   │   │   │   ├── PracticeHeatmap.jsx    # 20-week calendar activity grid
-│   │   │   │   ├── SolveTrendChart.jsx    # Recharts daily solve velocity trend
-│   │   │   │   └── TopicWeaknessChart.jsx # Horizontal topic struggle ratio bars
-│   │   │   ├── AttemptForm.jsx        # Practice attempt modal with validation
-│   │   │   ├── DeleteConfirmModal.jsx # Accessible destructive confirmation modal
-│   │   │   ├── layout/
-│   │   │   │   ├── AppShell.jsx           # Global application frame, header & navigation
-│   │   │   │   └── InstallAppBanner.jsx   # Progressive web installation banner
-│   │   │   ├── PrivateRoute.jsx       # Route authentication guard
-│   │   │   ├── ProblemForm.jsx        # Problem create/edit modal with topic chips
-│   │   │   ├── ProblemTable.jsx       # Responsive problems table
-│   │   │   └── PublicOnlyRoute.jsx    # Guest-only route guard
-│   │   ├── context/
-│   │   │   ├── AuthContext.jsx        # User session & token management
-│   │   │   └── ToastContext.jsx       # Non-intrusive notification feedback
-│   │   ├── pages/
-│   │   │   ├── DashboardPage.jsx      # Analytics command center
-│   │   │   ├── LoginPage.jsx          # User sign-in
-│   │   │   ├── NotFoundPage.jsx       # 404 handler
-│   │   │   ├── ProblemDetailPage.jsx  # Problem metadata & chronological attempt history
-│   │   │   ├── ProblemsPage.jsx       # Repository with filters and search
-│   │   │   ├── RevisionPage.jsx       # Spaced repetition queue
-│   │   │   └── SignupPage.jsx         # User registration
-│   │   ├── utils/
-│   │   │   └── errorHandler.js        # API error message normalization
-│   │   ├── App.jsx         # Root routing tree
-│   │   ├── index.css       # Tailwind CSS typography & styles
-│   │   └── main.jsx        # Application bootstrap
-│   ├── index.html
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   └── vite.config.js
-└── server/                 # Backend REST API (Node.js + Express 4 + Mongoose 8)
-    ├── scripts/
-    │   └── seedDemoData.js            # Safe, isolated realistic demo dataset generator
-    ├── src/
-    │   ├── config/
-    │   │   └── db.js                  # MongoDB Atlas connection lifecycle
-    │   ├── controllers/
-    │   │   ├── analytics.controller.js# Native MongoDB aggregation analytics
-    │   │   ├── attempt.controller.js  # Practice attempt management
-    │   │   ├── auth.controller.js     # User authentication & bcrypt hashing
-    │   │   └── problem.controller.js  # Problem CRUD with status derivation
-    │   ├── middleware/
-    │   │   ├── authMiddleware.js      # JWT verification & req.user attachment
-    │   │   └── errorMiddleware.js     # JSON error handler & 404 middleware
-    │   ├── models/
-    │   │   ├── Attempt.js             # Attempt schema with compound index
-    │   │   ├── Problem.js             # Problem schema with userId index
-    │   │   └── User.js                # User schema with bcrypt comparison
-    │   ├── routes/
-    │   │   ├── analytics.routes.js    # Protected analytics endpoints
-    │   │   ├── attempt.routes.js      # Attempt nested sub-routes
-    │   │   ├── auth.routes.js         # Authentication routes
-    │   │   ├── healthRoutes.js        # Health check endpoint
-    │   │   └── problem.routes.js      # Problem routes
-    │   ├── utils/
-    │   │   └── generateToken.js       # JWT generation utility
-    │   ├── app.js          # Express configuration & CORS middleware
-    │   └── server.js       # Server bootstrap & listener
-    ├── test/
-    │   ├── verify_phase2.js # Automated authentication test suite (11 tests)
-    │   ├── verify_phase3.js # Automated Problem/Attempt security test suite (17 tests)
-    │   └── verify_phase4.js # Automated Analytics & Revision engine test suite (24 tests)
-    ├── .env.example
-    └── package.json
+│   │   ├── api/                 # Axios client, base URL normalizer & endpoint modules
+│   │   ├── components/          # Analytics charts, problem tables, revision cards, modals
+│   │   ├── context/             # AuthContext session provider
+│   │   ├── layouts/             # AppLayout authenticated shell & responsive navbar
+│   │   ├── lib/                 # Spaced-repetition utilities & date formatters
+│   │   ├── pages/               # DashboardPage, ProblemsPage, ProblemDetailPage, RevisionPage
+│   │   └── routes/              # AppRoutes, ProtectedRoute, PublicRoute
+│   ├── test/                    # Automated client tests (auth, APIs, revision math, UX audits)
+│   ├── vercel.json              # Vercel SPA client-side rewrite rules
+│   └── vite.config.js           # Vite configuration & code-splitting manual chunks
+│
+├── server/                      # Express REST API Backend
+│   ├── src/
+│   │   ├── config/              # MongoDB connection & lifecycle management
+│   │   ├── controllers/         # Auth, Problem, Attempt, and Analytics controllers
+│   │   ├── middleware/          # JWT auth guard, rate limiter, security headers, error handler
+│   │   ├── models/              # Mongoose schemas (User, Problem, Attempt)
+│   │   ├── routes/              # Express route declarations (health, auth, problems, analytics)
+│   │   └── utils/               # Priority score calculator & JWT helpers
+│   ├── scripts/
+│   │   └── seedDemo.js          # On-demand portfolio dataset generator
+│   └── test/                    # In-memory integration test suites (108 tests)
+│
+├── docs/                        # Pre-flight release verification checklist
+│   └── release-checklist.md
+├── package.json                 # Workspace orchestration scripts
+└── README.md                    # Project documentation
 ```
 
 ---
 
-## Tech Stack
+## API Overview
 
-### Frontend
-- **Framework**: React 18
-- **Tooling / Bundler**: Vite
-- **Routing**: React Router DOM (v6)
-- **Styling**: Tailwind CSS
-- **Visualization**: Recharts 2
-- **HTTP Client**: Axios (with Bearer token interceptor)
-- **State Management**: Native React Context (`AuthContext`, `ToastContext`)
+All protected endpoints require an `Authorization: Bearer <token>` header. Responses follow a standardized JSON envelope (`{ success: true, data: ... }`).
 
-### Backend
-- **Runtime**: Node.js
-- **Web Framework**: Express 4
-- **Database ODM**: Mongoose 8
-- **Database Engine**: MongoDB Atlas (Native Aggregation Pipelines)
-- **Authentication**: JSON Web Token (`jsonwebtoken`), `bcryptjs`
-- **In-Memory Testing**: `mongodb-memory-server` (Strictly devDependency)
+| Group | Method | Endpoint | Access | Purpose |
+| :--- | :--- | :--- | :---: | :--- |
+| **Health** | `GET` | `/api/health` | Public | API health ping and runtime environment check |
+| **Auth** | `POST` | `/api/auth/signup` | Public* | Register a new user account (rate-limited) |
+| **Auth** | `POST` | `/api/auth/login` | Public* | Authenticate user credentials & issue JWT (rate-limited) |
+| **Auth** | `GET` | `/api/auth/me` | Private | Retrieve authenticated user profile identity |
+| **Problems** | `GET` | `/api/problems` | Private | List problems with latest attempt status & filters |
+| **Problems** | `POST` | `/api/problems` | Private | Create a new problem record |
+| **Problems** | `GET` | `/api/problems/:id` | Private | Retrieve problem details and full attempt history |
+| **Problems** | `PUT` | `/api/problems/:id` | Private | Update problem metadata |
+| **Problems** | `DELETE` | `/api/problems/:id` | Private | Delete problem with cascading attempt deletion |
+| **Attempts** | `POST` | `/api/problems/:id/attempts` | Private | Record a practice session attempt |
+| **Attempts** | `GET` | `/api/problems/:id/attempts` | Private | Retrieve attempt history for a specific problem |
+| **Analytics** | `GET` | `/api/analytics/summary` | Private | Aggregate counters & difficulty distribution |
+| **Analytics** | `GET` | `/api/analytics/topics` | Private | Topic weakness rankings and struggle ratios |
+| **Analytics** | `GET` | `/api/analytics/trend` | Private | Weekly volume trend of solved attempts |
+| **Analytics** | `GET` | `/api/analytics/heatmap` | Private | 12-week daily practice activity distribution |
+| **Analytics** | `GET` | `/api/analytics/revision-queue` | Private | Prioritized spaced-repetition revision queue |
 
----
-
-## Key Technical Decisions
-
-### 1. Why Problem and Attempt Are Separate Collections
-Storing attempt histories inside a nested array on the Problem document would quickly encounter unbounded document growth and index degradation. Separating `Problem` and `Attempt`:
-- Decouples static problem metadata (title, platform, link, topics) from time-series practice telemetry.
-- Allows compound indexing on `{ userId: 1, attemptedAt: -1 }` for O(log N) temporal retrieval.
-- Prevents write lock contention when logging frequent attempts.
-- Enables clean cascade deletion when a problem is removed.
-
-### 2. Why Analytics Are Calculated on the Backend
-Calculating summary metrics, heatmaps, and rankings on the client requires downloading every raw attempt document over the network. By performing transformations using native MongoDB `$facet`, `$lookup`, and `$unwind` pipelines:
-- The network payload transfers only chart-ready, minified JSON summaries.
-- Mobile and lower-powered devices do not suffer from memory bloat or main-thread freezes.
-- Data integrity and calculation rules remain centralized and authoritative.
-
-### 3. Why MongoDB Aggregation Over Application-Level Loops
-Native aggregation pipelines run directly on the database server in C++ memory:
-- Eliminates the overhead of instantiating thousands of Mongoose document instances in Node.js.
-- Computes sets, sums, date formatting (`$dateToString`), and group-bys in a single database roundtrip.
-
-### 4. Why Spaced Repetition Uses a Deterministic Model Rather Than AI/ML
-Machine learning and generative AI models are non-deterministic, opaque, and introduce unnecessary API costs and latency for simple scheduling tasks. The deterministic interval formula:
-$$\text{priorityScore} = \frac{\text{daysSinceLastAttempt}}{\text{intervalForStatus}} + \text{struggleWeight}$$
-- Provides transparent, 100% explainable priority rankings to the user.
-- Executes in sub-millisecond database queries without external API dependencies.
-- Accurately captures urgency by assigning higher weight to struggles (+2.0) and shorter review intervals (2 days).
-
-### 5. Why Redux Was Intentionally Not Used
-The application's state requirements are cleanly scoped: authentication session is global, while repository and analytics state are transient to their views. Managing this through React Context (`AuthContext`, `ToastContext`) and standard React hooks:
-- Avoids boilerplate actions, reducers, and thunks.
-- Keeps client bundle size lean (saving ~150 kB of bundle overhead).
-- Prevents stale cache sync issues across tabs.
+*\* Sensitive auth routes enforce sliding-window rate limiting (30 requests / 15 mins).*
 
 ---
 
-## Environment Configuration
+## Data Model
 
-### Backend (`server/.env`)
-Copy template:
-```bash
-cp server/.env.example server/.env
+```text
+  +------------------+         1 : N         +-------------------+
+  |       User       | --------------------> |      Problem      |
+  +------------------+                       +-------------------+
+  | _id (ObjectId)   |                       | _id (ObjectId)    |
+  | name (String)    |                       | userId (Ref:User) | [Index]
+  | email (String)   | [Unique Index]        | title (String)    |
+  | passwordHash     | [select: false]       | platform (Enum)   |
+  | createdAt (Date) |                       | link (URL String) |
+  +------------------+                       | topics ([String]) |
+           |                                 | difficulty (Enum) |
+           | 1 : N                           | createdAt (Date)  |
+           |                                 +-------------------+
+           v                                           |
+  +-------------------------------------+              | 1 : N
+  |               Attempt               | <------------+
+  +-------------------------------------+
+  | _id (ObjectId)                      |
+  | problemId (Ref: Problem)            | [Index]
+  | userId (Ref: User)                  |
+  | status (solved|struggled|revisit)   |
+  | timeTakenMinutes (Number, nullable) |
+  | notes (String)                      |
+  | attemptedAt (Date)                  |
+  +-------------------------------------+
+  Compound Index: { userId: 1, attemptedAt: 1 }
 ```
 
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `PORT` | Port number for Express server | `5000` |
-| `MONGO_URI` | MongoDB connection URI | `mongodb+srv://...` or `mongodb://localhost:27017/dsa_tracker` |
-| `JWT_SECRET` | Secret key for signing JSON Web Tokens | `your_secret_key_here` |
-| `CLIENT_URL` | *(Optional)* Allowed production client URL for CORS | `http://localhost:5173` |
-
-### Frontend (`client/.env`)
-Copy template:
-```bash
-cp client/.env.example client/.env
-```
-
-| Variable | Description | Default / Example |
-| :--- | :--- | :--- |
-| `VITE_API_BASE_URL` | Base endpoint for backend API | `http://localhost:5000/api` |
+- **Separation of Problem and Attempt**: Allows users to attempt a single challenge multiple times over weeks or months, preserving speed improvements, note revisions, and status changes without data loss.
+- **Cascading Deletion**: Deleting a `Problem` automatically deletes all associated `Attempt` documents owned by that user.
+- **Indexes**: Efficient single-field indexes on foreign keys (`userId`, `problemId`) and a compound index `{ userId: 1, attemptedAt: 1 }` to power fast chronological heatmap and trend aggregations.
 
 ---
 
-## Local Setup & Execution
+## Testing & Quality Baseline
 
-### 1. Install Dependencies
+The project maintains a zero-dependency automated test suite executing across isolated environments.
 
-```bash
-# Backend
-cd server && npm install
-
-# Frontend
-cd ../client && npm install
-```
-
-### 2. Run Local Development Servers
-
-```bash
-# Start backend API (Port 5000)
-cd server && npm run dev
-
-# Start frontend client (Port 5173)
-cd client && npm run dev
-```
-
-The application will be live at `http://localhost:5173`, with API proxying to `http://localhost:5000`.
+### Verified Test Results
+- **Backend Tests**: **108 / 108 passing** (`npm test --prefix server`)
+  - `health.test.js`: Health check endpoints and 404 JSON middleware.
+  - `models.test.js`: Mongoose schema validations, enum guards, email normalization, and indexing.
+  - `auth.test.js` (17 tests): Signup, bcrypt encryption, duplicate prevention, JWT signing, bearer validation, token expiration, and profile retrieval.
+  - `problems.test.js` (38 tests): Authentication enforcement, problem CRUD, cross-user isolation, multi-filter queries, attempt logging, and cascading deletions.
+  - `analytics.test.js` (35 tests): Summary math, difficulty breakdown, topic struggle ratios, weekly trends, heatmap counts, and Leitner priority ranking.
+  - `seed.test.js` (11 tests): Demo seeder idempotency, isolation against third-party user data, referential integrity, and live analytics invariants.
+- **Frontend Test Suites**: **6 / 6 passing** (`npm test --prefix client`)
+  - `authClient.test.js`: Token persistence, retrieval, and namespaced storage removal.
+  - `problemsApi.test.js`: Method signatures, platform contract consistency, and filter helpers.
+  - `analyticsApi.test.js`: Metric semantics, date formatting, and 84-day heatmap matrix generator.
+  - `revisionApi.test.js`: Leitner formula calculations, timing boundaries, and rank padding.
+  - `uxAudit.test.js`: Strict timing state mutual exclusivity, platform enum validation, and React hook import integrity audit.
+  - `apiClient.test.js`: Axios base URL normalizer permutations (trailing slashes, bare domains, proxy paths).
+- **Production Build**: Clean compilation via `npm run build --prefix client` with isolated code-split vendor and chart bundles.
 
 ---
 
-## Demo Dataset & Seed Instructions
+## Demo Data & Portfolio Evaluation
 
-To explore the application with a rich, realistic dataset containing 35 problems and 68 historical practice attempts spread over 90 days:
+To explore the analytics cockpit and revision queue with realistic practice data, an on-demand seed script is included.
 
 ```bash
-cd server
+# Execute from workspace root
 npm run seed:demo
 ```
 
-### Dedicated Demo Account Credentials
-- **Email**: `demo@dsa-tracker.local`
-- **Password**: `DemoPassword123!`
+### Verified Dataset Telemetry
+- **35 DSA Problems**: Balanced across Easy (15), Medium (14), and Hard (6) spanning LeetCode, GeeksforGeeks, HackerRank, CodeChef, and other sources.
+- **92 Practice Attempts**: Distributed over a 12-week timeline (~84 days) across 38 active calendar days.
+- **Realistic Revision Candidates**: Populates overdue items (e.g. struggled 6d ago), due items (revisit-needed 5d ago), long-term retention items (solved 22d ago), and upcoming candidates.
+- **Strict Data Isolation**: The script runs idempotently for the demo user without modifying or exposing other accounts.
 
-> [!NOTE]
-> The seed script is completely idempotent and safe. It **only** removes and recreates data belonging to `demo@dsa-tracker.local`, leaving all other user accounts in the database completely untouched.
+> **Security Note**: In production deployments, demo data should be seeded only if intentionally providing a public showcase. Production users should register dedicated accounts through `/signup`.
 
 ---
 
-## Automated Verification & Testing
+## Local Development Setup
 
-### Run All Backend Test Suites
+### 1. Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **npm**: v9.0.0 or higher
+- **MongoDB**: Local MongoDB instance or free MongoDB Atlas cluster
+
+### 2. Installation
 ```bash
-cd server && npm test
-```
-Executes 52 automated assertions across 3 comprehensive suites running in-memory MongoDB:
-- `test/verify_phase2.js` (Auth, JWT, bcrypt, input validation — 11 tests)
-- `test/verify_phase3.js` (Problem CRUD, cascade deletion, user isolation — 17 tests)
-- `test/verify_phase4.js` (Analytics aggregations, deterministic scoring — 24 tests)
+# Clone the repository
+git clone <repository-url>
+cd dsa-tracker
 
-### Build Frontend Production Bundle
+# Install all client and server dependencies
+npm install --prefix client
+npm install --prefix server
+```
+
+### 3. Environment Configuration
+Create `server/.env`:
+```env
+PORT=5000
+HOST=0.0.0.0
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+JWT_SECRET=local_development_jwt_secret_key
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/dsa_tracker?retryWrites=true&w=majority
+```
+
+Create `client/.env`:
+```env
+VITE_API_BASE_URL=/api
+```
+
+*(In local development, `/api` is automatically proxied to `http://localhost:5000` by the Vite dev server).*
+
+### 4. Running the Application
 ```bash
-cd client && npm run build
+# Start backend Express server (port 5000)
+npm run server
+
+# In a separate terminal, start frontend Vite client (port 5173)
+npm run client
 ```
-Compiles and tree-shakes client assets into `client/dist/` with 0 build errors.
+
+### 5. Running Automated Tests
+```bash
+# Run both backend and frontend test suites from root
+npm test
+```
 
 ---
 
-## Spaced Repetition Logic
+## Production Deployment
 
-$$\text{priorityScore} = \frac{\text{daysSinceLastAttempt}}{\text{intervalForStatus}} + \text{struggleWeight}$$
+The project is structured for deployment to **Render** (Express API) and **Vercel** (React SPA) connected to **MongoDB Atlas**.
 
-- **Status Intervals**:
-  - `solved`: 14 days
-  - `revisit_needed`: 5 days
-  - `struggled`: 2 days
-- **Struggle Weights**:
-  - `struggled`: +2.0
-  - `revisit_needed`: +1.0
-  - `solved`: +0.0
-- **Safety Safeguards**:
-  - Unattempted problems are excluded.
-  - Resolves latest attempt strictly by maximum `attemptedAt` timestamp (not insertion `_id`).
-  - Clamps future `attemptedAt` dates to `0` days elapsed.
+### Configuration Status
+- **Backend (Render)**: Ready for deployment. Configured with dynamic `PORT`, `0.0.0.0` `HOST` binding, clean startup sequencing, and graceful `SIGTERM`/`SIGINT` shutdowns.
+- **Frontend (Vercel)**: Ready for deployment. Includes `client/vercel.json` SPA rewrite rule (`/(.*) -> /index.html`) to prevent 404 errors on direct navigation or page refresh.
+- **Database (MongoDB Atlas)**: Dedicated user privileges and network security guidelines prepared in [`docs/release-checklist.md`](file:///c:/Users/hp/OneDrive/Desktop/dsa-tracker/docs/release-checklist.md).
 
----
+### Environment Variable Requirements
 
-## Production Deployment Configuration
+**Render Web Service (`server`)**:
+| Variable | Value / Format | Purpose |
+| :--- | :--- | :--- |
+| `NODE_ENV` | `production` | Suppresses internal error stack traces |
+| `PORT` | *(Provided by Render)* | Dynamically assigned port |
+| `HOST` | `0.0.0.0` | Network interface binding |
+| `MONGO_URI` | `mongodb+srv://...` | Dedicated production MongoDB Atlas URI |
+| `JWT_SECRET` | *(64-character random hex)* | Cryptographic signature secret |
+| `CLIENT_URL` | `<VERCEL_FRONTEND_URL>` | Allowed CORS origin (supports comma-separated list) |
 
-### Backend (Render Web Service)
-- **Root Directory**: `server`
-- **Environment**: `Node`
-- **Build Command**: `npm install`
-- **Start Command**: `node src/server.js`
-- **Environment Variables**:
-  - `NODE_ENV`: `production`
-  - `PORT`: `10000` (assigned dynamically by Render)
-  - `MONGO_URI`: `<Atlas Connection String>`
-  - `JWT_SECRET`: `<Secure Random 64-char string>`
-  - `JWT_EXPIRES_IN`: `7d`
-  - `CLIENT_URL`: `https://your-frontend.vercel.app`
+**Vercel Project (`client`)**:
+| Variable | Value / Format | Purpose |
+| :--- | :--- | :--- |
+| `VITE_API_BASE_URL` | `<RENDER_BACKEND_URL>/api` | Deployed backend API base URL |
 
-### Frontend (Vercel SPA)
-- **Root Directory**: `client`
-- **Framework Preset**: `Vite`
-- **Build Command**: `npm run build`
-- **Output Directory**: `dist`
-- **Environment Variables**:
-  - `VITE_API_BASE_URL`: `https://your-backend.onrender.com/api`
+*(The client URL normalizer automatically formats the URL even if entered without `/api` or with a trailing slash).*
 
 ---
 
-## Engineering Decisions & Future Roadmap
+## Security Considerations
 
-### What Would Be Improved Next
-1. **Pagination for Very Large Repositories**: Currently, `GET /api/problems` returns all user problems for instant client-side searching. For users cataloging 1,000+ problems, cursor-based pagination with infinite scrolling would be added.
-2. **CSV / JSON Export & Import**: Adding bulk import/export to allow engineers to migrate problem histories from LeetCode or spreadsheet trackers.
-3. **Public Profile Sharing**: Optional read-only public sharing link for engineers showcasing their preparation consistency to technical interviewers.
-4. **Browser Extension Integration**: A lightweight extension to log attempt outcomes directly from coding platform tabs without leaving the problem environment.
+The application implements defense-in-depth measures appropriate for a modern web service:
+- **Password Protection**: Passwords hashed with `bcryptjs` (salt rounds: 10). Passwords and hashes are excluded by default (`select: false`) on database models.
+- **Stateless Authentication**: Verified via signed JWTs with expiration windows. Tokens are namespaced in client storage to prevent cross-app collisions.
+- **Resource Ownership Scoping**: Every problem and attempt query strictly asserts `userId: req.user.userId`. Users cannot read, edit, or delete records belonging to others.
+- **Authentication Rate Limiting**: Zero-dependency in-memory sliding-window limiter on `/api/auth/signup` and `/api/auth/login` (30 requests / 15 minutes per IP).
+- **Request Size Boundaries**: `express.json({ limit: '100kb' })` prevents memory exhaustion from oversized request bodies.
+- **Security Headers**: Custom middleware sets `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin`.
+- **Fingerprint Suppression**: Express `X-Powered-By` header is explicitly disabled.
+- **CORS Allowlist**: Rejects unauthorized cross-origin requests in production while permitting local development and headless testing.
+- **Error Sanitization**: Production error responses return clean user-facing messages, withholding database diagnostics and stack traces.
 
 ---
 
-## Completed Roadmap
+## Engineering Decisions
 
-- [x] **Phase 1**: Architecture scaffolding, environment configs, routing shell, health checks, error middleware
-- [x] **Phase 2**: User model, JWT authentication, protected routes, auth context
-- [x] **Phase 3**: Problem & Attempt data models, validation, core CRUD APIs & UI
-- [x] **Phase 4**: Spaced-repetition prioritization engine & backend aggregation analytics
-- [x] **Phase 5**: Premium analytics dashboard, Recharts visualizations, practice heatmap, and revision queue UI
-- [x] **Phase 6**: Product polish, UX hardening, lightweight toast feedback, responsive quality
-- [x] **Phase 7**: Demo dataset, security secret audit, documentation case study, production readiness
-- [x] **Phase 8**: Live production deployment to Render & Vercel, CORS security hardening, SPA routing, end-to-end live QA
+1. **Separation of Problem vs. Attempt**: Rather than storing a single mutable status field on a problem, attempts are modeled as separate historical records. This enables velocity tracking over time, accurate struggle ratios, and non-destructive revision scheduling.
+2. **Backend-Owned Analytics**: Aggregations for trends, weekly solves, and topic friction are computed in MongoDB via aggregation pipelines rather than processing large datasets in the browser.
+3. **MongoDB Aggregation Pipelines**: Leveraging compound indexes (`{ userId: 1, attemptedAt: 1 }`) enables the database engine to filter, group, and calculate metrics in a single network round-trip.
+4. **React Context over Heavy State Libraries**: Application-wide state is limited to user authentication. Standard React Context paired with isolated component state eliminated the unnecessary overhead and boilerplate of Redux or Zustand.
+5. **Route-Level Code Splitting**: Heavy charting dependencies (`recharts`) and icon packages (`lucide-react`) are isolated into dedicated chunks (`charts.js`, `icons.js`) via Vite's `manualChunks`, keeping the initial authentication and layout bundles small.
+6. **Responsive Table & Mobile Card Experience**: The problem catalog and revision queue dynamically shift from high-density data tables on desktop to touch-friendly card layouts on mobile viewports.
+7. **Deterministic Leitner Revision Algorithm**: Chosen over opaque machine learning models or black-box predictions. The formula is explainable, reproducible, and provides transparent reasons for every recommendation.
+8. **Stateless JWT Authorization**: Avoids session storage lookup bottlenecks on the server, facilitating straightforward container scaling and zero-downtime rollouts.
+
+---
+
+## Known Limitations & Future Improvements
+
+- **Spaced Repetition Granularity**: The current Leitner model operates on 3 discrete intervals (2d, 5d, 14d). A future enhancement could implement an adaptive SuperMemo SM-2 algorithm based on repeated consecutive successes.
+- **Distributed Rate Limiting**: The current rate limiter uses an in-memory sliding window suitable for single-instance deployments. A multi-instance cluster would benefit from Redis-backed rate limiting.
+- **CSV / Anki Export**: Providing data export functionality to allow users to backup their problem notes or export revision cards to external tools.
+- **Offline Capabilities**: Adding Service Worker caching for offline problem browsing and note drafting.
+
+---
+
+## Screenshots / Visual Tour
+
+*(Screenshots will be added upon final production deployment)*
+
+| View | Description | Preview |
+| :--- | :--- | :---: |
+| **Dashboard** | KPI summary cards, weekly trend chart, difficulty donut, and 12-week heatmap | `[TODO: Add dashboard screenshot]` |
+| **Problems Catalog** | Filterable problem table with platform badges, difficulty pills, and attempt counters | `[TODO: Add problems screenshot]` |
+| **Problem Details** | Attempt history timeline with practice duration and solution notes | `[TODO: Add problem detail screenshot]` |
+| **Revision Queue** | Ranked revision cards showing Leitner priority scores and timing badges | `[TODO: Add revision queue screenshot]` |
+
+---
+
+## Deployment & Demo Links
+
+- **Live Application**: `<VERCEL_FRONTEND_URL>` *(Pending production deployment)*
+- **API Health Check**: `<RENDER_BACKEND_URL>/api/health` *(Pending production deployment)*
+- **GitHub Repository**: `<GITHUB_REPOSITORY_URL>`
+
+---
+
+## Author & Project Context
+
+Developed as a personal B.Tech Computer Science & Engineering capstone project focusing on practical data modeling, backend API design, performance optimization, and algorithmic practice tracking.

@@ -6,13 +6,13 @@ const attemptSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Problem',
       required: [true, 'Problem ID is required'],
-      index: true,
+      index: true, // Creates index for fetching all attempts for a problem
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User ID is required'],
-      index: true,
+      // Note: compound index with attemptedAt created below
     },
     status: {
       type: String,
@@ -34,25 +34,10 @@ const attemptSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
-    approach: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    timeComplexity: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    spaceComplexity: {
-      type: String,
-      trim: true,
-      default: '',
-    },
     attemptedAt: {
       type: Date,
       default: Date.now,
-      required: true,
+      required: [true, 'Attempted date is required'],
     },
   },
   {
@@ -61,13 +46,10 @@ const attemptSchema = new mongoose.Schema(
   }
 );
 
-// Compound index for querying user activity chronologically
-attemptSchema.index({ userId: 1, attemptedAt: -1 });
+// Compound index for user activity timeline and date-range analytics
+attemptSchema.index({ userId: 1, attemptedAt: 1 });
 
-// Compound index for querying a user's attempts on specific problems ordered by recency
-attemptSchema.index({ userId: 1, problemId: 1, attemptedAt: -1 });
-
-// Ensure JSON serialization maps _id to id
+// JSON serialization transform
 attemptSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();

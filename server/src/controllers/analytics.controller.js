@@ -1,200 +1,51 @@
 const mongoose = require('mongoose');
 const Problem = require('../models/Problem');
 const Attempt = require('../models/Attempt');
-
-const {
-  REVISION_INTERVALS,
-  STRUGGLE_WEIGHTS,
-  calculatePriorityScore,
-} = require('../utils/revisionRules');
+const { calculatePriorityScore } = require('../utils/priorityScore');
 
 /**
+ * @desc    Get dashboard summary statistics
  * @route   GET /api/analytics/summary
- * @desc    Get dashboard summary metrics (total, solved, difficulty breakdown)
- * @access  Private
+ * @access  Private (requireAuth)
  */
 const getSummary = async (req, res, next) => {
   try {
-    const userId = req.user._id;
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
 
-    // Total problems owned by authenticated user
-    const totalProblems = await Problem.countDocuments({ userId });
+    // Parallel counts and aggregations
+    const [totalProblems, totalAttempted, totalSolved, difficultyAggregation] =
+      await Promise.all([
+        Problem.countDocuments({ userId }),
+        Attempt.countDocuments({ userId }),
+        Attempt.countDocuments({ userId, status: 'solved' }),
+        Problem.aggregate([
+          { $match: { userId } },
+          { $group: { _id: '$difficulty', count: { $sum: 1 } } },
+        ]),
+      ]);
 
-    // Total attempts logged by authenticated user
-    const totalAttempts = await Attempt.countDocuments({ userId });
-
-    // Solved attempts count
-    const solvedAttempts = await Attempt.countDocuments({ userId, status: 'solved' });
-
-    // Unique solved problems (problems with at least one 'solved' attempt)
-    const solvedProblemsAgg = await Attempt.aggregate([
-      { $match: { userId, status: 'solved' } },
-      { $group: { _id: '$problemId' } },
-      { $count: 'count' },
-    ]);
-    const solvedProblems = solvedProblemsAgg.length > 0 ? solvedProblemsAgg[0].count : 0;
-
-    // Difficulty breakdown of user problems (total per difficulty)
-    const diffAgg = await Problem.aggregate([
-      { $match: { userId } },
-      { $group: { _id: '$difficulty', count: { $sum: 1 } } },
-    ]);
-
+    // Map difficulty counts ensuring all 3 standard categories exist
     const diffMap = { easy: 0, medium: 0, hard: 0 };
-    diffAgg.forEach((d) => {
-      if (d._id && diffMap[d._id] !== undefined) {
-        diffMap[d._id] = d.count;
+    difficultyAggregation.forEach((item) => {
+      const key = (item._id || '').toLowerCase();
+      if (diffMap[key] !== undefined) {
+        diffMap[key] = item.count;
       }
     });
-
-    // Unique solved problems breakdown by difficulty
-    const solvedDiffAgg = await Attempt.aggregate([
-      { $match: { userId, status: 'solved' } },
-      { $group: { _id: '$problemId' } },
-      {
-        $lookup: {
-          from: 'problems',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'problem',
-        },
-      },
-      { $unwind: '$problem' },
-      { $group: { _id: '$problem.difficulty', count: { $sum: 1 } } },
-    ]);
-
-    const solvedDiffMap = { easy: 0, medium: 0, hard: 0 };
-    solvedDiffAgg.forEach((d) => {
-      if (d._id && solvedDiffMap[d._id] !== undefined) {
-        solvedDiffMap[d._id] = d.count;
-      }
-    });
-
-
-    // Platform breakdown of user problems (total per platform)
-    const platformAgg = await Problem.aggregate([
-      { $match: { userId } },
-      { $group: { _id: '$platform', count: { $sum: 1 } } },
-    ]);
-
-    const platformMap = { leetcode: 0, codeforces: 0, gfg: 0, codechef: 0, hackerrank: 0, other: 0 };
-    platformAgg.forEach((p) => {
-      if (p._id && platformMap[p._id] !== undefined) {
-        platformMap[p._id] = p.count;
-      } else if (p._id) {
-        platformMap[p._id] = p.count;
-      }
-    });
-
-    const platformTotalSolved = 0;
-    const effectiveSolvedProblems = solvedProblems;
-    const effectiveTotalProblems = totalProblems;
-
-    const effectiveEasySolved = solvedDiffMap.easy;
-    const effectiveMedSolved = solvedDiffMap.medium;
-    const effectiveHardSolved = solvedDiffMap.hard;
-
-    const effectiveEasyCount = diffMap.easy;
-    const effectiveMedCount = diffMap.medium;
-    const effectiveHardCount = diffMap.hard;
 
     const difficultyBreakdown = [
-      { difficulty: 'easy', count: effectiveEasyCount, solved: effectiveEasySolved },
-      { difficulty: 'medium', count: effectiveMedCount, solved: effectiveMedSolved },
-      { difficulty: 'hard', count: effectiveHardCount, solved: effectiveHardSolved },
+      { difficulty: 'easy', count: diffMap.easy },
+      { difficulty: 'medium', count: diffMap.medium },
+      { difficulty: 'hard', count: diffMap.hard },
     ];
-
-    // Calculate practice streaks safely
-    const allAttemptDates = await Attempt.find(
-      { userId, attemptedAt: { $exists: true, $ne: null } },
-      'attemptedAt'
-    ).lean();
-    const daySet = new Set();
-    allAttemptDates.forEach((a) => {
-      if (a.attemptedAt) {
-        try {
-          const d = new Date(a.attemptedAt);
-          if (!isNaN(d.getTime())) {
-            daySet.add(d.toISOString().slice(0, 10));
-          }
-        } catch (_) {}
-      }
-    });
-
-    const sortedDays = [...daySet].sort();
-
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-
-    for (let i = 0; i < sortedDays.length; i++) {
-      if (i === 0) {
-        tempStreak = 1;
-      } else {
-        const prev = new Date(sortedDays[i - 1]);
-        const curr = new Date(sortedDays[i]);
-        const diffDays = Math.round((curr - prev) / 86400000);
-        if (diffDays === 1) {
-          tempStreak++;
-        } else {
-          tempStreak = 1;
-        }
-      }
-      if (tempStreak > longestStreak) longestStreak = tempStreak;
-    }
-
-    const lastDay = sortedDays[sortedDays.length - 1];
-    if (lastDay === todayStr || lastDay === yesterdayStr) {
-      currentStreak = 1;
-      for (let i = sortedDays.length - 2; i >= 0; i--) {
-        const next = new Date(sortedDays[i + 1]);
-        const curr = new Date(sortedDays[i]);
-        const diffDays = Math.round((next - curr) / 86400000);
-        if (diffDays === 1) {
-          currentStreak++;
-        } else {
-          break;
-        }
-      }
-    }
-
-    // Count unique problems solved in current week (since Monday 00:00:00)
-    const now = new Date();
-    const dayOfWeek = (now.getDay() + 6) % 7;
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - dayOfWeek);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const weeklySolvedAgg = await Attempt.aggregate([
-      {
-        $match: {
-          userId,
-          status: 'solved',
-          attemptedAt: { $gte: startOfWeek },
-        },
-      },
-      { $group: { _id: '$problemId' } },
-      { $count: 'count' },
-    ]);
-    const weeklySolved = weeklySolvedAgg.length > 0 ? weeklySolvedAgg[0].count : 0;
 
     return res.status(200).json({
       success: true,
       data: {
-        totalProblems: effectiveTotalProblems,
-        catalogProblems: totalProblems,
-        totalAttempts,
-        solvedProblems: effectiveSolvedProblems,
-        catalogSolved: solvedProblems,
-        platformTotalSolved,
-        solvedAttempts,
+        totalProblems,
+        totalAttempted,
+        totalSolved,
         difficultyBreakdown,
-        platformBreakdown: platformMap,
-        currentStreak,
-        longestStreak,
-        weeklySolved,
       },
     });
   } catch (error) {
@@ -203,175 +54,20 @@ const getSummary = async (req, res, next) => {
 };
 
 /**
+ * @desc    Get topic weakness rankings and struggle ratios
  * @route   GET /api/analytics/topics
- * @desc    Analyze topic performance: totalAttempts, struggledAttempts, struggleRatio, weaknessRank
- * @access  Private
+ * @access  Private (requireAuth)
  */
-const getTopics = async (req, res, next) => {
+const getTopicAnalytics = async (req, res, next) => {
   try {
-    const userId = req.user._id;
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
 
-    const topicStats = await Attempt.aggregate([
+    const pipeline = [
+      // 1. Filter problems strictly owned by authenticated user
       { $match: { userId } },
-      {
-        $lookup: {
-          from: 'problems',
-          localField: 'problemId',
-          foreignField: '_id',
-          as: 'problem',
-        },
-      },
-      { $unwind: '$problem' },
-      // Ensure the problem belongs to the authenticated user
-      { $match: { 'problem.userId': userId } },
-      { $unwind: '$problem.topics' },
-      {
-        $group: {
-          _id: '$problem.topics',
-          totalAttempts: { $sum: 1 },
-          struggledAttempts: {
-            $sum: { $cond: [{ $eq: ['$status', 'struggled'] }, 1, 0] },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          topic: '$_id',
-          totalAttempts: 1,
-          struggledAttempts: 1,
-          struggleRatio: {
-            $cond: [
-              { $eq: ['$totalAttempts', 0] },
-              0,
-              { $divide: ['$struggledAttempts', '$totalAttempts'] },
-            ],
-          },
-        },
-      },
-      { $sort: { struggleRatio: -1, totalAttempts: -1, topic: 1 } },
-    ]);
-
-    // Assign sequential weakness rank based on descending struggleRatio
-    const formattedTopics = topicStats.map((item, idx) => ({
-      topic: item.topic,
-      totalAttempts: item.totalAttempts,
-      struggledAttempts: item.struggledAttempts,
-      struggleRatio: Number(item.struggleRatio.toFixed(3)),
-      weaknessRank: idx + 1,
-    }));
-
-    return res.status(200).json({
-      success: true,
-      data: formattedTopics,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @route   GET /api/analytics/trend
- * @desc    Chronological solved attempts grouped by day using attemptedAt
- * @access  Private
- */
-const getTrend = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
-
-    const trend = await Attempt.aggregate([
-      {
-        $match: {
-          userId,
-          status: 'solved',
-          attemptedAt: { $exists: true, $ne: null },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$attemptedAt', onNull: '' },
-          },
-          solved: { $sum: 1 },
-        },
-      },
-      { $match: { _id: { $ne: '' } } },
-      { $sort: { _id: 1 } },
-      {
-        $project: {
-          _id: 0,
-          date: '$_id',
-          solved: 1,
-        },
-      },
-    ]);
-
-    return res.status(200).json({
-      success: true,
-      data: trend,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @route   GET /api/analytics/heatmap
- * @desc    All practice attempts grouped by calendar day for activity heatmaps
- * @access  Private
- */
-const getHeatmap = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
-
-    const heatmap = await Attempt.aggregate([
-      {
-        $match: {
-          userId,
-          attemptedAt: { $exists: true, $ne: null },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$attemptedAt', onNull: '' },
-          },
-          count: { $sum: 1 },
-        },
-      },
-      { $match: { _id: { $ne: '' } } },
-      { $sort: { _id: 1 } },
-      {
-        $project: {
-          _id: 0,
-          date: '$_id',
-          count: 1,
-        },
-      },
-    ]);
-
-    return res.status(200).json({
-      success: true,
-      data: heatmap,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @route   GET /api/analytics/revision-queue
- * @desc    Deterministic spaced-repetition priority queue based on latest attempt status and elapsed time
- * @access  Private
- */
-const getRevisionQueue = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
-
-    // Aggregate problems and fetch strictly the latest attempt by highest attemptedAt
-    // Exclude historical synced problems that have not been manually practiced
-    const problemsWithLatestAttempt = await Problem.aggregate([
-      { $match: { userId, inRevisionQueue: { $ne: false } } },
+      // 2. Unwind topics to evaluate each topic individually
+      { $unwind: '$topics' },
+      // 3. Lookup user's attempt records for each problem
       {
         $lookup: {
           from: 'attempts',
@@ -387,70 +83,66 @@ const getRevisionQueue = async (req, res, next) => {
                 },
               },
             },
-            { $sort: { attemptedAt: -1 } },
-            { $limit: 1 },
           ],
-          as: 'latestAttemptArray',
+          as: 'matchedAttempts',
         },
       },
-      // Exclude problems with zero attempts
-      { $match: { 'latestAttemptArray.0': { $exists: true } } },
+      // 4. Unwind matched attempts
+      { $unwind: '$matchedAttempts' },
+      // 5. Group by topic
+      {
+        $group: {
+          _id: '$topics',
+          totalAttempts: { $sum: 1 },
+          struggledCount: {
+            $sum: {
+              $cond: [{ $eq: ['$matchedAttempts.status', 'struggled'] }, 1, 0],
+            },
+          },
+        },
+      },
+      // 6. Project clean fields with divide-by-zero safety
       {
         $project: {
           _id: 0,
-          problemId: '$_id',
-          title: 1,
-          platform: 1,
-          difficulty: 1,
-          topics: 1,
-          source: 1,
-          inRevisionQueue: 1,
-          latestAttempt: { $arrayElemAt: ['$latestAttemptArray', 0] },
+          topic: '$_id',
+          totalAttempts: 1,
+          struggledCount: 1,
+          struggleRatio: {
+            $cond: [
+              { $gt: ['$totalAttempts', 0] },
+              { $divide: ['$struggledCount', '$totalAttempts'] },
+              0,
+            ],
+          },
         },
       },
-    ]);
+      // 7. Sort: struggleRatio desc, totalAttempts desc, topic asc (deterministic tie-breaker)
+      {
+        $sort: {
+          struggleRatio: -1,
+          totalAttempts: -1,
+          topic: 1,
+        },
+      },
+    ];
 
-    const now = Date.now();
+    const results = await Problem.aggregate(pipeline);
 
-    const queueItems = problemsWithLatestAttempt
-      .filter((p) => p.latestAttempt && p.latestAttempt.attemptedAt)
-      .map((problem) => {
-        const lastAttemptedAt = problem.latestAttempt.attemptedAt;
-        const lastTime = new Date(lastAttemptedAt).getTime();
-        const validTime = !isNaN(lastTime) ? lastTime : now;
-        const elapsedDays = Math.max(0, (now - validTime) / (1000 * 60 * 60 * 24));
-
-        // Clamp future-dated attempts so elapsed days is never negative
-        const daysSinceLastAttempt = Math.max(0, elapsedDays);
-        const latestStatus = problem.latestAttempt.status;
-
-        // Deterministic priority calculation via canonical rules
-        const { priorityScore } = calculatePriorityScore(latestStatus, daysSinceLastAttempt);
-
-        return {
-          problemId: problem.problemId.toString(),
-          title: problem.title,
-          platform: problem.platform,
-          difficulty: problem.difficulty,
-          topics: problem.topics || [],
-          source: problem.source || 'manual',
-          inRevisionQueue: problem.inRevisionQueue !== false,
-          latestStatus,
-          lastAttemptedAt,
-          daysSinceLastAttempt: Number(daysSinceLastAttempt.toFixed(2)),
-          priorityScore: Number(priorityScore.toFixed(3)),
-        };
-      });
-
-    // Sort descending by priorityScore
-    queueItems.sort((a, b) => b.priorityScore - a.priorityScore);
-
-    // Return top 20 items
-    const top20 = queueItems.slice(0, 20);
+    // Assign weaknessRank (1, 2, 3...) and preserve precision
+    const topics = results.map((item, index) => ({
+      topic: item.topic,
+      totalAttempts: item.totalAttempts,
+      struggledCount: item.struggledCount,
+      struggleRatio: Math.round(item.struggleRatio * 10000) / 10000,
+      weaknessRank: index + 1,
+    }));
 
     return res.status(200).json({
       success: true,
-      data: top20,
+      data: {
+        topics,
+      },
     });
   } catch (error) {
     next(error);
@@ -458,133 +150,214 @@ const getRevisionQueue = async (req, res, next) => {
 };
 
 /**
- * @route   GET /api/analytics/profile
- * @desc    Full profile stats: streak, milestones, best day, totals
- * @access  Private
+ * @desc    Get practice trend over time (weekly solved counts)
+ * @route   GET /api/analytics/trend
+ * @access  Private (requireAuth)
  */
-const getProfile = async (req, res, next) => {
+const getTrend = async (req, res, next) => {
   try {
-    const userId = req.user._id;
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
 
-    // ── All attempt dates (chronological) ─────────────────────────
-    const allAttempts = await Attempt.find(
-      { userId, attemptedAt: { $exists: true, $ne: null } },
-      'attemptedAt status'
-    ).sort({ attemptedAt: 1 });
-
-    // ── Unique active days ─────────────────────────────────────────
-    const daySet = new Set();
-    const dayCountMap = {};
-    for (const a of allAttempts) {
-      if (!a.attemptedAt) continue;
-      try {
-        const dateObj = new Date(a.attemptedAt);
-        if (isNaN(dateObj.getTime())) continue;
-        const d = dateObj.toISOString().slice(0, 10);
-        daySet.add(d);
-        dayCountMap[d] = (dayCountMap[d] || 0) + 1;
-      } catch (_) {}
-    }
-    const sortedDays = [...daySet].sort();
-
-    // ── Streak computation ─────────────────────────────────────────
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-
-    for (let i = 0; i < sortedDays.length; i++) {
-      if (i === 0) {
-        tempStreak = 1;
-      } else {
-        const prev = new Date(sortedDays[i - 1]);
-        const curr = new Date(sortedDays[i]);
-        const diffDays = Math.round((curr - prev) / 86400000);
-        if (diffDays === 1) {
-          tempStreak++;
-        } else {
-          tempStreak = 1;
-        }
-      }
-      if (tempStreak > longestStreak) longestStreak = tempStreak;
-    }
-
-    // Current streak: count consecutive days ending today or yesterday
-    const lastDay = sortedDays[sortedDays.length - 1];
-    if (lastDay === todayStr || lastDay === yesterdayStr) {
-      currentStreak = 1;
-      for (let i = sortedDays.length - 2; i >= 0; i--) {
-        const next = new Date(sortedDays[i + 1]);
-        const curr = new Date(sortedDays[i]);
-        const diffDays = Math.round((next - curr) / 86400000);
-        if (diffDays === 1) { currentStreak++; } else { break; }
-      }
-    }
-
-    // ── Best day (most attempts in one day) ────────────────────────
-    let bestDay = null;
-    let bestDayCount = 0;
-    for (const [d, c] of Object.entries(dayCountMap)) {
-      if (c > bestDayCount) { bestDayCount = c; bestDay = d; }
-    }
-
-    // ── Solved problems by difficulty ──────────────────────────────
-    const solvedByDiff = await Attempt.aggregate([
-      { $match: { userId, status: 'solved' } },
-      { $group: { _id: '$problemId' } },
+    const pipeline = [
+      // 1. Only count solved attempts belonging to authenticated user
       {
-        $lookup: {
-          from: 'problems', localField: '_id',
-          foreignField: '_id', as: 'p',
+        $match: {
+          userId,
+          status: 'solved',
         },
       },
-      { $unwind: '$p' },
-      { $group: { _id: '$p.difficulty', count: { $sum: 1 } } },
-    ]);
-    const diffSolved = { easy: 0, medium: 0, hard: 0 };
-    solvedByDiff.forEach(d => {
-      const diffKey = (d._id || '').toLowerCase().trim();
-      if (diffSolved[diffKey] !== undefined) diffSolved[diffKey] = d.count;
-    });
+      // 2. Group by weekly bucket starting Monday in UTC
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: {
+                $dateTrunc: {
+                  date: '$attemptedAt',
+                  unit: 'week',
+                  timezone: 'UTC',
+                  startOfWeek: 'monday',
+                },
+              },
+              timezone: 'UTC',
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      // 3. Chronological sorting
+      { $sort: { _id: 1 } },
+      // 4. Project clean output
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          count: 1,
+        },
+      },
+    ];
 
-    // ── Totals ─────────────────────────────────────────────────────
-    const totalProblems = await Problem.countDocuments({ userId });
-    const totalAttempts = allAttempts.length;
-    const totalSolved = diffSolved.easy + diffSolved.medium + diffSolved.hard;
-    const effectiveTotalSolved = totalSolved;
-    const platformTotalSolved = 0;
-    const activeDays = daySet.size;
-
-    // ── Milestones / Badges (calculated from effective solved) ──────
-    const badges = [];
-    if (effectiveTotalSolved >= 1)   badges.push({ id: 'first_step',   icon: '🌱', label: 'First Step',     desc: 'Solved your first problem' });
-    if (effectiveTotalSolved >= 10)  badges.push({ id: 'getting_warm', icon: '🔥', label: 'Getting Warm',   desc: '10 problems solved' });
-    if (effectiveTotalSolved >= 50)  badges.push({ id: 'half_century', icon: '⚡', label: 'Half Century',   desc: '50 problems solved' });
-    if (effectiveTotalSolved >= 100) badges.push({ id: 'century',      icon: '💯', label: 'Century',        desc: '100 problems solved' });
-    if (effectiveTotalSolved >= 250) badges.push({ id: 'elite',        icon: '🏆', label: 'Elite Coder',    desc: '250 problems solved' });
-    if (diffSolved.hard >= 1)  badges.push({ id: 'hard_first', icon: '🧠', label: 'Deep Thinker',  desc: 'First Hard solved' });
-    if (diffSolved.hard >= 10) badges.push({ id: 'hard_ten',  icon: '💎', label: 'Diamond Mind',   desc: '10 Hard problems solved' });
-    if (currentStreak >= 7)  badges.push({ id: 'streak_7',   icon: '📅', label: 'On a Roll',      desc: '7-day streak' });
-    if (currentStreak >= 30) badges.push({ id: 'streak_30',  icon: '🎯', label: 'Consistent',     desc: '30-day streak' });
-    if (activeDays >= 1)    badges.push({ id: 'day_one',     icon: '🚀', label: 'Day One',         desc: 'First practice session' });
+    const trend = await Attempt.aggregate(pipeline);
 
     return res.status(200).json({
       success: true,
       data: {
-        totalProblems,
-        totalAttempts,
-        totalSolved,
-        catalogSolved: totalSolved,
-        platformTotalSolved,
-        effectiveTotalSolved,
-        activeDays,
-        currentStreak,
-        longestStreak,
-        bestDay,
-        bestDayCount,
-        solvedByDifficulty: diffSolved,
-        badges,
+        trend,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get daily practice activity calendar (Heatmap)
+ * @route   GET /api/analytics/heatmap
+ * @access  Private (requireAuth)
+ */
+const getHeatmap = async (req, res, next) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
+
+    const pipeline = [
+      // 1. Filter attempts belonging strictly to authenticated user
+      { $match: { userId } },
+      // 2. Group by calendar date (YYYY-MM-DD) in UTC
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$attemptedAt',
+              timezone: 'UTC',
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      // 3. Chronological sorting
+      { $sort: { _id: 1 } },
+      // 4. Project clean output
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          count: 1,
+        },
+      },
+    ];
+
+    const heatmap = await Attempt.aggregate(pipeline);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        heatmap,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get spaced-repetition revision queue prioritized by Leitner formula
+ * @route   GET /api/analytics/revision-queue
+ * @access  Private (requireAuth)
+ */
+const getRevisionQueue = async (req, res, next) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
+
+    // Support injectable 'now' timestamp for deterministic unit testing
+    const referenceTime = req.query.now ? new Date(req.query.now) : new Date();
+
+    const pipeline = [
+      // 1. Match problems belonging to authenticated user
+      { $match: { userId } },
+      // 2. Lookup single most recent attempt
+      {
+        $lookup: {
+          from: 'attempts',
+          let: { pId: '$_id', uId: '$userId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$problemId', '$$pId'] },
+                    { $eq: ['$userId', '$$uId'] },
+                  ],
+                },
+              },
+            },
+            { $sort: { attemptedAt: -1, _id: -1 } },
+            { $limit: 1 },
+          ],
+          as: 'latestAttemptArray',
+        },
+      },
+      // 3. Exclude problems with zero attempts (cannot be due for revision yet)
+      {
+        $match: {
+          'latestAttemptArray.0': { $exists: true },
+        },
+      },
+      // 4. Project required fields and latest attempt
+      {
+        $project: {
+          title: 1,
+          difficulty: 1,
+          topics: 1,
+          latestAttempt: { $arrayElemAt: ['$latestAttemptArray', 0] },
+        },
+      },
+    ];
+
+    const problemsWithLatest = await Problem.aggregate(pipeline);
+
+    // Compute priority score for each problem using the transparent formula
+    const queue = problemsWithLatest.map((p) => {
+      const latest = p.latestAttempt;
+      const scoreData = calculatePriorityScore(
+        latest.status,
+        latest.attemptedAt,
+        referenceTime
+      );
+
+      return {
+        id: p._id.toString(),
+        title: p.title,
+        difficulty: p.difficulty,
+        topics: p.topics,
+        latestStatus: latest.status,
+        lastAttemptedAt: latest.attemptedAt,
+        daysSinceLastAttempt: scoreData.daysSinceLastAttempt,
+        intervalDays: scoreData.intervalDays,
+        struggleWeight: scoreData.struggleWeight,
+        priorityScore: scoreData.priorityScore,
+      };
+    });
+
+    // Sort descending by priorityScore, tie-break by daysSinceLastAttempt desc, then title asc
+    queue.sort((a, b) => {
+      if (b.priorityScore !== a.priorityScore) {
+        return b.priorityScore - a.priorityScore;
+      }
+      if (b.daysSinceLastAttempt !== a.daysSinceLastAttempt) {
+        return b.daysSinceLastAttempt - a.daysSinceLastAttempt;
+      }
+      return a.title.localeCompare(b.title);
+    });
+
+    // Return top 20 recommendations
+    const topQueue = queue.slice(0, 20);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        queue: topQueue,
       },
     });
   } catch (error) {
@@ -594,11 +367,8 @@ const getProfile = async (req, res, next) => {
 
 module.exports = {
   getSummary,
-  getTopics,
+  getTopicAnalytics,
   getTrend,
   getHeatmap,
   getRevisionQueue,
-  getProfile,
-  REVISION_INTERVALS,
-  STRUGGLE_WEIGHTS,
 };

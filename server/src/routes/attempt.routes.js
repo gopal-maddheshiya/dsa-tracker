@@ -1,22 +1,16 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
+const { requireAuth } = require('../middleware/auth.middleware');
 const {
   createAttempt,
-  getAttemptsForProblem,
-  updateAttempt,
-  deleteAttempt,
+  getAttempts,
 } = require('../controllers/attempt.controller');
-const { protect } = require('../middleware/authMiddleware');
 
 // All attempt routes require authentication
-router.use(protect);
+router.use(requireAuth);
 
 router.route('/')
   .post(createAttempt)
-  .get(getAttemptsForProblem);
-
-router.route('/:attemptId')
-  .put(updateAttempt)
-  .delete(deleteAttempt);
+  .get(getAttempts);
 
 module.exports = router;

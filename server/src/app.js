@@ -1,55 +1,61 @@
 const express = require('express');
 const cors = require('cors');
-const healthRoutes = require('./routes/healthRoutes');
+const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
 const problemRoutes = require('./routes/problem.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
-const aiRoutes = require('./routes/ai.routes');
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
-const { securityHeaders } = require('./middleware/securityHeaders');
+const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
-// Trust reverse proxy (e.g. Render, Railway, Vercel, Cloudflare, Nginx)
-app.set('trust proxy', 1);
+// Disable Express fingerprinting
+app.disable('x-powered-by');
 
-// Security HTTP headers
-app.use(securityHeaders);
+// Security Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
-// Request parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Cross-Origin Resource Sharing
-const rawOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
-const allowedOrigins = [
-  ...rawOrigins.map((url) => url.trim().replace(/\/+$/, '')),
-  'https://dsa-tracker-gopal.vercel.app',
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-].filter(Boolean);
+// Production-ready CORS Configuration
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. server-to-server, curl) or allowed origins
-      const normalizedOrigin = origin ? origin.replace(/\/+$/, '') : null;
-      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin) || process.env.NODE_ENV !== 'production') {
-        callback(null, true);
-      } else {
-        callback(new Error('CORS policy: Access denied for this origin'));
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, test suites)
+      if (!origin) return callback(null, true);
+
+      // Check configured origins or localhost in development
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        (process.env.NODE_ENV !== 'production' &&
+          (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')));
+
+      if (isAllowed) {
+        return callback(null, true);
       }
+      return callback(new Error(`CORS policy does not allow access from origin: ${origin}`), false);
     },
     credentials: true,
   })
 );
 
-// Keep-alive / Uptime monitor root endpoint
+// Global JSON Middleware with 100kb body size boundary
+app.use(express.json({ limit: '100kb' }));
+
+// Base Route
 app.get('/', (req, res) => {
-  res.status(200).json({
+  res.json({
     success: true,
-    message: 'DSA Tracker API is active and healthy',
-    timestamp: new Date().toISOString(),
+    message: 'DSA / Interview Prep Tracker API',
+    version: '1.0.0',
+    documentation: '/api/health',
   });
 });
 
@@ -58,7 +64,6 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/ai', aiRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

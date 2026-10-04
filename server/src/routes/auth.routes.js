@@ -1,38 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const {
-  signup,
-  login,
-  getMe,
-  updateProfile,
-  changePassword,
-  forgotPassword,
-  resetPassword,
-  getUserGoals,
-  updateUserGoals,
-} = require('../controllers/auth.controller');
-const { protect } = require('../middleware/authMiddleware');
-const { createRateLimiter } = require('../middleware/rateLimiter');
 
-// Rate limiter for authentication endpoints (25 requests per 15 minutes per IP)
-const authLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000,
-  max: 25,
-  message: 'Too many authentication attempts from this IP. Please try again in 15 minutes.',
-});
+const { signup, login, getMe } = require('../controllers/auth.controller');
+const { requireAuth } = require('../middleware/auth.middleware');
+const { authLimiter } = require('../middleware/rateLimiter');
 
+/**
+ * @route   POST /api/auth/signup
+ * @desc    Register a new user
+ * @access  Public
+ */
 router.post('/signup', authLimiter, signup);
+
+/**
+ * @route   POST /api/auth/login
+ * @desc    Authenticate user & return token
+ * @access  Public
+ */
 router.post('/login', authLimiter, login);
-router.post('/forgot-password', authLimiter, forgotPassword);
-router.post('/reset-password', authLimiter, resetPassword);
 
-// Protected routes
-router.get('/me', protect, getMe);
-router.put('/profile', protect, updateProfile);
-router.put('/change-password', protect, changePassword);
-
-// Target goals & practice countdown routes
-router.get('/goals', protect, getUserGoals);
-router.put('/goals', protect, updateUserGoals);
+/**
+ * @route   GET /api/auth/me
+ * @desc    Get current authenticated user profile
+ * @access  Private
+ */
+router.get('/me', requireAuth, getMe);
 
 module.exports = router;
