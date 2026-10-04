@@ -43,7 +43,11 @@ app.use(
         allowedOrigins.includes(origin) ||
         (origin.startsWith('https://dsa-tracker') && origin.endsWith('.vercel.app')) ||
         (process.env.NODE_ENV !== 'production' &&
-          (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')));
+          (origin.startsWith('http://localhost:') ||
+            origin.startsWith('http://127.0.0.1:') ||
+            origin.startsWith('http://192.168.') ||
+            origin.startsWith('http://10.') ||
+            /^http:\/\/172\.(1[6-9]|2\d|3[01])\./.test(origin)));
 
       if (isAllowed) {
         return callback(null, true);
