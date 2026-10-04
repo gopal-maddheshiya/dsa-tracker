@@ -20,10 +20,17 @@ app.use((req, res, next) => {
 });
 
 // Production-ready CORS Configuration
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+const defaultOrigins = [
+  'http://localhost:5173',
+  'https://dsa-tracker-xi-weld.vercel.app',
+];
+
+const envOrigins = (process.env.CLIENT_URL || '')
   .split(',')
   .map((origin) => origin.trim().replace(/\/+$/, ''))
   .filter(Boolean);
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 app.use(
   cors({
@@ -31,9 +38,10 @@ app.use(
       // Allow requests with no origin (e.g. mobile apps, curl, server-to-server, test suites)
       if (!origin) return callback(null, true);
 
-      // Check configured origins or localhost in development
+      // Check configured origins, known project Vercel domains, or localhost in development
       const isAllowed =
         allowedOrigins.includes(origin) ||
+        (origin.startsWith('https://dsa-tracker') && origin.endsWith('.vercel.app')) ||
         (process.env.NODE_ENV !== 'production' &&
           (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')));
 
