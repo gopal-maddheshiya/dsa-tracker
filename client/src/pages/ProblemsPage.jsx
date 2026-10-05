@@ -134,22 +134,30 @@ export default function ProblemsPage() {
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Page Header */}
+    <div className="space-y-6 pb-12 max-w-7xl mx-auto">
+      {/* Standardized Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-text">
-            Problems
-          </h1>
+          <span className="text-[10px] font-mono text-muted uppercase tracking-wider block mb-1">
+            Problem Repository
+          </span>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-semibold tracking-tight text-text">
+              Problems
+            </h1>
+            <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
+              {problems.length} tracked
+            </span>
+          </div>
           <p className="text-xs text-text-secondary mt-1">
-            Track what you solved, where you struggled, and what needs another pass.
+            Track, review, and revisit your practice history.
           </p>
         </div>
         <div>
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors shadow-subtle"
+            className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-150 active:scale-95 shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add problem</span>
@@ -175,7 +183,7 @@ export default function ProblemsPage() {
 
       {/* Error Banner */}
       {error && (
-        <div className="p-3.5 rounded-lg bg-danger/10 border border-danger/25 flex items-center justify-between text-xs text-danger">
+        <div className="p-3.5 rounded-lg bg-danger/10 border border-danger/25 flex items-center justify-between text-xs text-danger shadow-xs">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
@@ -192,10 +200,39 @@ export default function ProblemsPage() {
 
       {/* Main View Area */}
       {loading ? (
-        <div className="p-16 flex flex-col items-center justify-center space-y-3 bg-surface border border-line rounded-lg shadow-subtle">
-          <Loader2 className="w-6 h-6 animate-spin text-accent" />
-          <p className="text-xs text-muted font-mono">Loading problem repository...</p>
-        </div>
+        <>
+          {/* Desktop Table Skeleton */}
+          <div className="hidden md:block rounded-lg bg-surface border border-line overflow-hidden shadow-xs animate-pulse">
+            <div className="h-10 bg-surface-2/60 border-b border-line" />
+            <div className="divide-y divide-line/60">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-12 px-4 flex items-center justify-between gap-4">
+                  <div className="h-3.5 bg-surface-2 rounded w-48" />
+                  <div className="h-3 bg-surface-2 rounded w-16" />
+                  <div className="h-3 bg-surface-2 rounded w-14" />
+                  <div className="h-3 bg-surface-2 rounded w-28" />
+                  <div className="h-3 bg-surface-2 rounded w-20" />
+                  <div className="h-3 bg-surface-2 rounded w-16" />
+                  <div className="h-6 bg-surface-2 rounded w-16" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Card Skeleton */}
+          <div className="block md:hidden space-y-3 animate-pulse">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="p-4 rounded-lg bg-surface border border-line space-y-3 shadow-xs">
+                <div className="flex justify-between">
+                  <div className="h-3.5 bg-surface-2 rounded w-24" />
+                  <div className="h-3.5 bg-surface-2 rounded w-16" />
+                </div>
+                <div className="h-4 bg-surface-2 rounded w-3/4" />
+                <div className="h-3 bg-surface-2 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        </>
       ) : displayedProblems.length > 0 ? (
         <>
           {/* Desktop Table View */}
@@ -220,7 +257,7 @@ export default function ProblemsPage() {
         </>
       ) : hasAnyFilterActive ? (
         /* Empty State: No match for filters */
-        <div className="p-12 text-center flex flex-col items-center justify-center space-y-3 bg-surface border border-line rounded-lg shadow-subtle">
+        <div className="p-12 text-center flex flex-col items-center justify-center space-y-3 bg-surface border border-line rounded-lg shadow-xs">
           <div className="p-3 rounded-full bg-surface-2 text-muted border border-line">
             <SearchX className="w-5 h-5" />
           </div>
@@ -234,15 +271,15 @@ export default function ProblemsPage() {
           <button
             type="button"
             onClick={handleClearFilters}
-            className="px-3.5 py-1.5 text-xs text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors"
+            className="h-9 px-3.5 inline-flex items-center justify-center text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
           >
             Clear all filters
           </button>
         </div>
       ) : (
         /* Empty State: No problems in database yet */
-        <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-surface border border-line rounded-lg shadow-subtle">
-          <div className="p-3 rounded-full bg-accent-muted text-accent border border-accent/25">
+        <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-surface border border-line rounded-lg shadow-xs">
+          <div className="w-12 h-12 rounded-lg bg-accent/10 text-accent border border-accent/25 flex items-center justify-center">
             <FolderPlus className="w-6 h-6" />
           </div>
           <div className="space-y-1">
@@ -255,7 +292,7 @@ export default function ProblemsPage() {
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors shadow-subtle"
+            className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-150 active:scale-95 shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add your first problem</span>

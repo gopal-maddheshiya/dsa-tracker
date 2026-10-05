@@ -120,7 +120,7 @@ export default function LoginPage() {
             placeholder="developer@example.com"
             disabled={submitting}
             autoComplete="email"
-            className={`w-full px-3 py-2 text-xs bg-bg border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full h-9 px-3 text-xs bg-bg border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               fieldErrors.email
                 ? 'border-danger focus:border-danger focus:ring-danger'
                 : 'border-line focus:border-accent focus:ring-accent'
@@ -168,7 +168,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2.5 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors shadow-subtle flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg"
+          className="w-full h-9 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-150 active:scale-[0.99] shadow-xs flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg"
         >
           {submitting ? (
             <>
@@ -196,7 +196,7 @@ export default function LoginPage() {
             type="button"
             disabled={submitting}
             onClick={handleDemoLogin}
-            className="w-full py-2 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-subtle"
+            className="w-full h-9 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60 shadow-xs"
           >
             <Sparkles className="w-3.5 h-3.5 text-accent" />
             <span>Sign in as Demo User (35 Problems)</span>

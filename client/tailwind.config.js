@@ -28,9 +28,11 @@ export default {
           hover: withOpacity('--surface-hover'),
           elevated: withOpacity('--surface-elevated'),
           muted: withOpacity('--surface-2'),
+          3: withOpacity('--surface-3'),
         },
         'surface-1': withOpacity('--surface'),
         'surface-2': withOpacity('--surface-2'),
+        'surface-3': withOpacity('--surface-3'),
         'surface-hover': withOpacity('--surface-hover'),
         'surface-elevated': withOpacity('--surface-elevated'),
         line: {
@@ -66,6 +68,7 @@ export default {
         '2xl': '16px',
       },
       boxShadow: {
+        xs: '0 1px 2px 0 rgba(0, 0, 0, 0.25)',
         subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.4)',
         elevated: '0 4px 12px -2px rgba(0, 0, 0, 0.5)',
       },

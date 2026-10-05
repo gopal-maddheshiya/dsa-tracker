@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Loader2, Link as LinkIcon } from 'lucide-react';
 import FormAlert from '../common/FormAlert';
 import { PLATFORM_NAMES } from './ProblemBadges';
 
@@ -8,7 +8,7 @@ const DIFFICULTIES = ['easy', 'medium', 'hard'];
 
 /**
  * ProblemFormModal
- * Modal dialog for creating or editing a problem.
+ * Modal dialog for creating or editing a problem in the practice workspace.
  */
 export default function ProblemFormModal({
   isOpen,
@@ -27,6 +27,17 @@ export default function ProblemFormModal({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const triggerRef = useRef(null);
+
+  // Focus restoration to opening trigger
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement;
+    } else if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+      triggerRef.current.focus();
+      triggerRef.current = null;
+    }
+  }, [isOpen]);
 
   // Populate data when editing or reset when adding
   useEffect(() => {
@@ -120,102 +131,124 @@ export default function ProblemFormModal({
     }
   };
 
+  const parsedTopicList = formData.topics
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) onClose();
+      }}
+    >
       <div
-        className="w-full max-w-lg bg-surface border border-line rounded-lg shadow-elevated overflow-hidden"
+        className="w-full max-w-lg max-h-[90vh] flex flex-col bg-surface border border-line rounded-xl shadow-elevated overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="problem-modal-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
-          <h2 id="problem-modal-title" className="text-sm font-semibold text-text">
-            {initialData ? 'Edit Problem' : title}
-          </h2>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line bg-surface shrink-0">
+          <div>
+            <h2 id="problem-modal-title" className="text-sm font-semibold text-text">
+              {initialData ? 'Edit Problem' : title}
+            </h2>
+            <p className="text-xs text-muted mt-0.5">
+              {initialData
+                ? 'Update problem identity, classification, and external link.'
+                : 'Track a new DSA problem in your practice workspace.'}
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="p-1 text-muted hover:text-text rounded transition-colors disabled:opacity-50"
+            className="p-1.5 text-muted hover:text-text rounded-md hover:bg-surface-hover transition-all duration-150 active:scale-95 disabled:opacity-50 focus-visible:ring-1 focus-visible:ring-accent"
             aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        {/* Form Body with Scroll */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           <FormAlert message={error} />
 
-          {/* Title */}
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              Problem Title <span className="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="e.g. Two Sum"
-              className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-            />
-          </div>
-
-          {/* Platform & Difficulty Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Section 1: Problem Identity */}
+          <div className="space-y-3.5">
             <div>
               <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                Platform <span className="text-danger">*</span>
+                Problem Title <span className="text-danger">*</span>
               </label>
-              <select
-                value={formData.platform}
-                onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              >
-                {PLATFORMS.map((p) => (
-                  <option key={p} value={p}>
-                    {PLATFORM_NAMES[p] || p}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g. Merge Intervals"
+                className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-muted/60"
+              />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                Difficulty <span className="text-danger">*</span>
-              </label>
-              <select
-                value={formData.difficulty}
-                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              >
-                {DIFFICULTIES.map((d) => (
-                  <option key={d} value={d}>
-                    {d.charAt(0).toUpperCase() + d.slice(1)}
-                  </option>
-                ))}
-              </select>
+            {/* Platform & Difficulty Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                  Platform <span className="text-danger">*</span>
+                </label>
+                <select
+                  value={formData.platform}
+                  onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                  className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                >
+                  {PLATFORMS.map((p) => (
+                    <option key={p} value={p}>
+                      {PLATFORM_NAMES[p] || p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                  Difficulty <span className="text-danger">*</span>
+                </label>
+                <select
+                  value={formData.difficulty}
+                  onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
+                  className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                >
+                  {DIFFICULTIES.map((d) => (
+                    <option key={d} value={d}>
+                      {d.charAt(0).toUpperCase() + d.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          {/* Problem Link */}
+          {/* Section 2: Reference Link */}
           <div>
             <label className="block text-xs font-medium text-text-secondary mb-1.5">
               Problem URL <span className="text-danger">*</span>
             </label>
-            <input
-              type="url"
-              required
-              value={formData.link}
-              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              placeholder="https://leetcode.com/problems/two-sum/"
-              className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono"
-            />
+            <div className="relative">
+              <input
+                type="url"
+                required
+                value={formData.link}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                placeholder="https://leetcode.com/problems/merge-intervals/"
+                className="w-full h-9 pl-8 pr-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono placeholder:text-muted/60"
+              />
+              <LinkIcon className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5 pointer-events-none" />
+            </div>
           </div>
 
-          {/* Topics */}
+          {/* Section 3: Topics Classification */}
           <div>
             <label className="block text-xs font-medium text-text-secondary mb-1.5">
               Topics (comma-separated) <span className="text-danger">*</span>
@@ -225,31 +258,43 @@ export default function ProblemFormModal({
               required
               value={formData.topics}
               onChange={(e) => setFormData({ ...formData, topics: e.target.value })}
-              placeholder="Array, Hash Table, Two Pointer"
-              className="w-full px-3 py-2 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              placeholder="Array, Sorting, Two Pointers"
+              className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-muted/60"
             />
-            <p className="text-[11px] text-muted mt-1">
-              Separate multiple topics with commas. Capitalization is preserved.
+            {parsedTopicList.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {parsedTopicList.map((t, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono text-text bg-surface-2 border border-line"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="text-[11px] text-muted mt-1.5">
+              Separate multiple topics with commas. Capitalization and order are preserved.
             </p>
           </div>
 
           {/* Action Footer */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-line mt-5">
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-line mt-6 shrink-0">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-3.5 py-1.5 text-xs text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors disabled:opacity-50"
+              className="h-9 px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors shadow-subtle disabled:opacity-60"
+              className="h-9 inline-flex items-center justify-center gap-1.5 px-4 text-xs font-medium bg-accent hover:bg-accent-hover active:scale-[0.99] text-white rounded-md transition-all duration-150 shadow-xs disabled:opacity-60"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {initialData ? 'Save Changes' : 'Create Problem'}
+              <span>{initialData ? 'Save Changes' : 'Create Problem'}</span>
             </button>
           </div>
         </form>

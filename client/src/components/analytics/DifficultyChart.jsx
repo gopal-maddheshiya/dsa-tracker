@@ -22,7 +22,7 @@ const DIFFICULTY_CONFIG = {
   },
   hard: {
     label: 'Hard',
-    color: '#ef4444', // Red/Rose
+    color: '#ef4444', // Rose/Red
     textClass: 'text-rose-400',
     dotClass: 'bg-rose-500',
   },
@@ -40,10 +40,10 @@ function DifficultyTooltip({ active, payload }) {
     };
 
     return (
-      <div className="bg-surface-2 border border-line rounded-md px-3 py-2 shadow-elevated text-xs font-mono">
+      <div className="bg-surface-2/95 backdrop-blur-sm border border-line rounded-md px-3 py-2 shadow-xs text-xs font-mono">
         <div className="text-text font-medium flex items-center gap-2">
           <span
-            className="w-2 h-2 rounded-full inline-block"
+            className="w-2 h-2 rounded-full inline-block shadow-xs"
             style={{ backgroundColor: config.color }}
           />
           <span>{config.label}</span>
@@ -87,16 +87,16 @@ export default function DifficultyChart({
   const hasData = totalProblems > 0 && formattedData.some((d) => d.count > 0);
 
   return (
-    <div className="p-5 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
+    <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line shadow-xs flex flex-col justify-between h-full">
       {/* Chart Header */}
       <div className="flex items-start justify-between gap-4 mb-4 border-b border-line-subtle pb-3">
         <div>
           <h2 className="text-sm font-semibold text-text tracking-tight">Difficulty distribution</h2>
           <p className="text-xs text-text-secondary mt-0.5">
-            Tracked problems by level
+            Tracked problems categorized by level
           </p>
         </div>
-        <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
+        <span className="text-[10px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
           {totalProblems} total
         </span>
       </div>
@@ -156,7 +156,7 @@ export default function DifficultyChart({
                     innerRadius={50}
                     outerRadius={68}
                     paddingAngle={3}
-                    stroke="#121215"
+                    stroke="#121316"
                     strokeWidth={2}
                     isAnimationActive={false}
                   >
@@ -175,7 +175,7 @@ export default function DifficultyChart({
                 <span className="text-xl font-mono font-semibold text-text">
                   {totalProblems}
                 </span>
-                <span className="text-[10px] font-mono text-muted uppercase tracking-wider">
+                <span className="text-[10px] text-muted uppercase tracking-wider font-sans">
                   Problems
                 </span>
               </div>
@@ -192,11 +192,11 @@ export default function DifficultyChart({
                 return (
                   <div
                     key={item.difficulty}
-                    className="flex flex-col items-center px-1"
+                    className="flex flex-col items-center p-2 rounded-md bg-surface-2/60 border border-line-subtle transition-colors hover:border-line"
                   >
                     <div className="flex items-center gap-1.5 text-xs text-text-secondary">
                       <span
-                        className="w-2 h-2 rounded-full inline-block shrink-0"
+                        className="w-2 h-2 rounded-full inline-block shrink-0 shadow-xs"
                         style={{ backgroundColor: config.color }}
                       />
                       <span className="font-medium text-[11px]">{config.label}</span>

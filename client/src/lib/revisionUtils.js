@@ -112,3 +112,22 @@ export function formatPriorityScore(score) {
 export function formatRank(index) {
   return String(index + 1).padStart(2, '0');
 }
+
+/**
+ * Categorize numeric priority score into subtle priority tiers
+ * @param {number} score
+ * @returns {{ label: string, badgeClass: string }}
+ */
+export function getPriorityTier(score) {
+  if (typeof score !== 'number' || isNaN(score)) {
+    return { label: 'Standard', badgeClass: 'text-muted bg-surface-2 border-line' };
+  }
+  if (score >= 4.0) {
+    return { label: 'High priority', badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20' };
+  }
+  if (score >= 2.0) {
+    return { label: 'Moderate', badgeClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
+  }
+  return { label: 'Standard', badgeClass: 'text-text-secondary bg-surface-2 border-line' };
+}
+

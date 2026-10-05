@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   generateHeatmapGrid,
   getHeatmapLevelClass,
@@ -28,8 +28,24 @@ export default function HeatmapGrid({
     return generateHeatmapGrid(data, new Date(), 12);
   }, [data]);
 
+  // Touch tooltip dismissal: dismiss tooltip on outside tap or scroll without affecting hover/keyboard
+  useEffect(() => {
+    if (!hoveredCell) return;
+    const handleOutsideDismiss = (e) => {
+      if (!e.target?.closest || !e.target.closest('[data-heatmap-cell="true"]')) {
+        setHoveredCell(null);
+      }
+    };
+    window.addEventListener('pointerdown', handleOutsideDismiss, { passive: true });
+    window.addEventListener('scroll', handleOutsideDismiss, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', handleOutsideDismiss);
+      window.removeEventListener('scroll', handleOutsideDismiss);
+    };
+  }, [hoveredCell]);
+
   return (
-    <div className="p-5 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between">
+    <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line shadow-xs flex flex-col justify-between">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 border-b border-line-subtle pb-3">
         <div>
@@ -61,14 +77,14 @@ export default function HeatmapGrid({
       </div>
 
       {/* Main Heatmap Container with Contained Horizontal Scroll on Mobile */}
-      <div className="relative min-h-[160px] flex flex-col justify-center">
+      <div className="relative min-h-[160px]">
         {loading ? (
-          <div className="h-32 w-full animate-pulse flex flex-col justify-center gap-2 p-2">
+          <div className="h-40 w-full animate-pulse flex flex-col justify-center gap-2 p-2">
             <div className="h-3 bg-surface-2 rounded w-48 mb-2" />
-            <div className="grid grid-cols-12 gap-1.5 h-20 bg-surface-2/40 rounded p-3" />
+            <div className="grid grid-cols-12 gap-2 h-28 bg-surface-2/40 rounded p-3" />
           </div>
         ) : error ? (
-          <div className="h-32 border border-line-subtle rounded-lg flex flex-col items-center justify-center p-4 text-center bg-bg/40">
+          <div className="h-40 border border-line-subtle rounded-lg flex flex-col items-center justify-center p-4 text-center bg-bg/40">
             <p className="text-xs text-text-secondary font-medium">
               Couldn't load activity heatmap
             </p>
@@ -86,71 +102,143 @@ export default function HeatmapGrid({
             )}
           </div>
         ) : (
-          <div className="w-full overflow-x-auto pb-2 scrollbar-thin">
-            <div className="inline-block min-w-[620px] select-none">
-              {/* Month Headers */}
-              <div className="flex text-[10px] font-mono text-muted mb-1.5 pl-7">
-                {weeks.map((_, weekIdx) => {
-                  const header = monthHeaders.find((h) => h.weekIndex === weekIdx);
-                  return (
-                    <div
-                      key={`month-hdr-${weekIdx}`}
-                      className="w-3.5 sm:w-4 mr-1 text-left truncate"
-                    >
-                      {header ? header.label : ''}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Section: 12-Week (84-Day) Calendar Grid */}
+            <div className="lg:col-span-8 overflow-x-auto pb-2 scrollbar-thin">
+              <div className="inline-block select-none min-w-[340px]">
+                {/* Month Headers */}
+                <div className="flex text-[10px] font-mono text-muted mb-2 pl-7">
+                  {weeks.map((_, weekIdx) => {
+                    const header = monthHeaders.find((h) => h.weekIndex === weekIdx);
+                    return (
+                      <div
+                        key={`month-hdr-${weekIdx}`}
+                        className="w-5 sm:w-6 mr-1.5 sm:mr-2 text-left truncate text-[10px]"
+                      >
+                        {header ? header.label : ''}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Grid: 7 Rows (Days) x 12 Columns (Weeks) */}
+                <div className="flex">
+                  {/* Day of Week Labels (Mon, Wed, Fri) */}
+                  <div className="flex flex-col justify-between pr-2 text-[9px] font-mono text-muted h-[154px] sm:h-[182px]">
+                    <span className="h-5 sm:h-6 leading-none"></span>
+                    <span className="h-5 sm:h-6 leading-none">Mon</span>
+                    <span className="h-5 sm:h-6 leading-none"></span>
+                    <span className="h-5 sm:h-6 leading-none">Wed</span>
+                    <span className="h-5 sm:h-6 leading-none"></span>
+                    <span className="h-5 sm:h-6 leading-none">Fri</span>
+                    <span className="h-5 sm:h-6 leading-none"></span>
+                  </div>
+
+                  {/* Week Columns */}
+                  <div className="flex gap-1.5 sm:gap-2">
+                    {weeks.map((week, weekIdx) => (
+                      <div
+                        key={`week-${weekIdx}`}
+                        className="flex flex-col gap-1.5 sm:gap-2"
+                      >
+                        {week.map((day) => {
+                          const levelClass = getHeatmapLevelClass(day.count);
+                          const isHovered = hoveredCell?.date === day.date;
+
+                          return (
+                            <div
+                              key={day.date}
+                              onMouseEnter={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredCell({
+                                  ...day,
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top,
+                                });
+                              }}
+                              onMouseLeave={() => setHoveredCell(null)}
+                              onFocus={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredCell({
+                                  ...day,
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top,
+                                });
+                              }}
+                              onBlur={() => setHoveredCell(null)}
+                              tabIndex={0}
+                              role="button"
+                              data-heatmap-cell="true"
+                              aria-label={`${formatHeatmapTooltipDate(day.date)}: ${day.count} attempts`}
+                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-[3px] border transition-all duration-150 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:z-10 ${levelClass} ${
+                                isHovered ? 'ring-1 ring-accent z-10' : ''
+                              } ${
+                                day.isToday
+                                  ? 'relative after:content-[""] after:absolute after:inset-[-2px] after:rounded-[4px] after:border after:border-accent/60'
+                                  : ''
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Section: Practice Consistency & Frequency HUD */}
+            <div className="lg:col-span-4 flex flex-col justify-between gap-3 p-4 rounded-lg bg-surface-2/40 border border-line-subtle h-full">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted block mb-2">
+                  Practice Consistency HUD
+                </span>
+
+                <div className="space-y-3">
+                  {/* Metric 1: Consistency Ratio */}
+                  <div className="p-2.5 rounded-md bg-surface border border-line">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-text-secondary font-medium">Active Days</span>
+                      <span className="font-mono text-text font-semibold">
+                        {activeDaysCount} <span className="text-muted font-normal">/ 84</span>
+                      </span>
                     </div>
-                  );
-                })}
+                    <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-accent rounded-full transition-all duration-300"
+                        style={{ width: `${Math.round((activeDaysCount / 84) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-mono text-muted mt-1 block">
+                      {Math.round((activeDaysCount / 84) * 100)}% consistency over 12 weeks
+                    </span>
+                  </div>
+
+                  {/* Metric 2: Weekly Velocity */}
+                  <div className="p-2.5 rounded-md bg-surface border border-line">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-text-secondary font-medium">Weekly Velocity</span>
+                      <span className="font-mono text-text font-semibold">
+                        {(totalRangeAttempts / 12).toFixed(1)} <span className="text-muted text-[10px]">att/wk</span>
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted mt-1 block">
+                      Based on {totalRangeAttempts} recorded practice attempts
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* Grid: 7 Rows (Days) x 12 Columns (Weeks) */}
-              <div className="flex">
-                {/* Day of Week Labels (Mon, Wed, Fri) */}
-                <div className="flex flex-col justify-between pr-2 text-[9px] font-mono text-muted h-[116px] sm:h-[128px]">
-                  <span className="h-3.5 sm:h-4 leading-none"></span>
-                  <span className="h-3.5 sm:h-4 leading-none">Mon</span>
-                  <span className="h-3.5 sm:h-4 leading-none"></span>
-                  <span className="h-3.5 sm:h-4 leading-none">Wed</span>
-                  <span className="h-3.5 sm:h-4 leading-none"></span>
-                  <span className="h-3.5 sm:h-4 leading-none">Fri</span>
-                  <span className="h-3.5 sm:h-4 leading-none"></span>
+              {/* Intensity Legend */}
+              <div className="pt-2 border-t border-line-subtle flex items-center justify-between text-[10px] font-mono text-muted">
+                <span>Less</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-[2px] bg-surface-2/60 border border-line/50" title="0 attempts" />
+                  <div className="w-3 h-3 rounded-[2px] bg-accent/25 border border-accent/40" title="1 attempt" />
+                  <div className="w-3 h-3 rounded-[2px] bg-accent/60 border border-accent/80" title="2-3 attempts" />
+                  <div className="w-3 h-3 rounded-[2px] bg-accent border border-accent-hover" title="4+ attempts" />
                 </div>
-
-                {/* Week Columns */}
-                <div className="flex gap-1 sm:gap-1.5">
-                  {weeks.map((week, weekIdx) => (
-                    <div
-                      key={`week-${weekIdx}`}
-                      className="flex flex-col gap-1 sm:gap-1.5"
-                    >
-                      {week.map((day) => {
-                        const levelClass = getHeatmapLevelClass(day.count);
-                        const isHovered = hoveredCell?.date === day.date;
-
-                        return (
-                          <div
-                            key={day.date}
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setHoveredCell({
-                                ...day,
-                                x: rect.left + rect.width / 2,
-                                y: rect.top,
-                              });
-                            }}
-                            onMouseLeave={() => setHoveredCell(null)}
-                            tabIndex={0}
-                            role="button"
-                            aria-label={`${formatHeatmapTooltipDate(day.date)}: ${day.count} attempts`}
-                            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[3px] border transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-accent ${levelClass} ${
-                              isHovered ? 'ring-1 ring-accent' : ''
-                            } ${day.isToday ? 'relative after:content-[""] after:absolute after:inset-[-2px] after:rounded-[4px] after:border after:border-accent/60' : ''}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
+                <span>More</span>
               </div>
             </div>
           </div>
@@ -185,23 +273,6 @@ export default function HeatmapGrid({
           </div>
         </div>
       )}
-
-      {/* Grid Legend & Instructions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-3 pt-3 border-t border-line-subtle text-xs">
-        <span className="text-[11px] font-mono text-muted">
-          Continuous 84-day activity window
-        </span>
-
-        {/* Intensity Legend */}
-        <div className="flex items-center gap-1.5 self-end sm:self-auto text-[10px] font-mono text-muted">
-          <span>Less</span>
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-surface-2/60 border border-line/50" title="0 attempts" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-accent/25 border border-accent/40" title="1 attempt" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-accent/60 border border-accent/80" title="2-3 attempts" />
-          <div className="w-2.5 h-2.5 rounded-[2px] bg-accent border border-accent-hover" title="4+ attempts" />
-          <span>More</span>
-        </div>
-      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
 /**
  * DeleteConfirmModal
- * Confirmation dialog for permanently deleting a problem and cascading attempts.
+ * Destructive confirmation dialog for permanently deleting a problem and cascading attempts.
  */
 export default function DeleteConfirmModal({
   isOpen,
@@ -12,6 +12,17 @@ export default function DeleteConfirmModal({
   problemTitle = 'this problem',
 }) {
   const [loading, setLoading] = useState(false);
+  const triggerRef = useRef(null);
+
+  // Focus restoration to opening trigger
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement;
+    } else if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+      triggerRef.current.focus();
+      triggerRef.current = null;
+    }
+  }, [isOpen]);
 
   // Lock body scroll when modal is open and restore on close/unmount
   useEffect(() => {
@@ -49,43 +60,47 @@ export default function DeleteConfirmModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !loading) onClose();
+      }}
+    >
       <div
-        className="w-full max-w-md bg-surface border border-line rounded-lg shadow-elevated overflow-hidden"
+        className="w-full max-w-md bg-surface border border-line rounded-xl shadow-elevated overflow-hidden"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="delete-dialog-title"
       >
-        <div className="p-5">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-md bg-danger/10 text-danger border border-danger/25 shrink-0">
+        <div className="p-5 sm:p-6 space-y-4">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 rounded-lg bg-danger/10 text-danger border border-danger/25 shrink-0">
               <AlertTriangle className="w-5 h-5" />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0 flex-1">
               <h2 id="delete-dialog-title" className="text-sm font-semibold text-text">
-                Delete Problem
+                Delete Problem?
               </h2>
               <p className="text-xs text-text-secondary leading-relaxed">
-                Are you sure you want to delete{' '}
-                <span className="font-semibold text-text font-mono">
+                Are you sure you want to permanently delete{' '}
+                <span className="font-semibold text-text font-mono break-all">
                   "{problemTitle}"
                 </span>
                 ?
               </p>
-              <div className="p-2.5 rounded bg-surface-2 border border-line text-[11px] text-muted leading-normal mt-2">
-                <span className="text-danger font-medium">Permanent Action:</span> All
-                logged practice attempts, timestamps, and notes associated with this
-                problem will also be permanently deleted.
-              </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-4 border-t border-line mt-5">
+          <div className="p-3 rounded-lg bg-surface-2/60 border border-line text-[11px] text-muted leading-relaxed">
+            <span className="text-danger font-medium">Permanent Action:</span> Deleting this problem also removes its entire practice history, including logged attempt timestamps, solution times, and revision notes.
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-line">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-3.5 py-1.5 text-xs text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-colors disabled:opacity-50"
+              className="h-9 px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -93,10 +108,10 @@ export default function DeleteConfirmModal({
               type="button"
               onClick={handleConfirm}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium bg-danger hover:bg-danger/90 text-white rounded-md transition-colors shadow-subtle disabled:opacity-60"
+              className="h-9 inline-flex items-center justify-center gap-1.5 px-4 text-xs font-medium bg-danger hover:bg-danger/90 active:scale-95 text-white rounded-md transition-all duration-150 shadow-xs disabled:opacity-60"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Delete Problem
+              <span>Delete Problem</span>
             </button>
           </div>
         </div>

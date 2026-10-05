@@ -17,14 +17,15 @@ function TrendTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     const item = payload[0];
     return (
-      <div className="bg-surface-2 border border-line rounded-md px-3 py-2 shadow-elevated text-xs font-mono">
-        <div className="text-text-secondary text-[11px] mb-1">
+      <div className="bg-surface-2/95 backdrop-blur-sm border border-line rounded-md px-2.5 py-1.5 shadow-xs text-xs font-mono pointer-events-none max-w-[210px]">
+        <div className="text-muted text-[10px] uppercase tracking-wider mb-1 truncate">
           Week of {formatWeeklyDate(label)}
         </div>
         <div className="text-text font-medium flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-accent inline-block" />
-          <span>
-            {item.value} {item.value === 1 ? 'solved attempt' : 'solved attempts'}
+          <span className="w-2 h-2 rounded-full bg-accent inline-block shadow-xs shrink-0" />
+          <span className="text-text font-semibold">{item.value}</span>
+          <span className="text-text-secondary text-[11px] font-sans truncate">
+            {item.value === 1 ? 'solved attempt' : 'solved attempts'}
           </span>
         </div>
       </div>
@@ -45,17 +46,17 @@ export default function TrendChart({
   const hasData = Array.isArray(data) && data.length > 0 && data.some((d) => d.count > 0);
 
   return (
-    <div className="p-5 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
+    <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line shadow-xs flex flex-col justify-between h-full">
       {/* Chart Header */}
       <div className="flex items-start justify-between gap-4 mb-4 border-b border-line-subtle pb-3">
         <div>
           <h2 className="text-sm font-semibold text-text tracking-tight">Solve trend</h2>
           <p className="text-xs text-text-secondary mt-0.5">
-            Solved attempts by week
+            Weekly problem-solving consistency across 12 trailing weeks
           </p>
         </div>
-        <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
-          Weekly
+        <span className="text-[10px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
+          12 Weeks
         </span>
       </div>
 
@@ -63,11 +64,11 @@ export default function TrendChart({
       <div className="flex-1 min-h-[240px] flex flex-col justify-center">
         {loading ? (
           <div className="h-60 w-full animate-pulse flex flex-col justify-end space-y-3 p-4">
-            <div className="h-4 bg-surface-2 rounded w-1/4 self-start" />
-            <div className="h-32 bg-surface-2/60 rounded w-full" />
+            <div className="h-3.5 bg-surface-2 rounded w-1/4 self-start" />
+            <div className="h-36 bg-surface-2/60 rounded w-full" />
             <div className="flex justify-between gap-2 pt-2">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-3 bg-surface-2 rounded w-10" />
+                <div key={i} className="h-2.5 bg-surface-2 rounded w-10" />
               ))}
             </div>
           </div>
@@ -104,36 +105,39 @@ export default function TrendChart({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                margin={{ top: 12, right: 16, left: -22, bottom: 0 }}
               >
                 <CartesianGrid
-                  stroke="#27272a"
+                  stroke="#1e1f24"
                   strokeDasharray="3 3"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatWeeklyDate}
-                  tick={{ fill: '#71717a', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                  tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                   tickLine={false}
                   axisLine={{ stroke: '#27272a' }}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fill: '#71717a', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                  tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                   tickLine={false}
                   axisLine={{ stroke: '#27272a' }}
                 />
-                <Tooltip content={<TrendTooltip />} />
+                <Tooltip
+                  content={<TrendTooltip />}
+                  wrapperStyle={{ outline: 'none', pointerEvents: 'none', zIndex: 30 }}
+                />
                 <Line
                   type="monotone"
                   dataKey="count"
                   stroke="#6366f1"
                   strokeWidth={2}
-                  dot={{ fill: '#6366f1', r: 3, strokeWidth: 0 }}
+                  dot={{ fill: '#6366f1', r: 3, stroke: '#121316', strokeWidth: 1.5 }}
                   activeDot={{
                     fill: '#6366f1',
-                    stroke: '#09090b',
+                    stroke: '#0b0c0e',
                     strokeWidth: 2,
                     r: 5,
                   }}

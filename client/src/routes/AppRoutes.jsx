@@ -4,6 +4,7 @@ import AppLayout from '../layouts/AppLayout';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import AuthLoader from '../components/common/AuthLoader';
+import { Code2 } from 'lucide-react';
 
 // Route-level code-splitting for performance and isolated chart bundles
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
@@ -17,8 +18,8 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 function ViewLoader() {
   return (
     <div className="py-20 flex flex-col items-center justify-center space-y-3">
-      <div className="w-8 h-8 rounded-md bg-surface-2 border border-line flex items-center justify-center text-accent text-sm font-mono animate-pulse">
-        //
+      <div className="w-8 h-8 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent animate-pulse shadow-xs">
+        <Code2 className="w-4 h-4" />
       </div>
       <p className="text-xs text-muted font-mono">Loading view...</p>
     </div>

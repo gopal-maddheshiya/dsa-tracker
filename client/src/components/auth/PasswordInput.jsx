@@ -29,7 +29,7 @@ export default function PasswordInput({
         disabled={disabled}
         required={required}
         autoComplete={autoComplete}
-        className={`w-full px-3 py-2 pr-10 text-xs bg-bg border border-line rounded-md text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`w-full h-9 px-3 pr-10 text-xs bg-bg border border-line rounded-md text-text placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       />
       <button
         type="button"

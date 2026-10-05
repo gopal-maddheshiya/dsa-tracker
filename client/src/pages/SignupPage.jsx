@@ -109,7 +109,7 @@ export default function SignupPage() {
             placeholder="Ada Lovelace"
             disabled={submitting}
             autoComplete="name"
-            className={`w-full px-3 py-2 text-xs bg-bg border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full h-9 px-3 text-xs bg-bg border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               fieldErrors.name
                 ? 'border-danger focus:border-danger focus:ring-danger'
                 : 'border-line focus:border-accent focus:ring-accent'
@@ -139,7 +139,7 @@ export default function SignupPage() {
             placeholder="developer@example.com"
             disabled={submitting}
             autoComplete="email"
-            className={`w-full px-3 py-2 text-xs bg-bg border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full h-9 px-3 text-xs bg-bg border rounded-md text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               fieldErrors.email
                 ? 'border-danger focus:border-danger focus:ring-danger'
                 : 'border-line focus:border-accent focus:ring-accent'
@@ -188,7 +188,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2.5 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-colors shadow-subtle flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg"
+          className="w-full h-9 px-4 text-xs font-medium bg-accent hover:bg-accent-hover active:scale-[0.99] text-white rounded-md transition-all duration-150 shadow-xs flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg"
         >
           {submitting ? (
             <>

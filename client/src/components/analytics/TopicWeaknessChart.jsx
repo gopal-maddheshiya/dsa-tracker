@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * TopicWeaknessChart: Ranking visualization of topics with highest struggle ratios.
- * Features transparent low-sample context and non-judgmental labeling.
+ * Features transparent low-sample context and non-judgmental diagnostic labeling.
  */
 export default function TopicWeaknessChart({
   topics = [],
@@ -15,7 +15,7 @@ export default function TopicWeaknessChart({
   const hasData = topTopics.length > 0;
 
   return (
-    <div className="p-5 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
+    <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line shadow-xs flex flex-col justify-between h-full">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 border-b border-line-subtle pb-3">
         <div>
@@ -43,7 +43,7 @@ export default function TopicWeaknessChart({
                   <div className="h-3.5 bg-surface-2 rounded w-28" />
                   <div className="h-3 bg-surface-2 rounded w-16" />
                 </div>
-                <div className="h-2 bg-surface-2 rounded w-full" />
+                <div className="h-1.5 bg-surface-2 rounded w-full" />
               </div>
             ))}
           </div>
@@ -72,7 +72,7 @@ export default function TopicWeaknessChart({
             </div>
             <p className="text-xs font-medium text-text">No topic insights yet</p>
             <p className="text-[11px] text-muted mt-1 max-w-xs">
-              Log a few attempts to see where you struggle most.
+              Log a few attempts to see where you encounter friction.
             </p>
           </div>
         ) : (
@@ -89,41 +89,47 @@ export default function TopicWeaknessChart({
                 : 'text-amber-400 bg-amber-500/10 border-amber-500/20';
 
               return (
-                <div key={item.topic || index} className="group">
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-mono text-[11px] text-muted w-5 shrink-0">
+                <div
+                  key={item.topic || index}
+                  className="group p-2.5 rounded-md hover:bg-surface-2/60 transition-colors border border-transparent hover:border-line-subtle"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+                    {/* Topic Identity & Rank */}
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <span className="w-5 h-5 rounded bg-surface-2 border border-line text-[10px] font-mono text-muted flex items-center justify-center font-semibold shrink-0">
                         #{index + 1}
                       </span>
-                      <span className="font-medium text-text truncate">
-                        {item.topic}
-                      </span>
+                      <div className="min-w-0">
+                        <span className="font-medium text-xs text-text truncate block">
+                          {item.topic}
+                        </span>
+                        <span className="text-[11px] font-mono text-muted block sm:hidden mt-0.5">
+                          {item.struggledCount} struggled / {item.totalAttempts} att.
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 shrink-0 font-mono text-xs">
-                      {/* Low-sample context indicator */}
-                      <span className="text-[11px] text-muted hidden sm:inline">
-                        {item.struggledCount} struggled of {item.totalAttempts} {item.totalAttempts === 1 ? 'attempt' : 'attempts'}
+                    {/* Controlled-Width Visual Struggle Bar & Statistics */}
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-[11px] font-mono text-muted hidden sm:inline shrink-0">
+                        {item.struggledCount} struggled / {item.totalAttempts} att.
                       </span>
+
+                      <div className="w-28 sm:w-36 md:w-48 shrink-0">
+                        <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden border border-line-subtle">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${barColor}`}
+                            style={{ width: `${Math.max(strugglePercent, 4)}%` }}
+                          />
+                        </div>
+                      </div>
+
                       <span
-                        className={`px-1.5 py-0.5 text-[10px] rounded border font-semibold ${textBadge}`}
+                        className={`px-1.5 py-0.5 text-[10px] font-mono rounded border font-semibold ${textBadge} shrink-0 min-w-[38px] text-center`}
                       >
-                        {strugglePercent}% struggle
+                        {strugglePercent}%
                       </span>
                     </div>
-                  </div>
-
-                  {/* Horizontal Bar */}
-                  <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden border border-line-subtle">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${barColor}`}
-                      style={{ width: `${Math.max(strugglePercent, 4)}%` }}
-                    />
-                  </div>
-                  
-                  {/* Mobile low sample context below bar */}
-                  <div className="sm:hidden text-[10px] font-mono text-muted mt-1 text-right">
-                    {item.struggledCount} struggled / {item.totalAttempts} attempts
                   </div>
                 </div>
               );
@@ -139,7 +145,7 @@ export default function TopicWeaknessChart({
           <ul>
             {topTopics.map((item, index) => (
               <li key={item.topic}>
-                Rank {index + 1}: {item.topic} — {Math.round(item.struggleRatio * 100)}% struggle ratio ({item.struggledCount} of {item.totalAttempts} attempts)
+                Rank #{index + 1}: {item.topic} — {Math.round(item.struggleRatio * 100)}% struggle ratio ({item.struggledCount} of {item.totalAttempts} attempts)
               </li>
             ))}
           </ul>

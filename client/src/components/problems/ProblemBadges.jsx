@@ -21,7 +21,7 @@ export function DifficultyBadge({ difficulty = 'easy', className = '' }) {
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium border ${styles} ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans font-medium border ${styles} ${className}`}
     >
       {label}
     </span>
@@ -98,7 +98,7 @@ export function PlatformBadge({ platform, className = '' }) {
 
   return (
     <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono text-text-secondary bg-surface-2 border border-line ${className}`}
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-text-secondary bg-surface-2 border border-line ${className}`}
     >
       {label}
     </span>

@@ -19,30 +19,30 @@ export default function ProblemTable({
   onDeleteProblem,
 }) {
   return (
-    <div className="rounded-lg bg-surface border border-line overflow-hidden shadow-subtle">
+    <div className="rounded-lg bg-surface border border-line overflow-hidden shadow-xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-line bg-surface-2/60 text-muted font-mono uppercase text-[10px] tracking-wider">
-              <th scope="col" className="py-3 px-4 font-semibold">
+              <th scope="col" className="py-2.5 px-4 font-semibold">
                 Problem
               </th>
-              <th scope="col" className="py-3 px-3 font-semibold">
+              <th scope="col" className="py-2.5 px-3 font-semibold">
                 Platform
               </th>
-              <th scope="col" className="py-3 px-3 font-semibold">
+              <th scope="col" className="py-2.5 px-3 font-semibold">
                 Difficulty
               </th>
-              <th scope="col" className="py-3 px-3 font-semibold">
+              <th scope="col" className="py-2.5 px-3 font-semibold">
                 Topics
               </th>
-              <th scope="col" className="py-3 px-3 font-semibold">
+              <th scope="col" className="py-2.5 px-3 font-semibold">
                 Status
               </th>
-              <th scope="col" className="py-3 px-3 font-semibold">
+              <th scope="col" className="py-2.5 px-3 font-semibold">
                 Last Attempt
               </th>
-              <th scope="col" className="py-3 px-4 font-semibold text-right">
+              <th scope="col" className="py-2.5 px-4 font-semibold text-right">
                 Actions
               </th>
             </tr>
@@ -53,14 +53,14 @@ export default function ProblemTable({
               return (
                 <tr
                   key={problem.id}
-                  className="hover:bg-surface-hover/50 transition-colors group"
+                  className="hover:bg-surface-hover/60 transition-colors group"
                 >
                   {/* Problem Title & External Link */}
                   <td className="py-3 px-4 font-medium text-text max-w-xs">
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/problems/${problem.id}`}
-                        className="hover:text-accent font-medium text-xs transition-colors hover:underline truncate"
+                        className="hover:text-accent font-semibold text-xs text-text transition-colors truncate"
                         title={problem.title}
                       >
                         {problem.title}
@@ -70,7 +70,7 @@ export default function ProblemTable({
                           href={problem.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted hover:text-text p-0.5 rounded transition-colors shrink-0"
+                          className="text-muted/70 hover:text-text p-0.5 rounded transition-colors shrink-0"
                           title="Open external problem link"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -130,21 +130,21 @@ export default function ProblemTable({
 
                   {/* Actions */}
                   <td className="py-3 px-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex items-center justify-end gap-1.5">
                       <button
                         type="button"
                         onClick={() => onLogAttempt(problem)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium bg-surface-2 hover:bg-surface-hover text-text-secondary hover:text-text border border-line transition-colors"
+                        className="h-7.5 inline-flex items-center gap-1 px-2.5 rounded text-[11px] font-medium bg-surface-2 hover:bg-accent hover:text-white text-text border border-line shadow-xs transition-all duration-150 active:scale-95"
                         title="Log practice attempt"
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus className="w-3 h-3 text-accent group-hover:text-inherit" />
                         <span>Log</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onEditProblem(problem)}
-                        className="p-1 rounded text-muted hover:text-text hover:bg-surface-2 transition-colors focus-visible:ring-1 focus-visible:ring-accent"
+                        className="h-7.5 w-7.5 inline-flex items-center justify-center rounded text-muted hover:text-text hover:bg-surface-2 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
                         title="Edit problem"
                         aria-label="Edit problem"
                       >
@@ -154,7 +154,7 @@ export default function ProblemTable({
                       <button
                         type="button"
                         onClick={() => onDeleteProblem(problem)}
-                        className="p-1 rounded text-muted hover:text-danger hover:bg-danger/10 transition-colors focus-visible:ring-1 focus-visible:ring-danger"
+                        className="h-7.5 w-7.5 inline-flex items-center justify-center rounded text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
                         title="Delete problem"
                         aria-label="Delete problem"
                       >

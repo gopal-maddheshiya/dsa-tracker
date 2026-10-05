@@ -1,3 +1,4 @@
+import React from 'react';
 import { getRevisionTimingState, formatPriorityScore } from '../../lib/revisionUtils.js';
 
 const STATUS_LABELS = {
@@ -8,19 +9,23 @@ const STATUS_LABELS = {
 
 /**
  * RevisionSummary: Compact KPI row summarizing the active revision queue.
+ * Displays Queue Depth, Due Today (urgency focal point), and 7-Day Velocity.
  */
-export default function RevisionSummary({ queue = [], loading = false }) {
+export default function RevisionSummary({ queue = [], loading = false, velocity = null }) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="p-4 rounded-lg bg-surface border border-line shadow-subtle min-h-[96px] flex flex-col justify-between"
+            className="p-4 rounded-lg bg-surface border border-line shadow-xs min-h-[104px] flex flex-col justify-between"
           >
-            <div className="h-3.5 bg-surface-2 rounded w-24" />
-            <div className="h-7 bg-surface-2 rounded w-16 my-1.5" />
-            <div className="h-3 bg-surface-2 rounded w-32" />
+            <div className="flex items-center justify-between">
+              <div className="h-3.5 bg-surface-2 rounded w-24" />
+              <div className="h-4 bg-surface-2 rounded w-16" />
+            </div>
+            <div className="h-7 bg-surface-2 rounded w-14 my-2" />
+            <div className="h-3 bg-surface-2 rounded w-36" />
           </div>
         ))}
       </div>
@@ -39,59 +44,82 @@ export default function RevisionSummary({ queue = [], loading = false }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* 1. Queue Depth */}
-      <div className="p-4 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between">
+      <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-accent/70 shadow-xs flex flex-col justify-between">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-text-secondary">Current queue</span>
+          <span className="text-xs font-medium text-text-secondary tracking-wide">Queue depth</span>
           <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
             Top 20 max
           </span>
         </div>
-        <div className="my-1 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
+        <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
           {queueLength}
         </div>
-        <div className="text-[11px] font-mono text-muted">
-          {queueLength === 1 ? '1 problem surfaced' : `${queueLength} problems surfaced`}
+        <div className="text-[11px] text-muted">
+          {queueLength === 1 ? '1 problem requiring attention' : `${queueLength} problems requiring attention`}
         </div>
       </div>
 
-      {/* 2. Due / Overdue Count */}
-      <div className="p-4 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between">
+      {/* 2. Due Today (Urgency Focal Point) */}
+      <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-text-secondary">Due for revision</span>
+          <span className="text-xs font-medium text-text-secondary tracking-wide">Due today</span>
           <span
             className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
               dueCount > 0
-                ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
                 : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
             }`}
           >
             {dueCount > 0 ? 'Action needed' : 'All clear'}
           </span>
         </div>
-        <div className="my-1 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
-          {dueCount}
+        <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-2">
+          <span>{dueCount}</span>
+          {dueCount > 0 && (
+            <span className="text-xs font-sans font-normal text-amber-400/90">
+              ready for review
+            </span>
+          )}
         </div>
-        <div className="text-[11px] font-mono text-muted">
-          Past target revision interval
+        <div className="text-[11px] text-muted">
+          At or past target revision interval
         </div>
       </div>
 
-      {/* 3. Most Urgent Item */}
-      <div className="p-4 rounded-lg bg-surface border border-line shadow-subtle flex flex-col justify-between">
+      {/* 3. 7-Day Velocity / Review Throughput */}
+      <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-indigo-500/70 shadow-xs flex flex-col justify-between">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-text-secondary">Most urgent</span>
+          <span className="text-xs font-medium text-text-secondary tracking-wide">
+            {velocity !== null ? '7-Day velocity' : 'Most urgent'}
+          </span>
           <span className="text-[10px] font-mono text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded">
-            Rank 01
+            {velocity !== null ? 'Throughput' : 'Rank 01'}
           </span>
         </div>
-        <div className="my-1 text-lg font-semibold tracking-tight text-text truncate">
-          {topItem ? topItem.title : '—'}
-        </div>
-        <div className="text-[11px] font-mono text-muted truncate">
-          {topItem
-            ? `Priority ${formatPriorityScore(topItem.priorityScore)} · ${STATUS_LABELS[topItem.latestStatus] || topItem.latestStatus || 'Recorded'}`
-            : 'No items in queue'}
-        </div>
+        {velocity !== null ? (
+          <>
+            <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-1.5">
+              <span>{velocity}</span>
+              <span className="text-xs font-sans font-normal text-muted">
+                {velocity === 1 ? 'review' : 'reviews'}
+              </span>
+            </div>
+            <div className="text-[11px] text-muted">
+              Completed attempts in past 7 days
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="my-2 text-base sm:text-lg font-semibold tracking-tight text-text truncate">
+              {topItem ? topItem.title : '—'}
+            </div>
+            <div className="text-[11px] text-muted truncate">
+              {topItem
+                ? `Priority ${formatPriorityScore(topItem.priorityScore)} · ${STATUS_LABELS[topItem.latestStatus] || topItem.latestStatus || 'Recorded'}`
+                : 'No items in queue'}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
