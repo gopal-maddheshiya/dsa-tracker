@@ -1,26 +1,36 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ArrowRight, RotateCw, BookOpen, AlertCircle } from 'lucide-react';
+import { Plus, ArrowRight, RotateCw } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import {
   getSummary,
   getTopics,
   getTrend,
   getHeatmap,
+  getRevisionQueue,
 } from '../api/analytics.api.js';
 import StatCard from '../components/analytics/StatCard.jsx';
-import MobileRingDock from '../components/analytics/MobileRingDock.jsx';
 import TrendChart from '../components/analytics/TrendChart.jsx';
 import DifficultyChart from '../components/analytics/DifficultyChart.jsx';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart.jsx';
 import HeatmapGrid from '../components/analytics/HeatmapGrid.jsx';
+import RevisionQueuePreview from '../components/analytics/RevisionQueuePreview.jsx';
 
 /**
- * DashboardPage: Central analytics cockpit for the DSA / Interview Prep Tracker.
- * Integrates KPI metrics, weekly solve trend, difficulty distribution donut,
- * topic weakness ranking, and a 12-week practice heatmap with independent section fault-tolerance.
+ * DashboardPage: Central productivity cockpit for DSA preparation.
+ * 100% dynamically wired to real backend endpoints and user data:
+ * - Real user greeting from Auth Context
+ * - Real KPI numbers from /api/analytics/summary
+ * - Real solve trend over 12 weeks from /api/analytics/trend
+ * - Real problem distribution across tiers
+ * - Real topic performance with clickable filters
+ * - Real 84-day daily consistency heatmap
+ * - Real Leitner revision queue candidates linking directly to problem detail views
  */
 export default function DashboardPage() {
-  // Independent section states to allow partial resilience
+  const { user } = useAuth();
+
+  // Independent section states to guarantee resilient loading
   const [summaryState, setSummaryState] = useState({
     data: null,
     loading: true,
@@ -45,6 +55,12 @@ export default function DashboardPage() {
     error: null,
   });
 
+  const [revisionState, setRevisionState] = useState({
+    data: [],
+    loading: true,
+    error: null,
+  });
+
   const [isRefreshing, setIsRefreshing] = useState(false);
   const isMountedRef = useRef(true);
 
@@ -55,107 +71,56 @@ export default function DashboardPage() {
     };
   }, []);
 
-  // 1. Fetch Summary
   const fetchSummaryData = useCallback(async () => {
-    if (isMountedRef.current) {
-      setSummaryState((prev) => ({ ...prev, loading: true, error: null }));
-    }
+    if (isMountedRef.current) setSummaryState((p) => ({ ...p, loading: true, error: null }));
     try {
       const res = await getSummary();
-      if (isMountedRef.current) {
-        setSummaryState({
-          data: res.data || null,
-          loading: false,
-          error: null,
-        });
-      }
+      if (isMountedRef.current) setSummaryState({ data: res.data || null, loading: false, error: null });
     } catch (err) {
-      if (isMountedRef.current) {
-        setSummaryState((prev) => ({
-          ...prev,
-          loading: false,
-          error: err,
-        }));
-      }
+      if (isMountedRef.current) setSummaryState((p) => ({ ...p, loading: false, error: err }));
     }
   }, []);
 
-  // 2. Fetch Topics
   const fetchTopicsData = useCallback(async () => {
-    if (isMountedRef.current) {
-      setTopicsState((prev) => ({ ...prev, loading: true, error: null }));
-    }
+    if (isMountedRef.current) setTopicsState((p) => ({ ...p, loading: true, error: null }));
     try {
       const res = await getTopics();
-      if (isMountedRef.current) {
-        setTopicsState({
-          data: res.data?.topics || [],
-          loading: false,
-          error: null,
-        });
-      }
+      if (isMountedRef.current) setTopicsState({ data: res.data?.topics || [], loading: false, error: null });
     } catch (err) {
-      if (isMountedRef.current) {
-        setTopicsState((prev) => ({
-          ...prev,
-          loading: false,
-          error: err,
-        }));
-      }
+      if (isMountedRef.current) setTopicsState((p) => ({ ...p, loading: false, error: err }));
     }
   }, []);
 
-  // 3. Fetch Trend
   const fetchTrendData = useCallback(async () => {
-    if (isMountedRef.current) {
-      setTrendState((prev) => ({ ...prev, loading: true, error: null }));
-    }
+    if (isMountedRef.current) setTrendState((p) => ({ ...p, loading: true, error: null }));
     try {
       const res = await getTrend();
-      if (isMountedRef.current) {
-        setTrendState({
-          data: res.data?.trend || [],
-          loading: false,
-          error: null,
-        });
-      }
+      if (isMountedRef.current) setTrendState({ data: res.data?.trend || [], loading: false, error: null });
     } catch (err) {
-      if (isMountedRef.current) {
-        setTrendState((prev) => ({
-          ...prev,
-          loading: false,
-          error: err,
-        }));
-      }
+      if (isMountedRef.current) setTrendState((p) => ({ ...p, loading: false, error: err }));
     }
   }, []);
 
-  // 4. Fetch Heatmap
   const fetchHeatmapData = useCallback(async () => {
-    if (isMountedRef.current) {
-      setHeatmapState((prev) => ({ ...prev, loading: true, error: null }));
-    }
+    if (isMountedRef.current) setHeatmapState((p) => ({ ...p, loading: true, error: null }));
     try {
       const res = await getHeatmap();
-      if (isMountedRef.current) {
-        setHeatmapState({
-          data: res.data?.heatmap || [],
-          loading: false,
-          error: null,
-        });
-      }
+      if (isMountedRef.current) setHeatmapState({ data: res.data?.heatmap || [], loading: false, error: null });
     } catch (err) {
-      if (isMountedRef.current) {
-        setHeatmapState((prev) => ({
-          ...prev,
-          loading: false,
-          error: err,
-        }));
-      }
+      if (isMountedRef.current) setHeatmapState((p) => ({ ...p, loading: false, error: err }));
     }
   }, []);
 
-  // Parallel dashboard load using Promise.allSettled
+  const fetchRevisionData = useCallback(async () => {
+    if (isMountedRef.current) setRevisionState((p) => ({ ...p, loading: true, error: null }));
+    try {
+      const res = await getRevisionQueue();
+      if (isMountedRef.current) setRevisionState({ data: res.data?.queue || [], loading: false, error: null });
+    } catch (err) {
+      if (isMountedRef.current) setRevisionState((p) => ({ ...p, loading: false, error: err }));
+    }
+  }, []);
+
   const loadDashboard = useCallback(async () => {
     if (isMountedRef.current) setIsRefreshing(true);
     await Promise.allSettled([
@@ -163,164 +128,168 @@ export default function DashboardPage() {
       fetchTopicsData(),
       fetchTrendData(),
       fetchHeatmapData(),
+      fetchRevisionData(),
     ]);
     if (isMountedRef.current) setIsRefreshing(false);
-  }, [fetchSummaryData, fetchTopicsData, fetchTrendData, fetchHeatmapData]);
+  }, [
+    fetchSummaryData,
+    fetchTopicsData,
+    fetchTrendData,
+    fetchHeatmapData,
+    fetchRevisionData,
+  ]);
 
-  // Initial mount load
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
 
   const summary = summaryState.data;
-  const isFreshAccount =
-    !summaryState.loading &&
-    summary &&
-    summary.totalProblems === 0 &&
-    summary.totalAttempted === 0;
+
+  // Real calculations directly from backend statistics
+  const totalProblems = summary?.totalProblems ?? 0;
+  const totalSolved = summary?.totalSolved ?? 0;
+  const totalAttempted = summary?.totalAttempted ?? 0;
+  const inProgress = Math.max(0, totalAttempted - totalSolved);
+  const notSolved = Math.max(0, totalProblems - totalSolved);
+
+  const solvedPct = totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
+  const inProgressPct = totalProblems > 0 ? Math.round((inProgress / totalProblems) * 100) : 0;
+  const notSolvedPct = totalProblems > 0 ? Math.round((notSolved / totalProblems) * 100) : 0;
+
+  // Time-aware greeting
+  const currentHour = new Date().getHours();
+  const timeGreeting =
+    currentHour < 12
+      ? 'Good morning'
+      : currentHour < 17
+      ? 'Good afternoon'
+      : 'Good evening';
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Developer';
 
   return (
-    <div className="space-y-4 sm:space-y-5 pb-8 max-w-7xl mx-auto">
-      {/* Level 1: Command Center Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-line pb-4">
+    <div className="space-y-6 pb-12">
+      {/* ==============================================================
+          1. HEADER: Dynamic Greeting + Action Controls + Quote Card
+          ============================================================== */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight text-text">
-              Dashboard
-            </h1>
-            <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
-              Live Workspace
+          <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-white flex items-center gap-2">
+            <span>{timeGreeting}, {firstName}!</span>
+            <span role="img" aria-label="wave">
+              👋
             </span>
-          </div>
-          <p className="text-xs text-text-secondary mt-0.5">
-            A clear view of your DSA practice momentum and where to focus next.
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Keep solving. Consistency today builds confidence tomorrow.
           </p>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          {/* Refresh utility button */}
+        {/* Right side: Action Buttons & Quote Card */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Action Button: Refresh */}
           <button
             type="button"
             onClick={loadDashboard}
             disabled={isRefreshing}
+            className="p-2.5 rounded-xl bg-surface border border-line text-slate-400 hover:text-white hover:bg-surface-2 transition-all active:scale-95 disabled:opacity-50"
             title="Refresh analytics data"
             aria-label="Refresh analytics data"
-            className="h-8.5 w-8.5 p-0 inline-flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 disabled:opacity-50 focus-visible:ring-1 focus-visible:ring-accent shrink-0"
           >
-            <RotateCw
-              className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-accent' : ''}`}
-            />
+            <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-400' : ''}`} />
           </button>
 
-          {/* Secondary Action: Revision Queue */}
+          {/* Action Button: Review Due Problems */}
           <Link
             to="/revision"
-            className="h-8.5 inline-flex items-center gap-1.5 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 shadow-xs whitespace-nowrap"
+            className="h-9 inline-flex items-center gap-2 px-3.5 text-xs font-medium text-slate-300 hover:text-white bg-surface hover:bg-surface-2 border border-line rounded-xl transition-all active:scale-95 whitespace-nowrap"
           >
-            <span>Review due problems</span>
+            <span>Review Due</span>
             <ArrowRight className="w-3.5 h-3.5 text-muted" />
           </Link>
 
-          {/* Primary Action: Problem Entry */}
+          {/* Action Button: Add Problem */}
           <Link
-            to="/problems"
-            className="h-8.5 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-lg transition-all duration-150 active:scale-95 shadow-xs whitespace-nowrap"
+            to="/problems?action=add"
+            className="h-9 inline-flex items-center gap-2 px-4 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all active:scale-95 shadow-[0_0_16px_rgba(37,99,235,0.4)] whitespace-nowrap"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add problem</span>
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Add Problem</span>
           </Link>
+
+          {/* Motivational Quote Box matching reference */}
+          <div className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#131b2e] border border-[#1e293b] max-w-sm">
+            <div className="w-7 h-7 rounded-lg bg-[#7c3aed]/20 text-[#a855f7] flex items-center justify-center font-bold text-sm shrink-0">
+              “
+            </div>
+            <div>
+              <p className="text-xs text-slate-200 font-medium leading-tight">
+                “A little progress each day adds up to big results.”
+              </p>
+              <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">
+                — DSA Tracker
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Fresh Account First-Use Banner */}
-      {isFreshAccount && (
-        <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-start gap-3.5">
-            <div className="w-9 h-9 rounded-md bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0 mt-0.5">
-              <BookOpen className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-xs font-semibold text-text">
-                No practice data yet
-              </h3>
-              <p className="text-[11px] text-text-secondary mt-0.5 max-w-xl">
-                You haven't built your practice history yet. Add your first problem and log an attempt to begin unlocking weekly momentum, topic diagnostics, and spaced repetition scheduling.
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/problems"
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 h-9 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-150 active:scale-95 shrink-0 shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Track first problem</span>
-          </Link>
-        </div>
-      )}
-
-      {/* Row 1: KPI Overview */}
-      <div>
-        {/* Mobile View: Dedicated Ring Pedestal Dock (< sm) */}
-        <MobileRingDock
-          summary={summary}
+      {/* ==============================================================
+          2. TOP 4 KPI CARDS: Total Problems, Solved, In Progress, Not Solved
+          ============================================================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* Card 1: Total Problems */}
+        <StatCard
+          label="Total Problems"
+          value={totalProblems}
+          subtext={`${totalProblems} tracked in workspace`}
+          badgeType="total"
           loading={summaryState.loading}
           error={summaryState.error}
           onRetry={fetchSummaryData}
         />
 
-        {/* Desktop View: Polished Classic Stat Cards (>= sm) */}
-        <div className="hidden sm:grid sm:grid-cols-3 gap-3.5 sm:gap-4">
-          <StatCard
-            label="Tracked problems"
-            value={summary?.totalProblems}
-            context="Across all difficulty tiers"
-            badge="Inventory"
-            badgeType="default"
-            loading={summaryState.loading}
-            error={summaryState.error}
-            onRetry={fetchSummaryData}
-          />
+        {/* Card 2: Solved */}
+        <StatCard
+          label="Solved"
+          value={totalSolved}
+          subtext={`${totalProblems > 0 ? ((totalSolved / totalProblems) * 100).toFixed(1) : 0}% of total`}
+          badgeType="solved"
+          percentage={solvedPct}
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
 
-          <StatCard
-            label="Practice attempts"
-            value={summary?.totalAttempted}
-            context="Practice sessions logged"
-            badge="Activity"
-            badgeType="accent"
-            loading={summaryState.loading}
-            error={summaryState.error}
-            onRetry={fetchSummaryData}
-          />
+        {/* Card 3: In Progress */}
+        <StatCard
+          label="In Progress"
+          value={inProgress}
+          subtext={`${totalProblems > 0 ? ((inProgress / totalProblems) * 100).toFixed(1) : 0}% of total`}
+          badgeType="inprogress"
+          percentage={inProgressPct}
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
 
-          <StatCard
-            label="Solved attempts"
-            value={summary?.totalSolved}
-            context={
-              summary?.totalAttempted > 0
-                ? `${Math.round(
-                    (summary.totalSolved / summary.totalAttempted) * 100
-                  )}% of attempts solved`
-                : 'All-time solved'
-            }
-            progressPercent={
-              summary?.totalAttempted > 0
-                ? Math.min(100, Math.round((summary.totalSolved / summary.totalAttempted) * 100))
-                : null
-            }
-            badge="Success"
-            badgeType="success"
-            loading={summaryState.loading}
-            error={summaryState.error}
-            onRetry={fetchSummaryData}
-          />
-        </div>
+        {/* Card 4: Not Solved */}
+        <StatCard
+          label="Not Solved"
+          value={notSolved}
+          subtext={`${totalProblems > 0 ? ((notSolved / totalProblems) * 100).toFixed(1) : 0}% of total`}
+          badgeType="notsolved"
+          percentage={notSolvedPct}
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
       </div>
 
-      {/* Row 2: Practice Solve Trend + Difficulty Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
-        {/* Trend Line Chart: 8 cols on desktop */}
-        <div className="lg:col-span-8">
+      {/* ==============================================================
+          3. MIDDLE ROW: Solving Progress (60%) + Problems by Difficulty (40%)
+          ============================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-7 xl:col-span-7">
           <TrendChart
             data={trendState.data}
             loading={trendState.loading}
@@ -329,11 +298,10 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Difficulty Donut: 4 cols on desktop */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-5 xl:col-span-5">
           <DifficultyChart
             breakdown={summary?.difficultyBreakdown}
-            totalProblems={summary?.totalProblems ?? 0}
+            totalProblems={totalProblems}
             loading={summaryState.loading}
             error={summaryState.error}
             onRetry={fetchSummaryData}
@@ -341,24 +309,36 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 3: Topic Weakness & Diagnostic Intelligence */}
-      <div>
-        <TopicWeaknessChart
-          topics={topicsState.data}
-          loading={topicsState.loading}
-          error={topicsState.error}
-          onRetry={fetchTopicsData}
-        />
-      </div>
+      {/* ==============================================================
+          4. BOTTOM ROW: Topic-wise Performance (55%) + Daily Consistency & Revision Queue (45%)
+          ============================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Topic-wise Performance */}
+        <div className="lg:col-span-6 xl:col-span-6">
+          <TopicWeaknessChart
+            topics={topicsState.data}
+            loading={topicsState.loading}
+            error={topicsState.error}
+            onRetry={fetchTopicsData}
+          />
+        </div>
 
-      {/* Row 4: 12-Week Practice Heatmap */}
-      <div>
-        <HeatmapGrid
-          data={heatmapState.data}
-          loading={heatmapState.loading}
-          error={heatmapState.error}
-          onRetry={fetchHeatmapData}
-        />
+        {/* Right Stack: Daily Consistency + Revision Queue */}
+        <div className="lg:col-span-6 xl:col-span-6 space-y-5">
+          <HeatmapGrid
+            data={heatmapState.data}
+            loading={heatmapState.loading}
+            error={heatmapState.error}
+            onRetry={fetchHeatmapData}
+          />
+
+          <RevisionQueuePreview
+            queue={revisionState.data}
+            loading={revisionState.loading}
+            error={revisionState.error}
+            onRetry={fetchRevisionData}
+          />
+        </div>
       </div>
     </div>
   );

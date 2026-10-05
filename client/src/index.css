@@ -9,39 +9,39 @@
 :root {
   color-scheme: dark;
 
-  /* Surfaces & Backgrounds */
-  --bg: #09090b;
-  --bg-rgb: 9, 9, 11;
-  --surface: #121215;
-  --surface-rgb: 18, 18, 21;
-  --surface-2: #18181b;
-  --surface-2-rgb: 24, 24, 27;
-  --surface-3: #1f1f23;
-  --surface-3-rgb: 31, 31, 35;
-  --surface-hover: #222226;
-  --surface-hover-rgb: 34, 34, 38;
-  --surface-elevated: #27272a;
-  --surface-elevated-rgb: 39, 39, 42;
+  /* Surfaces & Backgrounds - Exact Reference Dark Navy Theme */
+  --bg: #0b0f17;
+  --bg-rgb: 11, 15, 23;
+  --surface: #111726;
+  --surface-rgb: 17, 23, 38;
+  --surface-2: #162032;
+  --surface-2-rgb: 22, 32, 50;
+  --surface-3: #1a253c;
+  --surface-3-rgb: 26, 37, 60;
+  --surface-hover: #1e2b45;
+  --surface-hover-rgb: 30, 43, 69;
+  --surface-elevated: #243352;
+  --surface-elevated-rgb: 36, 51, 82;
 
-  /* Borders & Dividers */
-  --line: #27272a;
-  --line-rgb: 39, 39, 42;
-  --line-subtle: #1e1e24;
-  --line-subtle-rgb: 30, 30, 36;
+  /* Borders & Dividers - Exact thin low-contrast slate */
+  --line: #1e293b;
+  --line-rgb: 30, 41, 59;
+  --line-subtle: #172033;
+  --line-subtle-rgb: 23, 32, 51;
 
   /* Typography / Text Colors */
-  --text: #f4f4f5;
-  --text-rgb: 244, 244, 245;
-  --text-secondary: #a1a1aa;
-  --text-secondary-rgb: 161, 161, 170;
-  --muted: #71717a;
-  --muted-rgb: 113, 113, 122;
+  --text: #ffffff;
+  --text-rgb: 255, 255, 255;
+  --text-secondary: #94a3b8;
+  --text-secondary-rgb: 148, 163, 184;
+  --muted: #64748b;
+  --muted-rgb: 100, 116, 139;
 
-  /* Accent (Disciplined Indigo) */
-  --accent: #6366f1;
-  --accent-rgb: 99, 102, 241;
-  --accent-hover: #4f46e5;
-  --accent-muted: rgba(99, 102, 241, 0.12);
+  /* Accent (Vibrant Electric Blue from reference) */
+  --accent: #2563eb;
+  --accent-rgb: 37, 99, 235;
+  --accent-hover: #1d4ed8;
+  --accent-muted: rgba(37, 99, 235, 0.15);
 
   /* Status & Difficulty Tokens */
   --easy: #10b981;

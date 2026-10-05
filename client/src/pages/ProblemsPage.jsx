@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, FolderPlus, SearchX, Loader2, AlertCircle } from 'lucide-react';
 import problemsApi from '../api/problems.api';
 import ProblemFilters from '../components/problems/ProblemFilters';
@@ -14,21 +15,37 @@ import DeleteConfirmModal from '../components/problems/DeleteConfirmModal';
  * tabular desktop & stacked mobile views, CRUD actions, and attempt logging.
  */
 export default function ProblemsPage() {
+  const [searchParams] = useSearchParams();
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filters state
-  const [search, setSearch] = useState('');
-  const [difficulty, setDifficulty] = useState('');
-  const [topic, setTopic] = useState('');
-  const [status, setStatus] = useState('');
+  // Filters state initialized from URL query parameters where present
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
+  const [difficulty, setDifficulty] = useState(() => searchParams.get('difficulty') || '');
+  const [topic, setTopic] = useState(() => searchParams.get('topic') || '');
+  const [status, setStatus] = useState(() => searchParams.get('status') || '');
 
   // Modals state
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(() => searchParams.get('action') === 'add');
   const [editingProblem, setEditingProblem] = useState(null);
   const [attemptingProblem, setAttemptingProblem] = useState(null);
   const [deletingProblem, setDeletingProblem] = useState(null);
+
+  // Sync state if URL search parameters update
+  useEffect(() => {
+    const qSearch = searchParams.get('search');
+    const qTopic = searchParams.get('topic');
+    const qDiff = searchParams.get('difficulty');
+    const qStatus = searchParams.get('status');
+    const qAction = searchParams.get('action');
+
+    if (qSearch !== null) setSearch(qSearch);
+    if (qTopic !== null) setTopic(qTopic);
+    if (qDiff !== null) setDifficulty(qDiff);
+    if (qStatus !== null) setStatus(qStatus);
+    if (qAction === 'add') setIsCreateOpen(true);
+  }, [searchParams]);
 
   // Dynamic set of all discovered topics across loaded problems
   const [allKnownTopics, setAllKnownTopics] = useState(new Set());

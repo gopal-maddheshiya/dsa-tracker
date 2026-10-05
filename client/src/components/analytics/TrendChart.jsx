@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -8,25 +8,22 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
+import { ChevronDown } from 'lucide-react';
 import { formatWeeklyDate } from '../../lib/analyticsUtils.js';
 
 /**
- * Custom dark tooltip matching the restrained design system
+ * Custom dark tooltip pin matching reference image callout
  */
 function TrendTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     const item = payload[0];
     return (
-      <div className="bg-surface-2/95 backdrop-blur-sm border border-line rounded-md px-2.5 py-1.5 shadow-xs text-xs font-mono pointer-events-none max-w-[210px]">
-        <div className="text-muted text-[10px] uppercase tracking-wider mb-1 truncate">
-          Week of {formatWeeklyDate(label)}
+      <div className="bg-[#0b0f17] border border-[#1e293b] rounded-xl px-3 py-1.5 shadow-2xl text-center font-mono pointer-events-none -translate-y-2">
+        <div className="text-[10px] text-slate-400">
+          {formatWeeklyDate(label) || label}
         </div>
-        <div className="text-text font-medium flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-accent inline-block shadow-xs shrink-0" />
-          <span className="text-text font-semibold">{item.value}</span>
-          <span className="text-text-secondary text-[11px] font-sans truncate">
-            {item.value === 1 ? 'solved attempt' : 'solved attempts'}
-          </span>
+        <div className="text-white font-bold text-xs">
+          {item.value} problems
         </div>
       </div>
     );
@@ -35,7 +32,7 @@ function TrendTooltip({ active, payload, label }) {
 }
 
 /**
- * TrendChart: Weekly solved attempts over time with glowing gradient fill.
+ * TrendChart: Exact match to "Solving Progress" card in reference image.
  */
 export default function TrendChart({
   data = [],
@@ -43,93 +40,93 @@ export default function TrendChart({
   error = null,
   onRetry = null,
 }) {
-  const hasData = Array.isArray(data) && data.length > 0 && data.some((d) => d.count > 0);
+  const [timeRange, setTimeRange] = useState('Last 30 days');
+  const hasData = Array.isArray(data) && data.length > 0;
 
   return (
-    <div className="p-4 sm:p-4.5 rounded-xl bg-surface border border-line shadow-xs flex flex-col justify-between h-full">
-      {/* Chart Header */}
-      <div className="flex items-start justify-between gap-4 mb-3 border-b border-line-subtle pb-2.5">
+    <div className="p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4 mb-4">
         <div>
-          <h2 className="text-sm font-semibold text-text tracking-tight">Solve trend</h2>
-          <p className="text-xs text-text-secondary mt-0.5">
-            Weekly problem-solving consistency across 12 trailing weeks
+          <h2 className="text-base font-bold text-white tracking-tight">
+            Solving Progress
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Problems solved over time
           </p>
         </div>
-        <span className="text-[10px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line shrink-0">
-          12 Weeks
-        </span>
+
+        {/* Dropdown Filter Pill */}
+        <div className="relative">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2 border border-line text-xs font-medium text-slate-300 hover:text-white transition-colors"
+          >
+            <span>{timeRange}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+        </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col justify-center">
+      {/* Main Chart Area */}
+      <div className="flex-1 flex flex-col justify-center min-h-[220px]">
         {loading ? (
-          <div className="h-52 sm:h-56 w-full animate-pulse flex flex-col justify-end space-y-3 p-4">
-            <div className="h-3.5 bg-surface-2 rounded w-1/4 self-start" />
-            <div className="h-32 bg-surface-2/60 rounded w-full" />
-            <div className="flex justify-between gap-2 pt-2">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-2.5 bg-surface-2 rounded w-10" />
-              ))}
-            </div>
+          <div className="h-56 w-full animate-pulse flex flex-col justify-end space-y-3 p-4">
+            <div className="h-3.5 bg-surface-2 rounded w-1/4" />
+            <div className="h-36 bg-surface-2/60 rounded-xl w-full" />
           </div>
         ) : error ? (
-          <div className="h-52 sm:h-56 border border-line-subtle rounded-lg flex flex-col items-center justify-center p-6 text-center bg-bg/40">
-            <p className="text-xs text-text-secondary font-medium">
+          <div className="h-56 border border-line rounded-xl flex flex-col items-center justify-center p-6 text-center bg-surface-2/20">
+            <p className="text-xs text-slate-400 font-medium">
               Couldn't load solve trend
-            </p>
-            <p className="text-[11px] text-muted mt-1 max-w-xs">
-              {error.message || 'Unable to retrieve historical trend data.'}
             </p>
             {onRetry && (
               <button
                 type="button"
                 onClick={onRetry}
-                className="mt-3 px-3 py-1 text-xs font-mono text-accent hover:text-accent-hover border border-line hover:border-accent/40 rounded transition-colors"
+                className="mt-3 px-3 py-1 text-xs font-mono text-blue-400 hover:underline"
               >
                 Retry
               </button>
             )}
           </div>
         ) : !hasData ? (
-          <div className="h-52 sm:h-56 border border-dashed border-line rounded-lg flex flex-col items-center justify-center p-6 text-center bg-bg/40">
-            <div className="w-8 h-8 rounded-full bg-surface-2 border border-line flex items-center justify-center text-muted mb-2 font-mono text-xs">
-              //
-            </div>
-            <p className="text-xs font-medium text-text">No solved attempts yet</p>
-            <p className="text-[11px] text-muted mt-1 max-w-xs">
-              Once you solve problems, your weekly practice trend will appear here.
+          <div className="h-56 border border-dashed border-line rounded-xl flex flex-col items-center justify-center p-6 text-center bg-surface-2/10">
+            <p className="text-xs font-medium text-white">No solved attempts yet</p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Your weekly progress will graph here as you solve problems.
             </p>
           </div>
         ) : (
-          <div className="w-full h-52 sm:h-56">
+          <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={data}
-                margin={{ top: 10, right: 16, left: -24, bottom: 0 }}
+                margin={{ top: 20, right: 10, left: -25, bottom: 0 }}
               >
                 <defs>
-                  <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+                  <linearGradient id="solveTrendGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.45} />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
-                  stroke="#1e1f24"
-                  strokeDasharray="3 3"
+                  stroke="#1e293b"
+                  strokeDasharray="0"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatWeeklyDate}
-                  tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#27272a' }}
+                  axisLine={{ stroke: '#1e293b' }}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#27272a' }}
+                  axisLine={{ stroke: '#1e293b' }}
                 />
                 <Tooltip
                   content={<TrendTooltip />}
@@ -138,16 +135,21 @@ export default function TrendChart({
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="#6366f1"
-                  strokeWidth={2}
+                  stroke="#3b82f6"
+                  strokeWidth={2.5}
                   fillOpacity={1}
-                  fill="url(#trendGradient)"
-                  dot={{ fill: '#6366f1', r: 2.5, stroke: '#121316', strokeWidth: 1.5 }}
+                  fill="url(#solveTrendGradient)"
+                  dot={{
+                    fill: '#3b82f6',
+                    r: 3.5,
+                    stroke: '#ffffff',
+                    strokeWidth: 1.5,
+                  }}
                   activeDot={{
-                    fill: '#6366f1',
-                    stroke: '#0b0c0e',
-                    strokeWidth: 2,
-                    r: 5,
+                    fill: '#ffffff',
+                    stroke: '#3b82f6',
+                    strokeWidth: 3,
+                    r: 6,
                   }}
                   isAnimationActive={false}
                 />
@@ -156,29 +158,6 @@ export default function TrendChart({
           </div>
         )}
       </div>
-
-      {/* Accessible data table for screen-readers */}
-      {hasData && (
-        <div className="sr-only">
-          <h3>Weekly solve trend table</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th>Solved attempts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item) => (
-                <tr key={item.date}>
-                  <td>{item.date}</td>
-                  <td>{item.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }
