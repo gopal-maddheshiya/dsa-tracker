@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Clock, Target, HelpCircle, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Clock, Target, HelpCircle, AlertCircle, CheckCircle2, Plus } from 'lucide-react';
 import {
   DifficultyBadge,
   StatusBadge,
@@ -20,7 +20,7 @@ import {
  * Transparently discloses priority score, attempt recency, target interval, and rationale.
  * Optimized for clear reading rhythm, scannable priority, and responsive presentation.
  */
-export default function RevisionCard({ item, index }) {
+export default function RevisionCard({ item, index, onQuickLog }) {
   if (!item) return null;
 
   const isFirst = index === 0;
@@ -168,15 +168,28 @@ export default function RevisionCard({ item, index }) {
             </span>
           </div>
 
-          {/* Primary Action Button */}
-          <Link
-            to={`/problems/${item.id}`}
-            aria-label={`Review problem ${item.title}`}
-            className="h-9 inline-flex items-center justify-center gap-1.5 px-4 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-150 active:scale-95 shadow-xs shrink-0"
-          >
-            <span>Review problem</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            {onQuickLog && (
+              <button
+                type="button"
+                onClick={() => onQuickLog(item)}
+                className="h-9 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs shrink-0"
+                title="Quick log attempt without navigating"
+              >
+                <Plus className="w-3.5 h-3.5 text-muted" />
+                <span>Quick log</span>
+              </button>
+            )}
+            <Link
+              to={`/problems/${item.id}`}
+              aria-label={`Review problem ${item.title}`}
+              className="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-150 active:scale-95 shadow-xs shrink-0"
+            >
+              <span>Review</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

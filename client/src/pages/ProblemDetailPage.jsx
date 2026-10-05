@@ -10,6 +10,7 @@ import {
   Calendar,
   History,
   AlertCircle,
+  RotateCcw,
 } from 'lucide-react';
 import problemsApi from '../api/problems.api';
 import {
@@ -72,6 +73,44 @@ export default function ProblemDetailPage() {
   }, [attempts]);
 
   const latestAttempt = attempts.length > 0 ? attempts[0] : null;
+
+  // Spaced Repetition Cadence calculation
+  const revisionInfo = useMemo(() => {
+    if (!latestAttempt) return null;
+    const intervalMap = {
+      struggled: 2,
+      revisit_needed: 5,
+      solved: 14,
+    };
+    const intervalDays = intervalMap[latestAttempt.status] || 7;
+    const attemptedTime = new Date(latestAttempt.attemptedAt).getTime();
+    const dueTime = attemptedTime + intervalDays * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const diffDays = Math.round((dueTime - now) / (1000 * 60 * 60 * 24));
+
+    let urgencyLabel = 'Upcoming';
+    let urgencyColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
+    let dueText = `Due in ${diffDays}d`;
+
+    if (diffDays <= 0) {
+      if (diffDays === 0) {
+        urgencyLabel = 'Due today';
+        urgencyColor = 'text-amber-400 bg-amber-500/10 border-amber-500/25';
+        dueText = 'Ready for review today';
+      } else {
+        urgencyLabel = 'Overdue';
+        urgencyColor = 'text-rose-400 bg-rose-500/10 border-rose-500/25';
+        dueText = `Overdue by ${Math.abs(diffDays)}d`;
+      }
+    }
+
+    return {
+      intervalDays,
+      dueText,
+      urgencyLabel,
+      urgencyColor,
+    };
+  }, [latestAttempt]);
 
   // Handlers
   const handleEditSubmit = async (formData) => {
@@ -161,7 +200,7 @@ export default function ProblemDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12 animate-in fade-in duration-200">
+    <div className="max-w-7xl mx-auto space-y-6 pb-24 sm:pb-12 animate-in fade-in duration-200">
       {/* Restrained Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-muted">
         <Link
@@ -305,11 +344,35 @@ export default function ProblemDetailPage() {
             </span>
           </div>
         </div>
+
+        {/* Spaced Repetition Cadence HUD */}
+        {revisionInfo && (
+          <div className="p-3 sm:p-3.5 rounded-lg bg-surface-2/50 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-md bg-accent/10 border border-accent/25 text-accent shrink-0">
+                <RotateCcw className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase text-muted tracking-wider block">
+                  Spaced Repetition Schedule
+                </span>
+                <span className="text-xs font-medium text-text">
+                  Target {revisionInfo.intervalDays}-day interval · {revisionInfo.dueText}
+                </span>
+              </div>
+            </div>
+            <span
+              className={`text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded border self-start sm:self-auto ${revisionInfo.urgencyColor}`}
+            >
+              {revisionInfo.urgencyLabel}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Attempt History Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-line pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-line pb-3 gap-2">
           <div className="flex items-center gap-2">
             <History className="w-4 h-4 text-muted" />
             <h2 className="text-sm font-semibold text-text">Practice History</h2>
@@ -320,7 +383,7 @@ export default function ProblemDetailPage() {
           <button
             type="button"
             onClick={() => setIsAttemptOpen(true)}
-            className="text-xs font-medium text-accent hover:underline inline-flex items-center gap-1"
+            className="text-xs font-medium text-accent hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
           >
             <Plus className="w-3 h-3" />
             <span>Record new attempt</span>

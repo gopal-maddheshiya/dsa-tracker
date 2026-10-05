@@ -84,18 +84,99 @@ export default function ProblemsPage() {
     };
   }, [loadProblems]);
 
+  // Column sorting state (default: last attempt descending)
+  const [sortConfig, setSortConfig] = useState({ key: 'lastAttempt', direction: 'desc' });
+
+  const handleSort = (columnKey) => {
+    setSortConfig((prev) => {
+      if (prev.key === columnKey) {
+        return { key: columnKey, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key: columnKey, direction: columnKey === 'lastAttempt' ? 'desc' : 'asc' };
+    });
+  };
+
   // Client-side handling for "not_attempted" filter
-  const displayedProblems = useMemo(() => {
+  const filteredProblems = useMemo(() => {
     if (status === 'not_attempted') {
       return problems.filter((p) => !p.latestAttempt);
     }
     return problems;
   }, [problems, status]);
 
+  // Client-side multi-column sorting
+  const displayedProblems = useMemo(() => {
+    const list = [...filteredProblems];
+    const { key, direction } = sortConfig;
+    const multiplier = direction === 'asc' ? 1 : -1;
+
+    const difficultyRanks = { easy: 1, medium: 2, hard: 3 };
+    const statusRanks = { not_attempted: 0, struggled: 1, revisit_needed: 2, solved: 3 };
+
+    list.sort((a, b) => {
+      if (key === 'title') {
+        return multiplier * (a.title || '').localeCompare(b.title || '');
+      }
+      if (key === 'difficulty') {
+        const diffA = difficultyRanks[a.difficulty] || 0;
+        const diffB = difficultyRanks[b.difficulty] || 0;
+        return multiplier * (diffA - diffB);
+      }
+      if (key === 'status') {
+        const statusA = a.latestAttempt ? statusRanks[a.latestAttempt.status] : 0;
+        const statusB = b.latestAttempt ? statusRanks[b.latestAttempt.status] : 0;
+        return multiplier * (statusA - statusB);
+      }
+      if (key === 'lastAttempt') {
+        const timeA = a.latestAttempt?.attemptedAt
+          ? new Date(a.latestAttempt.attemptedAt).getTime()
+          : 0;
+        const timeB = b.latestAttempt?.attemptedAt
+          ? new Date(b.latestAttempt.attemptedAt).getTime()
+          : 0;
+        return multiplier * (timeA - timeB);
+      }
+      return 0;
+    });
+    return list;
+  }, [filteredProblems, sortConfig]);
+
   // Sorted topic list for dropdown
   const availableTopics = useMemo(() => {
     return Array.from(allKnownTopics).sort((a, b) => a.localeCompare(b));
   }, [allKnownTopics]);
+
+  // Export current filtered problem repository to CSV
+  const handleExportCsv = () => {
+    if (!displayedProblems || displayedProblems.length === 0) return;
+
+    const headers = ['Title', 'Platform', 'Difficulty', 'Topics', 'Status', 'Latest Attempt Date', 'URL'];
+    const rows = displayedProblems.map((p) => {
+      const statusStr = p.latestAttempt?.status || 'not_attempted';
+      const dateStr = p.latestAttempt?.attemptedAt
+        ? new Date(p.latestAttempt.attemptedAt).toLocaleDateString()
+        : 'Never';
+      const topicsStr = Array.isArray(p.topics) ? p.topics.join('; ') : '';
+      return [
+        `"${(p.title || '').replace(/"/g, '""')}"`,
+        `"${p.platform || ''}"`,
+        `"${p.difficulty || ''}"`,
+        `"${topicsStr.replace(/"/g, '""')}"`,
+        `"${statusStr}"`,
+        `"${dateStr}"`,
+        `"${p.link || ''}"`,
+      ].join(',');
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `dsa-problems-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Clear all filters
   const handleClearFilters = () => {
@@ -134,7 +215,7 @@ export default function ProblemsPage() {
   );
 
   return (
-    <div className="space-y-6 pb-12 max-w-7xl mx-auto">
+    <div className="space-y-6 pb-20 sm:pb-12 max-w-7xl mx-auto">
       {/* Standardized Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
         <div>
@@ -179,6 +260,7 @@ export default function ProblemsPage() {
         totalCount={problems.length}
         filteredCount={displayedProblems.length}
         onClearFilters={handleClearFilters}
+        onExportCsv={handleExportCsv}
       />
 
       {/* Error Banner */}
@@ -239,6 +321,8 @@ export default function ProblemsPage() {
           <div className="hidden md:block">
             <ProblemTable
               problems={displayedProblems}
+              sortConfig={sortConfig}
+              onSort={handleSort}
               onLogAttempt={(p) => setAttemptingProblem(p)}
               onEditProblem={(p) => setEditingProblem(p)}
               onDeleteProblem={(p) => setDeletingProblem(p)}

@@ -42,22 +42,68 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
   const topItem = queueLength > 0 ? safeQueue[0] : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {/* 1. Queue Depth */}
-      <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-accent/70 shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-text-secondary tracking-wide">Queue depth</span>
-          <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
-            Top 20 max
-          </span>
-        </div>
-        <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
-          {queueLength}
-        </div>
-        <div className="text-[11px] text-muted">
-          {queueLength === 1 ? '1 problem requiring attention' : `${queueLength} problems requiring attention`}
+    <div>
+      {/* 1. Mobile Compact 3-Column Strip (< sm): Saves 380px vertical height */}
+      <div className="block sm:hidden p-3 rounded-xl bg-surface border border-line shadow-xs">
+        <div className="grid grid-cols-3 divide-x divide-line/60 text-center">
+          {/* Queue Depth */}
+          <div className="px-1.5">
+            <span className="text-[10px] font-mono uppercase text-muted tracking-wider block">
+              Queue
+            </span>
+            <span className="text-xl font-bold font-mono text-text block my-0.5">
+              {queueLength}
+            </span>
+            <span className="text-[10px] text-muted block truncate">
+              Top 20 max
+            </span>
+          </div>
+
+          {/* Due Today */}
+          <div className="px-1.5">
+            <span className="text-[10px] font-mono uppercase text-amber-400 tracking-wider block">
+              Due Now
+            </span>
+            <span className="text-xl font-bold font-mono text-amber-400 block my-0.5">
+              {dueCount}
+            </span>
+            <span className="text-[10px] text-muted block truncate">
+              {dueCount > 0 ? 'Action needed' : 'All clear'}
+            </span>
+          </div>
+
+          {/* 7-Day Velocity */}
+          <div className="px-1.5">
+            <span className="text-[10px] font-mono uppercase text-accent tracking-wider block">
+              7D Velocity
+            </span>
+            <span className="text-xl font-bold font-mono text-text block my-0.5">
+              {velocity !== null ? velocity : '—'}
+            </span>
+            <span className="text-[10px] text-muted block truncate">
+              Reviews
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* 2. Desktop 3-Card Row (>= sm) */}
+      <div className="hidden sm:grid sm:grid-cols-3 gap-4">
+        {/* 1. Queue Depth */}
+        <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-accent/70 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-text-secondary tracking-wide">Queue depth</span>
+            <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
+              Top 20 max
+            </span>
+          </div>
+          <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
+            {queueLength}
+          </div>
+          <div className="text-[11px] text-muted">
+            {queueLength === 1 ? '1 problem requiring attention' : `${queueLength} problems requiring attention`}
+          </div>
+        </div>
 
       {/* 2. Due Today (Urgency Focal Point) */}
       <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between">
@@ -122,5 +168,6 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }

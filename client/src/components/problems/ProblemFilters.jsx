@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, Filter, RotateCcw, ChevronDown } from 'lucide-react';
+import { Search, X, Filter, RotateCcw, ChevronDown, Download } from 'lucide-react';
 
 /**
  * ProblemFilters component
- * Handles debounced search and multi-criteria filters for topics, difficulties, and statuses.
+ * Handles debounced search, quick one-click filter chips, multi-criteria dropdowns, and CSV export.
  */
 export default function ProblemFilters({
   search,
@@ -18,6 +18,7 @@ export default function ProblemFilters({
   totalCount = 0,
   filteredCount = 0,
   onClearFilters,
+  onExportCsv,
 }) {
   const [searchInput, setSearchInput] = useState(search);
 
@@ -41,8 +42,60 @@ export default function ProblemFilters({
     search.trim() || difficulty || topic || status
   );
 
+  // Quick Preset Chips
+  const quickFilters = [
+    { label: 'All', active: !hasActiveFilters, onClick: onClearFilters },
+    {
+      label: '⚠️ Struggled',
+      active: status === 'struggled',
+      onClick: () => onStatusChange(status === 'struggled' ? '' : 'struggled'),
+    },
+    {
+      label: '🔄 Revisit',
+      active: status === 'revisit_needed',
+      onClick: () => onStatusChange(status === 'revisit_needed' ? '' : 'revisit_needed'),
+    },
+    {
+      label: '✅ Solved',
+      active: status === 'solved',
+      onClick: () => onStatusChange(status === 'solved' ? '' : 'solved'),
+    },
+    {
+      label: '⏳ Unattempted',
+      active: status === 'not_attempted',
+      onClick: () => onStatusChange(status === 'not_attempted' ? '' : 'not_attempted'),
+    },
+    {
+      label: '⚡ Hard',
+      active: difficulty === 'hard',
+      onClick: () => onDifficultyChange(difficulty === 'hard' ? '' : 'hard'),
+    },
+  ];
+
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
+      {/* 1. One-Click Quick Filter Chips */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <span className="text-[10px] font-mono text-muted uppercase tracking-wider shrink-0 mr-1 hidden sm:inline">
+          Quick filters:
+        </span>
+        {quickFilters.map((q) => (
+          <button
+            key={q.label}
+            type="button"
+            onClick={q.onClick}
+            className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-150 active:scale-95 shrink-0 ${
+              q.active
+                ? 'bg-accent text-white font-semibold shadow-xs'
+                : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover border border-line'
+            }`}
+          >
+            {q.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 2. Main Search & Dropdown Controls */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2.5">
         {/* Search input with search icon & clear button */}
         <div className="relative flex-1">
@@ -69,69 +122,69 @@ export default function ProblemFilters({
           )}
         </div>
 
-        {/* Filter controls row */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Filter controls: 3-column grid on mobile, flex on desktop */}
+        <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2">
           {/* Difficulty Dropdown */}
-          <div className="relative">
+          <div className="relative col-span-1">
             <select
               value={difficulty}
               onChange={(e) => onDifficultyChange(e.target.value)}
               aria-label="Filter by difficulty"
-              className={`h-9 px-3 pr-8 bg-surface-2 text-xs rounded-md border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${
+              className={`w-full sm:w-auto h-9 px-2 sm:px-3 pr-7 sm:pr-8 bg-surface-2 text-xs rounded-md border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${
                 difficulty
                   ? 'border-accent/60 text-text font-medium'
                   : 'border-line text-text-secondary'
               }`}
             >
-              <option value="">All difficulties</option>
+              <option value="">Difficulty</option>
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted w-3.5 h-3.5" />
+            <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted w-3.5 h-3.5" />
           </div>
 
           {/* Topic Dropdown */}
-          <div className="relative">
+          <div className="relative col-span-1">
             <select
               value={topic}
               onChange={(e) => onTopicChange(e.target.value)}
               aria-label="Filter by topic"
-              className={`h-9 px-3 pr-8 bg-surface-2 text-xs rounded-md border focus:outline-none focus:border-accent appearance-none cursor-pointer max-w-[170px] truncate shadow-xs transition-colors ${
+              className={`w-full sm:w-auto h-9 px-2 sm:px-3 pr-7 sm:pr-8 bg-surface-2 text-xs rounded-md border focus:outline-none focus:border-accent appearance-none cursor-pointer sm:max-w-[170px] truncate shadow-xs transition-colors ${
                 topic
                   ? 'border-accent/60 text-text font-medium'
                   : 'border-line text-text-secondary'
               }`}
             >
-              <option value="">All topics</option>
+              <option value="">Topic</option>
               {availableTopics.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted w-3.5 h-3.5" />
+            <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted w-3.5 h-3.5" />
           </div>
 
           {/* Status Dropdown */}
-          <div className="relative">
+          <div className="relative col-span-1">
             <select
               value={status}
               onChange={(e) => onStatusChange(e.target.value)}
               aria-label="Filter by status"
-              className={`h-9 px-3 pr-8 bg-surface-2 text-xs rounded-md border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${
+              className={`w-full sm:w-auto h-9 px-2 sm:px-3 pr-7 sm:pr-8 bg-surface-2 text-xs rounded-md border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${
                 status
                   ? 'border-accent/60 text-text font-medium'
                   : 'border-line text-text-secondary'
               }`}
             >
-              <option value="">All statuses</option>
+              <option value="">Status</option>
               <option value="solved">Solved</option>
-              <option value="revisit_needed">Revisit needed</option>
+              <option value="revisit_needed">Revisit</option>
               <option value="struggled">Struggled</option>
-              <option value="not_attempted">Not attempted</option>
+              <option value="not_attempted">Not tried</option>
             </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted w-3.5 h-3.5" />
+            <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted w-3.5 h-3.5" />
           </div>
 
           {/* Clear Filters Action */}
@@ -142,16 +195,16 @@ export default function ProblemFilters({
                 setSearchInput('');
                 onClearFilters();
               }}
-              className="h-9 inline-flex items-center gap-1.5 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+              className="col-span-3 sm:col-auto h-9 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
             >
               <RotateCcw className="w-3 h-3 text-muted" />
-              <span>Reset</span>
+              <span>Reset filters</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Active Filter Chips & Summary Bar */}
+      {/* Active Filter Chips & Summary Bar with CSV Export */}
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-0.5">
         <div className="flex flex-wrap items-center gap-1.5">
           {hasActiveFilters && (
@@ -218,9 +271,23 @@ export default function ProblemFilters({
           )}
         </div>
 
-        <div className="text-[11px] text-muted font-mono ml-auto">
-          Showing <span className="text-text font-semibold">{filteredCount}</span> of {totalCount} {totalCount === 1 ? 'problem' : 'problems'}
-          {hasActiveFilters && ' (filtered)'}
+        <div className="flex items-center gap-3 ml-auto">
+          <div className="text-[11px] text-muted font-mono">
+            Showing <span className="text-text font-semibold">{filteredCount}</span> of {totalCount} {totalCount === 1 ? 'problem' : 'problems'}
+            {hasActiveFilters && ' (filtered)'}
+          </div>
+
+          {onExportCsv && (
+            <button
+              type="button"
+              onClick={onExportCsv}
+              className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-mono text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line rounded transition-all active:scale-95"
+              title="Export filtered problems to CSV"
+            >
+              <Download className="w-3 h-3 text-muted" />
+              <span>Export CSV</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

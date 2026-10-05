@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCw, BookOpen, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import { RotateCw, BookOpen, CheckCircle2, AlertCircle, ArrowRight, Search, X } from 'lucide-react';
 import { getRevisionQueue, getSummary, getHeatmap } from '../api/analytics.api.js';
+import problemsApi from '../api/problems.api.js';
 import RevisionSummary from '../components/revision/RevisionSummary.jsx';
 import RevisionCard from '../components/revision/RevisionCard.jsx';
 import AlgorithmExplainer from '../components/revision/AlgorithmExplainer.jsx';
+import AttemptFormModal from '../components/problems/AttemptFormModal.jsx';
 
 /**
  * RevisionPage: Explainable spaced-repetition revision workspace.
@@ -77,13 +79,56 @@ export default function RevisionPage() {
     return () => window.removeEventListener('focus', handleFocus);
   }, [loadRevisionData]);
 
+  const [attemptingProblem, setAttemptingProblem] = useState(null);
+  const [filterTopic, setFilterTopic] = useState('');
+  const [filterUrgency, setFilterUrgency] = useState('all'); // 'all' | 'due' | 'overdue' | 'hard'
+
+  // Extract unique topics present in the current revision queue
+  const availableTopics = useMemo(() => {
+    const set = new Set();
+    queue.forEach((item) => {
+      if (Array.isArray(item.topics)) {
+        item.topics.forEach((t) => set.add(t));
+      }
+    });
+    return Array.from(set).sort();
+  }, [queue]);
+
+  // Client-side queue filtering
+  const filteredQueue = useMemo(() => {
+    return queue.filter((item) => {
+      if (filterTopic && (!item.topics || !item.topics.includes(filterTopic))) {
+        return false;
+      }
+      if (filterUrgency === 'due') {
+        const isDue = item.daysSinceLastAttempt >= item.intervalDays;
+        if (!isDue) return false;
+      }
+      if (filterUrgency === 'overdue') {
+        const isOverdue = item.daysSinceLastAttempt > item.intervalDays;
+        if (!isOverdue) return false;
+      }
+      if (filterUrgency === 'hard') {
+        if (item.difficulty !== 'hard') return false;
+      }
+      return true;
+    });
+  }, [queue, filterTopic, filterUrgency]);
+
+  const handleQuickLogSubmit = async (attemptData) => {
+    if (!attemptingProblem) return;
+    await problemsApi.createAttempt(attemptingProblem.id, attemptData);
+    await loadRevisionData(true);
+    setAttemptingProblem(null);
+  };
+
   const isBrandNewUser =
     !loading && summaryData && summaryData.totalProblems === 0;
   const isQueueClear =
     !loading && !isBrandNewUser && queue.length === 0;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="max-w-7xl mx-auto space-y-6 pb-24 sm:pb-12">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-line pb-5">
         <div>
@@ -96,7 +141,9 @@ export default function RevisionPage() {
             </h1>
             {!loading && queue.length > 0 && (
               <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
-                {queue.length} {queue.length === 1 ? 'problem' : 'problems'}
+                {filteredQueue.length === queue.length
+                  ? `${queue.length} problems`
+                  : `${filteredQueue.length} of ${queue.length} problems`}
               </span>
             )}
           </div>
@@ -138,14 +185,85 @@ export default function RevisionPage() {
 
       {/* Primary Queue Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-line-subtle pb-2">
-          <h2 className="text-sm font-semibold text-text">
-            Prioritized Queue
-          </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-line-subtle pb-2 gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-text">
+              Prioritized Queue
+            </h2>
+            {!loading && queue.length > 0 && (
+              <span className="text-[11px] font-mono text-muted">
+                (Score descending)
+              </span>
+            )}
+          </div>
+
+          {/* Quick Queue Filters */}
           {!loading && queue.length > 0 && (
-            <span className="text-[11px] font-mono text-muted">
-              Ranked strictly by priority score descending
-            </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterUrgency('all');
+                  setFilterTopic('');
+                }}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
+                  filterUrgency === 'all' && !filterTopic
+                    ? 'bg-accent text-white font-medium shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterUrgency(filterUrgency === 'due' ? 'all' : 'due')}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
+                  filterUrgency === 'due'
+                    ? 'bg-amber-500 text-white font-medium shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
+                }`}
+              >
+                ⚡ Due now
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterUrgency(filterUrgency === 'overdue' ? 'all' : 'overdue')}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
+                  filterUrgency === 'overdue'
+                    ? 'bg-rose-500 text-white font-medium shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
+                }`}
+              >
+                ⚠️ Overdue
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterUrgency(filterUrgency === 'hard' ? 'all' : 'hard')}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
+                  filterUrgency === 'hard'
+                    ? 'bg-accent text-white font-medium shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
+                }`}
+              >
+                Hard
+              </button>
+
+              {/* Topic Pills if present */}
+              {availableTopics.slice(0, 4).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setFilterTopic(filterTopic === t ? '' : t)}
+                  className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
+                    filterTopic === t
+                      ? 'bg-accent text-white font-medium shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -251,16 +369,43 @@ export default function RevisionPage() {
         {/* Ranked Revision Queue List */}
         {!loading && !error && queue.length > 0 && (
           <div className="space-y-3">
-            {queue.map((item, index) => (
-              <RevisionCard
-                key={item.id || index}
-                item={item}
-                index={index}
-              />
-            ))}
+            {filteredQueue.length > 0 ? (
+              filteredQueue.map((item, index) => (
+                <RevisionCard
+                  key={item.id || index}
+                  item={item}
+                  index={index}
+                  onQuickLog={(p) => setAttemptingProblem(p)}
+                />
+              ))
+            ) : (
+              <div className="p-8 border border-line rounded-lg text-center bg-surface/40 space-y-2">
+                <p className="text-xs text-muted">No problems match the selected revision filters.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterTopic('');
+                    setFilterUrgency('all');
+                  }}
+                  className="text-xs text-accent underline hover:no-underline"
+                >
+                  Reset filters
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Direct Quick Log Attempt Modal */}
+      {attemptingProblem && (
+        <AttemptFormModal
+          isOpen={Boolean(attemptingProblem)}
+          onClose={() => setAttemptingProblem(null)}
+          onSubmit={handleQuickLogSubmit}
+          problemTitle={attemptingProblem.title}
+        />
+      )}
     </div>
   );
 }

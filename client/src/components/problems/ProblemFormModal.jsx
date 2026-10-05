@@ -136,6 +136,72 @@ export default function ProblemFormModal({
     .map((t) => t.trim())
     .filter(Boolean);
 
+  // Common topics for rapid tagging
+  const SUGGESTED_TOPICS = [
+    'Array',
+    'String',
+    'Hash Table',
+    'Dynamic Programming',
+    'Tree',
+    'Binary Search',
+    'Two Pointers',
+    'Graph',
+    'Stack',
+    'Heap',
+    'Sliding Window',
+    'Greedy',
+  ];
+
+  // Smart URL parsing helper
+  const handleUrlChange = (url) => {
+    let nextPlatform = formData.platform;
+    let nextTitle = formData.title;
+
+    try {
+      const trimmed = url.trim();
+      if (/leetcode\.com\/problems\/([^/?#]+)/i.test(trimmed)) {
+        nextPlatform = 'leetcode';
+        const match = trimmed.match(/leetcode\.com\/problems\/([^/?#]+)/i);
+        if (match && match[1] && !formData.title.trim()) {
+          // Format slug: e.g. "trapping-rain-water" -> "Trapping Rain Water"
+          nextTitle = match[1]
+            .split('-')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+        }
+      } else if (/geeksforgeeks\.org/i.test(trimmed)) {
+        nextPlatform = 'gfg';
+      } else if (/codechef\.com/i.test(trimmed)) {
+        nextPlatform = 'codechef';
+      } else if (/hackerrank\.com/i.test(trimmed)) {
+        nextPlatform = 'hackerrank';
+      }
+    } catch (e) {}
+
+    setFormData((prev) => ({
+      ...prev,
+      link: url,
+      platform: nextPlatform,
+      title: nextTitle,
+    }));
+  };
+
+  // Toggle suggested topic in comma-separated list
+  const toggleTopic = (topicName) => {
+    const current = formData.topics
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const exists = current.some((t) => t.toLowerCase() === topicName.toLowerCase());
+    let next;
+    if (exists) {
+      next = current.filter((t) => t.toLowerCase() !== topicName.toLowerCase());
+    } else {
+      next = [...current, topicName];
+    }
+    setFormData((prev) => ({ ...prev, topics: next.join(', ') }));
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150"
@@ -176,13 +242,42 @@ export default function ProblemFormModal({
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           <FormAlert message={error} />
 
-          {/* Section 1: Problem Identity */}
+          {/* Reference Link (First for smart auto-fill when adding) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-text-secondary">
+                Problem URL <span className="text-danger">*</span>
+              </label>
+              {!initialData && (
+                <span className="text-[10px] font-mono text-accent">
+                  Auto-detects title & platform
+                </span>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                id="problem-url-input"
+                name="url"
+                type="url"
+                required
+                value={formData.link}
+                onChange={(e) => handleUrlChange(e.target.value)}
+                placeholder="https://leetcode.com/problems/merge-intervals/"
+                className="w-full h-9 pl-8 pr-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono placeholder:text-muted/60"
+              />
+              <LinkIcon className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Problem Identity */}
           <div className="space-y-3.5">
             <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1.5">
+              <label htmlFor="problem-title-input" className="block text-xs font-medium text-text-secondary mb-1.5">
                 Problem Title <span className="text-danger">*</span>
               </label>
               <input
+                id="problem-title-input"
+                name="title"
                 type="text"
                 required
                 value={formData.title}
@@ -230,29 +325,14 @@ export default function ProblemFormModal({
             </div>
           </div>
 
-          {/* Section 2: Reference Link */}
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              Problem URL <span className="text-danger">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="url"
-                required
-                value={formData.link}
-                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                placeholder="https://leetcode.com/problems/merge-intervals/"
-                className="w-full h-9 pl-8 pr-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono placeholder:text-muted/60"
-              />
-              <LinkIcon className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5 pointer-events-none" />
-            </div>
-          </div>
-
           {/* Section 3: Topics Classification */}
           <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              Topics (comma-separated) <span className="text-danger">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-text-secondary">
+                Topics (comma-separated) <span className="text-danger">*</span>
+              </label>
+              <span className="text-[10px] text-muted">Click chips to toggle</span>
+            </div>
             <input
               type="text"
               required
@@ -261,21 +341,29 @@ export default function ProblemFormModal({
               placeholder="Array, Sorting, Two Pointers"
               className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-muted/60"
             />
-            {parsedTopicList.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {parsedTopicList.map((t, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono text-text bg-surface-2 border border-line"
+
+            {/* Quick Suggested Topics Pills */}
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              {SUGGESTED_TOPICS.map((topicName) => {
+                const isSelected = parsedTopicList.some(
+                  (t) => t.toLowerCase() === topicName.toLowerCase()
+                );
+                return (
+                  <button
+                    key={topicName}
+                    type="button"
+                    onClick={() => toggleTopic(topicName)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all duration-150 active:scale-95 ${
+                      isSelected
+                        ? 'bg-accent text-white font-medium shadow-xs'
+                        : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover border border-line'
+                    }`}
                   >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
-            <p className="text-[11px] text-muted mt-1.5">
-              Separate multiple topics with commas. Capitalization and order are preserved.
-            </p>
+                    {isSelected ? `✓ ${topicName}` : `+ ${topicName}`}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Action Footer */}

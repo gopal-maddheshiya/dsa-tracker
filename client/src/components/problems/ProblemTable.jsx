@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Plus, Edit2, Trash2 } from 'lucide-react';
+import { ExternalLink, Plus, Edit2, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   DifficultyBadge,
   StatusBadge,
@@ -10,37 +10,82 @@ import {
 
 /**
  * ProblemTable
- * High-density, scan-friendly table layout for desktop viewports.
+ * High-density, scan-friendly table layout for desktop viewports with interactive column sorting.
  */
 export default function ProblemTable({
   problems = [],
+  sortConfig = { key: 'lastAttempt', direction: 'desc' },
+  onSort,
   onLogAttempt,
   onEditProblem,
   onDeleteProblem,
 }) {
+  const renderSortIndicator = (columnKey) => {
+    if (!onSort) return null;
+    const isActive = sortConfig?.key === columnKey;
+    if (isActive) {
+      return sortConfig.direction === 'asc' ? (
+        <ArrowUp className="w-3 h-3 text-accent shrink-0" />
+      ) : (
+        <ArrowDown className="w-3 h-3 text-accent shrink-0" />
+      );
+    }
+    return (
+      <ArrowUpDown className="w-3 h-3 text-muted/50 group-hover/th:text-text transition-colors shrink-0" />
+    );
+  };
+
   return (
     <div className="rounded-lg bg-surface border border-line overflow-hidden shadow-xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-line bg-surface-2/60 text-muted font-mono uppercase text-[10px] tracking-wider">
+            <tr className="border-b border-line bg-surface-2/60 text-muted font-mono uppercase text-[10px] tracking-wider select-none">
               <th scope="col" className="py-2.5 px-4 font-semibold">
-                Problem
+                <button
+                  type="button"
+                  onClick={() => onSort?.('title')}
+                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10px]"
+                >
+                  <span>Problem</span>
+                  {renderSortIndicator('title')}
+                </button>
               </th>
               <th scope="col" className="py-2.5 px-3 font-semibold">
                 Platform
               </th>
               <th scope="col" className="py-2.5 px-3 font-semibold">
-                Difficulty
+                <button
+                  type="button"
+                  onClick={() => onSort?.('difficulty')}
+                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10px]"
+                >
+                  <span>Difficulty</span>
+                  {renderSortIndicator('difficulty')}
+                </button>
               </th>
               <th scope="col" className="py-2.5 px-3 font-semibold">
                 Topics
               </th>
               <th scope="col" className="py-2.5 px-3 font-semibold">
-                Status
+                <button
+                  type="button"
+                  onClick={() => onSort?.('status')}
+                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10px]"
+                >
+                  <span>Status</span>
+                  {renderSortIndicator('status')}
+                </button>
               </th>
               <th scope="col" className="py-2.5 px-3 font-semibold">
-                Last Attempt
+                <button
+                  type="button"
+                  onClick={() => onSort?.('lastAttempt')}
+                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10px]"
+                >
+                  <span>Last Attempt</span>
+                  {renderSortIndicator('lastAttempt')}
+                </button>
               </th>
               <th scope="col" className="py-2.5 px-4 font-semibold text-right">
                 Actions

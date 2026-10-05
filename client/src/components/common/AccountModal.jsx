@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import { X, Mail, Calendar, ShieldCheck, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Mail, Calendar, ShieldCheck, LogOut, Download, Loader2 } from 'lucide-react';
+import problemsApi from '../../api/problems.api.js';
 
 /**
  * Format account creation date into clean readable string (e.g. "October 2026")
@@ -21,6 +22,36 @@ function formatMemberDate(dateStr) {
  * Adapts as a bottom sheet on mobile screens and a centered modal on desktop.
  */
 export default function AccountModal({ isOpen, onClose, user, onLogout }) {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportData = async () => {
+    setIsExporting(true);
+    try {
+      const res = await problemsApi.getProblems();
+      const exportPayload = {
+        exportedAt: new Date().toISOString(),
+        user: { name: user?.name, email: user?.email },
+        problems: res.data?.problems || [],
+      };
+      const dataStr =
+        'data:text/json;charset=utf-8,' +
+        encodeURIComponent(JSON.stringify(exportPayload, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute(
+        'download',
+        `dsa-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`
+      );
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (e) {
+      console.error('Failed to export data:', e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Close on Escape key
   useEffect(() => {
     if (!isOpen) return;
@@ -139,7 +170,21 @@ export default function AccountModal({ isOpen, onClose, user, onLogout }) {
           </div>
 
           {/* Action Footer */}
-          <div className="pt-2 border-t border-line">
+          <div className="pt-2 border-t border-line space-y-2">
+            <button
+              type="button"
+              onClick={handleExportData}
+              disabled={isExporting}
+              className="w-full h-9 inline-flex items-center justify-center gap-2 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5 text-muted" />
+              )}
+              <span>{isExporting ? 'Exporting...' : 'Export Workspace Data (JSON)'}</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {

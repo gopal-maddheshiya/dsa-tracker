@@ -243,9 +243,25 @@ export default function AttemptFormModal({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                Time Spent (minutes)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-text-secondary">
+                  Time Spent (minutes)
+                </label>
+                <div className="flex items-center gap-1">
+                  {[15, 30, 45, 60].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, timeTakenMinutes: mins.toString() })
+                      }
+                      className="px-1.5 py-0.5 text-[9px] font-mono rounded bg-surface-2 text-muted hover:text-text hover:bg-surface-hover border border-line transition-all active:scale-95"
+                    >
+                      {mins}m
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="relative">
                 <input
                   type="number"
