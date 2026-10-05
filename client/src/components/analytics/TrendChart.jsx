@@ -44,14 +44,14 @@ export default function TrendChart({
   const hasData = Array.isArray(data) && data.length > 0;
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
+    <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-4">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight">
-            Solving Progress
+          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+            Solve Trend
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
             Problems solved over time
           </p>
         </div>

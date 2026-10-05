@@ -25,9 +25,15 @@ export default function HeatmapGrid({
   const [hoveredCell, setHoveredCell] = useState(null);
 
   // Generate 26-week matrix (~6 months) to completely fill card width cleanly
-  const { weeks, monthHeaders } = useMemo(() => {
+  const { weeks, monthHeaders, activeDaysCount = 0 } = useMemo(() => {
     return generateHeatmapGrid(data, new Date(), 26);
   }, [data]);
+
+  // Calculate consistency percentage and recent 7-day solves
+  const totalDays = weeks.length * 7;
+  const consistencyPct = totalDays > 0 ? Math.round((activeDaysCount / totalDays) * 100) : 0;
+  const recent7Days = weeks.length > 0 ? weeks[weeks.length - 1] : [];
+  const recent7Solves = recent7Days.reduce((sum, d) => sum + (d.count || 0), 0);
 
   useEffect(() => {
     if (!hoveredCell) return;
@@ -42,14 +48,22 @@ export default function HeatmapGrid({
 
   return (
     <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between w-full">
-      {/* Header */}
-      <div className="mb-3">
-        <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
-          Daily Consistency
-        </h2>
-        <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
-          Your solving activity in the last 3 months
-        </p>
+      {/* Header with Title and Last 84 days filter pill (Screen 2) */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+            Practice Consistency
+          </h2>
+          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+            Your solving activity
+          </p>
+        </div>
+
+        {/* Pill Button matching Screen 2 */}
+        <span className="px-2.5 py-1 rounded-lg bg-surface-2 border border-line text-[10px] sm:text-xs font-medium text-slate-300 flex items-center gap-1 shrink-0">
+          <span>Last 84 days</span>
+          <span className="text-slate-500">⌄</span>
+        </span>
       </div>
 
       {/* Main Heatmap Container */}
@@ -134,6 +148,33 @@ export default function HeatmapGrid({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Bottom 3-Metric Strip (Screen 2 Reference: Active Days, Consistency, 7-day Solves) */}
+      <div className="grid grid-cols-3 gap-2 pt-3 mt-3 border-t border-line/60">
+        <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-2/40 border border-line-subtle text-center">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono text-white">
+            <span>🔥</span>
+            <span>{activeDaysCount}</span>
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 font-medium truncate">Active days</span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-2/40 border border-line-subtle text-center">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono text-white">
+            <span>🎯</span>
+            <span>{consistencyPct}%</span>
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 font-medium truncate">Consistency</span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-2/40 border border-line-subtle text-center">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono text-white">
+            <span>⚡</span>
+            <span>{recent7Solves}</span>
+          </div>
+          <span className="text-[10px] text-slate-400 mt-0.5 font-medium truncate">7-day solves</span>
+        </div>
       </div>
 
       {/* Floating Tooltip */}

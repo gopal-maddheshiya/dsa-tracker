@@ -103,13 +103,15 @@ export default function RevisionQueuePreview({
               dueColor = 'text-amber-400';
             }
 
-            const isHard = diff === 'hard';
-            const isMedium = diff === 'medium';
-            const badgeBg = isHard
-              ? 'bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/30'
-              : isMedium
-              ? 'bg-[#f59e0b]/15 text-[#f59e0b] border-[#f59e0b]/30'
-              : 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/30';
+            const isOverdue = daysElapsed > interval;
+            const isDueToday = daysElapsed >= interval;
+            const isDueTomorrow = interval - daysElapsed <= 1;
+
+            const clockSquircleBg = isOverdue || isDueToday
+              ? 'bg-[#ef4444]/15 text-[#ef4444] border border-[#ef4444]/30'
+              : isDueTomorrow
+              ? 'bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/30'
+              : 'bg-[#3b82f6]/15 text-[#60a5fa] border border-[#3b82f6]/30';
 
             return (
               <Link
@@ -117,30 +119,38 @@ export default function RevisionQueuePreview({
                 to={`/problems/${item.id}`}
                 className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-surface-2/40 border border-line-subtle hover:border-slate-700 hover:bg-surface-2/70 transition-all group"
               >
-                {/* Left: Badge + Title + Topic Pill */}
+                {/* Left: Squircle Clock Icon + (Title & Pills) */}
                 <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
-                  <span
-                    className={`px-2 py-0.5 rounded-lg border text-[11px] font-medium shrink-0 ${badgeBg}`}
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${clockSquircleBg}`}
                   >
-                    {capDiff}
-                  </span>
-
-                  <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-blue-400 transition-colors truncate">
-                    {item.title}
-                  </span>
-
-                  <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-[#162032] border border-[#1e293b] text-[10px] font-mono text-slate-400 shrink-0">
-                    {firstTopic}
-                  </span>
-                </div>
-
-                {/* Right: Clock icon + Due timing + Chevron/Arrow */}
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="flex items-center gap-1.5 text-xs font-mono">
-                    <Clock className={`w-3.5 h-3.5 ${dueColor} shrink-0`} />
-                    <span className={dueColor}>{dueText}</span>
+                    <Clock className="w-4 h-4 stroke-[2.2]" />
                   </div>
 
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-blue-400 transition-colors truncate block">
+                      {item.title}
+                    </span>
+
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span
+                        className={`px-1.5 py-0.5 rounded-md border text-[10px] font-medium shrink-0 ${badgeBg}`}
+                      >
+                        {capDiff}
+                      </span>
+
+                      <span className="px-1.5 py-0.5 rounded-md bg-[#162032] border border-[#1e293b] text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+                        {firstTopic}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Due timing + Chevron */}
+                <div className="flex items-center gap-1.5 shrink-0 text-right">
+                  <span className={`text-[11px] sm:text-xs font-mono font-medium ${dueColor}`}>
+                    {dueText}
+                  </span>
                   <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors shrink-0" />
                 </div>
               </Link>

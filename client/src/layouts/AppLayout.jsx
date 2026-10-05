@@ -12,6 +12,7 @@ import {
   Sun,
   Bell,
   ChevronDown,
+  ChevronRight,
   Menu,
   X,
   LogOut,
@@ -46,11 +47,10 @@ function LogoMark() {
 }
 
 /**
- * AppLayout: Exact match to the reference desktop application layout.
+ * AppLayout: Exact match to the reference desktop & mobile application layout.
  * Features:
- * - Fixed left sidebar with 3D logo, vertical navigation, active blue pill
- * - Top header with full-width search input (Ctrl K), theme toggle, notification bell with unread dot, and user avatar pill
- * - Smooth mobile drawer for responsive viewports
+ * - Desktop: Fixed left sidebar + top search header (Ctrl K) + profile pill
+ * - Mobile (Screen 1 & 3): Clean top bar (Logo left, Hamburger right) + full mobile drawer with profile and sign out
  */
 export default function AppLayout() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -183,28 +183,29 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
         <header className="h-16 border-b border-line bg-bg/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20">
-          {/* Mobile Brand / Toggle */}
-          <div className="flex items-center gap-3 lg:hidden">
+          {/* Mobile View: Logo on Left, Hamburger on Right (Screen 1) */}
+          <div className="flex items-center justify-between w-full lg:hidden">
+            <Link to="/dashboard" className="flex items-center gap-2.5">
+              <LogoMark />
+              <span className="font-bold text-base tracking-tight text-white">
+                DSA Tracker
+              </span>
+            </Link>
+
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1.5 rounded-lg text-text-secondary hover:text-white hover:bg-surface border border-line"
+              className="p-2 rounded-xl bg-surface border border-line text-slate-300 hover:text-white hover:bg-surface-2 transition-all active:scale-95 shadow-xs"
               aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <LogoMark />
-              <span className="font-bold text-sm tracking-tight text-white">
-                DSA Tracker
-              </span>
-            </Link>
           </div>
 
-          {/* Search Input Bar (Matching Reference) */}
+          {/* Desktop Search Input Bar (Matching Reference) */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden sm:flex items-center relative flex-1 max-w-md lg:max-w-lg"
+            className="hidden lg:flex items-center relative flex-1 max-w-md xl:max-w-lg"
           >
             <Search className="w-4 h-4 text-muted absolute left-3.5 pointer-events-none" />
             <input
@@ -225,8 +226,8 @@ export default function AppLayout() {
             </div>
           </form>
 
-          {/* Right Controls: Sun, Bell, User Profile Pill */}
-          <div className="flex items-center gap-3">
+          {/* Desktop Right Controls: Sun, Bell, User Profile Pill */}
+          <div className="hidden lg:flex items-center gap-3">
             {/* Sun / Theme Icon */}
             <button
               type="button"
@@ -267,56 +268,48 @@ export default function AppLayout() {
         </header>
 
         {/* Main Viewport Container */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1 w-full max-w-[1560px]">
+        <main className="p-3 sm:p-5 lg:p-8 flex-1 w-full max-w-[1560px]">
           <Outlet />
         </main>
       </div>
 
       {/* ==============================================================
-          MOBILE SLIDE-OVER DRAWER
+          MOBILE SLIDE-OVER DRAWER (Exact Match to Screen 3)
           ============================================================== */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-64 bg-surface border-r border-line p-5 flex flex-col justify-between z-50 shadow-elevated">
+          <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#0b0f17] border-r border-[#1e293b] p-5 flex flex-col justify-between z-50 shadow-2xl animate-in slide-in-from-left duration-200">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-line">
+              {/* Drawer Header (Logo + Brand + Close Button) */}
+              <div className="flex items-center justify-between pb-5 border-b border-[#1e293b]">
                 <div className="flex items-center gap-3">
                   <LogoMark />
-                  <span className="font-bold text-sm text-white">DSA Tracker</span>
+                  <span className="font-bold text-base tracking-tight text-white">
+                    DSA Tracker
+                  </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-text-secondary hover:text-white"
+                  className="w-8 h-8 rounded-xl bg-[#131b2e] border border-[#1e293b] flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                  aria-label="Close menu"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <nav className="mt-5 space-y-1.5">
-                {sidebarLinks.map((item) => {
+              {/* Drawer Navigation Links */}
+              <nav className="mt-6 space-y-2">
+                {[
+                  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+                  { name: 'Problems', path: '/problems', icon: FolderCode },
+                  { name: 'Revision', path: '/revision', icon: RotateCw },
+                ].map((item) => {
                   const Icon = item.icon;
-                  if (item.onClick) {
-                    return (
-                      <button
-                        key={item.name}
-                        type="button"
-                        onClick={() => {
-                          setIsMobileMenuOpen(false);
-                          item.onClick();
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-white hover:bg-surface-2 text-left"
-                      >
-                        <Icon className="w-4 h-4 text-muted" />
-                        <span>{item.name}</span>
-                      </button>
-                    );
-                  }
-
                   const isItemActive =
                     item.path === '/dashboard'
                       ? location.pathname === '/dashboard'
@@ -327,25 +320,52 @@ export default function AppLayout() {
                       key={item.name}
                       to={item.path}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                         isItemActive
-                          ? 'bg-blue-600 text-white font-semibold'
-                          : 'text-text-secondary hover:text-white hover:bg-surface-2'
+                          ? 'bg-blue-600 text-white font-semibold shadow-[0_0_16px_rgba(37,99,235,0.4)]'
+                          : 'text-slate-300 hover:text-white hover:bg-[#131b2e]'
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
-                      <span>{item.name}</span>
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                      </div>
+                      {!isItemActive && (
+                        <ChevronRight className="w-4 h-4 text-slate-500" />
+                      )}
                     </Link>
                   );
                 })}
               </nav>
             </div>
 
-            <div className="pt-4 border-t border-line space-y-2">
+            {/* Drawer Bottom Section: User Profile Row + Sign Out */}
+            <div className="pt-4 border-t border-[#1e293b] space-y-3">
+              {/* User Profile Pill Row */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsAccountOpen(true);
+                }}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#131b2e] border border-[#1e293b] hover:border-blue-500/40 transition-colors group text-left"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shrink-0 shadow-xs">
+                    {displayInitial}
+                  </div>
+                  <span className="text-sm font-semibold text-white tracking-tight truncate">
+                    {displayName}
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors shrink-0" />
+              </button>
+
+              {/* Sign Out Button */}
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-400 hover:bg-rose-500/10 rounded-xl"
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>

@@ -152,9 +152,12 @@ export default function DashboardPage() {
   const inProgress = Math.max(0, totalAttempted - totalSolved);
   const notSolved = Math.max(0, totalProblems - totalSolved);
 
-  const solvedPct = totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
-  const inProgressPct = totalProblems > 0 ? Math.round((inProgress / totalProblems) * 100) : 0;
-  const notSolvedPct = totalProblems > 0 ? Math.round((notSolved / totalProblems) * 100) : 0;
+  const successRate =
+    totalAttempted > 0
+      ? ((totalSolved / totalAttempted) * 100).toFixed(1)
+      : totalProblems > 0
+      ? ((totalSolved / totalProblems) * 100).toFixed(1)
+      : '0.0';
 
   // Time-aware greeting
   const currentHour = new Date().getHours();
@@ -167,13 +170,13 @@ export default function DashboardPage() {
   const firstName = user?.name ? user.name.split(' ')[0] : 'Developer';
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-4 sm:space-y-6 pb-12">
       {/* ==============================================================
           1. HEADER: Dynamic Greeting + Action Controls + Quote Card
           ============================================================== */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
         <div>
-          <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl lg:text-[28px] font-bold tracking-tight text-white flex items-center gap-2">
             <span>{timeGreeting}, {firstName}!</span>
             <span role="img" aria-label="wave">
               👋
@@ -184,40 +187,43 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Right side: Action Buttons & Quote Card */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Action Button: Refresh */}
-          <button
-            type="button"
-            onClick={loadDashboard}
-            disabled={isRefreshing}
-            className="p-2.5 rounded-xl bg-surface border border-line text-slate-400 hover:text-white hover:bg-surface-2 transition-all active:scale-95 disabled:opacity-50"
-            title="Refresh analytics data"
-            aria-label="Refresh analytics data"
-          >
-            <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-400' : ''}`} />
-          </button>
-
-          {/* Action Button: Review Due Problems */}
-          <Link
-            to="/revision"
-            className="h-9 inline-flex items-center gap-2 px-3.5 text-xs font-medium text-slate-300 hover:text-white bg-surface hover:bg-surface-2 border border-line rounded-xl transition-all active:scale-95 whitespace-nowrap"
-          >
-            <span>Review Due</span>
-            <ArrowRight className="w-3.5 h-3.5 text-muted" />
-          </Link>
-
-          {/* Action Button: Add Problem */}
+        {/* Action Controls: Mobile Stack (Screen 1) & Desktop Flex */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+          {/* Primary Action: Add Problem (Full-width on mobile) */}
           <Link
             to="/problems?action=add"
-            className="h-9 inline-flex items-center gap-2 px-4 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all active:scale-95 shadow-[0_0_16px_rgba(37,99,235,0.4)] whitespace-nowrap"
+            className="w-full sm:w-auto h-11 sm:h-9 inline-flex items-center justify-center gap-2 px-4 text-sm sm:text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.4)] whitespace-nowrap order-1 sm:order-3"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Problem</span>
           </Link>
 
-          {/* Motivational Quote Box matching reference */}
-          <div className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#131b2e] border border-[#1e293b] max-w-sm">
+          {/* Secondary Row: Review Due + Refresh (2 columns on mobile) */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-3 order-2">
+            {/* Review Due */}
+            <Link
+              to="/revision"
+              className="h-10 sm:h-9 inline-flex items-center justify-center gap-2 px-3.5 text-xs font-medium text-slate-300 hover:text-white bg-surface hover:bg-surface-2 border border-line rounded-xl transition-all active:scale-95 whitespace-nowrap"
+            >
+              <span>Review Due</span>
+              <ArrowRight className="w-3.5 h-3.5 text-muted" />
+            </Link>
+
+            {/* Refresh */}
+            <button
+              type="button"
+              onClick={loadDashboard}
+              disabled={isRefreshing}
+              className="h-10 sm:h-9 p-2.5 inline-flex items-center justify-center rounded-xl bg-surface border border-line text-slate-400 hover:text-white hover:bg-surface-2 transition-all active:scale-95 disabled:opacity-50"
+              title="Refresh analytics data"
+              aria-label="Refresh analytics data"
+            >
+              <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-400' : ''}`} />
+            </button>
+          </div>
+
+          {/* Motivational Quote Box (Desktop only) */}
+          <div className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#131b2e] border border-[#1e293b] max-w-sm order-4">
             <div className="w-7 h-7 rounded-lg bg-[#7c3aed]/20 text-[#a855f7] flex items-center justify-center font-bold text-sm shrink-0">
               “
             </div>
@@ -234,25 +240,36 @@ export default function DashboardPage() {
       </div>
 
       {/* ==============================================================
-          2. TOP 4 KPI CARDS: Total Problems, Solved, In Progress, Not Solved
+          2. TOP 4 KPI CARDS: Tracked Problems, Practice Attempts, Solved Problems, Success Rate (Screen 1)
           ============================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Card 1: Total Problems */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Card 1: Tracked Problems */}
         <StatCard
-          label="Total Problems"
+          label="Tracked Problems"
           value={totalProblems}
-          subtext={`${totalProblems} tracked in workspace`}
-          badgeType="total"
+          subtext={`${totalProblems} total`}
+          badgeType="tracked"
           loading={summaryState.loading}
           error={summaryState.error}
           onRetry={fetchSummaryData}
         />
 
-        {/* Card 2: Solved */}
+        {/* Card 2: Practice Attempts */}
         <StatCard
-          label="Solved"
+          label="Practice Attempts"
+          value={totalAttempted}
+          subtext={`${totalAttempted} sessions`}
+          badgeType="attempts"
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
+
+        {/* Card 3: Solved Problems */}
+        <StatCard
+          label="Solved Problems"
           value={totalSolved}
-          subtext={`${totalProblems > 0 ? ((totalSolved / totalProblems) * 100).toFixed(1) : 0}% of total`}
+          subtext={`${solvedPct}%`}
           badgeType="solved"
           percentage={solvedPct}
           loading={summaryState.loading}
@@ -260,25 +277,13 @@ export default function DashboardPage() {
           onRetry={fetchSummaryData}
         />
 
-        {/* Card 3: In Progress */}
+        {/* Card 4: Success Rate */}
         <StatCard
-          label="In Progress"
-          value={inProgress}
-          subtext={`${totalProblems > 0 ? ((inProgress / totalProblems) * 100).toFixed(1) : 0}% of total`}
-          badgeType="inprogress"
-          percentage={inProgressPct}
-          loading={summaryState.loading}
-          error={summaryState.error}
-          onRetry={fetchSummaryData}
-        />
-
-        {/* Card 4: Not Solved */}
-        <StatCard
-          label="Not Solved"
-          value={notSolved}
-          subtext={`${totalProblems > 0 ? ((notSolved / totalProblems) * 100).toFixed(1) : 0}% of total`}
-          badgeType="notsolved"
-          percentage={notSolvedPct}
+          label="Success Rate"
+          value={`${successRate}%`}
+          subtext="accuracy"
+          badgeType="success"
+          percentage={Math.round(Number(successRate))}
           loading={summaryState.loading}
           error={summaryState.error}
           onRetry={fetchSummaryData}

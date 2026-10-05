@@ -119,20 +119,20 @@ export default function TopicWeaknessChart({
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-3">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight">
-            Topic-wise Performance
+          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+            Top Struggling Topics
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Stronger topics and areas to focus on (click to filter problems)
+          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+            Topics with highest struggle rate (click to filter)
           </p>
         </div>
 
         <Link
           to="/problems"
-          className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors shrink-0"
+          className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors shrink-0 font-medium"
         >
-          <span>All Problems</span>
-          <ArrowRight className="w-3 h-3" />
+          <span>View All</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
@@ -168,7 +168,7 @@ export default function TopicWeaknessChart({
             </p>
           </div>
         ) : (
-          displayTopics.map((item) => {
+          displayTopics.map((item, idx) => {
             const visual = getTopicVisual(item.topic);
             const { Icon, symbol } = visual;
             const total = item.totalAttempts || 1;
@@ -179,12 +179,17 @@ export default function TopicWeaknessChart({
               <Link
                 key={item.topic}
                 to={`/problems?topic=${encodeURIComponent(item.topic)}`}
-                className="flex items-center gap-3 sm:gap-4 py-1 px-2 -mx-2 rounded-xl hover:bg-surface-2/40 transition-colors group"
+                className="flex items-center gap-2.5 sm:gap-4 py-1 px-2 -mx-2 rounded-xl hover:bg-surface-2/40 transition-colors group"
                 title={`Filter problems by ${item.topic}`}
               >
-                {/* Circular Icon Badge */}
+                {/* Mobile Rank Number Badge (Screen 2) */}
+                <div className="sm:hidden w-6 h-6 rounded-full bg-[#162032] border border-[#1e293b] text-slate-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                  {idx + 1}
+                </div>
+
+                {/* Desktop Circular Icon Badge */}
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${visual.iconBg}`}
+                  className={`hidden sm:flex w-7 h-7 rounded-full items-center justify-center shrink-0 ${visual.iconBg}`}
                 >
                   {Icon ? (
                     <Icon className="w-3.5 h-3.5 stroke-[2.2]" />
@@ -196,12 +201,12 @@ export default function TopicWeaknessChart({
                 </div>
 
                 {/* Topic Title */}
-                <span className="w-28 sm:w-36 text-xs font-medium text-white group-hover:text-blue-400 transition-colors truncate shrink-0">
+                <span className="w-24 sm:w-36 text-xs font-medium text-white group-hover:text-blue-400 transition-colors truncate shrink-0">
                   {item.topic}
                 </span>
 
                 {/* Rounded Progress Bar */}
-                <div className="flex-1 h-3 rounded-full bg-[#1e293b] overflow-hidden max-w-sm sm:max-w-md">
+                <div className="flex-1 h-2.5 sm:h-3 rounded-full bg-[#1e293b] overflow-hidden min-w-[50px] max-w-sm sm:max-w-md">
                   <div
                     className={`h-full rounded-full transition-all duration-700 ${visual.barColor}`}
                     style={{ width: `${Math.max(6, pct)}%` }}
@@ -209,13 +214,13 @@ export default function TopicWeaknessChart({
                 </div>
 
                 {/* Evidence e.g. 42 / 50 */}
-                <span className="w-14 sm:w-16 text-right text-xs font-mono text-slate-400 shrink-0">
+                <span className="hidden xs:inline-block w-12 sm:w-16 text-right text-xs font-mono text-slate-400 shrink-0">
                   {solved} / {total}
                 </span>
 
                 {/* Percentage */}
                 <span
-                  className={`w-10 sm:w-12 text-right text-xs font-mono font-bold shrink-0 ${visual.pctColor}`}
+                  className={`w-9 sm:w-12 text-right text-xs font-mono font-bold shrink-0 ${visual.pctColor}`}
                 >
                   {pct}%
                 </span>
