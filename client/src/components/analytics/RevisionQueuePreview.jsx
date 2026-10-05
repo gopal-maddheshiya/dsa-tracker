@@ -17,9 +17,9 @@ export default function RevisionQueuePreview({
   const displayItems = hasItems ? queue.slice(0, 3) : [];
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between">
+    <div className="p-4 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between flex-1">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-4">
+      <div className="flex items-center justify-between gap-4 mb-3">
         <div>
           <h2 className="text-base font-bold text-white tracking-tight">
             Revision Queue

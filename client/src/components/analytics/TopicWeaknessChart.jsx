@@ -115,9 +115,9 @@ export default function TopicWeaknessChart({
   const displayTopics = hasData ? topics.slice(0, 9) : [];
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
+    <div className="p-4 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-4">
+      <div className="flex items-center justify-between gap-4 mb-3">
         <div>
           <h2 className="text-base font-bold text-white tracking-tight">
             Topic-wise Performance
@@ -137,7 +137,7 @@ export default function TopicWeaknessChart({
       </div>
 
       {/* Rows Container */}
-      <div className="space-y-3 flex-1 flex flex-col justify-center">
+      <div className="space-y-2.5 flex-1 flex flex-col justify-center">
         {loading ? (
           <div className="space-y-3 animate-pulse">
             {[1, 2, 3, 4, 5, 6].map((i) => (

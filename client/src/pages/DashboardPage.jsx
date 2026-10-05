@@ -310,11 +310,11 @@ export default function DashboardPage() {
       </div>
 
       {/* ==============================================================
-          4. BOTTOM ROW: Topic-wise Performance (55%) + Daily Consistency & Revision Queue (45%)
+          4. BOTTOM ROW: Topic-wise Performance (50%) + Daily Consistency & Revision Queue (50%)
           ============================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Topic-wise Performance */}
-        <div className="lg:col-span-6 xl:col-span-6">
+        <div className="lg:col-span-6 xl:col-span-6 flex flex-col">
           <TopicWeaknessChart
             topics={topicsState.data}
             loading={topicsState.loading}
@@ -324,7 +324,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Stack: Daily Consistency + Revision Queue */}
-        <div className="lg:col-span-6 xl:col-span-6 space-y-5">
+        <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-between gap-5">
           <HeatmapGrid
             data={heatmapState.data}
             loading={heatmapState.loading}
