@@ -45,9 +45,9 @@ export default function HeatmapGrid({
   }, [hoveredCell]);
 
   return (
-    <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line shadow-xs flex flex-col justify-between">
+    <div className="p-4 sm:p-4.5 rounded-xl bg-surface border border-line shadow-xs flex flex-col justify-between">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 border-b border-line-subtle pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 border-b border-line-subtle pb-2.5">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-text tracking-tight">

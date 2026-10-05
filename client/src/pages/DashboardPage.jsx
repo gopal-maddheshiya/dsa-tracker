@@ -180,23 +180,25 @@ export default function DashboardPage() {
     summary.totalAttempted === 0;
 
   return (
-    <div className="space-y-6 pb-12 max-w-7xl mx-auto">
+    <div className="space-y-4 sm:space-y-5 pb-8 max-w-7xl mx-auto">
       {/* Level 1: Command Center Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-line pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-line pb-4">
         <div>
-          <span className="text-[10px] font-mono text-muted uppercase tracking-wider block mb-1">
-            System Overview
-          </span>
-          <h1 className="text-xl font-semibold tracking-tight text-text">
-            Dashboard
-          </h1>
-          <p className="text-xs text-text-secondary mt-1 max-w-xl">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight text-text">
+              Dashboard
+            </h1>
+            <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
+              Live Workspace
+            </span>
+          </div>
+          <p className="text-xs text-text-secondary mt-0.5">
             A clear view of your DSA practice momentum and where to focus next.
           </p>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           {/* Refresh utility button */}
           <button
             type="button"
@@ -204,7 +206,7 @@ export default function DashboardPage() {
             disabled={isRefreshing}
             title="Refresh analytics data"
             aria-label="Refresh analytics data"
-            className="h-9 w-9 p-0 inline-flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 disabled:opacity-50 focus-visible:ring-1 focus-visible:ring-accent"
+            className="h-8.5 w-8.5 p-0 inline-flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 disabled:opacity-50 focus-visible:ring-1 focus-visible:ring-accent shrink-0"
           >
             <RotateCw
               className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-accent' : ''}`}
@@ -214,7 +216,7 @@ export default function DashboardPage() {
           {/* Secondary Action: Revision Queue */}
           <Link
             to="/revision"
-            className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+            className="h-8.5 inline-flex items-center gap-1.5 px-3 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 shadow-xs whitespace-nowrap"
           >
             <span>Review due problems</span>
             <ArrowRight className="w-3.5 h-3.5 text-muted" />
@@ -223,7 +225,7 @@ export default function DashboardPage() {
           {/* Primary Action: Problem Entry */}
           <Link
             to="/problems"
-            className="h-9 inline-flex items-center gap-1.5 px-4 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+            className="h-8.5 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-lg transition-all duration-150 active:scale-95 shadow-xs whitespace-nowrap"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add problem</span>
@@ -233,7 +235,7 @@ export default function DashboardPage() {
 
       {/* Fresh Account First-Use Banner */}
       {isFreshAccount && (
-        <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
           <div className="flex items-start gap-3.5">
             <div className="w-9 h-9 rounded-md bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0 mt-0.5">
               <BookOpen className="w-4 h-4" />
@@ -257,14 +259,9 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Section 1: KPI Metrics */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between px-0.5">
-          <span className="text-[10px] font-mono text-muted uppercase tracking-widest">
-            Overview
-          </span>
-        </div>
-        {/* Mobile View: Dedicated Ring Pedestal Dock (< sm) - Gol Gol rings standing on support bases without boxes */}
+      {/* Row 1: KPI Overview */}
+      <div>
+        {/* Mobile View: Dedicated Ring Pedestal Dock (< sm) */}
         <MobileRingDock
           summary={summary}
           loading={summaryState.loading}
@@ -273,7 +270,7 @@ export default function DashboardPage() {
         />
 
         {/* Desktop View: Polished Classic Stat Cards (>= sm) */}
-        <div className="hidden sm:grid sm:grid-cols-3 gap-4">
+        <div className="hidden sm:grid sm:grid-cols-3 gap-3.5 sm:gap-4">
           <StatCard
             label="Tracked problems"
             value={summary?.totalProblems}
@@ -320,69 +317,48 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Section 2: Practice Solve Trend + Difficulty Distribution */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between px-0.5">
-          <span className="text-[10px] font-mono text-muted uppercase tracking-widest">
-            Momentum & Distribution
-          </span>
+      {/* Row 2: Practice Solve Trend + Difficulty Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+        {/* Trend Line Chart: 8 cols on desktop */}
+        <div className="lg:col-span-8">
+          <TrendChart
+            data={trendState.data}
+            loading={trendState.loading}
+            error={trendState.error}
+            onRetry={fetchTrendData}
+          />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Trend Line Chart: 8 cols on desktop */}
-          <div className="lg:col-span-8">
-            <TrendChart
-              data={trendState.data}
-              loading={trendState.loading}
-              error={trendState.error}
-              onRetry={fetchTrendData}
-            />
-          </div>
 
-          {/* Difficulty Donut: 4 cols on desktop */}
-          <div className="lg:col-span-4">
-            <DifficultyChart
-              breakdown={summary?.difficultyBreakdown}
-              totalProblems={summary?.totalProblems ?? 0}
-              loading={summaryState.loading}
-              error={summaryState.error}
-              onRetry={fetchSummaryData}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Section 3: Topic Weakness & Diagnostic Signals */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between px-0.5">
-          <span className="text-[10px] font-mono text-muted uppercase tracking-widest">
-            Diagnostic Signals
-          </span>
-        </div>
-        <div>
-          <TopicWeaknessChart
-            topics={topicsState.data}
-            loading={topicsState.loading}
-            error={topicsState.error}
-            onRetry={fetchTopicsData}
+        {/* Difficulty Donut: 4 cols on desktop */}
+        <div className="lg:col-span-4">
+          <DifficultyChart
+            breakdown={summary?.difficultyBreakdown}
+            totalProblems={summary?.totalProblems ?? 0}
+            loading={summaryState.loading}
+            error={summaryState.error}
+            onRetry={fetchSummaryData}
           />
         </div>
       </div>
 
-      {/* Section 4: 12-Week Practice Heatmap */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between px-0.5">
-          <span className="text-[10px] font-mono text-muted uppercase tracking-widest">
-            Practice Consistency
-          </span>
-        </div>
-        <div>
-          <HeatmapGrid
-            data={heatmapState.data}
-            loading={heatmapState.loading}
-            error={heatmapState.error}
-            onRetry={fetchHeatmapData}
-          />
-        </div>
+      {/* Row 3: Topic Weakness & Diagnostic Intelligence */}
+      <div>
+        <TopicWeaknessChart
+          topics={topicsState.data}
+          loading={topicsState.loading}
+          error={topicsState.error}
+          onRetry={fetchTopicsData}
+        />
+      </div>
+
+      {/* Row 4: 12-Week Practice Heatmap */}
+      <div>
+        <HeatmapGrid
+          data={heatmapState.data}
+          loading={heatmapState.loading}
+          error={heatmapState.error}
+          onRetry={fetchHeatmapData}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * StatCard: Polished Developer cockpit KPI card (Desktop).
+ * StatCard: Developer cockpit KPI card (Desktop).
  * Clean hierarchy: category marker badge, prominent font-mono metric,
  * and informative supporting context with optional progress bar.
  */
@@ -18,12 +18,12 @@ export default function StatCard({
 }) {
   if (loading) {
     return (
-      <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line flex flex-col justify-between min-h-[116px] animate-pulse">
+      <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between min-h-[110px] animate-pulse">
         <div className="flex items-center justify-between">
           <div className="h-3 bg-surface-2 rounded w-24" />
           <div className="h-3.5 bg-surface-2 rounded w-12" />
         </div>
-        <div className="my-2.5 h-7 bg-surface-2 rounded w-16" />
+        <div className="my-2 h-7 bg-surface-2 rounded w-16" />
         <div className="h-2.5 bg-surface-2 rounded w-32" />
       </div>
     );
@@ -31,14 +31,14 @@ export default function StatCard({
 
   if (error) {
     return (
-      <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line flex flex-col justify-between min-h-[116px]">
+      <div className="p-4 rounded-xl bg-surface border border-line flex flex-col justify-between min-h-[110px]">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-mono text-muted uppercase tracking-wider">{label}</span>
           <span className="text-[10px] font-mono text-danger bg-danger/10 px-1.5 py-0.5 rounded border border-danger/20">
             Error
           </span>
         </div>
-        <div className="my-2 text-xs text-muted">Failed to load metric</div>
+        <div className="my-1 text-xs text-muted">Failed to load metric</div>
         {onRetry && (
           <button
             type="button"
@@ -68,9 +68,9 @@ export default function StatCard({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-lg bg-surface border border-line ${
+      className={`p-4 sm:p-4.5 rounded-xl bg-surface border border-line ${
         cardAccentLine[badgeType] || 'border-t-line'
-      } border-t-2 shadow-xs flex flex-col justify-between transition-all duration-150 hover:border-line-interactive hover:bg-surface/90 group min-h-[116px]`}
+      } border-t-2 shadow-xs flex flex-col justify-between transition-all duration-150 hover:border-line-hover hover:bg-surface/90 group min-h-[110px]`}
     >
       {/* Top: Metric Label + Category Context Marker */}
       <div className="flex items-center justify-between gap-2">
@@ -89,12 +89,12 @@ export default function StatCard({
       </div>
 
       {/* Middle: Prominent Technical Metric */}
-      <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
+      <div className="my-1.5 text-2xl lg:text-3xl font-mono font-semibold tracking-tight text-text">
         {value !== undefined && value !== null ? value : '—'}
       </div>
 
       {/* Bottom: Supporting Context & Optional Subtle Progress Bar */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         {progressPercent !== undefined && progressPercent !== null && (
           <div className="w-full h-1 bg-surface-2 rounded-full overflow-hidden">
             <div
