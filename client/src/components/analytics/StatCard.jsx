@@ -1,9 +1,9 @@
 import React from 'react';
 
 /**
- * StatCard: Developer cockpit KPI card.
- * Emphasizes clean hierarchy: contextual category marker, prominent technical metric,
- * and informative supporting context.
+ * StatCard: Polished Developer cockpit KPI card (Desktop).
+ * Clean hierarchy: category marker badge, prominent font-mono metric,
+ * and informative supporting context with optional progress bar.
  */
 export default function StatCard({
   label,
@@ -60,8 +60,8 @@ export default function StatCard({
   };
 
   const cardAccentLine = {
-    default: 'border-t-slate-600/40',
-    accent: 'border-t-accent/70',
+    default: 'border-t-indigo-500/70',
+    accent: 'border-t-indigo-400/70',
     success: 'border-t-emerald-500/70',
     warning: 'border-t-amber-500/70',
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -6,19 +6,17 @@ import {
   LayoutDashboard,
   ListChecks,
   RotateCw,
-  LogOut,
   User,
-  Menu,
-  X,
 } from 'lucide-react';
+import AccountModal from '../components/common/AccountModal';
 
 /**
  * AppLayout: Main shell for authenticated / application views.
- * Features a refined developer top navbar with Code2 logo, responsive mobile drawer,
- * and a sticky mobile footer tab bar for fast one-thumb navigation.
+ * Features a refined developer top navbar with Code2 logo, a clean user profile chip,
+ * a dedicated Account Details modal, and a sticky mobile footer tab bar for fast one-thumb navigation.
  */
 export default function AppLayout() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -29,31 +27,10 @@ export default function AppLayout() {
   ];
 
   const handleLogout = () => {
+    setIsAccountOpen(false);
     logout();
     navigate('/login');
   };
-
-  // Close mobile menu on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [mobileMenuOpen]);
 
   return (
     <div className="min-h-screen bg-bg text-text flex flex-col selection:bg-accent/20 selection:text-accent">
@@ -105,8 +82,13 @@ export default function AppLayout() {
             <div className="flex items-center gap-2.5">
               {user ? (
                 <>
-                  {/* User Profile Badge (Desktop) */}
-                  <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-surface border border-line text-xs font-medium text-text shadow-xs">
+                  {/* User Profile Badge (Desktop - Click to view Account Details) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsAccountOpen(true)}
+                    className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-surface border border-line text-xs font-medium text-text shadow-xs hover:border-accent/40 hover:bg-surface-hover transition-all duration-150 cursor-pointer active:scale-95"
+                    title="View account details"
+                  >
                     <div className="relative flex items-center justify-center">
                       <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/30 text-accent font-semibold flex items-center justify-center text-[10px] font-mono">
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -114,17 +96,6 @@ export default function AppLayout() {
                       <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1 ring-surface" />
                     </div>
                     <span className="truncate max-w-[130px] font-medium">{user.name}</span>
-                  </div>
-
-                  {/* Logout Button (Desktop) */}
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    title="Sign out"
-                    className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-text-secondary hover:text-danger hover:border-danger/30 hover:bg-danger/10 border border-line rounded-md transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign out</span>
                   </button>
                 </>
               ) : (
@@ -136,90 +107,29 @@ export default function AppLayout() {
                 </Link>
               )}
 
-              {/* Mobile Drawer Toggle Button */}
+              {/* Mobile Header Account Trigger */}
               <button
                 type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-md text-text-secondary hover:text-text hover:bg-surface-hover border border-line focus:outline-none focus-visible:ring-1 focus-visible:ring-accent transition-colors"
-                aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-                aria-expanded={mobileMenuOpen}
+                onClick={() => setIsAccountOpen(!isAccountOpen)}
+                className="md:hidden p-1.5 rounded-md text-text-secondary hover:text-text hover:bg-surface-hover border border-line focus:outline-none focus-visible:ring-1 focus-visible:ring-accent transition-colors"
+                aria-label={isAccountOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={isAccountOpen}
+                title="Account details"
               >
-                {mobileMenuOpen ? (
-                  <X className="w-4 h-4 text-text" />
+                {user ? (
+                  <div className="relative flex items-center justify-center w-6 h-6">
+                    <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/40 text-accent font-semibold flex items-center justify-center text-[10px] font-mono">
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-1 ring-surface" />
+                  </div>
                 ) : (
-                  <Menu className="w-4 h-4 text-text" />
+                  <User className="w-4 h-4 text-text" />
                 )}
               </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile Dropdown Drawer with Backdrop */}
-        {mobileMenuOpen && (
-          <>
-            <div
-              className="fixed inset-0 top-14 bg-black/60 backdrop-blur-[2px] z-30 transition-opacity duration-200 md:hidden animate-in fade-in"
-              onClick={() => setMobileMenuOpen(false)}
-              aria-hidden="true"
-            />
-            <div className="relative z-40 md:hidden border-t border-line bg-surface px-4 pt-3 pb-4 space-y-1.5 shadow-elevated animate-in fade-in slide-in-from-top-2 duration-150">
-              {user && (
-                <div className="px-3.5 py-2 text-xs border-b border-line-subtle mb-1.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span className="font-semibold text-text">{user.name}</span>
-                  </div>
-                  <span className="text-[11px] font-mono text-muted truncate max-w-[150px]">
-                    {user.email}
-                  </span>
-                </div>
-              )}
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-md transition-all ${
-                        isActive
-                          ? 'bg-surface-2 text-accent border border-accent/25 font-semibold shadow-xs'
-                          : 'text-text-secondary hover:text-text hover:bg-surface-hover active:bg-surface-hover/80'
-                      }`
-                    }
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span>{item.name}</span>
-                  </NavLink>
-                );
-              })}
-              <div className="pt-2 border-t border-line-subtle">
-                {user ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleLogout();
-                    }}
-                    className="w-full text-left flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 rounded-md transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign out</span>
-                  </button>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center px-3.5 py-2.5 text-xs font-medium text-text-secondary hover:text-text hover:bg-surface-hover rounded-md"
-                  >
-                    Sign In
-                  </Link>
-                )}
-              </div>
-            </div>
-          </>
-        )}
       </header>
 
       {/* Main Content Area */}
@@ -239,7 +149,7 @@ export default function AppLayout() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setIsAccountOpen(false)}
                 className={({ isActive }) =>
                   `flex flex-col items-center justify-center py-1.5 px-2 rounded-lg transition-all duration-150 active:scale-90 relative ${
                     isActive
@@ -263,12 +173,12 @@ export default function AppLayout() {
             );
           })}
 
-          {/* Account / Mobile Menu Trigger */}
+          {/* Dedicated Account Tab Trigger */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setIsAccountOpen(!isAccountOpen)}
             className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-lg transition-all duration-150 active:scale-90 relative ${
-              mobileMenuOpen
+              isAccountOpen
                 ? 'text-accent bg-accent/10 border border-accent/25 font-semibold'
                 : 'text-text-secondary hover:text-text'
             }`}
@@ -286,6 +196,14 @@ export default function AppLayout() {
           </button>
         </div>
       </nav>
+
+      {/* Dedicated Account Details Modal (Mobile Bottom Sheet & Desktop Dialog) */}
+      <AccountModal
+        isOpen={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
+        user={user}
+        onLogout={handleLogout}
+      />
 
       {/* Minimal Developer Footer (Desktop only) */}
       <footer className="hidden md:block w-full border-t border-line bg-bg py-4 text-center text-xs text-muted font-mono">

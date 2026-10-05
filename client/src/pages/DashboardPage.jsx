@@ -8,6 +8,7 @@ import {
   getHeatmap,
 } from '../api/analytics.api.js';
 import StatCard from '../components/analytics/StatCard.jsx';
+import MobileRingDock from '../components/analytics/MobileRingDock.jsx';
 import TrendChart from '../components/analytics/TrendChart.jsx';
 import DifficultyChart from '../components/analytics/DifficultyChart.jsx';
 import TopicWeaknessChart from '../components/analytics/TopicWeaknessChart.jsx';
@@ -263,7 +264,16 @@ export default function DashboardPage() {
             Overview
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Mobile View: Dedicated Ring Pedestal Dock (< sm) - Gol Gol rings standing on support bases without boxes */}
+        <MobileRingDock
+          summary={summary}
+          loading={summaryState.loading}
+          error={summaryState.error}
+          onRetry={fetchSummaryData}
+        />
+
+        {/* Desktop View: Polished Classic Stat Cards (>= sm) */}
+        <div className="hidden sm:grid sm:grid-cols-3 gap-4">
           <StatCard
             label="Tracked problems"
             value={summary?.totalProblems}
