@@ -5,15 +5,16 @@ import {
 } from '../../lib/analyticsUtils.js';
 
 function getCellColor(count) {
-  if (!count || count === 0) return 'bg-[#141b2d] border-[#1e293b]';
-  if (count === 1) return 'bg-[#15803d] border-[#16a34a]';
-  if (count <= 3) return 'bg-[#22c55e] border-[#4ade80]';
-  return 'bg-[#4ade80] border-[#86efac]';
+  if (!count || count === 0) return 'bg-[#111827] border-[#1e293b]/80';
+  if (count === 1) return 'bg-[#064e3b] border-[#047857]/60 shadow-[0_0_4px_rgba(6,78,59,0.3)]';
+  if (count === 2) return 'bg-[#059669] border-[#10b981]/70 shadow-[0_0_6px_rgba(5,150,105,0.4)]';
+  if (count === 3) return 'bg-[#10b981] border-[#34d399]/80 shadow-[0_0_8px_rgba(16,185,129,0.55)]';
+  return 'bg-[#4ade80] border-[#86efac] shadow-[0_0_12px_rgba(74,222,128,0.75)]';
 }
 
 /**
- * HeatmapGrid: Compact, tightly packed Daily Consistency matching reference aesthetic.
- * Eliminates artificial wide spacing and aligns day rows with mathematical precision.
+ * HeatmapGrid: Full-width, high-density Daily Consistency matching user reference image.
+ * Fills available card width with zero empty space and radiant glowing cells.
  */
 export default function HeatmapGrid({
   data = [],
@@ -23,9 +24,9 @@ export default function HeatmapGrid({
 }) {
   const [hoveredCell, setHoveredCell] = useState(null);
 
-  // Generate 20-week matrix for rich, dense consistency view
+  // Generate 26-week matrix (~6 months) to completely fill card width cleanly
   const { weeks, monthHeaders } = useMemo(() => {
-    return generateHeatmapGrid(data, new Date(), 20);
+    return generateHeatmapGrid(data, new Date(), 26);
   }, [data]);
 
   useEffect(() => {
@@ -40,19 +41,19 @@ export default function HeatmapGrid({
   }, [hoveredCell]);
 
   return (
-    <div className="p-4 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between">
+    <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between w-full">
       {/* Header */}
-      <div className="mb-2.5">
+      <div className="mb-3">
         <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
           Daily Consistency
         </h2>
         <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
-          Your solving activity in the last 4 months
+          Your solving activity in the last 3 months
         </p>
       </div>
 
       {/* Main Heatmap Container */}
-      <div className="relative overflow-x-auto pb-1 scrollbar-thin">
+      <div className="relative overflow-x-auto pb-1 scrollbar-thin w-full">
         {loading ? (
           <div className="h-28 w-full animate-pulse bg-surface-2/30 rounded-xl" />
         ) : error ? (
@@ -60,15 +61,15 @@ export default function HeatmapGrid({
             Failed to load consistency heatmap
           </div>
         ) : (
-          <div className="inline-block select-none min-w-max">
+          <div className="w-full select-none min-w-[340px]">
             {/* Dynamic Month Headers aligned to starting week column */}
-            <div className="flex gap-1 sm:gap-1.5 pl-6 sm:pl-7 mb-1 select-none h-3.5 relative">
+            <div className="flex gap-[3px] sm:gap-1 pl-6 sm:pl-7 mb-1 select-none h-3.5 w-full">
               {weeks.map((week, wIdx) => {
                 const m = monthHeaders.find((item) => item.weekIndex === wIdx);
                 return (
-                  <div key={wIdx} className="w-2.5 sm:w-3 shrink-0 relative">
+                  <div key={wIdx} className="flex-1 min-w-[9px] relative">
                     {m && (
-                      <span className="absolute left-0 top-0 text-[10px] font-mono text-slate-400 leading-none">
+                      <span className="absolute left-0 top-0 text-[10px] font-mono text-slate-400 leading-none whitespace-nowrap">
                         {m.label}
                       </span>
                     )}
@@ -77,23 +78,23 @@ export default function HeatmapGrid({
               })}
             </div>
 
-            {/* Matrix (7 rows x N columns) */}
-            <div className="flex items-start">
-              {/* Day Labels (Mon, Wed, Fri) with exact row height alignment */}
-              <div className="flex flex-col gap-1 sm:gap-1.5 pr-2 sm:pr-2.5 text-[9px] font-mono text-slate-400 select-none">
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none" />
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none">Mon</span>
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none" />
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none">Wed</span>
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none" />
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none">Fri</span>
-                <span className="h-2.5 sm:h-3 flex items-center justify-end leading-none" />
+            {/* Matrix (7 rows x 26 columns filling card width) */}
+            <div className="flex items-start w-full">
+              {/* Day Labels (Mon, Wed, Fri) aligned to 7 rows */}
+              <div className="flex flex-col gap-[3px] sm:gap-1 pr-2 text-[9px] font-mono text-slate-400 select-none shrink-0">
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none" />
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none">Mon</span>
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none" />
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none">Wed</span>
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none" />
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none">Fri</span>
+                <span className="w-4 h-2.5 sm:h-3 flex items-center justify-end leading-none" />
               </div>
 
-              {/* Grid Columns - tightly packed without artificial stretching */}
-              <div className="flex gap-1 sm:gap-1.5">
+              {/* Grid Columns - flex-1 across full width with no empty right gap */}
+              <div className="flex gap-[3px] sm:gap-1 flex-1 w-full">
                 {weeks.map((week, wIdx) => (
-                  <div key={wIdx} className="flex flex-col gap-1 sm:gap-1.5 shrink-0">
+                  <div key={wIdx} className="flex-1 flex flex-col gap-[3px] sm:gap-1 min-w-[9px]">
                     {week.map((day) => {
                       const colorClass = getCellColor(day.count);
                       const isHovered = hoveredCell?.date === day.date;
@@ -110,7 +111,7 @@ export default function HeatmapGrid({
                             });
                           }}
                           onMouseLeave={() => setHoveredCell(null)}
-                          className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] sm:rounded-[2.5px] border cursor-pointer transition-all ${colorClass} ${
+                          className={`aspect-square w-full rounded-[2.5px] sm:rounded-[3px] border cursor-pointer transition-all duration-150 ${colorClass} ${
                             isHovered ? 'ring-2 ring-white z-10 scale-125' : ''
                           }`}
                         />
@@ -121,13 +122,14 @@ export default function HeatmapGrid({
               </div>
             </div>
 
-            {/* Less / More Legend */}
-            <div className="flex items-center justify-end gap-1.5 text-[10px] font-mono text-slate-400 mt-2.5 pr-1">
+            {/* Less / More Legend (5 levels matching reference screenshot) */}
+            <div className="flex items-center justify-end gap-1.5 text-[10px] font-mono text-slate-400 mt-2.5 pr-0.5">
               <span>Less</span>
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#141b2d] border border-[#1e293b]" />
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#15803d] border border-[#16a34a]" />
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#22c55e] border border-[#4ade80]" />
-              <div className="w-2.5 h-2.5 rounded-[2px] bg-[#4ade80] border border-[#86efac]" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#111827] border border-[#1e293b]/80" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#064e3b] border border-[#047857]/60" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#059669] border border-[#10b981]/70" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#10b981] border border-[#34d399]/80" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#4ade80] border border-[#86efac] shadow-[0_0_8px_rgba(74,222,128,0.7)]" />
               <span>More</span>
             </div>
           </div>
