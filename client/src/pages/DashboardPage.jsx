@@ -152,6 +152,10 @@ export default function DashboardPage() {
   const inProgress = Math.max(0, totalAttempted - totalSolved);
   const notSolved = Math.max(0, totalProblems - totalSolved);
 
+  const solvedPct = totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
+  const inProgressPct = totalProblems > 0 ? Math.round((inProgress / totalProblems) * 100) : 0;
+  const notSolvedPct = totalProblems > 0 ? Math.round((notSolved / totalProblems) * 100) : 0;
+
   const successRate =
     totalAttempted > 0
       ? ((totalSolved / totalAttempted) * 100).toFixed(1)
