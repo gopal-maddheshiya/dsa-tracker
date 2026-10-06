@@ -12,12 +12,8 @@ import {
   Sun,
   Bell,
   ChevronDown,
-  ChevronRight,
-  Menu,
-  X,
   LogOut,
 } from 'lucide-react';
-import AccountModal from '../components/common/AccountModal';
 
 /**
  * 3D Isometric Blue Cube Logo matching reference image
@@ -47,14 +43,9 @@ function LogoMark() {
 }
 
 /**
- * AppLayout: Exact match to the reference desktop & mobile application layout.
- * Features:
- * - Desktop: Fixed left sidebar + top search header (Ctrl K) + profile pill
- * - Mobile (Screen 1 & 3): Clean top bar (Logo left, Hamburger right) + full mobile drawer with profile and sign out
+ * AppLayout: Desktop sidebar and mobile sticky navigation layout.
  */
 export default function AppLayout() {
-  const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef(null);
   const { user, logout } = useAuth();
@@ -74,8 +65,6 @@ export default function AppLayout() {
   }, []);
 
   const handleLogout = () => {
-    setIsAccountOpen(false);
-    setIsMobileMenuOpen(false);
     logout();
     navigate('/login');
   };
@@ -97,8 +86,8 @@ export default function AppLayout() {
     { name: 'Problems', path: '/problems', icon: FolderCode },
     { name: 'Revision', path: '/revision', icon: RotateCw },
     { name: 'Analytics', path: '/dashboard#analytics', icon: BarChart2 },
-    { name: 'Profile', onClick: () => setIsAccountOpen(true), icon: UserIcon },
-    { name: 'Settings', onClick: () => setIsAccountOpen(true), icon: Settings },
+    { name: 'Profile', path: '/account', icon: UserIcon },
+    { name: 'Settings', path: '/account', icon: Settings },
   ];
 
   return (
@@ -183,7 +172,7 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
         <header className="h-16 border-b border-line bg-bg/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20">
-          {/* Mobile View: Logo on Left, User Profile on Right */}
+          {/* Mobile View: Logo on Left, User Profile Link on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
               <LogoMark />
@@ -192,12 +181,11 @@ export default function AppLayout() {
               </span>
             </Link>
 
-            <button
-              type="button"
-              onClick={() => setIsAccountOpen(true)}
-              className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all cursor-pointer active:scale-95 group shadow-xs"
-              title="Account settings"
-              aria-label="Account settings"
+            <Link
+              to="/account"
+              className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
+              title="Account & Profile"
+              aria-label="Account & Profile"
             >
               <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
                 {displayInitial}
@@ -205,7 +193,7 @@ export default function AppLayout() {
               <span className="text-xs font-semibold text-white tracking-tight max-w-[100px] truncate">
                 {displayName}
               </span>
-            </button>
+            </Link>
           </div>
 
           {/* Desktop Search Input Bar (Matching Reference) */}
@@ -255,12 +243,11 @@ export default function AppLayout() {
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-bg" />
             </button>
 
-            {/* User Profile Pill (Avatar + Name + Down Chevron) */}
-            <button
-              type="button"
-              onClick={() => setIsAccountOpen(true)}
-              className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all cursor-pointer active:scale-95 group shadow-xs"
-              title="Account settings"
+            {/* User Profile Pill linking to /account */}
+            <Link
+              to="/account"
+              className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
+              title="Account & Profile"
             >
               <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
                 {displayInitial}
@@ -269,7 +256,7 @@ export default function AppLayout() {
                 {displayName}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-muted group-hover:text-white transition-colors" />
-            </button>
+            </Link>
           </div>
         </header>
 
@@ -280,7 +267,7 @@ export default function AppLayout() {
       </div>
 
       {/* ==============================================================
-          MOBILE STICKY BOTTOM NAVBAR (Screen Navigation + 3-line Menu)
+          MOBILE STICKY BOTTOM NAVBAR (Dashboard, Problems, Revision, Account)
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
@@ -346,138 +333,28 @@ export default function AppLayout() {
             <span className="text-[10px] mt-0.5 tracking-tight">Revision</span>
           </Link>
 
-          {/* 3 lines Menu Trigger */}
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(true)}
+          {/* Account */}
+          <Link
+            to="/account"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              isMobileMenuOpen
+              location.pathname === '/account' || location.pathname === '/profile'
                 ? 'text-blue-400 font-semibold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
-            aria-label="Open menu"
           >
             <div
               className={`p-1 rounded-lg ${
-                isMobileMenuOpen ? 'bg-blue-600/15' : ''
+                location.pathname === '/account' || location.pathname === '/profile'
+                  ? 'bg-blue-600/15'
+                  : ''
               }`}
             >
-              <Menu className="w-5 h-5" />
+              <UserIcon className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight">Menu</span>
-          </button>
+            <span className="text-[10px] mt-0.5 tracking-tight">Account</span>
+          </Link>
         </div>
       </nav>
-
-      {/* ==============================================================
-          MOBILE SLIDE-OVER DRAWER (Exact Match to Screen 3)
-          ============================================================== */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#0b0f17] border-r border-[#1e293b] p-5 flex flex-col justify-between z-50 shadow-2xl animate-in slide-in-from-left duration-200">
-            <div>
-              {/* Drawer Header (Logo + Brand + Close Button) */}
-              <div className="flex items-center justify-between pb-5 border-b border-[#1e293b]">
-                <div className="flex items-center gap-3">
-                  <LogoMark />
-                  <span className="font-bold text-base tracking-tight text-white">
-                    DSA Tracker
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-[#131b2e] border border-[#1e293b] flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Drawer Navigation Links */}
-              <nav className="mt-6 space-y-2">
-                {[
-                  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-                  { name: 'Problems', path: '/problems', icon: FolderCode },
-                  { name: 'Revision', path: '/revision', icon: RotateCw },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  const isItemActive =
-                    item.path === '/dashboard'
-                      ? location.pathname === '/dashboard'
-                      : location.pathname.startsWith(item.path);
-
-                  return (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                        isItemActive
-                          ? 'bg-blue-600 text-white font-semibold shadow-[0_0_16px_rgba(37,99,235,0.4)]'
-                          : 'text-slate-300 hover:text-white hover:bg-[#131b2e]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                      </div>
-                      {!isItemActive && (
-                        <ChevronRight className="w-4 h-4 text-slate-500" />
-                      )}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* Drawer Bottom Section: User Profile Row + Sign Out */}
-            <div className="pt-4 border-t border-[#1e293b] space-y-3">
-              {/* User Profile Pill Row */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsAccountOpen(true);
-                }}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#131b2e] border border-[#1e293b] hover:border-blue-500/40 transition-colors group text-left"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shrink-0 shadow-xs">
-                    {displayInitial}
-                  </div>
-                  <span className="text-sm font-semibold text-white tracking-tight truncate">
-                    {displayName}
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors shrink-0" />
-              </button>
-
-              {/* Sign Out Button */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Account Details Modal */}
-      <AccountModal
-        isOpen={isAccountOpen}
-        onClose={() => setIsAccountOpen(false)}
-        user={user}
-        onLogout={handleLogout}
-      />
     </div>
   );
 }

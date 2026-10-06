@@ -11,6 +11,7 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const ProblemsPage = lazy(() => import('../pages/ProblemsPage'));
 const ProblemDetailPage = lazy(() => import('../pages/ProblemDetailPage'));
 const RevisionPage = lazy(() => import('../pages/RevisionPage'));
+const AccountPage = lazy(() => import('../pages/AccountPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const SignupPage = lazy(() => import('../pages/SignupPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
@@ -90,6 +91,15 @@ export default function AppRoutes() {
               </Suspense>
             }
           />
+          <Route
+            path="/account"
+            element={
+              <Suspense fallback={<ViewLoader />}>
+                <AccountPage />
+              </Suspense>
+            }
+          />
+          <Route path="/profile" element={<Navigate to="/account" replace />} />
         </Route>
       </Route>
 

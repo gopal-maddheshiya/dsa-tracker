@@ -178,8 +178,83 @@ const getMe = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Update current user profile or password
+ * @route   PUT /api/auth/profile
+ * @access  Private (Requires JWT)
+ */
+const updateProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.userId).select('+passwordHash');
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User account no longer exists',
+      });
+    }
+
+    const { name, currentPassword, newPassword } = req.body;
+
+    // 1. Update Name (if supplied)
+    if (name !== undefined) {
+      if (typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Name cannot be empty',
+        });
+      }
+      user.name = name.trim();
+    }
+
+    // 2. Change Password (if supplied)
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Current password is required to set a new password',
+        });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Current password is incorrect',
+        });
+      }
+
+      if (typeof newPassword !== 'string' || newPassword.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: 'New password must be at least 6 characters long',
+        });
+      }
+
+      user.passwordHash = await bcrypt.hash(newPassword, 10);
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Account details updated successfully',
+      data: {
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   signup,
   login,
   getMe,
+  updateProfile,
 };
