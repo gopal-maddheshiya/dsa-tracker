@@ -227,18 +227,13 @@ export default function DashboardPage() {
           </div>
 
           {/* Motivational Quote Box (Desktop only) */}
-          <div className="hidden xl:flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#131b2e] border border-[#1e293b] max-w-sm order-4">
-            <div className="w-7 h-7 rounded-lg bg-[#7c3aed]/20 text-[#a855f7] flex items-center justify-center font-bold text-sm shrink-0">
+          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-[#131b2e] border border-[#1e293b] order-4">
+            <div className="w-5 h-5 rounded-md bg-[#7c3aed]/20 text-[#a855f7] flex items-center justify-center font-bold text-xs shrink-0">
               “
             </div>
-            <div>
-              <p className="text-xs text-slate-200 font-medium leading-tight">
-                “A little progress each day adds up to big results.”
-              </p>
-              <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">
-                — DSA Tracker
-              </span>
-            </div>
+            <p className="text-xs text-slate-200 font-medium whitespace-nowrap">
+              “A little progress each day adds up to big results.”
+            </p>
           </div>
         </div>
       </div>
