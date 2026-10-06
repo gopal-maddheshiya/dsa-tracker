@@ -183,7 +183,7 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
         <header className="h-16 border-b border-line bg-bg/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20">
-          {/* Mobile View: Logo on Left, Hamburger on Right (Screen 1) */}
+          {/* Mobile View: Logo on Left, User Profile on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
               <LogoMark />
@@ -194,11 +194,17 @@ export default function AppLayout() {
 
             <button
               type="button"
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 rounded-xl bg-surface border border-line text-slate-300 hover:text-white hover:bg-surface-2 transition-all active:scale-95 shadow-xs"
-              aria-label="Open navigation menu"
+              onClick={() => setIsAccountOpen(true)}
+              className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all cursor-pointer active:scale-95 group shadow-xs"
+              title="Account settings"
+              aria-label="Account settings"
             >
-              <Menu className="w-5 h-5" />
+              <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
+                {displayInitial}
+              </div>
+              <span className="text-xs font-semibold text-white tracking-tight max-w-[100px] truncate">
+                {displayName}
+              </span>
             </button>
           </div>
 
@@ -268,10 +274,100 @@ export default function AppLayout() {
         </header>
 
         {/* Main Viewport Container */}
-        <main className="p-3 sm:p-5 lg:p-8 flex-1 w-full max-w-[1560px]">
+        <main className="p-3 sm:p-5 lg:p-8 pb-24 lg:pb-8 flex-1 w-full max-w-[1560px]">
           <Outlet />
         </main>
       </div>
+
+      {/* ==============================================================
+          MOBILE STICKY BOTTOM NAVBAR (Screen Navigation + 3-line Menu)
+          ============================================================== */}
+      <nav
+        aria-label="Mobile Navigation"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#0b0f17]/95 backdrop-blur-md border-t border-[#1e293b] shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
+      >
+        <div className="grid grid-cols-4 h-16 max-w-md mx-auto px-2">
+          {/* Dashboard */}
+          <Link
+            to="/dashboard"
+            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
+              location.pathname === '/dashboard' || location.pathname === '/'
+                ? 'text-blue-400 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <div
+              className={`p-1 rounded-lg ${
+                location.pathname === '/dashboard' || location.pathname === '/'
+                  ? 'bg-blue-600/15'
+                  : ''
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight">Dashboard</span>
+          </Link>
+
+          {/* Problems */}
+          <Link
+            to="/problems"
+            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
+              location.pathname.startsWith('/problems')
+                ? 'text-blue-400 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <div
+              className={`p-1 rounded-lg ${
+                location.pathname.startsWith('/problems') ? 'bg-blue-600/15' : ''
+              }`}
+            >
+              <FolderCode className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight">Problems</span>
+          </Link>
+
+          {/* Revision */}
+          <Link
+            to="/revision"
+            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
+              location.pathname.startsWith('/revision')
+                ? 'text-blue-400 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <div
+              className={`p-1 rounded-lg ${
+                location.pathname.startsWith('/revision') ? 'bg-blue-600/15' : ''
+              }`}
+            >
+              <RotateCw className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight">Revision</span>
+          </Link>
+
+          {/* 3 lines Menu Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
+              isMobileMenuOpen
+                ? 'text-blue-400 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+            aria-label="Open menu"
+          >
+            <div
+              className={`p-1 rounded-lg ${
+                isMobileMenuOpen ? 'bg-blue-600/15' : ''
+              }`}
+            >
+              <Menu className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight">Menu</span>
+          </button>
+        </div>
+      </nav>
 
       {/* ==============================================================
           MOBILE SLIDE-OVER DRAWER (Exact Match to Screen 3)
