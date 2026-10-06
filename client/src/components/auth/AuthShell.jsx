@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Code2 } from 'lucide-react';
+import { CheckCircle2, Code2, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 /**
  * AuthShell: Responsive split layout for authentication pages.
@@ -8,6 +9,8 @@ import { CheckCircle2, Code2 } from 'lucide-react';
  * Mobile: Collapses to a single-column, centered form with brand header.
  */
 export default function AuthShell({ children, title, subtitle }) {
+  const { theme, toggleTheme } = useTheme();
+
   const pillars = [
     {
       label: 'Topic Weakness Detection',
@@ -24,9 +27,26 @@ export default function AuthShell({ children, title, subtitle }) {
   ];
 
   return (
-    <div className="min-h-screen bg-bg text-text flex flex-col justify-between selection:bg-accent/20 selection:text-accent">
+    <div className="min-h-screen bg-bg text-text flex flex-col justify-between selection:bg-accent/20 selection:text-accent relative">
+      {/* Desktop Top-Right Theme Toggle */}
+      <div className="hidden lg:block absolute top-6 right-8 z-20">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2.5 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs group"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-500 group-hover:-rotate-12 transition-transform duration-300" />
+          )}
+        </button>
+      </div>
+
       {/* Top Mobile Brand Bar */}
-      <header className="lg:hidden p-4 sm:p-6 border-b border-line bg-surface/50">
+      <header className="lg:hidden p-4 sm:p-6 border-b border-line bg-surface/50 flex items-center justify-between">
         <Link to="/" className="inline-flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent/25 via-accent/15 to-surface-2 border border-accent/35 flex items-center justify-center text-accent shadow-xs shrink-0">
             <Code2 className="w-4 h-4 stroke-[2.2]" />
@@ -40,6 +60,20 @@ export default function AuthShell({ children, title, subtitle }) {
             </span>
           </div>
         </Link>
+
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text active:scale-95 transition-all shadow-xs"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-500" />
+          )}
+        </button>
       </header>
 
       {/* Main Container */}

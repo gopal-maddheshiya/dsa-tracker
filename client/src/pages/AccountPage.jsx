@@ -162,10 +162,10 @@ export default function AccountPage() {
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       {/* Page Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-text tracking-tight">
           Account & Profile
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
+        <p className="text-xs sm:text-sm text-text-secondary mt-1">
           Manage your personal details, verify credentials, and customize security settings.
         </p>
       </div>
@@ -178,7 +178,7 @@ export default function AccountPage() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-lg font-bold text-white tracking-tight truncate">
+              <h2 className="text-lg font-bold text-text tracking-tight truncate">
                 {user?.name}
               </h2>
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
@@ -186,7 +186,7 @@ export default function AccountPage() {
                 Active Account
               </span>
             </div>
-            <p className="text-xs font-mono text-slate-400 mt-1 truncate">
+            <p className="text-xs font-mono text-text-secondary mt-1 truncate">
               {user?.email}
             </p>
           </div>
@@ -194,11 +194,11 @@ export default function AccountPage() {
 
         {/* Quick Verification Chips */}
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2/60 border border-line text-xs text-slate-300 font-mono">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2/60 border border-line text-xs text-text-secondary font-mono">
             <Calendar className="w-3.5 h-3.5 text-accent" />
             <span>Joined {formatMemberDate(user?.createdAt)}</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2/60 border border-line text-xs text-slate-300 font-mono">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2/60 border border-line text-xs text-text-secondary font-mono">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>JWT Verified</span>
           </div>
@@ -214,10 +214,10 @@ export default function AccountPage() {
                 <User className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <h3 className="text-sm font-bold text-text tracking-tight">
                   Personal Details
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-text-secondary">
                   Update your public display identity
                 </p>
               </div>
@@ -239,7 +239,7 @@ export default function AccountPage() {
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">
                   Display Name
                 </label>
                 <input
@@ -247,14 +247,14 @@ export default function AccountPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
-                  className="w-full h-10 px-3.5 rounded-xl bg-surface-2/70 border border-line text-xs text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  className="w-full h-10 px-3.5 rounded-xl bg-surface-2/70 border border-line text-xs text-text placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   required
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-medium text-slate-300">
+                  <label className="text-xs font-medium text-text-secondary">
                     Email Address
                   </label>
                   <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
@@ -267,11 +267,11 @@ export default function AccountPage() {
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="w-full h-10 pl-3.5 pr-9 rounded-xl bg-surface-2/30 border border-line/60 text-xs text-slate-400 font-mono cursor-not-allowed"
+                    className="w-full h-10 pl-3.5 pr-9 rounded-xl bg-surface-2/30 border border-line/60 text-xs text-text-secondary font-mono cursor-not-allowed"
                   />
-                  <Lock className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-3" />
+                  <Lock className="w-3.5 h-3.5 text-muted absolute right-3 top-3" />
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[11px] text-muted mt-1">
                   Email is locked as your primary account identifier.
                 </p>
               </div>
@@ -300,10 +300,10 @@ export default function AccountPage() {
                 <KeyRound className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <h3 className="text-sm font-bold text-text tracking-tight">
                   Security & Password
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-text-secondary">
                   Update your authentication credentials
                 </p>
               </div>
@@ -325,7 +325,7 @@ export default function AccountPage() {
 
             <form onSubmit={handleChangePassword} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-text-secondary mb-1">
                   Current Password
                 </label>
                 <div className="relative">
@@ -334,12 +334,12 @@ export default function AccountPage() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter current password"
-                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-surface-2/70 border border-line text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-surface-2/70 border border-line text-xs text-text placeholder-muted focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-2.5 text-muted hover:text-text"
                   >
                     {showCurrentPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -351,7 +351,7 @@ export default function AccountPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-text-secondary mb-1">
                   New Password (min. 6 characters)
                 </label>
                 <div className="relative">
@@ -360,12 +360,12 @@ export default function AccountPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
-                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-surface-2/70 border border-line text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-surface-2/70 border border-line text-xs text-text placeholder-muted focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-2.5 text-muted hover:text-text"
                   >
                     {showNewPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -377,7 +377,7 @@ export default function AccountPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-text-secondary mb-1">
                   Confirm New Password
                 </label>
                 <div className="relative">
@@ -386,12 +386,12 @@ export default function AccountPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
-                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-surface-2/70 border border-line text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+                    className="w-full h-10 pl-3.5 pr-10 rounded-xl bg-surface-2/70 border border-line text-xs text-text placeholder-muted focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-2.5 text-muted hover:text-text"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -429,16 +429,16 @@ export default function AccountPage() {
                 <Download className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <h3 className="text-sm font-bold text-text tracking-tight">
                   Backup & Export
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-text-secondary">
                   Download all your tracked problems and history
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed mb-4">
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">
               Export your entire DSA Tracker workspace including problem titles, notes, difficulty levels, solved states, and historical attempts as a portable JSON file.
             </p>
 
@@ -454,7 +454,7 @@ export default function AccountPage() {
             type="button"
             onClick={handleExportData}
             disabled={isExporting}
-            className="w-full h-10 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-xs font-semibold text-slate-200 hover:text-white bg-surface-2 hover:bg-surface-hover border border-line transition-all active:scale-95 disabled:opacity-50"
+            className="w-full h-10 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-xs font-semibold text-text-secondary hover:text-text bg-surface-2 hover:bg-surface-hover border border-line transition-all active:scale-95 disabled:opacity-50"
           >
             {isExporting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -473,16 +473,16 @@ export default function AccountPage() {
                 <LogOut className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <h3 className="text-sm font-bold text-text tracking-tight">
                   Session & Sign Out
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-text-secondary">
                   Manage active device session
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed mb-4">
+            <p className="text-xs text-text-secondary leading-relaxed mb-4">
               Signing out will invalidate your current session token on this device. Your data remains safely encrypted and accessible upon re-authentication.
             </p>
           </div>

@@ -21,10 +21,10 @@ export default function RevisionQueuePreview({
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-3">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight">
+          <h2 className="text-base font-bold text-text tracking-tight">
             Revision Queue
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-text-secondary mt-0.5">
             Problems to review based on spaced repetition
           </p>
         </div>
@@ -32,7 +32,7 @@ export default function RevisionQueuePreview({
         {/* View All Button linking to /revision */}
         <Link
           to="/revision"
-          className="px-3 py-1 text-xs font-medium text-slate-300 hover:text-white bg-surface-2 border border-line rounded-lg transition-colors flex items-center gap-1.5 shrink-0"
+          className="px-3 py-1 text-xs font-medium text-text-secondary hover:text-text bg-surface-2 border border-line rounded-lg transition-colors flex items-center gap-1.5 shrink-0"
         >
           <span>View All</span>
           <ArrowRight className="w-3 h-3" />
@@ -48,7 +48,7 @@ export default function RevisionQueuePreview({
             ))}
           </div>
         ) : error ? (
-          <div className="py-4 text-center text-xs text-slate-400">
+          <div className="py-4 text-center text-xs text-text-secondary">
             Failed to load revision queue
             {onRetry && (
               <button
@@ -65,8 +65,8 @@ export default function RevisionQueuePreview({
             <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5">
               <CheckCircle2 className="w-4 h-4" />
             </div>
-            <p className="text-xs font-semibold text-white">All caught up!</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+            <p className="text-xs font-semibold text-text">All caught up!</p>
+            <p className="text-[11px] text-text-secondary mt-0.5">
               No problems are due for spaced repetition review right now.
             </p>
             <Link
@@ -89,7 +89,7 @@ export default function RevisionQueuePreview({
             const daysElapsed = item.daysSinceLastAttempt || 0;
             const interval = item.intervalDays || 3;
             let dueText = `Due in ${Math.max(1, Math.round(interval - daysElapsed))} days`;
-            let dueColor = 'text-slate-400';
+            let dueColor = 'text-text-secondary';
 
             if (daysElapsed > interval) {
               const od = Math.max(1, Math.round(daysElapsed - interval));
@@ -136,7 +136,7 @@ export default function RevisionQueuePreview({
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-accent transition-colors truncate block">
+                    <span className="text-xs sm:text-sm font-semibold text-text group-hover:text-accent transition-colors truncate block">
                       {item.title}
                     </span>
 
@@ -147,7 +147,7 @@ export default function RevisionQueuePreview({
                         {capDiff}
                       </span>
 
-                      <span className="px-1.5 py-0.5 rounded-md bg-surface border border-line text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+                      <span className="px-1.5 py-0.5 rounded-md bg-surface border border-line text-[10px] font-mono text-text-secondary truncate max-w-[120px]">
                         {firstTopic}
                       </span>
                     </div>

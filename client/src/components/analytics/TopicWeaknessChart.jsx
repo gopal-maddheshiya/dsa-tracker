@@ -38,7 +38,7 @@ function getTopicVisual(topicName = '') {
     return {
       iconBg: 'bg-[#92400e]/30 text-[#fbbf24]',
       barColor: 'bg-[#f59e0b]',
-      pctColor: 'text-slate-300',
+      pctColor: 'text-text-secondary',
       Icon: Link2,
     };
   }
@@ -46,7 +46,7 @@ function getTopicVisual(topicName = '') {
     return {
       iconBg: 'bg-[#065f46]/30 text-[#34d399]',
       barColor: 'bg-[#a855f7]',
-      pctColor: 'text-slate-300',
+      pctColor: 'text-text-secondary',
       symbol: '🌲',
     };
   }
@@ -70,7 +70,7 @@ function getTopicVisual(topicName = '') {
     return {
       iconBg: 'bg-[#854d0e]/30 text-[#fde047]',
       barColor: 'bg-[#eab308]',
-      pctColor: 'text-slate-300',
+      pctColor: 'text-text-secondary',
       Icon: Zap,
     };
   }
@@ -78,7 +78,7 @@ function getTopicVisual(topicName = '') {
     return {
       iconBg: 'bg-[#9d174d]/30 text-[#f472b6]',
       barColor: 'bg-[#ec4899]',
-      pctColor: 'text-slate-300',
+      pctColor: 'text-text-secondary',
       Icon: Layers,
     };
   }
@@ -86,16 +86,16 @@ function getTopicVisual(topicName = '') {
     return {
       iconBg: 'bg-[#6b21a8]/30 text-[#c084fc]',
       barColor: 'bg-[#8b5cf6]',
-      pctColor: 'text-slate-300',
+      pctColor: 'text-text-secondary',
       Icon: Search,
     };
   }
 
   // Default fallback for any other custom topic
   return {
-    iconBg: 'bg-[#334155]/40 text-slate-300',
+    iconBg: 'bg-surface-2 text-text-secondary',
     barColor: 'bg-[#3b82f6]',
-    pctColor: 'text-slate-300',
+    pctColor: 'text-text-secondary',
     Icon: Code,
   };
 }
@@ -119,10 +119,10 @@ export default function TopicWeaknessChart({
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-3">
         <div>
-          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+          <h2 className="text-sm sm:text-base font-bold text-text tracking-tight">
             Top Struggling Topics
           </h2>
-          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-text-secondary mt-0.5">
             Topics with highest struggle rate (click to filter)
           </p>
         </div>
@@ -145,7 +145,7 @@ export default function TopicWeaknessChart({
             ))}
           </div>
         ) : error ? (
-          <div className="py-8 text-center text-xs text-slate-400">
+          <div className="py-8 text-center text-xs text-text-secondary">
             Failed to load topic performance
             {onRetry && (
               <button
@@ -162,8 +162,8 @@ export default function TopicWeaknessChart({
             <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/25 text-accent flex items-center justify-center mb-2">
               <BookOpen className="w-4 h-4" />
             </div>
-            <p className="text-xs font-medium text-white">No topic data yet</p>
-            <p className="text-[11px] text-slate-400 mt-0.5 max-w-xs">
+            <p className="text-xs font-medium text-text">No topic data yet</p>
+            <p className="text-[11px] text-text-secondary mt-0.5 max-w-xs">
               Log attempts on your problems to unlock performance analytics per topic.
             </p>
           </div>
@@ -183,7 +183,7 @@ export default function TopicWeaknessChart({
                 title={`Filter problems by ${item.topic}`}
               >
                 {/* Mobile Rank Number Badge (Screen 2) */}
-                <div className="sm:hidden w-6 h-6 rounded-full bg-surface-2 border border-line text-slate-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                <div className="sm:hidden w-6 h-6 rounded-full bg-surface-2 border border-line text-text-secondary text-xs font-mono font-bold flex items-center justify-center shrink-0">
                   {idx + 1}
                 </div>
 
@@ -201,7 +201,7 @@ export default function TopicWeaknessChart({
                 </div>
 
                 {/* Topic Title */}
-                <span className="w-24 sm:w-36 text-xs font-medium text-white group-hover:text-accent transition-colors truncate shrink-0">
+                <span className="w-24 sm:w-36 text-xs font-medium text-text group-hover:text-accent transition-colors truncate shrink-0">
                   {item.topic}
                 </span>
 
@@ -214,7 +214,7 @@ export default function TopicWeaknessChart({
                 </div>
 
                 {/* Evidence e.g. 42 / 50 */}
-                <span className="hidden xs:inline-block w-12 sm:w-16 text-right text-xs font-mono text-slate-400 shrink-0">
+                <span className="hidden xs:inline-block w-12 sm:w-16 text-right text-xs font-mono text-text-secondary shrink-0">
                   {solved} / {total}
                 </span>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   LayoutDashboard,
   FolderCode,
@@ -10,6 +11,7 @@ import {
   Settings,
   Search,
   Sun,
+  Moon,
   Bell,
   ChevronDown,
   LogOut,
@@ -49,6 +51,7 @@ export default function AppLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef(null);
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -103,7 +106,7 @@ export default function AppLayout() {
             className="flex items-center gap-3 px-2 py-1 mb-8 group focus:outline-none"
           >
             <LogoMark />
-            <span className="font-bold text-base tracking-tight text-white group-hover:text-accent transition-colors">
+            <span className="font-bold text-base tracking-tight text-text group-hover:text-accent transition-colors">
               DSA Tracker
             </span>
           </Link>
@@ -118,9 +121,9 @@ export default function AppLayout() {
                     key={item.name}
                     type="button"
                     onClick={item.onClick}
-                    className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-white hover:bg-surface transition-all text-left group"
+                    className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface transition-all text-left group"
                   >
-                    <Icon className="w-4 h-4 text-muted group-hover:text-white transition-colors" />
+                    <Icon className="w-4 h-4 text-muted group-hover:text-text transition-colors" />
                     <span>{item.name}</span>
                   </button>
                 );
@@ -138,7 +141,7 @@ export default function AppLayout() {
                   className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
                     isItemActive
                       ? 'bg-accent text-white font-semibold shadow-[0_0_18px_rgba(237,134,65,0.35)]'
-                      : 'text-text-secondary hover:text-white hover:bg-surface'
+                      : 'text-text-secondary hover:text-text hover:bg-surface'
                   }`}
                 >
                   <Icon
@@ -171,29 +174,45 @@ export default function AppLayout() {
           ============================================================== */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-line/80 bg-[#161618]/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-[0_1px_0_0_rgba(255,255,255,0.02)]">
-          {/* Mobile View: Logo on Left, User Profile Link on Right */}
+        <header className="h-16 border-b border-line bg-surface/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-xs">
+          {/* Mobile View: Logo on Left, Theme Toggle & User Profile Link on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
               <LogoMark />
-              <span className="font-bold text-base tracking-tight text-white">
+              <span className="font-bold text-base tracking-tight text-text">
                 DSA Tracker
               </span>
             </Link>
 
-            <Link
-              to="/account"
-              className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
-              title="Account & Profile"
-              aria-label="Account & Profile"
-            >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
-                {displayInitial}
-              </div>
-              <span className="text-xs font-semibold text-white tracking-tight max-w-[100px] truncate">
-                {displayName}
-              </span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-indigo-500" />
+                )}
+              </button>
+
+              <Link
+                to="/account"
+                className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
+                title="Account & Profile"
+                aria-label="Account & Profile"
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
+                  {displayInitial}
+                </div>
+                <span className="text-xs font-semibold text-text tracking-tight max-w-[100px] truncate">
+                  {displayName}
+                </span>
+              </Link>
+            </div>
           </div>
 
           {/* Desktop Search Input Bar (Matching Reference) */}
@@ -208,7 +227,7 @@ export default function AppLayout() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search problems, topics, or platforms..."
-              className="w-full bg-surface border border-line rounded-xl pl-9 pr-14 py-2 text-xs text-white placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent focus:shadow-[0_0_16px_rgba(237,134,65,0.18)] transition-all duration-200"
+              className="w-full bg-surface border border-line rounded-xl pl-9 pr-14 py-2 text-xs text-text placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent focus:shadow-[0_0_16px_rgba(237,134,65,0.18)] transition-all duration-200"
             />
             <div className="absolute right-2.5 flex items-center gap-1 pointer-events-none">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-muted bg-surface-2 border border-line rounded">
@@ -220,22 +239,27 @@ export default function AppLayout() {
             </div>
           </form>
 
-          {/* Desktop Right Controls: Sun, Bell, User Profile Pill */}
+          {/* Desktop Right Controls: Sun/Moon, Bell, User Profile Pill */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* Sun / Theme Icon */}
+            {/* Sun / Moon Theme Toggle Icon */}
             <button
               type="button"
-              className="p-2 rounded-xl text-text-secondary hover:text-white hover:bg-surface transition-colors"
-              title="Toggle theme"
-              aria-label="Theme toggle"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-text-secondary hover:text-text hover:bg-surface transition-all active:scale-95 group"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label="Toggle theme"
             >
-              <Sun className="w-4 h-4" />
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-500 group-hover:-rotate-12 transition-transform duration-300" />
+              )}
             </button>
 
             {/* Notification Bell with Red Badge Dot */}
             <button
               type="button"
-              className="p-2 rounded-xl text-text-secondary hover:text-white hover:bg-surface relative transition-colors"
+              className="p-2 rounded-xl text-text-secondary hover:text-text hover:bg-surface relative transition-colors"
               title="Notifications"
               aria-label="Notifications"
             >
@@ -252,10 +276,10 @@ export default function AppLayout() {
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
                 {displayInitial}
               </div>
-              <span className="text-xs font-semibold text-white tracking-tight">
+              <span className="text-xs font-semibold text-text tracking-tight">
                 {displayName}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-muted group-hover:text-white transition-colors" />
+              <ChevronDown className="w-3.5 h-3.5 text-muted group-hover:text-text transition-colors" />
             </Link>
           </div>
         </header>
@@ -271,7 +295,7 @@ export default function AppLayout() {
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#161618]/90 backdrop-blur-xl border-t border-line/80 shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom,0px)]"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-surface/90 backdrop-blur-xl border-t border-line shadow-elevated pb-[env(safe-area-inset-bottom,0px)]"
       >
         <div className="grid grid-cols-4 h-16 max-w-md mx-auto px-2">
           {/* Dashboard */}
@@ -279,14 +303,14 @@ export default function AppLayout() {
             to="/dashboard"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname === '/dashboard' || location.pathname === '/'
-                ? 'text-[#ed8641] font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent font-semibold'
+                : 'text-text-secondary hover:text-text'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
                 location.pathname === '/dashboard' || location.pathname === '/'
-                  ? 'bg-[#ed8641]/15'
+                  ? 'bg-accent/15'
                   : ''
               }`}
             >
@@ -300,13 +324,13 @@ export default function AppLayout() {
             to="/problems"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname.startsWith('/problems')
-                ? 'text-[#ed8641] font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent font-semibold'
+                : 'text-text-secondary hover:text-text'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/problems') ? 'bg-[#ed8641]/15' : ''
+                location.pathname.startsWith('/problems') ? 'bg-accent/15' : ''
               }`}
             >
               <FolderCode className="w-5 h-5" />
@@ -319,13 +343,13 @@ export default function AppLayout() {
             to="/revision"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname.startsWith('/revision')
-                ? 'text-[#ed8641] font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent font-semibold'
+                : 'text-text-secondary hover:text-text'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/revision') ? 'bg-[#ed8641]/15' : ''
+                location.pathname.startsWith('/revision') ? 'bg-accent/15' : ''
               }`}
             >
               <RotateCw className="w-5 h-5" />
@@ -338,14 +362,14 @@ export default function AppLayout() {
             to="/account"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname === '/account' || location.pathname === '/profile'
-                ? 'text-[#ed8641] font-semibold'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-accent font-semibold'
+                : 'text-text-secondary hover:text-text'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
                 location.pathname === '/account' || location.pathname === '/profile'
-                  ? 'bg-[#ed8641]/15'
+                  ? 'bg-accent/15'
                   : ''
               }`}
             >

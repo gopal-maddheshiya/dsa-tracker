@@ -36,7 +36,7 @@ function RadialRing({ percentage = 0, color = '#ed8641' }) {
           }}
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-white pointer-events-none">
+      <span className="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-text pointer-events-none">
         {validPct}%
       </span>
     </div>
@@ -83,7 +83,7 @@ export default function StatCard({
     return (
       <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line flex flex-col justify-between min-h-[92px] sm:min-h-[105px]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] sm:text-xs font-medium text-slate-400">{label}</span>
+          <span className="text-[11px] sm:text-xs font-medium text-text-secondary">{label}</span>
           <span className="text-[9px] font-mono text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded-full border border-rose-500/20">
             Error
           </span>
@@ -114,7 +114,7 @@ export default function StatCard({
     attempts: {
       iconBg: 'bg-[#5ebdbc] text-slate-900 font-bold shadow-[0_0_14px_rgba(94,189,188,0.35)]',
       Icon: Target,
-      subtextColor: 'text-[#5ebdbc]',
+      subtextColor: 'text-[#0891b2] dark:text-[#5ebdbc]',
       ringColor: '#5ebdbc',
       hasTrend: false,
     },
@@ -128,35 +128,35 @@ export default function StatCard({
     solved: {
       iconBg: 'bg-[#10b981] text-white shadow-[0_0_14px_rgba(16,185,129,0.35)]',
       Icon: Check,
-      subtextColor: 'text-emerald-400',
+      subtextColor: 'text-emerald-500 dark:text-emerald-400',
       ringColor: '#10b981',
       hasTrend: false,
     },
     success: {
       iconBg: 'bg-[#e11d48] text-white shadow-[0_0_14px_rgba(225,29,72,0.4)]',
       Icon: BarChart2,
-      subtextColor: 'text-rose-400',
+      subtextColor: 'text-rose-500 dark:text-rose-400',
       ringColor: '#e11d48',
       hasTrend: false,
     },
     inprogress: {
       iconBg: 'bg-[#f59e0b] text-white shadow-[0_0_14px_rgba(245,158,11,0.35)]',
       Icon: Clock,
-      subtextColor: 'text-amber-400',
+      subtextColor: 'text-amber-500 dark:text-amber-400',
       ringColor: '#f59e0b',
       hasTrend: false,
     },
     notsolved: {
       iconBg: 'bg-[#ef4444] text-white shadow-[0_0_14px_rgba(239,68,68,0.35)]',
       Icon: X,
-      subtextColor: 'text-rose-400',
+      subtextColor: 'text-rose-500 dark:text-rose-400',
       ringColor: '#ef4444',
       hasTrend: false,
     },
     default: {
       iconBg: 'bg-[#10b981] text-white',
       Icon: Check,
-      subtextColor: 'text-emerald-400',
+      subtextColor: 'text-emerald-500 dark:text-emerald-400',
       ringColor: '#10b981',
       hasTrend: false,
     },
@@ -178,10 +178,10 @@ export default function StatCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <span className="text-[11px] sm:text-xs font-medium text-slate-400 block truncate">
+          <span className="text-[11px] sm:text-xs font-medium text-text-secondary block truncate">
             {label}
           </span>
-          <div className="text-xl sm:text-2xl xl:text-[28px] font-mono font-bold tracking-tight text-white leading-tight my-0.5">
+          <div className="text-xl sm:text-2xl xl:text-[28px] font-mono font-bold tracking-tight text-text leading-tight my-0.5">
             {value !== undefined && value !== null ? value : '—'}
           </div>
           {displaySubtext && (

@@ -72,16 +72,16 @@ export default function DifficultyChart({
       {/* Header with Title and Total Pill */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
-          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+          <h2 className="text-sm sm:text-base font-bold text-text tracking-tight">
             Difficulty Distribution
           </h2>
-          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-text-secondary mt-0.5">
             Solved problems by difficulty (click to filter)
           </p>
         </div>
 
         {/* Total Badge */}
-        <span className="text-[10px] font-mono text-slate-300 bg-surface-2 px-2.5 py-1 rounded-full border border-line shrink-0">
+        <span className="text-[10px] font-mono text-text-secondary bg-surface-2 px-2.5 py-1 rounded-full border border-line shrink-0">
           {effectiveTotal} Total
         </span>
       </div>
@@ -92,7 +92,7 @@ export default function DifficultyChart({
         </div>
       ) : error ? (
         <div className="py-6 border border-line rounded-xl text-center">
-          <p className="text-xs text-slate-400">Failed to load difficulty distribution</p>
+          <p className="text-xs text-text-secondary">Failed to load difficulty distribution</p>
           {onRetry && (
             <button
               type="button"
@@ -105,7 +105,7 @@ export default function DifficultyChart({
         </div>
       ) : effectiveTotal === 0 ? (
         <div className="py-6 border border-dashed border-line rounded-xl text-center">
-          <p className="text-xs text-slate-400">No problems tracked yet</p>
+          <p className="text-xs text-text-secondary">No problems tracked yet</p>
         </div>
       ) : (
         <>
@@ -182,10 +182,10 @@ export default function DifficultyChart({
               </svg>
               {/* Center Stat */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-lg font-mono font-bold text-white leading-none">
+                <span className="text-lg font-mono font-bold text-text leading-none">
                   {effectiveTotal}
                 </span>
-                <span className="text-[10px] text-slate-400 mt-0.5">Total</span>
+                <span className="text-[10px] text-text-secondary mt-0.5">Total</span>
               </div>
             </div>
 
@@ -201,13 +201,13 @@ export default function DifficultyChart({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ${row.fillClass}`} />
-                      <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
+                      <span className="text-xs font-semibold text-text group-hover:text-accent transition-colors">
                         {row.label}
                       </span>
                     </div>
-                    <span className="text-xs font-mono text-slate-300">
+                    <span className="text-xs font-mono text-text">
                       {row.count}{' '}
-                      <span className="text-slate-500 font-normal">({pct}%)</span>
+                      <span className="text-muted font-normal">({pct}%)</span>
                     </span>
                   </Link>
                 );
@@ -229,7 +229,7 @@ export default function DifficultyChart({
                   className="flex items-center gap-4 py-1 px-1.5 -mx-1.5 rounded-xl hover:bg-surface-2/40 transition-colors group"
                   title={`Filter ${row.label} problems`}
                 >
-                  <span className="w-14 text-xs font-semibold text-white group-hover:text-accent transition-colors">
+                  <span className="w-14 text-xs font-semibold text-text group-hover:text-accent transition-colors">
                     {row.label}
                   </span>
 
@@ -240,11 +240,11 @@ export default function DifficultyChart({
                     />
                   </div>
 
-                  <span className="w-16 text-right text-xs font-mono text-slate-400 shrink-0">
+                  <span className="w-16 text-right text-xs font-mono text-text-secondary shrink-0">
                     {row.count} / {effectiveTotal}
                   </span>
 
-                  <span className="w-10 text-right text-xs font-mono font-bold text-white shrink-0">
+                  <span className="w-10 text-right text-xs font-mono font-bold text-text shrink-0">
                     {pct}%
                   </span>
                 </Link>

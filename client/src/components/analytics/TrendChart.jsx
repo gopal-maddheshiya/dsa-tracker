@@ -18,11 +18,11 @@ function TrendTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     const item = payload[0];
     return (
-      <div className="bg-[#161618]/95 backdrop-blur-md border border-line rounded-xl px-3 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.6)] text-center font-mono pointer-events-none -translate-y-2">
-        <div className="text-[10px] text-slate-400">
+      <div className="bg-surface/95 backdrop-blur-md border border-line rounded-xl px-3 py-1.5 shadow-elevated text-center font-mono pointer-events-none -translate-y-2">
+        <div className="text-[10px] text-text-secondary">
           {formatWeeklyDate(label) || label}
         </div>
-        <div className="text-white font-bold text-xs">
+        <div className="text-text font-bold text-xs">
           {item.value} problems
         </div>
       </div>
@@ -48,10 +48,10 @@ export default function TrendChart({
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-4">
         <div>
-          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+          <h2 className="text-sm sm:text-base font-bold text-text tracking-tight">
             Solve Trend
           </h2>
-          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-text-secondary mt-0.5">
             Problems solved over time
           </p>
         </div>
@@ -60,10 +60,10 @@ export default function TrendChart({
         <div className="relative">
           <button
             type="button"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2 border border-line text-xs font-medium text-slate-300 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2 border border-line text-xs font-medium text-text-secondary hover:text-text transition-colors"
           >
             <span>{timeRange}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="w-3.5 h-3.5 text-muted" />
           </button>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function TrendChart({
           </div>
         ) : error ? (
           <div className="h-56 border border-line rounded-xl flex flex-col items-center justify-center p-6 text-center bg-surface-2/20">
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-xs text-text-secondary font-medium">
               Couldn't load solve trend
             </p>
             {onRetry && (
@@ -92,8 +92,8 @@ export default function TrendChart({
           </div>
         ) : !hasData ? (
           <div className="h-56 border border-dashed border-line rounded-xl flex flex-col items-center justify-center p-6 text-center bg-surface-2/10">
-            <p className="text-xs font-medium text-white">No solved attempts yet</p>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-xs font-medium text-text">No solved attempts yet</p>
+            <p className="text-[11px] text-text-secondary mt-1">
               Your weekly progress will graph here as you solve problems.
             </p>
           </div>

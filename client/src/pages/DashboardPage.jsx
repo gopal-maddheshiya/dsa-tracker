@@ -180,13 +180,13 @@ export default function DashboardPage() {
           ============================================================== */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl lg:text-[28px] font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl lg:text-[28px] font-bold tracking-tight text-text flex items-center gap-2">
             <span>{timeGreeting}, {firstName}!</span>
             <span role="img" aria-label="wave">
               👋
             </span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-text-secondary mt-1">
             Keep solving. Consistency today builds confidence tomorrow.
           </p>
         </div>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             {/* Review Due */}
             <Link
               to="/revision"
-              className="h-10 sm:h-9 inline-flex items-center justify-center gap-2 px-3.5 text-xs font-medium text-slate-300 hover:text-white bg-surface hover:bg-surface-hover border border-line hover:border-line/90 rounded-xl transition-all duration-200 active:scale-95 shadow-subtle whitespace-nowrap"
+              className="h-10 sm:h-9 inline-flex items-center justify-center gap-2 px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface hover:bg-surface-hover border border-line hover:border-line/90 rounded-xl transition-all duration-200 active:scale-95 shadow-subtle whitespace-nowrap"
             >
               <span>Review Due</span>
               <ArrowRight className="w-3.5 h-3.5 text-muted" />
@@ -218,7 +218,7 @@ export default function DashboardPage() {
               type="button"
               onClick={loadDashboard}
               disabled={isRefreshing}
-              className="h-10 sm:h-9 p-2.5 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-surface-hover border border-line text-slate-400 hover:text-white transition-all duration-200 active:scale-95 shadow-subtle disabled:opacity-50"
+              className="h-10 sm:h-9 p-2.5 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-surface-hover border border-line text-text-secondary hover:text-text transition-all duration-200 active:scale-95 shadow-subtle disabled:opacity-50"
               title="Refresh analytics data"
               aria-label="Refresh analytics data"
             >
@@ -231,7 +231,7 @@ export default function DashboardPage() {
             <div className="w-5 h-5 rounded-md bg-accent/15 text-accent flex items-center justify-center font-bold text-xs shrink-0">
               “
             </div>
-            <p className="text-xs text-slate-200 font-medium whitespace-nowrap">
+            <p className="text-xs text-text-secondary font-medium whitespace-nowrap">
               “A little progress each day adds up to big results.”
             </p>
           </div>
