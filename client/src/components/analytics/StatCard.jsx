@@ -168,11 +168,11 @@ export default function StatCard({
   const ringPercentage = percentage ?? progressPercent;
 
   return (
-    <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-accent/35 transition-all duration-150">
+    <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-accent/40 hover:shadow-elevated transition-all duration-200 group">
       {/* Icon + Metric info */}
       <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 w-full sm:w-auto">
         <div
-          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${style.iconBg}`}
+          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${style.iconBg}`}
         >
           <ActiveIcon className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
         </div>

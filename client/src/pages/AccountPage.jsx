@@ -279,7 +279,7 @@ export default function AccountPage() {
               <button
                 type="submit"
                 disabled={profileSaving}
-                className="w-full h-10 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-xs font-semibold text-white bg-accent hover:bg-accent-hover transition-all active:scale-95 disabled:opacity-50 shadow-[0_0_16px_rgba(237,134,65,0.3)] mt-2"
+                className="w-full h-10 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-xs font-semibold text-white bg-accent hover:bg-accent-hover transition-all duration-200 active:scale-95 disabled:opacity-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_4px_16px_rgba(237,134,65,0.35)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_6px_22px_rgba(237,134,65,0.45)] mt-2"
               >
                 {profileSaving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

@@ -180,7 +180,7 @@ export default function HeatmapGrid({
       {/* Floating Tooltip */}
       {hoveredCell && (
         <div
-          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 bg-[#161618] border border-line text-white text-xs font-mono rounded-lg px-2.5 py-1 shadow-2xl"
+          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 bg-[#161618]/95 backdrop-blur-md border border-line text-white text-xs font-mono rounded-lg px-2.5 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
           style={{ left: `${hoveredCell.x}px`, top: `${hoveredCell.y}px` }}
         >
           <span className="text-[10px] text-slate-400 block">

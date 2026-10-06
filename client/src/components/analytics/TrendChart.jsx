@@ -18,7 +18,7 @@ function TrendTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     const item = payload[0];
     return (
-      <div className="bg-[#161618] border border-line rounded-xl px-3 py-1.5 shadow-2xl text-center font-mono pointer-events-none -translate-y-2">
+      <div className="bg-[#161618]/95 backdrop-blur-md border border-line rounded-xl px-3 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.6)] text-center font-mono pointer-events-none -translate-y-2">
         <div className="text-[10px] text-slate-400">
           {formatWeeklyDate(label) || label}
         </div>

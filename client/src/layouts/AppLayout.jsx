@@ -171,7 +171,7 @@ export default function AppLayout() {
           ============================================================== */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-line bg-bg/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20">
+        <header className="h-16 border-b border-line/80 bg-[#161618]/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-[0_1px_0_0_rgba(255,255,255,0.02)]">
           {/* Mobile View: Logo on Left, User Profile Link on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
@@ -208,7 +208,7 @@ export default function AppLayout() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search problems, topics, or platforms..."
-              className="w-full bg-surface border border-line rounded-xl pl-9 pr-14 py-2 text-xs text-white placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              className="w-full bg-surface border border-line rounded-xl pl-9 pr-14 py-2 text-xs text-white placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent focus:shadow-[0_0_16px_rgba(237,134,65,0.18)] transition-all duration-200"
             />
             <div className="absolute right-2.5 flex items-center gap-1 pointer-events-none">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-muted bg-surface-2 border border-line rounded">
@@ -271,7 +271,7 @@ export default function AppLayout() {
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#161618]/95 backdrop-blur-md border-t border-line shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#161618]/90 backdrop-blur-xl border-t border-line/80 shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom,0px)]"
       >
         <div className="grid grid-cols-4 h-16 max-w-md mx-auto px-2">
           {/* Dashboard */}
