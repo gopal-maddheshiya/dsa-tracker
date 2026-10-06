@@ -175,7 +175,7 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
         <header className="h-16 border-b border-line bg-surface/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-xs">
-          {/* Mobile View: Logo on Left, Theme Toggle & User Profile Link on Right */}
+          {/* Mobile View: Logo on Left, Theme Toggle on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
               <LogoMark />
@@ -184,35 +184,19 @@ export default function AppLayout() {
               </span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs"
-                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Moon className="w-4 h-4 text-indigo-500" />
-                )}
-              </button>
-
-              <Link
-                to="/account"
-                className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
-                title="Account & Profile"
-                aria-label="Account & Profile"
-              >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
-                  {displayInitial}
-                </div>
-                <span className="text-xs font-semibold text-text tracking-tight max-w-[100px] truncate">
-                  {displayName}
-                </span>
-              </Link>
-            </div>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-500" />
+              )}
+            </button>
           </div>
 
           {/* Desktop Search Input Bar (Matching Reference) */}
