@@ -15,10 +15,12 @@ import {
   Bell,
   ChevronDown,
   LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 /**
- * 3D Isometric Blue Cube Logo matching reference image
+ * 3D Isometric Blue/Amber Cube Logo matching reference image
  */
 function LogoMark() {
   return (
@@ -45,7 +47,7 @@ function LogoMark() {
 }
 
 /**
- * AppLayout: Desktop sidebar and mobile sticky navigation layout.
+ * AppLayout: Desktop collapsible sidebar and mobile sticky navigation layout.
  */
 export default function AppLayout() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +56,25 @@ export default function AppLayout() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Collapsible sidebar state with localStorage persistence
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('dsa_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('dsa_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // Global Ctrl+K / Cmd+K listener to focus search input
   useEffect(() => {
@@ -81,75 +102,96 @@ export default function AppLayout() {
     }
   };
 
-  const displayName = user?.name || 'Aditya';
+  const displayName = user?.name || 'Developer';
   const displayInitial = displayName.charAt(0).toUpperCase();
 
   const sidebarLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Problems', path: '/problems', icon: FolderCode },
     { name: 'Revision', path: '/revision', icon: RotateCw },
-    { name: 'Analytics', path: '/dashboard#analytics', icon: BarChart2 },
-    { name: 'Profile', path: '/account', icon: UserIcon },
-    { name: 'Settings', path: '/account', icon: Settings },
+    { name: 'Analytics', path: '/analytics', icon: BarChart2 },
+    { name: 'Profile', path: '/profile', icon: UserIcon },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
     <div className="min-h-screen bg-bg text-text flex font-sans antialiased selection:bg-accent/25 selection:text-white">
       {/* ==============================================================
-          LEFT SIDEBAR (Desktop >= lg)
+          LEFT SIDEBAR (Desktop >= lg, Collapsible)
           ============================================================== */}
-      <aside className="hidden lg:flex w-60 xl:w-64 bg-bg border-r border-line flex-col justify-between shrink-0 p-5 sticky top-0 h-screen select-none z-30">
+      <aside
+        className={`hidden lg:flex flex-col justify-between shrink-0 sticky top-0 h-screen select-none z-30 bg-bg border-r border-line transition-all duration-300 ease-in-out ${
+          isCollapsed ? 'w-20 p-3' : 'w-60 xl:w-64 p-5'
+        }`}
+      >
         <div>
-          {/* Logo & Brand Name */}
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-3 px-2 py-1 mb-8 group focus:outline-none"
+          {/* Logo, Brand & Collapse Toggle */}
+          <div
+            className={`flex items-center mb-8 ${
+              isCollapsed ? 'flex-col gap-3 justify-center' : 'justify-between'
+            }`}
           >
-            <LogoMark />
-            <span className="font-bold text-base tracking-tight text-text group-hover:text-accent transition-colors">
-              DSA Tracker
-            </span>
-          </Link>
+            <Link
+              to="/dashboard"
+              className={`flex items-center gap-3 py-1 group focus:outline-none overflow-hidden ${
+                isCollapsed ? 'justify-center w-full' : 'px-1'
+              }`}
+              title="DSA Tracker"
+            >
+              <LogoMark />
+              {!isCollapsed && (
+                <span className="font-bold text-base tracking-tight text-text group-hover:text-accent transition-colors truncate">
+                  DSA Tracker
+                </span>
+              )}
+            </Link>
+
+            {/* Collapse/Expand Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className={`p-1.5 rounded-xl border border-transparent text-muted hover:text-text hover:bg-surface hover:border-line transition-all active:scale-95 ${
+                isCollapsed ? 'w-full flex items-center justify-center py-2' : ''
+              }`}
+              title={isCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}
+            >
+              {isCollapsed ? (
+                <PanelLeftOpen className="w-4 h-4 text-text-secondary" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4 text-text-secondary" />
+              )}
+            </button>
+          </div>
 
           {/* Navigation Items */}
           <nav className="space-y-1.5">
             {sidebarLinks.map((item) => {
               const Icon = item.icon;
-              if (item.onClick) {
-                return (
-                  <button
-                    key={item.name}
-                    type="button"
-                    onClick={item.onClick}
-                    className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-text-secondary hover:text-text hover:bg-surface transition-all text-left group"
-                  >
-                    <Icon className="w-4 h-4 text-muted group-hover:text-text transition-colors" />
-                    <span>{item.name}</span>
-                  </button>
-                );
-              }
-
               const isItemActive =
                 item.path === '/dashboard'
-                  ? location.pathname === '/dashboard'
+                  ? location.pathname === '/dashboard' || location.pathname === '/'
                   : location.pathname.startsWith(item.path);
 
               return (
                 <NavLink
                   key={item.name}
                   to={item.path}
-                  className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                  title={item.name}
+                  className={`flex items-center gap-3.5 rounded-xl text-xs font-medium transition-all ${
+                    isCollapsed ? 'justify-center px-0 py-3' : 'px-3.5 py-2.5'
+                  } ${
                     isItemActive
                       ? 'bg-accent text-white font-semibold shadow-[0_0_18px_rgba(237,134,65,0.35)]'
                       : 'text-text-secondary hover:text-text hover:bg-surface'
                   }`}
                 >
                   <Icon
-                    className={`w-4 h-4 ${
+                    className={`w-4 h-4 shrink-0 ${
                       isItemActive ? 'text-white' : 'text-muted'
                     }`}
                   />
-                  <span>{item.name}</span>
+                  {!isCollapsed && <span className="truncate">{item.name}</span>}
                 </NavLink>
               );
             })}
@@ -161,10 +203,13 @@ export default function AppLayout() {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-text-secondary hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors"
+            title="Sign Out"
+            className={`w-full flex items-center gap-3 text-xs font-medium text-text-secondary hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors ${
+              isCollapsed ? 'justify-center p-3' : 'px-3 py-2'
+            }`}
           >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
+            <LogOut className="w-4 h-4 shrink-0" />
+            {!isCollapsed && <span>Sign Out</span>}
           </button>
         </div>
       </aside>
@@ -199,7 +244,7 @@ export default function AppLayout() {
             </button>
           </div>
 
-          {/* Desktop Search Input Bar (Matching Reference) */}
+          {/* Desktop Search Input Bar */}
           <form
             onSubmit={handleSearchSubmit}
             className="hidden lg:flex items-center relative flex-1 max-w-md xl:max-w-lg"
@@ -240,7 +285,7 @@ export default function AppLayout() {
               )}
             </button>
 
-            {/* Notification Bell with Red Badge Dot */}
+            {/* Notification Bell */}
             <button
               type="button"
               className="p-2 rounded-xl text-text-secondary hover:text-text hover:bg-surface relative transition-colors"
@@ -251,11 +296,11 @@ export default function AppLayout() {
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-bg" />
             </button>
 
-            {/* User Profile Pill linking to /account */}
+            {/* User Profile Pill linking to /profile */}
             <Link
-              to="/account"
+              to="/profile"
               className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
-              title="Account & Profile"
+              title="Developer Profile"
             >
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
                 {displayInitial}
@@ -275,13 +320,13 @@ export default function AppLayout() {
       </div>
 
       {/* ==============================================================
-          MOBILE STICKY BOTTOM NAVBAR (Dashboard, Problems, Revision, Account)
+          MOBILE STICKY BOTTOM NAVBAR (Dashboard, Problems, Revision, Analytics, Profile)
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
         className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-surface/90 backdrop-blur-xl border-t border-line shadow-elevated pb-[env(safe-area-inset-bottom,0px)]"
       >
-        <div className="grid grid-cols-4 h-16 max-w-md mx-auto px-2">
+        <div className="grid grid-cols-5 h-16 max-w-md mx-auto px-1">
           {/* Dashboard */}
           <Link
             to="/dashboard"
@@ -298,9 +343,9 @@ export default function AppLayout() {
                   : ''
               }`}
             >
-              <LayoutDashboard className="w-5 h-5" />
+              <LayoutDashboard className="w-4 h-4" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight">Dashboard</span>
+            <span className="text-[9px] mt-0.5 tracking-tight truncate">Dashboard</span>
           </Link>
 
           {/* Problems */}
@@ -317,9 +362,9 @@ export default function AppLayout() {
                 location.pathname.startsWith('/problems') ? 'bg-accent/15' : ''
               }`}
             >
-              <FolderCode className="w-5 h-5" />
+              <FolderCode className="w-4 h-4" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight">Problems</span>
+            <span className="text-[9px] mt-0.5 tracking-tight truncate">Problems</span>
           </Link>
 
           {/* Revision */}
@@ -336,30 +381,49 @@ export default function AppLayout() {
                 location.pathname.startsWith('/revision') ? 'bg-accent/15' : ''
               }`}
             >
-              <RotateCw className="w-5 h-5" />
+              <RotateCw className="w-4 h-4" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight">Revision</span>
+            <span className="text-[9px] mt-0.5 tracking-tight truncate">Revision</span>
           </Link>
 
-          {/* Account */}
+          {/* Analytics */}
           <Link
-            to="/account"
+            to="/analytics"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              location.pathname === '/account' || location.pathname === '/profile'
+              location.pathname.startsWith('/analytics')
                 ? 'text-accent font-semibold'
                 : 'text-text-secondary hover:text-text'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
-                location.pathname === '/account' || location.pathname === '/profile'
+                location.pathname.startsWith('/analytics') ? 'bg-accent/15' : ''
+              }`}
+            >
+              <BarChart2 className="w-4 h-4" />
+            </div>
+            <span className="text-[9px] mt-0.5 tracking-tight truncate">Analytics</span>
+          </Link>
+
+          {/* Profile */}
+          <Link
+            to="/profile"
+            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
+              location.pathname === '/profile' || location.pathname === '/settings' || location.pathname === '/account'
+                ? 'text-accent font-semibold'
+                : 'text-text-secondary hover:text-text'
+            }`}
+          >
+            <div
+              className={`p-1 rounded-lg ${
+                location.pathname === '/profile' || location.pathname === '/settings' || location.pathname === '/account'
                   ? 'bg-accent/15'
                   : ''
               }`}
             >
-              <UserIcon className="w-5 h-5" />
+              <UserIcon className="w-4 h-4" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight">Account</span>
+            <span className="text-[9px] mt-0.5 tracking-tight truncate">Profile</span>
           </Link>
         </div>
       </nav>

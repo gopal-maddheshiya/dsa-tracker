@@ -34,7 +34,8 @@ async function testAnalyticsModule() {
   assert.strictEqual(typeof analyticsApi.getTrend, 'function', 'getTrend must be a function');
   assert.strictEqual(typeof analyticsApi.getHeatmap, 'function', 'getHeatmap must be a function');
   assert.strictEqual(typeof analyticsApi.getRevisionQueue, 'function', 'getRevisionQueue must be a function');
-  console.log('✓ All 5 analyticsApi methods correctly defined');
+  assert.strictEqual(typeof analyticsApi.getAdvanced, 'function', 'getAdvanced must be a function');
+  console.log('✓ All 6 analyticsApi methods correctly defined');
 
   // 2. Test formatWeeklyDate helper
   assert.strictEqual(formatWeeklyDate('2026-09-28'), 'Sep 28');

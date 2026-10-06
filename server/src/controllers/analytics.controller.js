@@ -365,10 +365,324 @@ const getRevisionQueue = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get in-depth analytics not shown on the main dashboard:
+ *          speed/time-to-solve, platform distribution, first-try accuracy,
+ *          day-of-week productivity rhythm, retention rate, and comprehensive topic mastery.
+ * @route   GET /api/analytics/advanced
+ * @access  Private (requireAuth)
+ */
+const getAdvancedAnalytics = async (req, res, next) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
+    const scope = req.query.scope || 'all'; // '30d', '90d', 'all'
+
+    let dateMatch = {};
+    if (scope === '30d') {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      dateMatch = { attemptedAt: { $gte: d } };
+    } else if (scope === '90d') {
+      const d = new Date();
+      d.setDate(d.getDate() - 90);
+      dateMatch = { attemptedAt: { $gte: d } };
+    }
+
+    // 1. Fetch user problems with basic info
+    const problems = await Problem.find({ userId }).lean();
+    const problemMap = new Map();
+    problems.forEach((p) => problemMap.set(p._id.toString(), p));
+
+    // 2. Fetch attempts in scope
+    const attempts = await Attempt.find({ userId, ...dateMatch }).sort({ attemptedAt: 1 }).lean();
+
+    // 3. Time-to-solve stats
+    const attemptsWithTime = attempts.filter((a) => typeof a.timeTakenMinutes === 'number' && a.timeTakenMinutes > 0);
+    const totalTimeMinutes = attemptsWithTime.reduce((sum, a) => sum + a.timeTakenMinutes, 0);
+    const avgTimeMinutes = attemptsWithTime.length > 0 ? Math.round(totalTimeMinutes / attemptsWithTime.length) : 0;
+
+    // Time by difficulty
+    const diffTimeMap = { easy: [], medium: [], hard: [] };
+    const solvedWithTime = attemptsWithTime.filter((a) => a.status === 'solved');
+    solvedWithTime.forEach((a) => {
+      const p = problemMap.get(a.problemId?.toString());
+      if (p && p.difficulty && diffTimeMap[p.difficulty.toLowerCase()]) {
+        diffTimeMap[p.difficulty.toLowerCase()].push(a.timeTakenMinutes);
+      }
+    });
+
+    const avgTimeByDifficulty = {
+      easy: diffTimeMap.easy.length > 0 ? Math.round(diffTimeMap.easy.reduce((s, v) => s + v, 0) / diffTimeMap.easy.length) : 0,
+      medium: diffTimeMap.medium.length > 0 ? Math.round(diffTimeMap.medium.reduce((s, v) => s + v, 0) / diffTimeMap.medium.length) : 0,
+      hard: diffTimeMap.hard.length > 0 ? Math.round(diffTimeMap.hard.reduce((s, v) => s + v, 0) / diffTimeMap.hard.length) : 0,
+    };
+
+    const fastestSolveMinutes = solvedWithTime.length > 0 ? Math.min(...solvedWithTime.map((a) => a.timeTakenMinutes)) : null;
+
+    // 4. Platform breakdown (group problems by platform)
+    const platformMap = {};
+    problems.forEach((p) => {
+      const plat = (p.platform || 'other').toLowerCase();
+      platformMap[plat] = (platformMap[plat] || 0) + 1;
+    });
+
+    const platformDistribution = Object.entries(platformMap)
+      .map(([platform, count]) => ({
+        platform,
+        count,
+        percentage: problems.length > 0 ? Math.round((count / problems.length) * 100) : 0,
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    // 5. First-try vs repeat accuracy & recall
+    const problemAttemptsMap = new Map();
+    attempts.forEach((a) => {
+      const pid = a.problemId.toString();
+      if (!problemAttemptsMap.has(pid)) {
+        problemAttemptsMap.set(pid, []);
+      }
+      problemAttemptsMap.get(pid).push(a);
+    });
+
+    let firstTryCount = 0;
+    let repeatSolvedCount = 0;
+    let stillStrugglingCount = 0;
+    let totalAttemptedProblems = problemAttemptsMap.size;
+    let repeatAttemptsTotal = 0;
+    let repeatAttemptsSolved = 0;
+
+    problemAttemptsMap.forEach((pAttempts) => {
+      const first = pAttempts[0];
+      if (first.status === 'solved') {
+        firstTryCount += 1;
+      } else if (pAttempts.some((a) => a.status === 'solved')) {
+        repeatSolvedCount += 1;
+      } else {
+        stillStrugglingCount += 1;
+      }
+
+      if (pAttempts.length > 1) {
+        for (let i = 1; i < pAttempts.length; i++) {
+          repeatAttemptsTotal += 1;
+          if (pAttempts[i].status === 'solved') {
+            repeatAttemptsSolved += 1;
+          }
+        }
+      }
+    });
+
+    const firstTryAccuracyPct = totalAttemptedProblems > 0 ? Math.round((firstTryCount / totalAttemptedProblems) * 100) : 0;
+    const retentionRatePct = repeatAttemptsTotal > 0 ? Math.round((repeatAttemptsSolved / repeatAttemptsTotal) * 100) : (firstTryAccuracyPct || 100);
+
+    // 6. Day of week productivity rhythm & Streak
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+    let weekdayCount = 0;
+    let weekendCount = 0;
+
+    const uniqueActiveDates = new Set();
+    attempts.forEach((a) => {
+      const d = new Date(a.attemptedAt);
+      const dayIdx = d.getUTCDay();
+      dayCounts[dayIdx] += 1;
+      if (dayIdx === 0 || dayIdx === 6) {
+        weekendCount += 1;
+      } else {
+        weekdayCount += 1;
+      }
+      uniqueActiveDates.add(d.toISOString().slice(0, 10));
+    });
+
+    let peakDayIdx = 0;
+    let maxDayCount = -1;
+    dayCounts.forEach((c, idx) => {
+      if (c > maxDayCount) {
+        maxDayCount = c;
+        peakDayIdx = idx;
+      }
+    });
+
+    const sortedDates = Array.from(uniqueActiveDates).sort();
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+
+    if (sortedDates.length > 0) {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterdayStr = yesterdayDate.toISOString().slice(0, 10);
+
+      for (let i = 0; i < sortedDates.length; i++) {
+        if (i === 0) {
+          tempStreak = 1;
+        } else {
+          const prev = new Date(sortedDates[i - 1]);
+          const curr = new Date(sortedDates[i]);
+          const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+          if (diffDays === 1) {
+            tempStreak += 1;
+          } else {
+            tempStreak = 1;
+          }
+        }
+        if (tempStreak > longestStreak) {
+          longestStreak = tempStreak;
+        }
+      }
+
+      const lastActive = sortedDates[sortedDates.length - 1];
+      if (lastActive === todayStr || lastActive === yesterdayStr) {
+        currentStreak = 1;
+        for (let i = sortedDates.length - 1; i > 0; i--) {
+          const curr = new Date(sortedDates[i]);
+          const prev = new Date(sortedDates[i - 1]);
+          const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+          if (diffDays === 1) {
+            currentStreak += 1;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    // 7. Topic Mastery Matrix
+    const topicStatsMap = new Map();
+    problems.forEach((p) => {
+      if (Array.isArray(p.topics)) {
+        p.topics.forEach((t) => {
+          if (!topicStatsMap.has(t)) {
+            topicStatsMap.set(t, {
+              topic: t,
+              problemCount: 0,
+              totalAttempts: 0,
+              solvedAttempts: 0,
+              times: [],
+            });
+          }
+          topicStatsMap.get(t).problemCount += 1;
+        });
+      }
+    });
+
+    attempts.forEach((a) => {
+      const p = problemMap.get(a.problemId?.toString());
+      if (p && Array.isArray(p.topics)) {
+        p.topics.forEach((t) => {
+          const stat = topicStatsMap.get(t);
+          if (stat) {
+            stat.totalAttempts += 1;
+            if (a.status === 'solved') stat.solvedAttempts += 1;
+            if (a.timeTakenMinutes > 0) stat.times.push(a.timeTakenMinutes);
+          }
+        });
+      }
+    });
+
+    const topicMastery = Array.from(topicStatsMap.values())
+      .map((item) => {
+        const solveRate = item.totalAttempts > 0 ? Math.round((item.solvedAttempts / item.totalAttempts) * 100) : 0;
+        const avgTime = item.times.length > 0 ? Math.round(item.times.reduce((s, v) => s + v, 0) / item.times.length) : 0;
+        let masteryTier = 'Needs Practice';
+        if (solveRate >= 80 && item.totalAttempts >= 2) {
+          masteryTier = 'Mastered';
+        } else if (solveRate >= 50) {
+          masteryTier = 'Proficient';
+        }
+        return {
+          topic: item.topic,
+          problemCount: item.problemCount,
+          totalAttempts: item.totalAttempts,
+          solvedAttempts: item.solvedAttempts,
+          solveRate,
+          avgTimeMinutes: avgTime,
+          masteryTier,
+        };
+      })
+      .sort((a, b) => b.totalAttempts - a.totalAttempts);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        scope,
+        timeStats: {
+          avgTimeMinutes,
+          avgSolveTimeMinutes: avgTimeMinutes,
+          totalTimeMinutes,
+          totalMinutes: totalTimeMinutes,
+          totalHours: (totalTimeMinutes / 60).toFixed(1),
+          avgTimeByDifficulty,
+          timeByDifficulty: {
+            Easy: avgTimeByDifficulty.easy,
+            Medium: avgTimeByDifficulty.medium,
+            Hard: avgTimeByDifficulty.hard,
+          },
+          fastestSolveMinutes: fastestSolveMinutes ?? avgTimeMinutes,
+        },
+        platformDistribution: platformDistribution.map((p) => ({
+          platform:
+            p.platform === 'leetcode'
+              ? 'LeetCode'
+              : p.platform === 'gfg'
+              ? 'GeeksforGeeks'
+              : p.platform === 'codeforces'
+              ? 'Codeforces'
+              : p.platform === 'hackerrank'
+              ? 'HackerRank'
+              : p.platform === 'codechef'
+              ? 'CodeChef'
+              : p.platform.charAt(0).toUpperCase() + p.platform.slice(1),
+          count: p.count,
+          percentage: p.percentage,
+        })),
+        accuracyMetrics: {
+          totalAttempted: totalAttemptedProblems,
+          totalAttemptedProblems,
+          firstTrySolves: firstTryCount,
+          firstTryCount,
+          multiAttemptSolves: repeatSolvedCount,
+          repeatSolvedCount,
+          strugglingSolves: stillStrugglingCount,
+          stillStrugglingCount,
+          firstTryAccuracyPct,
+          retentionRatePct,
+        },
+        rhythmMetrics: {
+          daysOfWeek: daysOfWeek.map((label, idx) => ({
+            day: label,
+            count: dayCounts[idx],
+          })),
+          dayOfWeekActivity: daysOfWeek.map((label, idx) => ({
+            day: label,
+            count: dayCounts[idx],
+          })),
+          peakDay: daysOfWeek[peakDayIdx],
+          peakProductivityDay: daysOfWeek[peakDayIdx],
+          weekdayCount,
+          weekendCount,
+          currentStreak,
+          longestStreak: Math.max(longestStreak, currentStreak),
+        },
+        topicMastery: topicMastery.map((item) => ({
+          ...item,
+          solvedCount: item.solvedAttempts,
+          totalProblems: item.problemCount,
+          successRate: item.solveRate,
+          confidenceScore: Math.min(100, Math.round(item.solveRate * 0.7 + Math.min(item.totalAttempts * 5, 30))),
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getSummary,
   getTopicAnalytics,
   getTrend,
   getHeatmap,
   getRevisionQueue,
+  getAdvancedAnalytics,
 };

@@ -25,6 +25,47 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    targetRole: {
+      type: String,
+      trim: true,
+      default: 'Software Development Engineer',
+    },
+    preferredLanguage: {
+      type: String,
+      trim: true,
+      default: 'C++',
+    },
+    bio: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    leetcodeHandle: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    codeforcesHandle: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    githubHandle: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    dailyGoal: {
+      type: Number,
+      min: 1,
+      max: 10,
+      default: 2,
+    },
+    reviewPreset: {
+      type: String,
+      enum: ['balanced', 'aggressive', 'relaxed'],
+      default: 'balanced',
+    },
   },
   {
     timestamps: false,

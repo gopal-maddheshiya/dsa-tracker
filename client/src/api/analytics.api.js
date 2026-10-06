@@ -40,6 +40,14 @@ export const analyticsApi = {
   getRevisionQueue: (params = {}) => {
     return apiClient.get('/analytics/revision-queue', { params });
   },
+
+  /**
+   * Fetch in-depth speed, platform, accuracy, and topic mastery analytics
+   * @param {Object} [params] - Optional query parameters (e.g. scope: '30d' | '90d' | 'all')
+   */
+  getAdvanced: (params = {}) => {
+    return apiClient.get('/analytics/advanced', { params });
+  },
 };
 
 // Named function exports for direct destructuring
@@ -48,5 +56,6 @@ export const getTopics = analyticsApi.getTopics;
 export const getTrend = analyticsApi.getTrend;
 export const getHeatmap = analyticsApi.getHeatmap;
 export const getRevisionQueue = analyticsApi.getRevisionQueue;
+export const getAdvanced = analyticsApi.getAdvanced;
 
 export default analyticsApi;

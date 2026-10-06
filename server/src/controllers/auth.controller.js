@@ -67,12 +67,7 @@ const signup = async (req, res, next) => {
       success: true,
       message: 'Account created successfully',
       data: {
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: formatUserResponse(user),
         token,
       },
     });
@@ -133,12 +128,7 @@ const login = async (req, res, next) => {
       success: true,
       message: 'Login successful',
       data: {
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: formatUserResponse(user),
         token,
       },
     });
@@ -146,6 +136,21 @@ const login = async (req, res, next) => {
     next(error);
   }
 };
+
+const formatUserResponse = (user) => ({
+  id: user._id.toString(),
+  name: user.name,
+  email: user.email,
+  createdAt: user.createdAt,
+  targetRole: user.targetRole || 'Software Development Engineer',
+  preferredLanguage: user.preferredLanguage || 'C++',
+  bio: user.bio || '',
+  leetcodeHandle: user.leetcodeHandle || '',
+  codeforcesHandle: user.codeforcesHandle || '',
+  githubHandle: user.githubHandle || '',
+  dailyGoal: user.dailyGoal || 2,
+  reviewPreset: user.reviewPreset || 'balanced',
+});
 
 /**
  * @desc    Get currently authenticated user identity
@@ -165,12 +170,7 @@ const getMe = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: {
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: formatUserResponse(user),
       },
     });
   } catch (error) {
@@ -193,7 +193,19 @@ const updateProfile = async (req, res, next) => {
       });
     }
 
-    const { name, currentPassword, newPassword } = req.body;
+    const {
+      name,
+      currentPassword,
+      newPassword,
+      targetRole,
+      preferredLanguage,
+      bio,
+      leetcodeHandle,
+      codeforcesHandle,
+      githubHandle,
+      dailyGoal,
+      reviewPreset,
+    } = req.body;
 
     // 1. Update Name (if supplied)
     if (name !== undefined) {
@@ -206,7 +218,21 @@ const updateProfile = async (req, res, next) => {
       user.name = name.trim();
     }
 
-    // 2. Change Password (if supplied)
+    // 2. Update Developer Profile Fields
+    if (targetRole !== undefined) user.targetRole = String(targetRole).trim();
+    if (preferredLanguage !== undefined) user.preferredLanguage = String(preferredLanguage).trim();
+    if (bio !== undefined) user.bio = String(bio).trim();
+    if (leetcodeHandle !== undefined) user.leetcodeHandle = String(leetcodeHandle).trim();
+    if (codeforcesHandle !== undefined) user.codeforcesHandle = String(codeforcesHandle).trim();
+    if (githubHandle !== undefined) user.githubHandle = String(githubHandle).trim();
+    if (dailyGoal !== undefined && Number(dailyGoal) >= 1 && Number(dailyGoal) <= 10) {
+      user.dailyGoal = Number(dailyGoal);
+    }
+    if (reviewPreset !== undefined && ['balanced', 'aggressive', 'relaxed'].includes(reviewPreset)) {
+      user.reviewPreset = reviewPreset;
+    }
+
+    // 3. Change Password (if supplied)
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({
@@ -239,12 +265,7 @@ const updateProfile = async (req, res, next) => {
       success: true,
       message: 'Account details updated successfully',
       data: {
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          createdAt: user.createdAt,
-        },
+        user: formatUserResponse(user),
       },
     });
   } catch (error) {

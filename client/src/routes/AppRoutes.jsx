@@ -11,6 +11,9 @@ const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const ProblemsPage = lazy(() => import('../pages/ProblemsPage'));
 const ProblemDetailPage = lazy(() => import('../pages/ProblemDetailPage'));
 const RevisionPage = lazy(() => import('../pages/RevisionPage'));
+const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const AccountPage = lazy(() => import('../pages/AccountPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const SignupPage = lazy(() => import('../pages/SignupPage'));
@@ -92,14 +95,31 @@ export default function AppRoutes() {
             }
           />
           <Route
-            path="/account"
+            path="/analytics"
             element={
               <Suspense fallback={<ViewLoader />}>
-                <AccountPage />
+                <AnalyticsPage />
               </Suspense>
             }
           />
-          <Route path="/profile" element={<Navigate to="/account" replace />} />
+          <Route
+            path="/profile"
+            element={
+              <Suspense fallback={<ViewLoader />}>
+                <ProfilePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <Suspense fallback={<ViewLoader />}>
+                <SettingsPage />
+              </Suspense>
+            }
+          />
+          {/* Legacy /account route redirects to /profile */}
+          <Route path="/account" element={<Navigate to="/profile" replace />} />
         </Route>
       </Route>
 
