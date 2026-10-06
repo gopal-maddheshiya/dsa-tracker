@@ -171,9 +171,9 @@ export default function AccountPage() {
       </div>
 
       {/* 1. Identity & Verification Card */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-[#0f172a]/70 border border-[#1e293b] shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+      <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-bold flex items-center justify-center text-2xl font-mono shadow-[0_0_24px_rgba(37,99,235,0.35)] shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-2xl font-mono shadow-[0_0_24px_rgba(237,134,65,0.35)] shrink-0">
             {displayInitial}
           </div>
           <div className="min-w-0">
@@ -195,7 +195,7 @@ export default function AccountPage() {
         {/* Quick Verification Chips */}
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2/60 border border-line text-xs text-slate-300 font-mono">
-            <Calendar className="w-3.5 h-3.5 text-blue-400" />
+            <Calendar className="w-3.5 h-3.5 text-accent" />
             <span>Joined {formatMemberDate(user?.createdAt)}</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-2/60 border border-line text-xs text-slate-300 font-mono">
@@ -210,7 +210,7 @@ export default function AccountPage() {
         <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-blue-500/15 border border-blue-500/25 text-blue-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-accent/15 border border-accent/25 text-accent flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
               <div>
@@ -247,7 +247,7 @@ export default function AccountPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
-                  className="w-full h-10 px-3.5 rounded-xl bg-surface-2/70 border border-line text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  className="w-full h-10 px-3.5 rounded-xl bg-surface-2/70 border border-line text-xs text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   required
                 />
               </div>
@@ -279,7 +279,7 @@ export default function AccountPage() {
               <button
                 type="submit"
                 disabled={profileSaving}
-                className="w-full h-10 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-50 shadow-[0_0_16px_rgba(37,99,235,0.3)] mt-2"
+                className="w-full h-10 inline-flex items-center justify-center gap-2 px-4 rounded-xl text-xs font-semibold text-white bg-accent hover:bg-accent-hover transition-all active:scale-95 disabled:opacity-50 shadow-[0_0_16px_rgba(237,134,65,0.3)] mt-2"
               >
                 {profileSaving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

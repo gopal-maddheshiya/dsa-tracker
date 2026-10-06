@@ -5,7 +5,7 @@ import {
 } from '../../lib/analyticsUtils.js';
 
 function getCellColor(count) {
-  if (!count || count === 0) return 'bg-[#111827] border-[#1e293b]/80';
+  if (!count || count === 0) return 'bg-[#1e1e21] border-[#2d2d32]/90';
   if (count === 1) return 'bg-[#064e3b] border-[#047857]/60 shadow-[0_0_4px_rgba(6,78,59,0.3)]';
   if (count === 2) return 'bg-[#059669] border-[#10b981]/70 shadow-[0_0_6px_rgba(5,150,105,0.4)]';
   if (count === 3) return 'bg-[#10b981] border-[#34d399]/80 shadow-[0_0_8px_rgba(16,185,129,0.55)]';
@@ -139,7 +139,7 @@ export default function HeatmapGrid({
             {/* Less / More Legend (5 levels matching reference screenshot) */}
             <div className="flex items-center justify-end gap-1.5 text-[10px] font-mono text-slate-400 mt-2.5 pr-0.5">
               <span>Less</span>
-              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#111827] border border-[#1e293b]/80" />
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#1e1e21] border border-[#2d2d32]/90" />
               <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#064e3b] border border-[#047857]/60" />
               <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#059669] border border-[#10b981]/70" />
               <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2.5px] bg-[#10b981] border border-[#34d399]/80" />
@@ -180,7 +180,7 @@ export default function HeatmapGrid({
       {/* Floating Tooltip */}
       {hoveredCell && (
         <div
-          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 bg-[#0b0f17] border border-[#1e293b] text-white text-xs font-mono rounded-lg px-2.5 py-1 shadow-2xl"
+          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 bg-[#161618] border border-line text-white text-xs font-mono rounded-lg px-2.5 py-1 shadow-2xl"
           style={{ left: `${hoveredCell.x}px`, top: `${hoveredCell.y}px` }}
         >
           <span className="text-[10px] text-slate-400 block">

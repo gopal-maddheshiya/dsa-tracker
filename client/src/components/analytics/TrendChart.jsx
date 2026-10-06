@@ -18,7 +18,7 @@ function TrendTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     const item = payload[0];
     return (
-      <div className="bg-[#0b0f17] border border-[#1e293b] rounded-xl px-3 py-1.5 shadow-2xl text-center font-mono pointer-events-none -translate-y-2">
+      <div className="bg-[#161618] border border-line rounded-xl px-3 py-1.5 shadow-2xl text-center font-mono pointer-events-none -translate-y-2">
         <div className="text-[10px] text-slate-400">
           {formatWeeklyDate(label) || label}
         </div>
@@ -84,7 +84,7 @@ export default function TrendChart({
               <button
                 type="button"
                 onClick={onRetry}
-                className="mt-3 px-3 py-1 text-xs font-mono text-blue-400 hover:underline"
+                className="mt-3 px-3 py-1 text-xs font-mono text-accent hover:underline"
               >
                 Retry
               </button>
@@ -106,27 +106,27 @@ export default function TrendChart({
               >
                 <defs>
                   <linearGradient id="solveTrendGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor="#ed8641" stopOpacity={0.45} />
+                    <stop offset="100%" stopColor="#ed8641" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
-                  stroke="#1e293b"
+                  stroke="var(--line)"
                   strokeDasharray="0"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatWeeklyDate}
-                  tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#1e293b' }}
+                  axisLine={{ stroke: 'var(--line)' }}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fill: '#64748b', fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  tick={{ fill: '#71717a', fontSize: 10, fontFamily: 'JetBrains Mono' }}
                   tickLine={false}
-                  axisLine={{ stroke: '#1e293b' }}
+                  axisLine={{ stroke: 'var(--line)' }}
                 />
                 <Tooltip
                   content={<TrendTooltip />}
@@ -135,19 +135,19 @@ export default function TrendChart({
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="#3b82f6"
+                  stroke="#ed8641"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#solveTrendGradient)"
                   dot={{
-                    fill: '#3b82f6',
+                    fill: '#ed8641',
                     r: 3.5,
                     stroke: '#ffffff',
                     strokeWidth: 1.5,
                   }}
                   activeDot={{
                     fill: '#ffffff',
-                    stroke: '#3b82f6',
+                    stroke: '#ed8641',
                     strokeWidth: 3,
                     r: 6,
                   }}

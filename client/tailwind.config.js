@@ -16,7 +16,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Inter Variable"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        display: ['"Space Grotesk"', 'sans-serif'],
+        sans: ['"DM Sans"', '"Inter Variable"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
         mono: ['"JetBrains Mono Variable"', '"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
@@ -50,9 +51,11 @@ export default {
           DEFAULT: withOpacity('--accent'),
           hover: withOpacity('--accent-hover'),
           muted: 'var(--accent-muted)',
+          secondary: withOpacity('--accent-secondary'),
         },
         'accent-hover': withOpacity('--accent-hover'),
         'accent-muted': 'var(--accent-muted)',
+        'accent-secondary': withOpacity('--accent-secondary'),
         easy: withOpacity('--easy'),
         medium: withOpacity('--medium'),
         hard: withOpacity('--hard'),

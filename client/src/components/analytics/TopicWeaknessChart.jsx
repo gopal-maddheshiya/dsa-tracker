@@ -129,7 +129,7 @@ export default function TopicWeaknessChart({
 
         <Link
           to="/problems"
-          className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors shrink-0 font-medium"
+          className="text-xs text-accent hover:text-accent-hover flex items-center gap-1 transition-colors shrink-0 font-medium"
         >
           <span>View All</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -151,7 +151,7 @@ export default function TopicWeaknessChart({
               <button
                 type="button"
                 onClick={onRetry}
-                className="block mx-auto mt-2 text-blue-400 underline"
+                className="block mx-auto mt-2 text-accent underline"
               >
                 Retry
               </button>
@@ -159,7 +159,7 @@ export default function TopicWeaknessChart({
           </div>
         ) : !hasData ? (
           <div className="py-8 border border-dashed border-line rounded-xl flex flex-col items-center justify-center p-6 text-center bg-surface-2/10">
-            <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-2">
+            <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/25 text-accent flex items-center justify-center mb-2">
               <BookOpen className="w-4 h-4" />
             </div>
             <p className="text-xs font-medium text-white">No topic data yet</p>
@@ -183,7 +183,7 @@ export default function TopicWeaknessChart({
                 title={`Filter problems by ${item.topic}`}
               >
                 {/* Mobile Rank Number Badge (Screen 2) */}
-                <div className="sm:hidden w-6 h-6 rounded-full bg-[#162032] border border-[#1e293b] text-slate-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                <div className="sm:hidden w-6 h-6 rounded-full bg-surface-2 border border-line text-slate-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
                   {idx + 1}
                 </div>
 
@@ -201,12 +201,12 @@ export default function TopicWeaknessChart({
                 </div>
 
                 {/* Topic Title */}
-                <span className="w-24 sm:w-36 text-xs font-medium text-white group-hover:text-blue-400 transition-colors truncate shrink-0">
+                <span className="w-24 sm:w-36 text-xs font-medium text-white group-hover:text-accent transition-colors truncate shrink-0">
                   {item.topic}
                 </span>
 
                 {/* Rounded Progress Bar */}
-                <div className="flex-1 h-2.5 sm:h-3 rounded-full bg-[#1e293b] overflow-hidden min-w-[50px] max-w-sm sm:max-w-md">
+                <div className="flex-1 h-2.5 sm:h-3 rounded-full bg-surface-2 overflow-hidden border border-line-subtle min-w-[50px] max-w-sm sm:max-w-md">
                   <div
                     className={`h-full rounded-full transition-all duration-700 ${visual.barColor}`}
                     style={{ width: `${Math.max(6, pct)}%` }}

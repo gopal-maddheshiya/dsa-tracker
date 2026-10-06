@@ -4,7 +4,7 @@ import { Check, Target, Clock, X, TrendingUp, Layers, BarChart2 } from 'lucide-r
 /**
  * Clean SVG Radial Progress Ring for KPI cards matching the reference image
  */
-function RadialRing({ percentage = 0, color = '#2563eb' }) {
+function RadialRing({ percentage = 0, color = '#ed8641' }) {
   const radius = 22;
   const circumference = 2 * Math.PI * radius; // ~138.2
   const validPct = Math.min(100, Math.max(0, Math.round(percentage)));
@@ -17,7 +17,7 @@ function RadialRing({ percentage = 0, color = '#2563eb' }) {
           cx="28"
           cy="28"
           r={radius}
-          stroke="#1e293b"
+          stroke="var(--line)"
           strokeWidth="4"
           fill="transparent"
         />
@@ -93,7 +93,7 @@ export default function StatCard({
           <button
             type="button"
             onClick={onRetry}
-            className="text-[11px] text-blue-400 hover:underline font-mono self-start"
+            className="text-[11px] text-accent hover:underline font-mono self-start"
           >
             Retry
           </button>
@@ -105,24 +105,24 @@ export default function StatCard({
   // Map card style identity
   const cardConfig = {
     tracked: {
-      iconBg: 'bg-[#2563eb] text-white shadow-[0_0_14px_rgba(37,99,235,0.4)]',
+      iconBg: 'bg-[#ed8641] text-white shadow-[0_0_14px_rgba(237,134,65,0.35)]',
       Icon: Layers,
-      subtextColor: 'text-blue-400',
-      ringColor: '#2563eb',
+      subtextColor: 'text-[#ed8641]',
+      ringColor: '#ed8641',
       hasTrend: false,
     },
     attempts: {
-      iconBg: 'bg-[#0284c7] text-white shadow-[0_0_14px_rgba(2,132,199,0.4)]',
+      iconBg: 'bg-[#5ebdbc] text-slate-900 font-bold shadow-[0_0_14px_rgba(94,189,188,0.35)]',
       Icon: Target,
-      subtextColor: 'text-sky-400',
-      ringColor: '#0284c7',
+      subtextColor: 'text-[#5ebdbc]',
+      ringColor: '#5ebdbc',
       hasTrend: false,
     },
     total: {
-      iconBg: 'bg-[#2563eb] text-white shadow-[0_0_14px_rgba(37,99,235,0.4)]',
+      iconBg: 'bg-[#ed8641] text-white shadow-[0_0_14px_rgba(237,134,65,0.35)]',
       Icon: Layers,
-      subtextColor: 'text-blue-400',
-      ringColor: '#2563eb',
+      subtextColor: 'text-[#ed8641]',
+      ringColor: '#ed8641',
       hasTrend: false,
     },
     solved: {
@@ -168,7 +168,7 @@ export default function StatCard({
   const ringPercentage = percentage ?? progressPercent;
 
   return (
-    <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-slate-700/80 transition-all duration-150">
+    <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-accent/35 transition-all duration-150">
       {/* Icon + Metric info */}
       <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 w-full sm:w-auto">
         <div

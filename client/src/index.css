@@ -9,39 +9,43 @@
 :root {
   color-scheme: dark;
 
-  /* Surfaces & Backgrounds - Exact Reference Dark Navy Theme */
-  --bg: #0b0f17;
-  --bg-rgb: 11, 15, 23;
-  --surface: #111726;
-  --surface-rgb: 17, 23, 38;
-  --surface-2: #162032;
-  --surface-2-rgb: 22, 32, 50;
-  --surface-3: #1a253c;
-  --surface-3-rgb: 26, 37, 60;
-  --surface-hover: #1e2b45;
-  --surface-hover-rgb: 30, 43, 69;
-  --surface-elevated: #243352;
-  --surface-elevated-rgb: 36, 51, 82;
+  /* Surfaces & Backgrounds - Gopal Maddheshiya Portfolio Dark Obsidian Theme */
+  --bg: #161618;
+  --bg-rgb: 22, 22, 24;
+  --surface: #1e1e21;
+  --surface-rgb: 30, 30, 33;
+  --surface-2: #242428;
+  --surface-2-rgb: 36, 36, 40;
+  --surface-3: #2a2a30;
+  --surface-3-rgb: 42, 42, 48;
+  --surface-hover: #2e2e34;
+  --surface-hover-rgb: 46, 46, 52;
+  --surface-elevated: #33333a;
+  --surface-elevated-rgb: 51, 51, 58;
 
-  /* Borders & Dividers - Exact thin low-contrast slate */
-  --line: #1e293b;
-  --line-rgb: 30, 41, 59;
-  --line-subtle: #172033;
-  --line-subtle-rgb: 23, 32, 51;
+  /* Borders & Dividers - Warm Charcoal / Zinc */
+  --line: #2d2d32;
+  --line-rgb: 45, 45, 50;
+  --line-subtle: #242428;
+  --line-subtle-rgb: 36, 36, 40;
 
   /* Typography / Text Colors */
-  --text: #ffffff;
-  --text-rgb: 255, 255, 255;
-  --text-secondary: #94a3b8;
-  --text-secondary-rgb: 148, 163, 184;
-  --muted: #64748b;
-  --muted-rgb: 100, 116, 139;
+  --text: #edecec;
+  --text-rgb: 237, 236, 236;
+  --text-secondary: #a1a1aa;
+  --text-secondary-rgb: 161, 161, 170;
+  --muted: #71717a;
+  --muted-rgb: 113, 113, 122;
 
-  /* Accent (Vibrant Electric Blue from reference) */
-  --accent: #2563eb;
-  --accent-rgb: 37, 99, 235;
-  --accent-hover: #1d4ed8;
-  --accent-muted: rgba(37, 99, 235, 0.15);
+  /* Accent (Portfolio Signature Warm Terracotta / Coral-Amber) */
+  --accent: #ed8641;
+  --accent-rgb: 237, 134, 65;
+  --accent-hover: #e0722a;
+  --accent-muted: rgba(237, 134, 65, 0.15);
+
+  /* Secondary Accent (Cyan / Teal from Portfolio) */
+  --accent-secondary: #5ebdbc;
+  --accent-secondary-rgb: 94, 189, 188;
 
   /* Status & Difficulty Tokens */
   --easy: #10b981;
@@ -60,10 +64,14 @@
 
 /* Base resets & typography */
 html {
-  font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'DM Sans', 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {

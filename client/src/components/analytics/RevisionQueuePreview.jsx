@@ -54,7 +54,7 @@ export default function RevisionQueuePreview({
               <button
                 type="button"
                 onClick={onRetry}
-                className="block mx-auto mt-1 text-blue-400 underline"
+                className="block mx-auto mt-1 text-accent underline"
               >
                 Retry
               </button>
@@ -71,10 +71,10 @@ export default function RevisionQueuePreview({
             </p>
             <Link
               to="/problems"
-              className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg transition-colors"
+              className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-accent hover:text-accent-hover bg-accent/10 border border-accent/25 rounded-lg transition-colors"
             >
               <span>Explore problems</span>
-              <ArrowRight className="w-3 h-3" />
+              <ArrowRight className="w-3.5 h-3" />
             </Link>
           </div>
         ) : (
@@ -136,7 +136,7 @@ export default function RevisionQueuePreview({
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-blue-400 transition-colors truncate block">
+                    <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-accent transition-colors truncate block">
                       {item.title}
                     </span>
 
@@ -147,7 +147,7 @@ export default function RevisionQueuePreview({
                         {capDiff}
                       </span>
 
-                      <span className="px-1.5 py-0.5 rounded-md bg-[#162032] border border-[#1e293b] text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+                      <span className="px-1.5 py-0.5 rounded-md bg-surface border border-line text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
                         {firstTopic}
                       </span>
                     </div>

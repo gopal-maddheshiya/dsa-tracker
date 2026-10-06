@@ -196,7 +196,7 @@ export default function DashboardPage() {
           {/* Primary Action: Add Problem (Full-width on mobile) */}
           <Link
             to="/problems?action=add"
-            className="w-full sm:w-auto h-11 sm:h-9 inline-flex items-center justify-center gap-2 px-4 text-sm sm:text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-xl transition-all active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.4)] whitespace-nowrap order-1 sm:order-3"
+            className="w-full sm:w-auto h-11 sm:h-9 inline-flex items-center justify-center gap-2 px-4 text-sm sm:text-xs font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl transition-all active:scale-95 shadow-[0_0_20px_rgba(237,134,65,0.35)] whitespace-nowrap order-1 sm:order-3"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Problem</span>
@@ -222,13 +222,13 @@ export default function DashboardPage() {
               title="Refresh analytics data"
               aria-label="Refresh analytics data"
             >
-              <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-400' : ''}`} />
+              <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-accent' : ''}`} />
             </button>
           </div>
 
           {/* Motivational Quote Box (Desktop only) */}
-          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-[#131b2e] border border-[#1e293b] order-4">
-            <div className="w-5 h-5 rounded-md bg-[#7c3aed]/20 text-[#a855f7] flex items-center justify-center font-bold text-xs shrink-0">
+          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-2 border border-line order-4">
+            <div className="w-5 h-5 rounded-md bg-accent/15 text-accent flex items-center justify-center font-bold text-xs shrink-0">
               “
             </div>
             <p className="text-xs text-slate-200 font-medium whitespace-nowrap">

@@ -97,7 +97,7 @@ export default function DifficultyChart({
             <button
               type="button"
               onClick={onRetry}
-              className="mt-2 text-xs text-blue-400 underline"
+              className="mt-2 text-xs text-accent underline"
             >
               Retry
             </button>
@@ -121,7 +121,7 @@ export default function DifficultyChart({
                   cx="50"
                   cy="50"
                   r="38"
-                  stroke="#1e293b"
+                  stroke="var(--line)"
                   strokeWidth="8"
                   fill="transparent"
                 />
@@ -201,7 +201,7 @@ export default function DifficultyChart({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ${row.fillClass}`} />
-                      <span className="text-xs font-semibold text-white group-hover:text-blue-400 transition-colors">
+                      <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
                         {row.label}
                       </span>
                     </div>
@@ -229,11 +229,11 @@ export default function DifficultyChart({
                   className="flex items-center gap-4 py-1 px-1.5 -mx-1.5 rounded-xl hover:bg-surface-2/40 transition-colors group"
                   title={`Filter ${row.label} problems`}
                 >
-                  <span className="w-14 text-xs font-semibold text-white group-hover:text-blue-400 transition-colors">
+                  <span className="w-14 text-xs font-semibold text-white group-hover:text-accent transition-colors">
                     {row.label}
                   </span>
 
-                  <div className="flex-1 h-3.5 rounded-full bg-[#1e293b] overflow-hidden">
+                  <div className="flex-1 h-3.5 rounded-full bg-surface-2 overflow-hidden border border-line-subtle">
                     <div
                       className={`h-full rounded-full transition-all duration-700 ${row.fillClass}`}
                       style={{ width: `${Math.max(row.count > 0 ? 6 : 0, pct)}%` }}

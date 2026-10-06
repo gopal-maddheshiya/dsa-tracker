@@ -20,7 +20,7 @@ import {
  */
 function LogoMark() {
   return (
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-[0_0_16px_rgba(37,99,235,0.45)] shrink-0">
+    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ed8641] to-[#e0722a] flex items-center justify-center shadow-[0_0_18px_rgba(237,134,65,0.4)] shrink-0">
       <svg
         viewBox="0 0 24 24"
         className="w-5 h-5 text-white"
@@ -32,7 +32,7 @@ function LogoMark() {
       >
         <path
           d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-          fill="#1d4ed8"
+          fill="#ed8641"
           fillOpacity="0.4"
         />
         <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="#ffffff" />
@@ -103,7 +103,7 @@ export default function AppLayout() {
             className="flex items-center gap-3 px-2 py-1 mb-8 group focus:outline-none"
           >
             <LogoMark />
-            <span className="font-bold text-base tracking-tight text-white group-hover:text-blue-400 transition-colors">
+            <span className="font-bold text-base tracking-tight text-white group-hover:text-accent transition-colors">
               DSA Tracker
             </span>
           </Link>
@@ -137,7 +137,7 @@ export default function AppLayout() {
                   to={item.path}
                   className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
                     isItemActive
-                      ? 'bg-blue-600 text-white font-semibold shadow-[0_0_16px_rgba(37,99,235,0.4)]'
+                      ? 'bg-accent text-white font-semibold shadow-[0_0_18px_rgba(237,134,65,0.35)]'
                       : 'text-text-secondary hover:text-white hover:bg-surface'
                   }`}
                 >
@@ -187,7 +187,7 @@ export default function AppLayout() {
               title="Account & Profile"
               aria-label="Account & Profile"
             >
-              <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
                 {displayInitial}
               </div>
               <span className="text-xs font-semibold text-white tracking-tight max-w-[100px] truncate">
@@ -249,7 +249,7 @@ export default function AppLayout() {
               className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full bg-surface border border-line hover:border-accent/40 hover:bg-surface-hover transition-all active:scale-95 group shadow-xs"
               title="Account & Profile"
             >
-              <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
                 {displayInitial}
               </div>
               <span className="text-xs font-semibold text-white tracking-tight">
@@ -271,7 +271,7 @@ export default function AppLayout() {
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#0b0f17]/95 backdrop-blur-md border-t border-[#1e293b] shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#161618]/95 backdrop-blur-md border-t border-line shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
       >
         <div className="grid grid-cols-4 h-16 max-w-md mx-auto px-2">
           {/* Dashboard */}
@@ -279,14 +279,14 @@ export default function AppLayout() {
             to="/dashboard"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname === '/dashboard' || location.pathname === '/'
-                ? 'text-blue-400 font-semibold'
+                ? 'text-[#ed8641] font-semibold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
                 location.pathname === '/dashboard' || location.pathname === '/'
-                  ? 'bg-blue-600/15'
+                  ? 'bg-[#ed8641]/15'
                   : ''
               }`}
             >
@@ -300,13 +300,13 @@ export default function AppLayout() {
             to="/problems"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname.startsWith('/problems')
-                ? 'text-blue-400 font-semibold'
+                ? 'text-[#ed8641] font-semibold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/problems') ? 'bg-blue-600/15' : ''
+                location.pathname.startsWith('/problems') ? 'bg-[#ed8641]/15' : ''
               }`}
             >
               <FolderCode className="w-5 h-5" />
@@ -319,13 +319,13 @@ export default function AppLayout() {
             to="/revision"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname.startsWith('/revision')
-                ? 'text-blue-400 font-semibold'
+                ? 'text-[#ed8641] font-semibold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/revision') ? 'bg-blue-600/15' : ''
+                location.pathname.startsWith('/revision') ? 'bg-[#ed8641]/15' : ''
               }`}
             >
               <RotateCw className="w-5 h-5" />
@@ -338,14 +338,14 @@ export default function AppLayout() {
             to="/account"
             className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
               location.pathname === '/account' || location.pathname === '/profile'
-                ? 'text-blue-400 font-semibold'
+                ? 'text-[#ed8641] font-semibold'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <div
               className={`p-1 rounded-lg ${
                 location.pathname === '/account' || location.pathname === '/profile'
-                  ? 'bg-blue-600/15'
+                  ? 'bg-[#ed8641]/15'
                   : ''
               }`}
             >
