@@ -107,6 +107,14 @@ export default function RevisionQueuePreview({
             const isDueToday = daysElapsed >= interval;
             const isDueTomorrow = interval - daysElapsed <= 1;
 
+            const isHard = diff === 'hard';
+            const isMedium = diff === 'medium';
+            const badgeBg = isHard
+              ? 'bg-[#ef4444]/15 text-[#ef4444] border-[#ef4444]/30'
+              : isMedium
+              ? 'bg-[#f59e0b]/15 text-[#f59e0b] border-[#f59e0b]/30'
+              : 'bg-[#10b981]/15 text-[#10b981] border-[#10b981]/30';
+
             const clockSquircleBg = isOverdue || isDueToday
               ? 'bg-[#ef4444]/15 text-[#ef4444] border border-[#ef4444]/30'
               : isDueTomorrow

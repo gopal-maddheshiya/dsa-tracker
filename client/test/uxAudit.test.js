@@ -1,6 +1,9 @@
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
+import parser from '@babel/parser';
+import traverseModule from '@babel/traverse';
+const traverse = traverseModule.default || traverseModule;
 import { getRevisionTimingState } from '../src/lib/revisionUtils.js';
 import { PLATFORM_NAMES } from '../src/lib/problemUtils.js';
 
@@ -138,6 +141,72 @@ async function testUxAudit() {
     `All React hooks must be explicitly imported. Found missing: ${JSON.stringify(missingImports)}`
   );
   console.log('✓ React hook import integrity across all client files verified (0 missing imports)');
+
+  // 5. Audit: Strict AST Scope Check (Zero undefined variables or components across entire src)
+  const standardGlobals = new Set([
+    'window', 'document', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+    'Math', 'Object', 'Array', 'String', 'Number', 'Boolean', 'Promise', 'Map', 'Set', 'JSON',
+    'encodeURIComponent', 'decodeURIComponent', 'localStorage', 'sessionStorage', 'navigator',
+    'URL', 'URLSearchParams', 'fetch', 'Headers', 'Request', 'Response', 'FormData', 'Blob',
+    'File', 'FileReader', 'AbortController', 'IntersectionObserver', 'ResizeObserver', 'MutationObserver',
+    'performance', 'requestAnimationFrame', 'cancelAnimationFrame', 'Event', 'CustomEvent',
+    'HTMLElement', 'Element', 'Node', 'Error', 'TypeError', 'RangeError', 'ReferenceError', 'SyntaxError',
+    'parseInt', 'parseFloat', 'isNaN', 'isFinite', 'undefined', 'NaN', 'Infinity', 'process', 'global',
+    'Intl', 'Date', 'RegExp', 'Symbol', 'BigInt', 'alert', 'confirm', 'prompt'
+  ]);
+
+  const undeclaredIdentifiers = [];
+  function scanAst(dir) {
+    const entries = fs.readdirSync(dir);
+    for (const entry of entries) {
+      const full = path.join(dir, entry);
+      if (fs.statSync(full).isDirectory()) {
+        scanAst(full);
+      } else if (full.endsWith('.jsx') || full.endsWith('.js')) {
+        const code = fs.readFileSync(full, 'utf8');
+        const ast = parser.parse(code, {
+          sourceType: 'module',
+          plugins: ['jsx']
+        });
+        traverse(ast, {
+          Identifier(identPath) {
+            const name = identPath.node.name;
+            if (identPath.isReferencedIdentifier()) {
+              if (!standardGlobals.has(name) && !identPath.scope.hasBinding(name)) {
+                undeclaredIdentifiers.push({
+                  file: path.relative(path.resolve('./src'), full),
+                  name,
+                  line: identPath.node.loc?.start?.line
+                });
+              }
+            }
+          },
+          JSXIdentifier(jsxIdentPath) {
+            const name = jsxIdentPath.node.name;
+            if (/^[A-Z]/.test(name)) {
+              if (jsxIdentPath.parentPath.isJSXOpeningElement() || jsxIdentPath.parentPath.isJSXClosingElement()) {
+                if (!standardGlobals.has(name) && !jsxIdentPath.scope.hasBinding(name)) {
+                  undeclaredIdentifiers.push({
+                    file: path.relative(path.resolve('./src'), full),
+                    name,
+                    line: jsxIdentPath.node.loc?.start?.line
+                  });
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  }
+
+  scanAst(path.resolve('./src'));
+  assert.strictEqual(
+    undeclaredIdentifiers.length,
+    0,
+    `Undeclared identifiers found in client: ${JSON.stringify(undeclaredIdentifiers, null, 2)}`
+  );
+  console.log('✓ Strict AST scope audit across all client files verified (0 undefined variables)');
 
   console.log('--- All UX & Quality Audit Tests Passed Successfully ---');
 }
