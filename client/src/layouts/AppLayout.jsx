@@ -346,106 +346,136 @@ export default function AppLayout() {
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-surface/90 backdrop-blur-xl border-t border-line shadow-elevated pb-[env(safe-area-inset-bottom,0px)]"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-surface/95 backdrop-blur-2xl border-t border-line shadow-[0_-8px_24px_rgba(0,0,0,0.12)] pb-[max(env(safe-area-inset-bottom,0px),4px)]"
       >
-        <div className="grid grid-cols-5 h-16 max-w-md mx-auto px-1">
+        <div className="grid grid-cols-5 h-[68px] max-w-lg mx-auto px-1.5 items-center">
           {/* Dashboard */}
           <Link
             to="/dashboard"
-            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              location.pathname === '/dashboard' || location.pathname === '/'
-                ? 'text-accent font-semibold'
-                : 'text-text-secondary hover:text-text'
-            }`}
+            className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`p-1 rounded-lg ${
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                 location.pathname === '/dashboard' || location.pathname === '/'
-                  ? 'bg-accent/15'
-                  : ''
+                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4" />
+              <LayoutDashboard className="w-5 h-5 transition-transform" />
             </div>
-            <span className="text-[9px] mt-0.5 tracking-tight truncate">Dashboard</span>
+            <span
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
+                location.pathname === '/dashboard' || location.pathname === '/'
+                  ? 'text-accent font-semibold'
+                  : 'text-text-secondary font-medium'
+              }`}
+            >
+              Dashboard
+            </span>
           </Link>
 
           {/* Problems */}
           <Link
             to="/problems"
-            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              location.pathname.startsWith('/problems')
-                ? 'text-accent font-semibold'
-                : 'text-text-secondary hover:text-text'
-            }`}
+            className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/problems') ? 'bg-accent/15' : ''
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+                location.pathname.startsWith('/problems')
+                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
-              <FolderCode className="w-4 h-4" />
+              <FolderCode className="w-5 h-5 transition-transform" />
             </div>
-            <span className="text-[9px] mt-0.5 tracking-tight truncate">Problems</span>
+            <span
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
+                location.pathname.startsWith('/problems')
+                  ? 'text-accent font-semibold'
+                  : 'text-text-secondary font-medium'
+              }`}
+            >
+              Problems
+            </span>
           </Link>
 
           {/* Revision */}
           <Link
             to="/revision"
-            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              location.pathname.startsWith('/revision')
-                ? 'text-accent font-semibold'
-                : 'text-text-secondary hover:text-text'
-            }`}
+            className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/revision') ? 'bg-accent/15' : ''
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+                location.pathname.startsWith('/revision')
+                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className="w-5 h-5 transition-transform" />
             </div>
-            <span className="text-[9px] mt-0.5 tracking-tight truncate">Revision</span>
+            <span
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
+                location.pathname.startsWith('/revision')
+                  ? 'text-accent font-semibold'
+                  : 'text-text-secondary font-medium'
+              }`}
+            >
+              Revision
+            </span>
           </Link>
 
           {/* Analytics */}
           <Link
             to="/analytics"
-            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              location.pathname.startsWith('/analytics')
-                ? 'text-accent font-semibold'
-                : 'text-text-secondary hover:text-text'
-            }`}
+            className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`p-1 rounded-lg ${
-                location.pathname.startsWith('/analytics') ? 'bg-accent/15' : ''
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+                location.pathname.startsWith('/analytics')
+                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
-              <BarChart2 className="w-4 h-4" />
+              <BarChart2 className="w-5 h-5 transition-transform" />
             </div>
-            <span className="text-[9px] mt-0.5 tracking-tight truncate">Analytics</span>
+            <span
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
+                location.pathname.startsWith('/analytics')
+                  ? 'text-accent font-semibold'
+                  : 'text-text-secondary font-medium'
+              }`}
+            >
+              Analytics
+            </span>
           </Link>
 
           {/* Profile */}
           <Link
             to="/profile"
-            className={`flex flex-col items-center justify-center py-1 transition-all active:scale-95 ${
-              location.pathname === '/profile' || location.pathname === '/settings' || location.pathname === '/account'
-                ? 'text-accent font-semibold'
-                : 'text-text-secondary hover:text-text'
-            }`}
+            className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`p-1 rounded-lg ${
-                location.pathname === '/profile' || location.pathname === '/settings' || location.pathname === '/account'
-                  ? 'bg-accent/15'
-                  : ''
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+                location.pathname === '/profile' ||
+                location.pathname === '/settings' ||
+                location.pathname === '/account'
+                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
-              <UserIcon className="w-4 h-4" />
+              <UserIcon className="w-5 h-5 transition-transform" />
             </div>
-            <span className="text-[9px] mt-0.5 tracking-tight truncate">Profile</span>
+            <span
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
+                location.pathname === '/profile' ||
+                location.pathname === '/settings' ||
+                location.pathname === '/account'
+                  ? 'text-accent font-semibold'
+                  : 'text-text-secondary font-medium'
+              }`}
+            >
+              Profile
+            </span>
           </Link>
         </div>
       </nav>
