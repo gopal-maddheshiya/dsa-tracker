@@ -21,11 +21,38 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 function ViewLoader() {
   return (
-    <div className="py-20 flex flex-col items-center justify-center space-y-3">
-      <div className="w-8 h-8 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent animate-pulse shadow-xs">
-        <Code2 className="w-4 h-4" />
+    <div className="py-28 flex flex-col items-center justify-center space-y-4 select-none">
+      <div className="relative flex items-center justify-center">
+        {/* Ambient bloom */}
+        <div className="absolute w-12 h-12 rounded-full bg-accent/20 blur-md animate-pulse-glow" />
+        {/* Floating 3D Cube Emblem */}
+        <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#ed8641] to-[#d96720] flex items-center justify-center shadow-[0_0_18px_rgba(237,134,65,0.35)] border border-white/20 animate-float-emblem">
+          <svg
+            viewBox="0 0 24 24"
+            className="w-5 h-5 text-white"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+              fill="#ed8641"
+              fillOpacity="0.45"
+            />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="#ffffff" />
+            <line x1="12" y1="22.08" x2="12" y2="12" stroke="#ffffff" />
+          </svg>
+        </div>
       </div>
-      <p className="text-xs text-muted font-mono">Loading view...</p>
+      {/* Sleek travelling beam */}
+      <div className="w-32 h-1 rounded-full bg-surface-2 overflow-hidden border border-line/50 relative">
+        <div className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full animate-loading-beam" />
+      </div>
+      <p className="text-xs text-text-secondary font-medium tracking-tight">
+        Loading...
+      </p>
     </div>
   );
 }
@@ -43,7 +70,7 @@ export default function AppRoutes() {
         <Route
           path="/login"
           element={
-            <Suspense fallback={<AuthLoader message="Loading..." />}>
+            <Suspense fallback={<AuthLoader />}>
               <LoginPage />
             </Suspense>
           }
@@ -51,7 +78,7 @@ export default function AppRoutes() {
         <Route
           path="/signup"
           element={
-            <Suspense fallback={<AuthLoader message="Loading..." />}>
+            <Suspense fallback={<AuthLoader />}>
               <SignupPage />
             </Suspense>
           }
@@ -127,7 +154,7 @@ export default function AppRoutes() {
       <Route
         path="*"
         element={
-          <Suspense fallback={<AuthLoader message="Loading..." />}>
+          <Suspense fallback={<AuthLoader />}>
             <NotFoundPage />
           </Suspense>
         }

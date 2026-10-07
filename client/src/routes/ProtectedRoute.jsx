@@ -12,7 +12,7 @@ export default function ProtectedRoute() {
   const location = useLocation();
 
   if (loading) {
-    return <AuthLoader message="Verifying session..." />;
+    return <AuthLoader />;
   }
 
   if (!isAuthenticated) {

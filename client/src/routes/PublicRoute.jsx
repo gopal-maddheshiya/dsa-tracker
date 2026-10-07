@@ -12,7 +12,7 @@ export default function PublicRoute() {
   const location = useLocation();
 
   if (loading) {
-    return <AuthLoader message="Loading..." />;
+    return <AuthLoader />;
   }
 
   if (isAuthenticated) {
