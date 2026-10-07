@@ -10,7 +10,9 @@ import {
 
 /**
  * ProblemTable
- * High-density, scan-friendly table layout for desktop viewports with interactive column sorting.
+ * High-density, scan-friendly table layout for desktop viewports.
+ * Features semantic left-border status stripes, interactive column sorting indicators,
+ * subtle row hover transitions, and accessible action controls.
  */
 export default function ProblemTable({
   problems = [],
@@ -25,23 +27,41 @@ export default function ProblemTable({
     const isActive = sortConfig?.key === columnKey;
     if (isActive) {
       return sortConfig.direction === 'asc' ? (
-        <ArrowUp className="w-3 h-3 text-accent shrink-0" />
+        <span className="p-0.5 rounded bg-accent/15 text-accent inline-flex items-center">
+          <ArrowUp className="w-3 h-3 shrink-0" />
+        </span>
       ) : (
-        <ArrowDown className="w-3 h-3 text-accent shrink-0" />
+        <span className="p-0.5 rounded bg-accent/15 text-accent inline-flex items-center">
+          <ArrowDown className="w-3 h-3 shrink-0" />
+        </span>
       );
     }
     return (
-      <ArrowUpDown className="w-3 h-3 text-muted/50 group-hover/th:text-text transition-colors shrink-0" />
+      <ArrowUpDown className="w-3 h-3 text-muted/40 group-hover/th:text-text transition-colors shrink-0" />
     );
   };
 
+  const getRowStripeClass = (status) => {
+    if (!status) return 'border-l-2 border-l-transparent hover:border-l-line-hover';
+    switch (status) {
+      case 'solved':
+        return 'border-l-2 border-l-emerald-500/80 hover:border-l-emerald-500';
+      case 'revisit_needed':
+        return 'border-l-2 border-l-amber-500/80 hover:border-l-amber-500';
+      case 'struggled':
+        return 'border-l-2 border-l-rose-500/80 hover:border-l-rose-500';
+      default:
+        return 'border-l-2 border-l-transparent hover:border-l-line-hover';
+    }
+  };
+
   return (
-    <div className="rounded-lg bg-surface border border-line overflow-hidden shadow-xs">
+    <div className="rounded-xl bg-surface border border-line overflow-hidden shadow-xs">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
+        <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-line bg-surface-2/60 text-muted font-mono uppercase text-[10px] tracking-wider select-none">
-              <th scope="col" className="py-2.5 px-4 font-semibold">
+            <tr className="border-b border-line bg-surface-2/70 text-muted font-mono uppercase text-[10px] tracking-wider select-none">
+              <th scope="col" className="py-3 px-4 font-semibold">
                 <button
                   type="button"
                   onClick={() => onSort?.('title')}
@@ -51,10 +71,10 @@ export default function ProblemTable({
                   {renderSortIndicator('title')}
                 </button>
               </th>
-              <th scope="col" className="py-2.5 px-3 font-semibold">
+              <th scope="col" className="py-3 px-3 font-semibold whitespace-nowrap">
                 Platform
               </th>
-              <th scope="col" className="py-2.5 px-3 font-semibold">
+              <th scope="col" className="py-3 px-3 font-semibold whitespace-nowrap">
                 <button
                   type="button"
                   onClick={() => onSort?.('difficulty')}
@@ -64,10 +84,10 @@ export default function ProblemTable({
                   {renderSortIndicator('difficulty')}
                 </button>
               </th>
-              <th scope="col" className="py-2.5 px-3 font-semibold">
+              <th scope="col" className="py-3 px-3 font-semibold">
                 Topics
               </th>
-              <th scope="col" className="py-2.5 px-3 font-semibold">
+              <th scope="col" className="py-3 px-3 font-semibold whitespace-nowrap">
                 <button
                   type="button"
                   onClick={() => onSort?.('status')}
@@ -77,7 +97,7 @@ export default function ProblemTable({
                   {renderSortIndicator('status')}
                 </button>
               </th>
-              <th scope="col" className="py-2.5 px-3 font-semibold">
+              <th scope="col" className="py-3 px-3 font-semibold whitespace-nowrap">
                 <button
                   type="button"
                   onClick={() => onSort?.('lastAttempt')}
@@ -87,7 +107,7 @@ export default function ProblemTable({
                   {renderSortIndicator('lastAttempt')}
                 </button>
               </th>
-              <th scope="col" className="py-2.5 px-4 font-semibold text-right">
+              <th scope="col" className="py-3 px-4 font-semibold text-right whitespace-nowrap">
                 Actions
               </th>
             </tr>
@@ -95,10 +115,12 @@ export default function ProblemTable({
           <tbody className="divide-y divide-line/60">
             {problems.map((problem) => {
               const latest = problem.latestAttempt;
+              const stripeClass = getRowStripeClass(latest?.status);
+
               return (
                 <tr
                   key={problem.id}
-                  className="hover:bg-surface-hover/60 transition-colors group"
+                  className={`hover:bg-surface-hover/70 transition-colors group ${stripeClass}`}
                 >
                   {/* Problem Title & External Link */}
                   <td className="py-3 px-4 font-medium text-text max-w-xs">
@@ -115,7 +137,7 @@ export default function ProblemTable({
                           href={problem.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted/70 hover:text-text p-0.5 rounded transition-colors shrink-0"
+                          className="text-muted/60 hover:text-accent p-0.5 rounded transition-colors shrink-0"
                           title="Open external problem link"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -150,7 +172,7 @@ export default function ProblemTable({
                           ))}
                           {problem.topics.length > 2 && (
                             <span
-                              className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-2 text-muted border border-line"
+                              className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-2 text-muted border border-line cursor-help"
                               title={problem.topics.slice(2).join(', ')}
                             >
                               +{problem.topics.length - 2}
@@ -179,7 +201,7 @@ export default function ProblemTable({
                       <button
                         type="button"
                         onClick={() => onLogAttempt(problem)}
-                        className="h-7.5 inline-flex items-center gap-1 px-2.5 rounded text-[11px] font-medium bg-surface-2 hover:bg-accent hover:text-white text-text border border-line shadow-xs transition-all duration-150 active:scale-95"
+                        className="h-7 inline-flex items-center gap-1 px-2.5 rounded-lg text-[11px] font-mono font-medium bg-surface-2 hover:bg-accent hover:text-white text-text border border-line shadow-xs transition-all duration-150 active:scale-95"
                         title="Log practice attempt"
                       >
                         <Plus className="w-3 h-3 text-accent group-hover:text-inherit" />
@@ -189,21 +211,21 @@ export default function ProblemTable({
                       <button
                         type="button"
                         onClick={() => onEditProblem(problem)}
-                        className="h-7.5 w-7.5 inline-flex items-center justify-center rounded text-muted hover:text-text hover:bg-surface-2 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
                         title="Edit problem"
                         aria-label="Edit problem"
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
+                        <Edit2 className="w-3 h-3" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onDeleteProblem(problem)}
-                        className="h-7.5 w-7.5 inline-flex items-center justify-center rounded text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
                         title="Delete problem"
                         aria-label="Delete problem"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </td>

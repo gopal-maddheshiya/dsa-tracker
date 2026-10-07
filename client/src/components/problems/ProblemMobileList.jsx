@@ -11,6 +11,8 @@ import {
 /**
  * ProblemMobileList
  * Stacked card view for mobile & small tablet screens (<768px).
+ * Features semantic left-border status stripes, touch-friendly 40px+ action targets,
+ * and clean metadata hierarchy.
  */
 export default function ProblemMobileList({
   problems = [],
@@ -18,14 +20,30 @@ export default function ProblemMobileList({
   onEditProblem,
   onDeleteProblem,
 }) {
+  const getCardStripeClass = (status) => {
+    if (!status) return 'border-l-4 border-l-line';
+    switch (status) {
+      case 'solved':
+        return 'border-l-4 border-l-emerald-500/80';
+      case 'revisit_needed':
+        return 'border-l-4 border-l-amber-500/80';
+      case 'struggled':
+        return 'border-l-4 border-l-rose-500/80';
+      default:
+        return 'border-l-4 border-l-line';
+    }
+  };
+
   return (
     <div className="space-y-3">
       {problems.map((problem) => {
         const latest = problem.latestAttempt;
+        const stripeClass = getCardStripeClass(latest?.status);
+
         return (
           <div
             key={problem.id}
-            className="p-4 rounded-lg bg-surface border border-line shadow-xs space-y-3 transition-colors hover:border-line-interactive"
+            className={`p-4 rounded-xl bg-surface border border-line shadow-xs space-y-3 transition-colors hover:border-line-hover ${stripeClass}`}
           >
             {/* Top row: Badges & external link */}
             <div className="flex items-center justify-between gap-2">
@@ -38,7 +56,7 @@ export default function ProblemMobileList({
                   href={problem.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-9 w-9 flex items-center justify-center text-muted hover:text-text rounded-md hover:bg-surface-2 transition-all duration-150 active:scale-95 shrink-0"
+                  className="h-8 w-8 flex items-center justify-center text-muted hover:text-accent rounded-lg hover:bg-surface-2 transition-all duration-150 active:scale-95 shrink-0"
                   title="Open external problem link"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -50,7 +68,7 @@ export default function ProblemMobileList({
             <div>
               <Link
                 to={`/problems/${problem.id}`}
-                className="text-sm font-semibold text-text hover:text-accent transition-colors block line-clamp-2"
+                className="text-sm font-semibold text-text hover:text-accent transition-colors block line-clamp-2 leading-snug"
               >
                 {problem.title}
               </Link>
@@ -84,15 +102,15 @@ export default function ProblemMobileList({
                 <button
                   type="button"
                   onClick={() => onLogAttempt(problem)}
-                  className="h-9 inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-md bg-surface-2 hover:bg-accent hover:text-white text-text border border-line shadow-xs transition-all duration-150 active:scale-95"
+                  className="h-9 inline-flex items-center gap-1.5 px-3 text-xs font-mono font-medium rounded-lg bg-surface-2 hover:bg-accent hover:text-white text-text border border-line shadow-xs transition-all duration-150 active:scale-95"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 text-accent group-hover:text-inherit" />
                   <span>Log</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => onEditProblem(problem)}
-                  className="h-9 w-9 inline-flex items-center justify-center text-muted hover:text-text hover:bg-surface-2 rounded-md transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
+                  className="h-9 w-9 inline-flex items-center justify-center text-muted hover:text-text hover:bg-surface-2 rounded-lg transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
                   title="Edit problem"
                   aria-label="Edit problem"
                 >
@@ -101,7 +119,7 @@ export default function ProblemMobileList({
                 <button
                   type="button"
                   onClick={() => onDeleteProblem(problem)}
-                  className="h-9 w-9 inline-flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 rounded-md transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
+                  className="h-9 w-9 inline-flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
                   title="Delete problem"
                   aria-label="Delete problem"
                 >
@@ -111,7 +129,7 @@ export default function ProblemMobileList({
 
               <Link
                 to={`/problems/${problem.id}`}
-                className="inline-flex items-center gap-1 h-9 px-2 text-xs font-medium text-accent hover:underline"
+                className="inline-flex items-center gap-1 h-9 px-2 text-xs font-medium text-accent hover:underline font-mono"
               >
                 <span>Details</span>
                 <ArrowRight className="w-3.5 h-3.5" />

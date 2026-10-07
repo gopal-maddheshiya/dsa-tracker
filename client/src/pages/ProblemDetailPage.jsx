@@ -11,6 +11,7 @@ import {
   History,
   AlertCircle,
   RotateCcw,
+  Sparkles,
 } from 'lucide-react';
 import problemsApi from '../api/problems.api';
 import {
@@ -26,7 +27,8 @@ import DeleteConfirmModal from '../components/problems/DeleteConfirmModal';
 
 /**
  * ProblemDetailPage
- * Single problem practice workspace with metadata hero, practice HUD, and activity timeline.
+ * Single problem practice workspace with metadata hero, practice HUD,
+ * Leitner cadence schedule, and activity timeline.
  */
 export default function ProblemDetailPage() {
   const { id } = useParams();
@@ -136,7 +138,7 @@ export default function ProblemDetailPage() {
         <div className="h-4 bg-surface-2 rounded w-44" />
 
         {/* Hero Card Skeleton */}
-        <div className="p-6 rounded-lg bg-surface border border-line shadow-xs space-y-5">
+        <div className="p-6 rounded-xl bg-surface border border-line shadow-xs space-y-5">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div className="space-y-3 flex-1">
               <div className="flex gap-2">
@@ -157,7 +159,7 @@ export default function ProblemDetailPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-line/60">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="p-3.5 rounded-lg bg-surface-2/40 border border-line space-y-2">
+              <div key={i} className="p-3.5 rounded-xl bg-surface-2/40 border border-line space-y-2">
                 <div className="h-3 bg-surface-2 rounded w-20" />
                 <div className="h-6 bg-surface-2 rounded w-16" />
               </div>
@@ -168,7 +170,7 @@ export default function ProblemDetailPage() {
         {/* Timeline Skeleton */}
         <div className="space-y-3 pt-2">
           <div className="h-5 bg-surface-2 rounded w-36 mb-4" />
-          <div className="p-4 rounded-lg bg-surface border border-line space-y-3">
+          <div className="p-4 rounded-xl bg-surface border border-line space-y-3">
             <div className="h-4 bg-surface-2 rounded w-48" />
             <div className="h-12 bg-surface-2/50 rounded w-full" />
           </div>
@@ -190,7 +192,7 @@ export default function ProblemDetailPage() {
         </div>
         <Link
           to="/problems"
-          className="h-9 px-4 inline-flex items-center gap-1.5 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+          className="h-9 px-4 inline-flex items-center gap-1.5 text-xs font-mono font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to problems</span>
@@ -205,7 +207,7 @@ export default function ProblemDetailPage() {
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-muted">
         <Link
           to="/problems"
-          className="hover:text-text transition-colors inline-flex items-center gap-1"
+          className="hover:text-text transition-colors inline-flex items-center gap-1 font-mono"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Problems</span>
@@ -240,7 +242,7 @@ export default function ProblemDetailPage() {
                   href={problem.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-accent hover:underline ml-1"
+                  className="inline-flex items-center gap-1 text-xs text-accent hover:underline ml-1 font-mono"
                 >
                   <span>Open on {PLATFORM_NAMES[problem.platform] || 'platform'}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -268,7 +270,7 @@ export default function ProblemDetailPage() {
             <button
               type="button"
               onClick={() => setIsAttemptOpen(true)}
-              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Log attempt</span>
@@ -276,7 +278,7 @@ export default function ProblemDetailPage() {
             <button
               type="button"
               onClick={() => setIsEditOpen(true)}
-              className="h-9 px-3 inline-flex items-center gap-1.5 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+              className="h-9 px-3 inline-flex items-center gap-1.5 text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
               title="Edit problem details"
               aria-label="Edit problem details"
             >
@@ -286,7 +288,7 @@ export default function ProblemDetailPage() {
             <button
               type="button"
               onClick={() => setIsDeleteOpen(true)}
-              className="h-9 px-3 inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-danger hover:bg-danger/10 border border-line hover:border-danger/30 rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+              className="h-9 px-3 inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-danger hover:bg-danger/10 border border-line hover:border-danger/30 rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
               title="Delete problem"
               aria-label="Delete problem"
             >
@@ -298,7 +300,7 @@ export default function ProblemDetailPage() {
 
         {/* Practice Metrics HUD */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-line">
-          <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
+          <div className="p-3.5 rounded-xl bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
             <span className="text-[10px] font-mono uppercase text-muted tracking-wider block mb-1">
               Current Status
             </span>
@@ -307,7 +309,7 @@ export default function ProblemDetailPage() {
             </div>
           </div>
 
-          <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
+          <div className="p-3.5 rounded-xl bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
             <span className="text-[10px] font-mono uppercase text-muted tracking-wider block mb-1">
               Total Attempts
             </span>
@@ -315,13 +317,13 @@ export default function ProblemDetailPage() {
               <span className="text-xl font-bold font-mono text-text">
                 {attempts.length}
               </span>
-              <span className="text-[11px] text-muted">
+              <span className="text-[11px] font-mono text-muted">
                 {attempts.length === 1 ? 'attempt' : 'attempts'}
               </span>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
+          <div className="p-3.5 rounded-xl bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
             <span className="text-[10px] font-mono uppercase text-muted tracking-wider block mb-1">
               Total Practice Time
             </span>
@@ -330,12 +332,12 @@ export default function ProblemDetailPage() {
                 {totalPracticeMinutes > 0 ? totalPracticeMinutes : '—'}
               </span>
               {totalPracticeMinutes > 0 && (
-                <span className="text-[11px] text-muted">mins</span>
+                <span className="text-[11px] font-mono text-muted">mins</span>
               )}
             </div>
           </div>
 
-          <div className="p-3.5 rounded-lg bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
+          <div className="p-3.5 rounded-xl bg-surface-2/40 border border-line flex flex-col justify-between min-h-[74px]">
             <span className="text-[10px] font-mono uppercase text-muted tracking-wider block mb-1">
               Last Attempted
             </span>
@@ -347,9 +349,9 @@ export default function ProblemDetailPage() {
 
         {/* Spaced Repetition Cadence HUD */}
         {revisionInfo && (
-          <div className="p-3 sm:p-3.5 rounded-lg bg-surface-2/50 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-surface-2/50 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 rounded-md bg-accent/10 border border-accent/25 text-accent shrink-0">
+              <div className="p-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent shrink-0">
                 <RotateCcw className="w-3.5 h-3.5" />
               </div>
               <div>
@@ -362,7 +364,7 @@ export default function ProblemDetailPage() {
               </div>
             </div>
             <span
-              className={`text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded border self-start sm:self-auto ${revisionInfo.urgencyColor}`}
+              className={`text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded-md border self-start sm:self-auto ${revisionInfo.urgencyColor}`}
             >
               {revisionInfo.urgencyLabel}
             </span>
@@ -383,7 +385,7 @@ export default function ProblemDetailPage() {
           <button
             type="button"
             onClick={() => setIsAttemptOpen(true)}
-            className="text-xs font-medium text-accent hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
+            className="text-xs font-mono font-medium text-accent hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
           >
             <Plus className="w-3 h-3" />
             <span>Record new attempt</span>
@@ -421,7 +423,7 @@ export default function ProblemDetailPage() {
                     className={`absolute -left-[31px] sm:-left-[35px] top-4 w-2.5 h-2.5 rounded-full ${nodeClass}`}
                   />
 
-                  <div className="p-4 sm:p-5 rounded-lg bg-surface border border-line shadow-xs space-y-3 hover:border-line-hover transition-colors">
+                  <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line shadow-xs space-y-3 hover:border-line-hover transition-colors">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <StatusBadge status={attempt.status} />
@@ -452,11 +454,11 @@ export default function ProblemDetailPage() {
 
                     {/* Notes block */}
                     {attempt.notes ? (
-                      <div className="p-3 rounded-md bg-surface-2/60 border border-line text-xs text-text-secondary whitespace-pre-wrap leading-relaxed font-sans">
+                      <div className="p-3.5 rounded-lg bg-surface-2/60 border border-line text-xs text-text-secondary whitespace-pre-wrap leading-relaxed font-sans">
                         {attempt.notes}
                       </div>
                     ) : (
-                      <div className="text-[11px] text-muted italic">
+                      <div className="text-[11px] text-muted italic font-mono">
                         No notes recorded for this attempt.
                       </div>
                     )}
@@ -472,14 +474,14 @@ export default function ProblemDetailPage() {
             </div>
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-text">No practice attempts yet</h3>
-              <p className="text-xs text-muted max-w-sm">
+              <p className="text-xs text-muted max-w-sm leading-relaxed">
                 Log your first attempt to start building your practice timeline, tracking solution times, and recording key takeaways.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setIsAttemptOpen(true)}
-              className="mt-2 h-9 inline-flex items-center gap-1.5 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+              className="mt-2 h-9 inline-flex items-center gap-1.5 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Log first attempt</span>

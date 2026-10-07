@@ -248,18 +248,25 @@ export default function AttemptFormModal({
                   Time Spent (minutes)
                 </label>
                 <div className="flex items-center gap-1">
-                  {[15, 30, 45, 60].map((mins) => (
-                    <button
-                      key={mins}
-                      type="button"
-                      onClick={() =>
-                        setFormData({ ...formData, timeTakenMinutes: mins.toString() })
-                      }
-                      className="px-1.5 py-0.5 text-[9px] font-mono rounded bg-surface-2 text-muted hover:text-text hover:bg-surface-hover border border-line transition-all active:scale-95"
-                    >
-                      {mins}m
-                    </button>
-                  ))}
+                  {[15, 30, 45, 60].map((mins) => {
+                    const isSelected = formData.timeTakenMinutes === String(mins);
+                    return (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() =>
+                          setFormData({ ...formData, timeTakenMinutes: mins.toString() })
+                        }
+                        className={`px-1.5 py-0.5 text-[9px] font-mono rounded border transition-all active:scale-95 ${
+                          isSelected
+                            ? 'bg-accent/15 text-accent border-accent/40 font-semibold shadow-xs'
+                            : 'bg-surface-2 text-muted hover:text-text hover:bg-surface-hover border-line'
+                        }`}
+                      >
+                        {mins}m
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div className="relative">

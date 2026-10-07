@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, FolderPlus, SearchX, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, FolderPlus, SearchX, RotateCw, AlertCircle } from 'lucide-react';
 import problemsApi from '../api/problems.api';
+import ProblemStatsBar from '../components/problems/ProblemStatsBar';
 import ProblemFilters from '../components/problems/ProblemFilters';
 import ProblemTable from '../components/problems/ProblemTable';
 import ProblemMobileList from '../components/problems/ProblemMobileList';
@@ -12,12 +13,14 @@ import DeleteConfirmModal from '../components/problems/DeleteConfirmModal';
 /**
  * ProblemsPage
  * Central problem management interface supporting searching, filtering,
- * tabular desktop & stacked mobile views, CRUD actions, and attempt logging.
+ * interactive KPI metrics, tabular desktop & stacked mobile views,
+ * CRUD actions, and attempt logging.
  */
 export default function ProblemsPage() {
   const [searchParams] = useSearchParams();
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   // Filters state initialized from URL query parameters where present
@@ -51,9 +54,14 @@ export default function ProblemsPage() {
   const [allKnownTopics, setAllKnownTopics] = useState(new Set());
 
   // Fetch problems with backend query parameters and active request tracking
-  const loadProblems = useCallback(async (isCancelled = () => false) => {
-    setLoading(true);
+  const loadProblems = useCallback(async (isCancelled = () => false, isManualRefresh = false) => {
+    if (isManualRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
+
     try {
       const queryParams = {};
       if (search.trim()) queryParams.search = search.trim();
@@ -89,6 +97,7 @@ export default function ProblemsPage() {
     } finally {
       if (!isCancelled()) {
         setLoading(false);
+        setIsRefreshing(false);
       }
     }
   }, [search, difficulty, topic, status]);
@@ -158,7 +167,7 @@ export default function ProblemsPage() {
     return list;
   }, [filteredProblems, sortConfig]);
 
-  // Sorted topic list for dropdown
+  // Sorted topic list for filter selector
   const availableTopics = useMemo(() => {
     return Array.from(allKnownTopics).sort((a, b) => a.localeCompare(b));
   }, [allKnownTopics]);
@@ -232,7 +241,7 @@ export default function ProblemsPage() {
   );
 
   return (
-    <div className="space-y-6 pb-20 sm:pb-12 max-w-7xl mx-auto">
+    <div className="space-y-6 pb-24 sm:pb-12 max-w-7xl mx-auto">
       {/* Standardized Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
         <div>
@@ -240,28 +249,50 @@ export default function ProblemsPage() {
             Problem Repository
           </span>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-semibold tracking-tight text-text">
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-text">
               Problems
             </h1>
-            <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
+            <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded-md border border-line">
               {problems.length} tracked
             </span>
           </div>
           <p className="text-xs text-text-secondary mt-1">
-            Track, review, and revisit your practice history.
+            Track, review, and revisit your DSA practice repository.
           </p>
         </div>
-        <div>
+
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => loadProblems(() => false, true)}
+            disabled={isRefreshing || loading}
+            title="Refresh problem list"
+            aria-label="Refresh problem list"
+            className="h-9 w-9 p-0 inline-flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 disabled:opacity-50"
+          >
+            <RotateCw
+              className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-accent' : ''}`}
+            />
+          </button>
+
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_12px_rgba(237,134,65,0.3)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.4)]"
+            className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_12px_rgba(237,134,65,0.3)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.4)]"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add problem</span>
           </button>
         </div>
       </div>
+
+      {/* KPI Overview Summary Bar */}
+      <ProblemStatsBar
+        problems={problems}
+        activeStatus={status}
+        onStatusSelect={setStatus}
+        loading={loading}
+      />
 
       {/* Filter and Search Bar */}
       <ProblemFilters
@@ -282,14 +313,14 @@ export default function ProblemsPage() {
 
       {/* Error Banner */}
       {error && (
-        <div className="p-3.5 rounded-lg bg-danger/10 border border-danger/25 flex items-center justify-between text-xs text-danger shadow-xs">
+        <div className="p-3.5 rounded-xl bg-danger/10 border border-danger/25 flex items-center justify-between text-xs text-danger shadow-xs">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
           <button
             type="button"
-            onClick={loadProblems}
+            onClick={() => loadProblems()}
             className="font-medium underline hover:no-underline ml-2"
           >
             Retry
@@ -301,7 +332,7 @@ export default function ProblemsPage() {
       {loading ? (
         <>
           {/* Desktop Table Skeleton */}
-          <div className="hidden md:block rounded-lg bg-surface border border-line overflow-hidden shadow-xs animate-pulse">
+          <div className="hidden md:block rounded-xl bg-surface border border-line overflow-hidden shadow-xs animate-pulse">
             <div className="h-10 bg-surface-2/60 border-b border-line" />
             <div className="divide-y divide-line/60">
               {[...Array(6)].map((_, i) => (
@@ -321,7 +352,7 @@ export default function ProblemsPage() {
           {/* Mobile Card Skeleton */}
           <div className="block md:hidden space-y-3 animate-pulse">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="p-4 rounded-lg bg-surface border border-line space-y-3 shadow-xs">
+              <div key={i} className="p-4 rounded-xl bg-surface border border-line space-y-3 shadow-xs">
                 <div className="flex justify-between">
                   <div className="h-3.5 bg-surface-2 rounded w-24" />
                   <div className="h-3.5 bg-surface-2 rounded w-16" />
@@ -358,34 +389,33 @@ export default function ProblemsPage() {
         </>
       ) : hasAnyFilterActive ? (
         /* Empty State: No match for filters */
-        <div className="p-12 text-center flex flex-col items-center justify-center space-y-3 bg-surface border border-line rounded-lg shadow-xs">
+        <div className="p-12 text-center flex flex-col items-center justify-center space-y-3 bg-surface border border-line rounded-xl shadow-xs">
           <div className="p-3 rounded-full bg-surface-2 text-muted border border-line">
-            <SearchX className="w-5 h-5" />
+            <SearchX className="w-5 h-5 text-muted" />
           </div>
           <div className="space-y-1">
             <h3 className="text-sm font-semibold text-text">No matching problems</h3>
             <p className="text-xs text-muted max-w-sm">
-              We couldn't find any problems matching your current search or filter
-              criteria.
+              We couldn't find any problems matching your current search or filter criteria.
             </p>
           </div>
           <button
             type="button"
             onClick={handleClearFilters}
-            className="h-9 px-3.5 inline-flex items-center justify-center text-xs font-medium text-text bg-surface-2 hover:bg-surface-hover border border-line rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+            className="h-8 px-3.5 inline-flex items-center justify-center text-xs font-mono font-medium text-accent bg-accent/10 hover:bg-accent/20 border border-accent/25 rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
           >
             Clear all filters
           </button>
         </div>
       ) : (
         /* Empty State: No problems in database yet */
-        <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-surface border border-line rounded-lg shadow-xs">
-          <div className="w-12 h-12 rounded-lg bg-accent/10 text-accent border border-accent/25 flex items-center justify-center">
+        <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-surface border border-line rounded-xl shadow-xs">
+          <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent border border-accent/25 flex items-center justify-center">
             <FolderPlus className="w-6 h-6" />
           </div>
           <div className="space-y-1">
             <h3 className="text-sm font-semibold text-text">No problems tracked yet</h3>
-            <p className="text-xs text-muted max-w-md">
+            <p className="text-xs text-muted max-w-md leading-relaxed">
               Start building your personal DSA knowledge base. Add questions you are
               solving, log repeated attempts, and track your mastery over time.
             </p>
@@ -393,7 +423,7 @@ export default function ProblemsPage() {
           <button
             type="button"
             onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-md transition-all duration-150 active:scale-95 shadow-xs"
+            className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add your first problem</span>
