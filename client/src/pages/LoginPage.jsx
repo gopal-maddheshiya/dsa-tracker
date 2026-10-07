@@ -71,7 +71,12 @@ export default function LoginPage() {
         setServerError(err.message || 'Please provide both email and password.');
       } else {
         console.error('Unexpected login error:', err);
-        setServerError("Couldn't connect to the server. Please try again.");
+        const msg = err?.response?.data?.message || err?.message;
+        setServerError(
+          msg && !msg.includes('status code')
+            ? msg
+            : 'Could not connect to the backend server. Please check your network or server status.'
+        );
       }
     } finally {
       setSubmitting(false);
@@ -89,7 +94,12 @@ export default function LoginPage() {
       navigate(destination, { replace: true });
     } catch (err) {
       console.error('Demo login error:', err);
-      setServerError('Unable to sign in with demo account. Please try again.');
+      const msg = err?.response?.data?.message || err?.message;
+      setServerError(
+        msg && !msg.includes('status code')
+          ? msg
+          : 'Could not connect to the backend server. Please check your network or server status.'
+      );
     } finally {
       setSubmitting(false);
     }
