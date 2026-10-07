@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { analyticsApi } from '../api/analytics.api';
+import { webPush } from '../lib/webPush';
 
 const NotificationContext = createContext(null);
 
 const STORAGE_KEY_PREFIX = 'dsa_notifications_state_';
+const DEVICE_ALERT_DATE_KEY = 'dsa_last_device_alert_date';
 
 /**
  * Computes deterministic relative time label
@@ -35,6 +37,7 @@ export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [devicePermission, setDevicePermission] = useState(() => webPush.getPermission());
 
   // Storage key isolated per user
   const storageKey = useMemo(() => {
@@ -228,6 +231,23 @@ export function NotificationProvider({ children }) {
       });
 
       setNotifications(items);
+
+      // Auto-dispatch device push notification if permission is granted and there are high-urgency items
+      if (webPush.getPermission() === 'granted') {
+        const overdueItems = items.filter((n) => n.badge === 'OVERDUE' && !n.read);
+        if (overdueItems.length > 0) {
+          const lastAlertDate = localStorage.getItem(DEVICE_ALERT_DATE_KEY);
+          if (lastAlertDate !== todayStr) {
+            webPush.sendNotification({
+              title: `⚡ DSA Tracker · ${overdueItems.length} Revision${overdueItems.length > 1 ? 's' : ''} Overdue`,
+              body: `${overdueItems[0].title} is due for spaced review. Tap to refresh recall!`,
+              url: '/revision',
+              tag: 'dsa-overdue-alert',
+            });
+            localStorage.setItem(DEVICE_ALERT_DATE_KEY, todayStr);
+          }
+        }
+      }
     } catch (err) {
       console.warn('Failed to generate notifications:', err);
     } finally {
@@ -296,6 +316,21 @@ export function NotificationProvider({ children }) {
     setIsOpen(false);
   }, []);
 
+  const requestDevicePermission = useCallback(async () => {
+    const res = await webPush.requestPermission();
+    setDevicePermission(res);
+    if (res === 'granted') {
+      await webPush.sendTestNotification();
+    }
+    return res;
+  }, []);
+
+  const sendTestDeviceNotification = useCallback(async () => {
+    const res = await webPush.sendTestNotification();
+    setDevicePermission(webPush.getPermission());
+    return res;
+  }, []);
+
   const unreadCount = useMemo(() => {
     return notifications.filter((n) => !n.read).length;
   }, [notifications]);
@@ -313,6 +348,9 @@ export function NotificationProvider({ children }) {
     dismiss,
     clearAll,
     refreshNotifications: fetchAndGenerateNotifications,
+    devicePermission,
+    requestDevicePermission,
+    sendTestDeviceNotification,
   };
 
   return (

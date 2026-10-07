@@ -152,7 +152,7 @@ async function testUxAudit() {
     'performance', 'requestAnimationFrame', 'cancelAnimationFrame', 'Event', 'CustomEvent',
     'HTMLElement', 'Element', 'Node', 'Error', 'TypeError', 'RangeError', 'ReferenceError', 'SyntaxError',
     'parseInt', 'parseFloat', 'isNaN', 'isFinite', 'undefined', 'NaN', 'Infinity', 'process', 'global',
-    'Intl', 'Date', 'RegExp', 'Symbol', 'BigInt', 'alert', 'confirm', 'prompt'
+    'Intl', 'Date', 'RegExp', 'Symbol', 'BigInt', 'alert', 'confirm', 'prompt', 'Notification'
   ]);
 
   const undeclaredIdentifiers = [];

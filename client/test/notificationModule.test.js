@@ -106,4 +106,17 @@ const filteredAfterDismiss = notifications.filter((n) => n.id !== notifications[
 assert.strictEqual(filteredAfterDismiss.length, 2, 'Should have 2 items remaining after dismiss');
 console.log('✓ Notification dismissal verified');
 
+// Test 6: Web Push Helper & Payload Contract
+import { webPush } from '../src/lib/webPush.js';
+assert(typeof webPush.isSupported === 'function', 'webPush.isSupported should be defined');
+assert(typeof webPush.getPermission === 'function', 'webPush.getPermission should be defined');
+assert(typeof webPush.requestPermission === 'function', 'webPush.requestPermission should be defined');
+assert(typeof webPush.sendNotification === 'function', 'webPush.sendNotification should be defined');
+assert(typeof webPush.sendTestNotification === 'function', 'webPush.sendTestNotification should be defined');
+
+// In node environment without window, should gracefully return 'unsupported'
+assert.strictEqual(webPush.isSupported(), false, 'Node environment should report unsupported gracefully');
+assert.strictEqual(webPush.getPermission(), 'unsupported', 'Node environment permission should be unsupported');
+console.log('✓ Web Push helper functions and environment fallback verified');
+
 console.log('--- All Notification Module Tests Passed Successfully ---');

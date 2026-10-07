@@ -20,14 +20,18 @@ import {
   Sparkles,
   Sliders,
   Database,
+  Bell,
+  Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useNotifications } from '../context/NotificationContext';
 import problemsApi from '../api/problems.api';
 
 export default function SettingsPage() {
   const { user, updateProfile, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { devicePermission, requestDevicePermission, sendTestDeviceNotification } = useNotifications();
 
   // Algorithm / Practice Goal States
   const [dailyGoal, setDailyGoal] = useState(user?.dailyGoal || 2);
@@ -436,6 +440,84 @@ export default function SettingsPage() {
             </button>
           </div>
         </form>
+      </section>
+
+      {/* SECTION: DEVICE & PHONE PUSH NOTIFICATIONS */}
+      <section className="bg-surface border border-line rounded-2xl p-5 sm:p-6 shadow-xs">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+            <Smartphone className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-text">Device & Lock Screen Alerts</h2>
+            <p className="text-xs text-text-secondary">
+              Receive spaced repetition reminders and streak warnings directly on your phone or desktop.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-5 rounded-xl border border-line bg-surface-2/60 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-bold text-text">
+                  Browser & Mobile Push Notifications
+                </span>
+                {devicePermission === 'granted' ? (
+                  <span className="text-[10px] font-semibold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/20">
+                    Active
+                  </span>
+                ) : devicePermission === 'denied' ? (
+                  <span className="text-[10px] font-semibold text-rose-400 px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/20">
+                    Blocked
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold text-muted px-2 py-0.5 rounded-full bg-surface-2 border border-line">
+                    Inactive
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-text-secondary mt-1 max-w-xl leading-relaxed">
+                When enabled, the service worker delivers system alerts when problems exceed their Leitner threshold or when your daily consistency target is pending.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              {devicePermission === 'granted' ? (
+                <button
+                  type="button"
+                  onClick={sendTestDeviceNotification}
+                  className="px-3.5 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-semibold text-xs hover:bg-emerald-500/20 active:scale-95 transition-all shadow-xs"
+                >
+                  Send Test Notification
+                </button>
+              ) : devicePermission === 'default' ? (
+                <button
+                  type="button"
+                  onClick={requestDevicePermission}
+                  className="px-4 py-2 rounded-xl bg-accent text-white font-semibold text-xs hover:brightness-110 active:scale-95 transition-all shadow-xs"
+                >
+                  Enable Phone Alerts
+                </button>
+              ) : (
+                <span className="text-[11px] text-muted font-mono">
+                  Unblock in browser URL bar settings
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-line/60 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-muted">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span>Overdue spaced review alerts</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span>Daily momentum & streak protection</span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* SECTION 3: SECURITY & PASSWORD */}

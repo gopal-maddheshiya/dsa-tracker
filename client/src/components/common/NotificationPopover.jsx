@@ -14,6 +14,8 @@ import {
   ChevronRight,
   Inbox,
   ExternalLink,
+  Smartphone,
+  CheckCircle2,
 } from 'lucide-react';
 
 /**
@@ -33,6 +35,9 @@ export default function NotificationPopover({ align = 'right' }) {
     dismiss,
     clearAll,
     refreshNotifications,
+    devicePermission,
+    requestDevicePermission,
+    sendTestDeviceNotification,
   } = useNotifications();
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'revisions' | 'weakness' | 'daily'
@@ -188,7 +193,48 @@ export default function NotificationPopover({ align = 'right' }) {
         </div>
       </div>
 
-      {/* 2. Category Filter Pills */}
+      {/* 2. Device Push Notification Banner */}
+      {devicePermission === 'granted' ? (
+        <div className="px-3.5 py-2 bg-emerald-500/10 border-b border-emerald-500/20 flex items-center justify-between gap-2 text-[11px]">
+          <div className="flex items-center gap-1.5 text-emerald-500 font-medium truncate">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Phone & lock screen alerts active</span>
+          </div>
+          <button
+            type="button"
+            onClick={sendTestDeviceNotification}
+            className="text-[10px] font-mono text-emerald-500 hover:text-emerald-400 underline underline-offset-2 shrink-0 transition-colors"
+            title="Send sample notification to phone"
+          >
+            Test alert
+          </button>
+        </div>
+      ) : devicePermission === 'default' ? (
+        <div className="p-3 bg-gradient-to-r from-accent/15 via-accent/10 to-transparent border-b border-line flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 rounded-lg bg-accent/20 text-accent shrink-0">
+              <Smartphone className="w-3.5 h-3.5" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold text-text truncate">
+                Enable Phone Lock Screen Alerts
+              </div>
+              <div className="text-[10px] text-muted truncate">
+                Get notified on your phone when revisions are due.
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={requestDevicePermission}
+            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-95 transition-all shadow-xs shrink-0"
+          >
+            Enable
+          </button>
+        </div>
+      ) : null}
+
+      {/* 3. Category Filter Pills */}
       <div className="px-3.5 py-2 border-b border-line/60 bg-surface/50 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
         <button
           type="button"

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dsa-tracker-v2';
+const CACHE_NAME = 'dsa-tracker-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -67,4 +67,77 @@ self.addEventListener('fetch', (event) => {
       return cachedResponse || fetchPromise;
     })
   );
+});
+
+// ==============================================================
+// WEB PUSH & DEVICE NOTIFICATIONS
+// ==============================================================
+
+// Listen for push events (from backend or web push service)
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: 'DSA Tracker · Revision Reminder',
+    body: 'You have spaced repetition problems due for review today.',
+    url: '/revision',
+    tag: 'dsa-revision-reminder',
+  };
+
+  if (event.data) {
+    try {
+      payload = { ...payload, ...event.data.json() };
+    } catch {
+      payload.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: payload.body,
+    icon: '/icon-192.svg',
+    badge: '/favicon.svg',
+    data: { url: payload.url || '/revision' },
+    tag: payload.tag || 'dsa-revision-reminder',
+    vibrate: [100, 50, 100],
+    renotify: true,
+  };
+
+  event.waitUntil(self.registration.showNotification(payload.title, options));
+});
+
+// Handle notification click: Focus existing app window or open a new one
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || '/revision';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If a tab is already open with the app, focus it and navigate
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          if ('navigate' in client) {
+            client.navigate(targetUrl);
+          }
+          return client.focus();
+        }
+      }
+      // Otherwise open a new tab
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+
+// Message listener: Client app can command SW to show notification directly
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    const { title, options } = event.data;
+    const finalOptions = {
+      icon: '/icon-192.svg',
+      badge: '/favicon.svg',
+      vibrate: [100, 50, 100],
+      ...options,
+    };
+    self.registration.showNotification(title || 'DSA Tracker', finalOptions);
+  }
 });
