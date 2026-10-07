@@ -49,6 +49,9 @@ export default function NotificationPopover({ align = 'right' }) {
     if (!isOpen) return;
 
     const handleClickOutside = (e) => {
+      if (e.target.closest && e.target.closest('[data-notification-trigger="true"]')) {
+        return;
+      }
       if (popoverRef.current && !popoverRef.current.contains(e.target)) {
         close();
       }
@@ -122,14 +125,26 @@ export default function NotificationPopover({ align = 'right' }) {
   };
 
   return (
-    <div
-      ref={popoverRef}
-      role="dialog"
-      aria-label="Notifications"
-      className={`absolute top-full mt-2.5 z-50 w-[380px] sm:w-[420px] max-w-[calc(100vw-24px)] ${
-        align === 'right' ? 'right-0' : 'left-0 sm:left-auto sm:right-0'
-      } bg-surface/95 backdrop-blur-2xl border border-line rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden animate-in fade-in zoom-in-95 duration-150 select-none`}
-    >
+    <>
+      {/* Mobile Backdrop Overlay (dims and blurs screen behind popover) */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 sm:hidden animate-in fade-in duration-200"
+        onClick={close}
+        aria-hidden="true"
+      />
+
+      <div
+        ref={popoverRef}
+        role="dialog"
+        aria-label="Notifications"
+        className={`fixed inset-x-3.5 top-[68px] z-50 max-h-[calc(100vh-140px)] flex flex-col max-w-md mx-auto sm:mx-0 sm:absolute sm:top-full sm:bottom-auto sm:mt-2.5 sm:w-[420px] sm:max-w-[calc(100vw-24px)] sm:max-h-[580px] ${
+          align === 'right' ? 'sm:right-0 sm:left-auto' : 'sm:left-0 sm:right-auto'
+        } bg-surface/95 backdrop-blur-2xl border border-line rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-150 select-none`}
+      >
+        {/* Mobile Drag Indicator Bar */}
+        <div className="pt-2 pb-0.5 flex justify-center sm:hidden bg-surface-2/40">
+          <div className="w-8 h-1 rounded-full bg-line" />
+        </div>
       {/* 1. Popover Header */}
       <div className="p-3.5 sm:p-4 border-b border-line flex items-center justify-between gap-3 bg-surface-2/40">
         <div className="flex items-center gap-2.5">
@@ -286,7 +301,7 @@ export default function NotificationPopover({ align = 'right' }) {
       </div>
 
       {/* 3. Notifications List */}
-      <div className="max-h-[360px] sm:max-h-[400px] overflow-y-auto divide-y divide-line/40 scrollbar-thin">
+      <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-line/40 scrollbar-thin sm:max-h-[400px] overscroll-contain">
         {filteredNotifications.length === 0 ? (
           <div className="py-12 px-6 flex flex-col items-center justify-center text-center">
             <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-muted mb-3">
@@ -322,7 +337,7 @@ export default function NotificationPopover({ align = 'right' }) {
               </div>
 
               {/* Notification Content */}
-              <div className="flex-1 min-w-0 pr-6">
+              <div className="flex-1 min-w-0 pr-7 sm:pr-6">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span
                     className={`text-[9px] font-mono font-bold tracking-wider uppercase px-1.5 py-0.5 rounded ${
@@ -371,7 +386,7 @@ export default function NotificationPopover({ align = 'right' }) {
                 type="button"
                 onClick={() => dismiss(notif.id)}
                 title="Dismiss"
-                className="absolute top-3 right-3 p-1 rounded-md text-muted hover:text-text hover:bg-surface-2 transition-colors opacity-0 group-hover:opacity-100"
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-2 transition-colors opacity-80 sm:opacity-0 sm:group-hover:opacity-100 touch-manipulation"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -405,5 +420,6 @@ export default function NotificationPopover({ align = 'right' }) {
         )}
       </div>
     </div>
+    </>
   );
 }
