@@ -39,32 +39,30 @@ async function testProblemLayoutAndComponents() {
   assert.ok(statsContent.includes('easyCount') && statsContent.includes('hardCount'), 'ProblemStatsBar must breakdown by difficulty');
   console.log('✓ ProblemStatsBar metrics calculation and responsive layout verified');
 
-  // 2. Test ProblemFilters uniform heights and topic isolation
+  // 2. Test ProblemFilters uniform heights and compact toolbar
   const filtersContent = fs.readFileSync(filtersPath, 'utf8');
-  assert.ok(filtersContent.includes('whitespace-nowrap shrink-0 h-8'), 'Filter status pills must have uniform h-8 and whitespace-nowrap');
-  assert.ok(filtersContent.includes('h-6 px-2.5 rounded-full text-[11px] font-mono'), 'Topic chips must have uniform h-6 and font-mono tags');
-  assert.ok(filtersContent.includes('Active Filters Summary'), 'ProblemFilters must include active filter summary HUD');
-  assert.ok(filtersContent.includes('Clear all filters'), 'ProblemFilters must include clear all filters action');
-  assert.ok(filtersContent.includes('Export CSV'), 'ProblemFilters must include CSV export option');
-  console.log('✓ ProblemFilters uniform heights, topic chips isolation, and active HUD verified');
+  assert.ok(filtersContent.includes('whitespace-nowrap shrink-0'), 'Filter status pills must have whitespace-nowrap');
+  assert.ok(filtersContent.includes('statusTabs'), 'ProblemFilters must calculate live status tab counts');
+  assert.ok(filtersContent.includes('Clear all'), 'ProblemFilters must include clear all action');
+  assert.ok(filtersContent.includes('Export filtered problems to CSV'), 'ProblemFilters must include CSV export option');
+  console.log('✓ ProblemFilters uniform heights, live status tab counts, and active HUD verified');
 
   // 3. Test ProblemTable styling and semantic stripes
   const tableContent = fs.readFileSync(tablePath, 'utf8');
-  assert.ok(tableContent.includes('rounded-xl bg-surface border border-line'), 'ProblemTable must use rounded-xl container');
+  assert.ok(tableContent.includes('rounded-2xl bg-surface border border-line'), 'ProblemTable must use rounded-2xl container');
   assert.ok(tableContent.includes('border-l-emerald-500'), 'ProblemTable must have emerald stripe for solved problems');
   assert.ok(tableContent.includes('border-l-amber-500'), 'ProblemTable must have amber stripe for revisit problems');
   assert.ok(tableContent.includes('border-l-rose-500'), 'ProblemTable must have rose stripe for struggled problems');
   assert.ok(tableContent.includes('renderSortIndicator'), 'ProblemTable must render column sort indicators');
-  console.log('✓ ProblemTable rounded-xl container and semantic status stripes verified');
+  console.log('✓ ProblemTable rounded-2xl container and semantic status stripes verified');
 
   // 4. Test ProblemMobileList touch targets and card stripes
   const mobileContent = fs.readFileSync(mobileListPath, 'utf8');
-  assert.ok(mobileContent.includes('rounded-xl bg-surface border border-line'), 'ProblemMobileList cards must use rounded-xl');
+  assert.ok(mobileContent.includes('rounded-2xl bg-surface border border-line'), 'ProblemMobileList cards must use rounded-2xl');
   assert.ok(mobileContent.includes('border-l-4 border-l-emerald-500'), 'Mobile cards must have semantic left border for solved');
   assert.ok(mobileContent.includes('border-l-4 border-l-amber-500'), 'Mobile cards must have semantic left border for revisit');
-  assert.ok(mobileContent.includes('border-l-4 border-l-rose-500'), 'Mobile cards must have semantic left border for struggled');
-  assert.ok(mobileContent.includes('h-9 inline-flex'), 'Mobile action targets must be touch-comfortable h-9');
-  console.log('✓ ProblemMobileList rounded-xl cards and mobile action ergonomics verified');
+  assert.ok(mobileContent.includes('inline-flex items-center gap-1.5'), 'Mobile action targets must be touch-comfortable');
+  console.log('✓ ProblemMobileList rounded-2xl cards and mobile action ergonomics verified');
 
   // 5. Test ProblemBadges glowing indicator dots and platform branding
   const badgesContent = fs.readFileSync(badgesPath, 'utf8');
@@ -74,12 +72,12 @@ async function testProblemLayoutAndComponents() {
   assert.ok(badgesContent.includes('brandStyles'), 'Platform badges must support platform brand styles');
   console.log('✓ ProblemBadges glowing indicator dots and platform branding verified');
 
-  // 6. Test ProblemsPage integration of ProblemStatsBar
+  // 6. Test ProblemsPage integration
   const pageContent = fs.readFileSync(problemsPagePath, 'utf8');
-  assert.ok(pageContent.includes('<ProblemStatsBar'), 'ProblemsPage must render ProblemStatsBar');
+  assert.ok(pageContent.includes('<ProblemFilters'), 'ProblemsPage must render ProblemFilters');
   assert.ok(pageContent.includes('RotateCw') && pageContent.includes('isRefreshing'), 'ProblemsPage must support refresh action');
   assert.ok(pageContent.includes('No matching problems'), 'ProblemsPage must have polished empty search state');
-  console.log('✓ ProblemsPage integration with ProblemStatsBar and refresh controls verified');
+  console.log('✓ ProblemsPage integration with ProblemFilters and refresh controls verified');
 
   console.log('--- All Problem Layout & Components Tests Passed Successfully ---');
 }

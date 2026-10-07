@@ -1,23 +1,24 @@
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import AuthLoader from '../components/common/AuthLoader';
+import { lazyWithRetry } from '../lib/lazyRetry';
 import { Code2 } from 'lucide-react';
 
-// Route-level code-splitting for performance and isolated chart bundles
-const DashboardPage = lazy(() => import('../pages/DashboardPage'));
-const ProblemsPage = lazy(() => import('../pages/ProblemsPage'));
-const ProblemDetailPage = lazy(() => import('../pages/ProblemDetailPage'));
-const RevisionPage = lazy(() => import('../pages/RevisionPage'));
-const AnalyticsPage = lazy(() => import('../pages/AnalyticsPage'));
-const ProfilePage = lazy(() => import('../pages/ProfilePage'));
-const SettingsPage = lazy(() => import('../pages/SettingsPage'));
-const AccountPage = lazy(() => import('../pages/AccountPage'));
-const LoginPage = lazy(() => import('../pages/LoginPage'));
-const SignupPage = lazy(() => import('../pages/SignupPage'));
-const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
+// Resilient route-level code-splitting with automatic chunk retry
+const DashboardPage = lazyWithRetry(() => import('../pages/DashboardPage'));
+const ProblemsPage = lazyWithRetry(() => import('../pages/ProblemsPage'));
+const ProblemDetailPage = lazyWithRetry(() => import('../pages/ProblemDetailPage'));
+const RevisionPage = lazyWithRetry(() => import('../pages/RevisionPage'));
+const AnalyticsPage = lazyWithRetry(() => import('../pages/AnalyticsPage'));
+const ProfilePage = lazyWithRetry(() => import('../pages/ProfilePage'));
+const SettingsPage = lazyWithRetry(() => import('../pages/SettingsPage'));
+const AccountPage = lazyWithRetry(() => import('../pages/AccountPage'));
+const LoginPage = lazyWithRetry(() => import('../pages/LoginPage'));
+const SignupPage = lazyWithRetry(() => import('../pages/SignupPage'));
+const NotFoundPage = lazyWithRetry(() => import('../pages/NotFoundPage'));
 
 import LogoMark from '../components/common/LogoMark';
 

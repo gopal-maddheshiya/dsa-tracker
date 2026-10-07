@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dsa-tracker-v3';
+const CACHE_NAME = 'dsa-tracker-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -8,11 +8,17 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-// Install: pre-cache static app shell
+// Install: pre-cache static app shell safely
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of STATIC_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn('SW pre-cache skipped for asset:', asset, err);
+        }
+      }
     })
   );
   self.skipWaiting();
@@ -34,16 +40,28 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: Network-first for API requests; Stale-while-revalidate for static assets
+// Fetch: SPA Navigation fallback, API network-first, and safe static caching
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip caching non-GET requests or browser-extension / Google Auth requests
+  // Skip caching non-GET requests or external/Google Auth requests
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
     return;
   }
 
-  // API calls: Network-first
+  // Never cache Vite development / HMR internal requests
+  if (
+    url.pathname.startsWith('/@') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/node_modules/') ||
+    url.search.includes('t=') ||
+    url.search.includes('import') ||
+    url.pathname.includes('__vite_ping')
+  ) {
+    return;
+  }
+
+  // API calls: Network-first with no cache pollution
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
@@ -51,18 +69,47 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets & navigation: Stale-while-revalidate
+  // SPA Navigation requests (e.g. /problems, /revision, /dashboard):
+  // Network-first with immediate fallback to cached /index.html
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(async () => {
+          const matched =
+            (await caches.match(event.request)) ||
+            (await caches.match('/index.html')) ||
+            (await caches.match('/'));
+          if (matched) return matched;
+          return new Response('Network unavailable. DSA Tracker is reconnecting...', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain' },
+          });
+        })
+    );
+    return;
+  }
+
+  // Static assets (CSS, images, icons, fonts): Stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => cachedResponse);
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
 
       return cachedResponse || fetchPromise;
     })
@@ -111,7 +158,6 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // If a tab is already open with the app, focus it and navigate
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           if ('navigate' in client) {
@@ -120,7 +166,6 @@ self.addEventListener('notificationclick', (event) => {
           return client.focus();
         }
       }
-      // Otherwise open a new tab
       if (clients.openWindow) {
         return clients.openWindow(targetUrl);
       }
@@ -128,9 +173,9 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Message listener: Client app can command SW to show notification directly
+// Message listener: Client app commands (show notification, flush cache)
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+  if (event.data?.type === 'SHOW_NOTIFICATION') {
     const { title, options } = event.data;
     const finalOptions = {
       icon: '/icon-192.svg',
@@ -139,5 +184,11 @@ self.addEventListener('message', (event) => {
       ...options,
     };
     self.registration.showNotification(title || 'DSA Tracker', finalOptions);
+  }
+
+  if (event.data?.type === 'CLEAR_CACHE') {
+    caches.keys().then((keys) => {
+      return Promise.all(keys.map((k) => caches.delete(k)));
+    });
   }
 });

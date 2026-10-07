@@ -243,56 +243,46 @@ export default function ProblemsPage() {
   return (
     <div className="space-y-6 pb-24 sm:pb-12 max-w-7xl mx-auto">
       {/* Standardized Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <span className="text-[10px] font-mono text-muted uppercase tracking-wider block mb-1">
-            Problem Repository
-          </span>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-text">
+      <div className="space-y-1.5 sm:space-y-2 border-b border-line pb-4 sm:pb-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-text">
               Problems
             </h1>
-            <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded-md border border-line">
+            <span className="text-xs font-mono font-medium text-muted bg-surface-2 px-2.5 py-0.5 rounded-md border border-line whitespace-nowrap shrink-0">
               {problems.length} tracked
             </span>
           </div>
-          <p className="text-xs text-text-secondary mt-1">
-            Track, review, and revisit your DSA practice repository.
-          </p>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => loadProblems(() => false, true)}
+              disabled={isRefreshing || loading}
+              title="Refresh problem list"
+              aria-label="Refresh problem list"
+              className="h-9 w-9 p-0 inline-flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-lg transition-all active:scale-95 disabled:opacity-50 shadow-xs"
+            >
+              <RotateCw
+                className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-accent' : ''}`}
+              />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsCreateOpen(true)}
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs sm:text-sm font-semibold bg-accent hover:bg-accent-hover text-white rounded-lg transition-all active:scale-95 shadow-xs"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add problem</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => loadProblems(() => false, true)}
-            disabled={isRefreshing || loading}
-            title="Refresh problem list"
-            aria-label="Refresh problem list"
-            className="h-9 w-9 p-0 inline-flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-hover border border-line rounded-lg transition-all duration-150 active:scale-95 disabled:opacity-50"
-          >
-            <RotateCw
-              className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-accent' : ''}`}
-            />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsCreateOpen(true)}
-            className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_12px_rgba(237,134,65,0.3)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.4)]"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add problem</span>
-          </button>
-        </div>
+        <p className="text-xs sm:text-sm text-text-secondary">
+          Track, review, and revisit your DSA practice repository.
+        </p>
       </div>
-
-      {/* KPI Overview Summary Bar */}
-      <ProblemStatsBar
-        problems={problems}
-        activeStatus={status}
-        onStatusSelect={setStatus}
-        loading={loading}
-      />
 
       {/* Filter and Search Bar */}
       <ProblemFilters
@@ -307,6 +297,7 @@ export default function ProblemsPage() {
         availableTopics={availableTopics}
         totalCount={problems.length}
         filteredCount={displayedProblems.length}
+        problems={problems}
         onClearFilters={handleClearFilters}
         onExportCsv={handleExportCsv}
       />

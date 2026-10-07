@@ -309,6 +309,37 @@ select option {
   animation: shimmerWave 2.5s ease-in-out infinite;
 }
 
+/* ==============================================================
+   LENIS SMOOTH SCROLLING & HARDWARE MOMENTUM
+   ============================================================== */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Touch momentum for mobile devices */
+@supports (-webkit-overflow-scrolling: touch) {
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Accessibility: Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *,

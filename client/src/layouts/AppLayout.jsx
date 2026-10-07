@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
@@ -28,11 +29,26 @@ import NotificationPopover from '../components/common/NotificationPopover';
 export default function AppLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef(null);
+  const mainRef = useRef(null);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount, toggleOpen, isOpen } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // GSAP smooth page transition on route change
+  useEffect(() => {
+    if (mainRef.current && typeof window !== 'undefined') {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!prefersReducedMotion) {
+        gsap.fromTo(
+          mainRef.current,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out', clearProps: 'transform' }
+        );
+      }
+    }
+  }, [location.pathname]);
 
   // Collapsible sidebar state with localStorage persistence
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -336,7 +352,7 @@ export default function AppLayout() {
         </header>
 
         {/* Main Viewport Container */}
-        <main className="p-3 sm:p-5 lg:p-8 pb-24 lg:pb-8 flex-1 w-full max-w-[1560px]">
+        <main ref={mainRef} className="p-3 sm:p-5 lg:p-8 pb-24 lg:pb-8 flex-1 w-full max-w-[1560px]">
           <Outlet />
         </main>
       </div>

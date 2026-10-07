@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import { CheckCircle2, RotateCw, CircleDashed, Layers } from 'lucide-react';
 
 /**
@@ -14,6 +15,7 @@ export default function ProblemStatsBar({
   onStatusSelect,
   loading = false,
 }) {
+  const containerRef = useRef(null);
   if (loading) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 animate-pulse">
@@ -102,8 +104,22 @@ export default function ProblemStatsBar({
     },
   ];
 
+  // GSAP subtle staggered entrance
+  useEffect(() => {
+    if (containerRef.current && total > 0 && typeof window !== 'undefined') {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!prefersReducedMotion) {
+        gsap.fromTo(
+          containerRef.current.querySelectorAll('.stat-kpi-card'),
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.3, stagger: 0.05, ease: 'power2.out', clearProps: 'transform' }
+        );
+      }
+    }
+  }, [total]);
+
   return (
-    <div>
+    <div ref={containerRef}>
       {/* Mobile Compact Strip (< sm) */}
       <div className="block sm:hidden p-3 rounded-xl bg-surface border border-line shadow-xs">
         <div className="grid grid-cols-4 divide-x divide-line/60 text-center">
@@ -145,7 +161,7 @@ export default function ProblemStatsBar({
               key={c.id}
               type="button"
               onClick={() => onStatusSelect?.(isSelected && c.statusValue !== '' ? '' : c.statusValue)}
-              className={`p-3.5 rounded-xl bg-surface border text-left transition-all duration-150 shadow-xs hover:border-line-hover active:scale-[0.99] flex flex-col justify-between min-h-[92px] ${
+              className={`stat-kpi-card p-3.5 rounded-xl bg-surface border text-left transition-all duration-150 shadow-xs hover:border-line-hover active:scale-[0.99] flex flex-col justify-between min-h-[92px] ${
                 c.borderTop
               } ${isSelected ? c.activeBorder : 'border-line'}`}
             >
