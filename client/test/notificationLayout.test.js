@@ -78,4 +78,26 @@ assert(
 );
 console.log('✓ AppLayout header z-index and bell trigger attributes verified');
 
+// Test 9: Dialog internal click isolation & event stopPropagation
+assert(
+  popoverContent.includes('onMouseDown={(e) => e.stopPropagation()}'),
+  'NotificationPopover dialog must stop mousedown propagation to prevent duplicate-instance outside-click dismissal'
+);
+assert(
+  popoverContent.includes("e.target.closest('[role=\"dialog\"][aria-label=\"Notifications\"]')"),
+  'handleClickOutside must guard clicks inside any notification dialog from closing the popover'
+);
+console.log('✓ Dialog internal click isolation and outside-click guard verified');
+
+// Test 10: Enable permission handler and feedback state
+assert(
+  popoverContent.includes('handleEnablePermission'),
+  'NotificationPopover must implement safe handleEnablePermission with feedback states'
+);
+assert(
+  popoverContent.includes('isRequestingPermission'),
+  'NotificationPopover must track isRequestingPermission for visual loading indication'
+);
+console.log('✓ Safe permission enabling handler and feedback state verified');
+
 console.log('--- All Notification Layout Tests Passed Successfully ---');

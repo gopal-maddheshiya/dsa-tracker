@@ -26,12 +26,32 @@ export const webPush = {
   async requestPermission() {
     if (!this.isSupported() || !window.Notification?.requestPermission) return 'unsupported';
 
+    // Browsers require secure context (HTTPS or localhost) for notification prompts
+    if (typeof window !== 'undefined' && window.isSecureContext === false) {
+      console.warn('Notification permission requires a secure context (HTTPS or localhost).');
+      return 'unsupported';
+    }
+
     try {
-      const result = await window.Notification.requestPermission();
+      let result;
+      const request = window.Notification.requestPermission();
+      if (request && typeof request.then === 'function') {
+        result = await request;
+      } else {
+        // Fallback for callback-based browser implementations
+        result = await new Promise((resolve) => {
+          try {
+            window.Notification.requestPermission((res) => resolve(res || window.Notification?.permission));
+          } catch {
+            resolve(window.Notification?.permission || 'unsupported');
+          }
+        });
+      }
+
       if (result === 'granted') {
         localStorage.setItem('dsa_push_notifications_enabled', 'true');
       }
-      return result;
+      return result || this.getPermission();
     } catch (err) {
       console.warn('Failed to request notification permission:', err);
       return this.getPermission();

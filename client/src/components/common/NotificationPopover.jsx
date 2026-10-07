@@ -41,6 +41,8 @@ export default function NotificationPopover({ align = 'right' }) {
   } = useNotifications();
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'revisions' | 'weakness' | 'daily'
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [permissionNotice, setPermissionNotice] = useState(null);
   const popoverRef = useRef(null);
   const navigate = useNavigate();
 
@@ -49,9 +51,30 @@ export default function NotificationPopover({ align = 'right' }) {
     if (!isOpen) return;
 
     const handleClickOutside = (e) => {
+      // 1. If clicking any notification trigger button, let toggleOpen handle it
       if (e.target.closest && e.target.closest('[data-notification-trigger="true"]')) {
         return;
       }
+      // 2. If clicking anywhere inside ANY notification popover dialog, DO NOT close!
+      if (e.target.closest && e.target.closest('[role="dialog"][aria-label="Notifications"]')) {
+        return;
+      }
+      // 3. If clicking the mobile backdrop overlay, close is handled by backdrop
+      if (e.target.closest && e.target.closest('[data-notification-backdrop="true"]')) {
+        close();
+        return;
+      }
+      // 4. If this instance is hidden in CSS (e.g. desktop instance while on mobile viewport), do nothing!
+      if (popoverRef.current) {
+        const isSelfVisible =
+          typeof popoverRef.current.checkVisibility === 'function'
+            ? popoverRef.current.checkVisibility()
+            : popoverRef.current.offsetWidth > 0 || popoverRef.current.offsetHeight > 0;
+        if (!isSelfVisible) {
+          return;
+        }
+      }
+      // 5. Normal outside click
       if (popoverRef.current && !popoverRef.current.contains(e.target)) {
         close();
       }
@@ -98,6 +121,26 @@ export default function NotificationPopover({ align = 'right' }) {
     }
   };
 
+  const handleEnablePermission = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsRequestingPermission(true);
+    setPermissionNotice(null);
+    try {
+      const res = await requestDevicePermission();
+      if (res === 'denied') {
+        setPermissionNotice('Alerts blocked in browser. Allow notifications in site settings (lock icon).');
+      } else if (res === 'unsupported') {
+        setPermissionNotice('Device notifications require HTTPS or a supported mobile browser.');
+      }
+    } catch (err) {
+      console.warn('Failed to enable notifications:', err);
+      setPermissionNotice('Could not request permission. Please check browser settings.');
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
+
   const getNotificationIcon = (category, urgency) => {
     if (category === 'revisions') {
       if (urgency === 'high') {
@@ -128,6 +171,7 @@ export default function NotificationPopover({ align = 'right' }) {
     <>
       {/* Mobile Backdrop Overlay (dims and blurs screen behind popover) */}
       <div
+        data-notification-backdrop="true"
         className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 sm:hidden animate-in fade-in duration-200"
         onClick={close}
         aria-hidden="true"
@@ -137,6 +181,8 @@ export default function NotificationPopover({ align = 'right' }) {
         ref={popoverRef}
         role="dialog"
         aria-label="Notifications"
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
         className={`fixed inset-x-3.5 top-[68px] z-50 max-h-[calc(100vh-140px)] flex flex-col max-w-md mx-auto sm:mx-0 sm:absolute sm:top-full sm:bottom-auto sm:mt-2.5 sm:w-[420px] sm:max-w-[calc(100vw-24px)] sm:max-h-[580px] ${
           align === 'right' ? 'sm:right-0 sm:left-auto' : 'sm:left-0 sm:right-auto'
         } bg-surface/95 backdrop-blur-2xl border border-line rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-150 select-none`}
@@ -224,6 +270,18 @@ export default function NotificationPopover({ align = 'right' }) {
             Test alert
           </button>
         </div>
+      ) : devicePermission === 'denied' || permissionNotice ? (
+        <div className="px-3.5 py-2.5 bg-rose-500/10 border-b border-rose-500/20 flex items-start gap-2.5 text-[11px]">
+          <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <span className="font-semibold text-rose-400 block text-[11px]">
+              {permissionNotice || 'Notifications Blocked in Browser'}
+            </span>
+            <span className="text-[10px] text-muted block mt-0.5 leading-snug">
+              To enable lock-screen alerts, tap the lock/info icon in your browser address bar and set Notifications to "Allow".
+            </span>
+          </div>
+        </div>
       ) : devicePermission === 'default' ? (
         <div className="p-3 bg-gradient-to-r from-accent/15 via-accent/10 to-transparent border-b border-line flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -241,10 +299,19 @@ export default function NotificationPopover({ align = 'right' }) {
           </div>
           <button
             type="button"
-            onClick={requestDevicePermission}
-            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-95 transition-all shadow-xs shrink-0"
+            disabled={isRequestingPermission}
+            onClick={handleEnablePermission}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-accent text-white hover:bg-accent-hover active:scale-95 transition-all shadow-xs shrink-0 flex items-center gap-1.5 disabled:opacity-60"
           >
-            Enable
+            {isRequestingPermission ? (
+              <>
+                <RotateCw className="w-3 h-3 animate-spin" />
+                <span>Enabling...</span>
+              </>
+            ) : (
+              <span>Enable</span>
+            )}
           </button>
         </div>
       ) : null}
