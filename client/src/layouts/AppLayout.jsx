@@ -18,33 +18,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
-
-/**
- * 3D Isometric Blue/Amber Cube Logo matching reference image
- */
-function LogoMark() {
-  return (
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ed8641] to-[#e0722a] flex items-center justify-center shadow-[0_0_18px_rgba(237,134,65,0.4)] shrink-0">
-      <svg
-        viewBox="0 0 24 24"
-        className="w-5 h-5 text-white"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path
-          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-          fill="#ed8641"
-          fillOpacity="0.4"
-        />
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="#ffffff" />
-        <line x1="12" y1="22.08" x2="12" y2="12" stroke="#ffffff" />
-      </svg>
-    </div>
-  );
-}
+import LogoMark from '../components/common/LogoMark';
 
 /**
  * AppLayout: Desktop collapsible sidebar and mobile sticky navigation layout.
@@ -138,7 +112,7 @@ export default function AppLayout() {
               }`}
               title="DSA Tracker"
             >
-              <LogoMark />
+              <LogoMark size={32} />
               {!isCollapsed && (
                 <span className="font-bold text-base tracking-tight text-text group-hover:text-accent transition-colors truncate">
                   DSA Tracker
@@ -223,7 +197,7 @@ export default function AppLayout() {
           {/* Mobile View: Logo on Left, Theme Toggle on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
-              <LogoMark />
+              <LogoMark size={28} />
               <span className="font-bold text-base tracking-tight text-text">
                 DSA Tracker
               </span>

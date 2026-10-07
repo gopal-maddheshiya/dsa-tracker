@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Code2, Sun, Moon } from 'lucide-react';
+import { CheckCircle2, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import LogoMark from '../common/LogoMark';
 
 /**
  * AuthShell: Responsive split layout for authentication pages.
@@ -48,9 +49,7 @@ export default function AuthShell({ children, title, subtitle }) {
       {/* Top Mobile Brand Bar */}
       <header className="lg:hidden p-4 sm:p-6 border-b border-line bg-surface/50 flex items-center justify-between">
         <Link to="/" className="inline-flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent/25 via-accent/15 to-surface-2 border border-accent/35 flex items-center justify-center text-accent shadow-xs shrink-0">
-            <Code2 className="w-4 h-4 stroke-[2.2]" />
-          </div>
+          <LogoMark size={30} />
           <div className="flex flex-col">
             <span className="font-semibold text-sm tracking-tight text-text leading-tight">
               DSA Tracker
@@ -82,9 +81,7 @@ export default function AuthShell({ children, title, subtitle }) {
         <div className="hidden lg:flex lg:col-span-6 flex-col justify-between space-y-10 pr-6">
           <div>
             <Link to="/" className="inline-flex items-center gap-2.5 mb-8 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent/25 via-accent/15 to-surface-2 border border-accent/35 flex items-center justify-center text-accent shadow-xs group-hover:border-accent/60 group-hover:shadow-[0_0_12px_rgba(99,102,241,0.25)] transition-all duration-150 shrink-0">
-                <Code2 className="w-4 h-4 stroke-[2.2]" />
-              </div>
+              <LogoMark size={34} />
               <div className="flex flex-col">
                 <span className="font-semibold text-base tracking-tight text-text leading-tight group-hover:text-text">
                   DSA Tracker
