@@ -175,8 +175,8 @@ export default function AppLayout() {
                     isCollapsed ? 'justify-center px-0 py-3' : 'px-3.5 py-2.5'
                   } ${
                     isItemActive
-                      ? 'bg-accent text-white font-semibold shadow-[0_0_18px_rgba(237,134,65,0.35)]'
-                      : 'text-text-secondary hover:text-text hover:bg-surface'
+                      ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_16px_rgba(237,134,65,0.35)]'
+                      : 'text-text-secondary hover:text-text hover:bg-surface/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]'
                   }`}
                 >
                   <Icon
@@ -362,7 +362,7 @@ export default function AppLayout() {
           ============================================================== */}
       <nav
         aria-label="Mobile Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-surface/95 backdrop-blur-2xl border-t border-line shadow-[0_-8px_24px_rgba(0,0,0,0.12)] pb-[max(env(safe-area-inset-bottom,0px),4px)]"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-surface/95 backdrop-blur-2xl border-t border-line shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_-8px_32px_rgba(0,0,0,0.25)] pb-[max(env(safe-area-inset-bottom,0px),4px)]"
       >
         <div className="grid grid-cols-5 h-[68px] max-w-lg mx-auto px-1.5 items-center">
           {/* Dashboard */}
@@ -373,7 +373,7 @@ export default function AppLayout() {
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                 location.pathname === '/dashboard' || location.pathname === '/'
-                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
@@ -398,7 +398,7 @@ export default function AppLayout() {
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                 location.pathname.startsWith('/problems')
-                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
@@ -423,7 +423,7 @@ export default function AppLayout() {
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                 location.pathname.startsWith('/revision')
-                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
@@ -448,7 +448,7 @@ export default function AppLayout() {
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                 location.pathname.startsWith('/analytics')
-                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >
@@ -475,7 +475,7 @@ export default function AppLayout() {
                 location.pathname === '/profile' ||
                 location.pathname === '/settings' ||
                 location.pathname === '/account'
-                  ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
               }`}
             >

@@ -43,7 +43,7 @@ export default function ProblemMobileList({
         return (
           <div
             key={problem.id}
-            className={`p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-xs space-y-3.5 transition-colors hover:border-line-hover ${stripeClass}`}
+            className={`p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_2px_8px_-2px_rgba(0,0,0,0.25)] space-y-3.5 transition-all hover:border-line-hover ${stripeClass}`}
           >
             {/* Top row: Badges & external link */}
             <div className="flex items-center justify-between gap-2">

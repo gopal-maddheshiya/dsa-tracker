@@ -88,7 +88,7 @@ export default function ProblemFilters({
   ];
 
   return (
-    <div className="p-3.5 sm:p-4 rounded-xl bg-surface border border-line shadow-xs space-y-2.5 sm:space-y-3">
+    <div className="p-3.5 sm:p-4 rounded-xl bg-surface border border-line shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_2px_8px_-2px_rgba(0,0,0,0.25)] space-y-2.5 sm:space-y-3">
       {/* 1. Search Bar & Dropdown Controls */}
       {/* Desktop view: Single comfortable row */}
       <div className="hidden sm:flex items-center gap-2.5">
@@ -100,7 +100,7 @@ export default function ProblemFilters({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search problems by title, topic..."
-            className="w-full h-9.5 sm:h-10 bg-surface-2 border border-line rounded-lg pl-9 pr-8 text-xs sm:text-sm text-text placeholder-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-xs"
+            className="w-full h-9.5 sm:h-10 bg-surface-2 border border-line rounded-lg pl-9 pr-8 text-xs sm:text-sm text-text placeholder-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent focus:shadow-[0_0_16px_rgba(237,134,65,0.18)] transition-all shadow-xs"
           />
           {searchInput && (
             <button

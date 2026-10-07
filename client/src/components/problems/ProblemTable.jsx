@@ -56,11 +56,11 @@ export default function ProblemTable({
   };
 
   return (
-    <div className="rounded-2xl bg-surface border border-line overflow-hidden shadow-xs">
+    <div className="rounded-2xl bg-surface border border-line overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_4px_20px_-4px_rgba(0,0,0,0.3)]">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-line bg-surface-2/60 text-muted font-mono uppercase text-[10.5px] tracking-wider select-none">
+            <tr className="border-b border-line bg-surface-2/70 text-muted font-mono uppercase text-[10.5px] tracking-wider select-none">
               <th scope="col" className="py-3 px-4 font-semibold w-auto min-w-[240px]">
                 <button
                   type="button"

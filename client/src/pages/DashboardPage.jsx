@@ -196,7 +196,7 @@ export default function DashboardPage() {
           {/* Primary Action: Add Problem (Full-width on mobile) */}
           <Link
             to="/problems?action=add"
-            className="w-full sm:w-auto h-11 sm:h-9 inline-flex items-center justify-center gap-2 px-4 text-sm sm:text-xs font-semibold text-white bg-accent hover:bg-accent-hover rounded-xl transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_4px_16px_rgba(237,134,65,0.35)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_6px_22px_rgba(237,134,65,0.45)] whitespace-nowrap order-1 sm:order-3"
+            className="w-full sm:w-auto h-11 sm:h-9 inline-flex items-center justify-center gap-2 px-4 text-sm sm:text-xs font-semibold text-white bg-gradient-to-b from-accent to-accent-hover hover:brightness-105 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_18px_rgba(237,134,65,0.38)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_6px_24px_rgba(237,134,65,0.48)] whitespace-nowrap order-1 sm:order-3"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Problem</span>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             {/* Review Due */}
             <Link
               to="/revision"
-              className="h-10 sm:h-9 inline-flex items-center justify-center gap-2 px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface hover:bg-surface-hover border border-line hover:border-line/90 rounded-xl transition-all duration-200 active:scale-95 shadow-subtle whitespace-nowrap"
+              className="h-10 sm:h-9 inline-flex items-center justify-center gap-2 px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface hover:bg-surface-hover border border-line hover:border-line-hover rounded-xl transition-all duration-200 active:scale-[0.98] shadow-subtle hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] whitespace-nowrap"
             >
               <span>Review Due</span>
               <ArrowRight className="w-3.5 h-3.5 text-muted" />
@@ -218,7 +218,7 @@ export default function DashboardPage() {
               type="button"
               onClick={loadDashboard}
               disabled={isRefreshing}
-              className="h-10 sm:h-9 p-2.5 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-surface-hover border border-line text-text-secondary hover:text-text transition-all duration-200 active:scale-95 shadow-subtle disabled:opacity-50"
+              className="h-10 sm:h-9 p-2.5 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-surface-hover border border-line hover:border-line-hover text-text-secondary hover:text-text transition-all duration-200 active:scale-[0.98] shadow-subtle hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] disabled:opacity-50"
               title="Refresh analytics data"
               aria-label="Refresh analytics data"
             >
@@ -227,7 +227,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Motivational Quote Box (Desktop only) */}
-          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-2 border border-line order-4">
+          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-2/70 border border-line/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] order-4">
             <div className="w-5 h-5 rounded-md bg-accent/15 text-accent flex items-center justify-center font-bold text-xs shrink-0">
               “
             </div>

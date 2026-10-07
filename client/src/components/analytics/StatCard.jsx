@@ -168,7 +168,7 @@ export default function StatCard({
   const ringPercentage = percentage ?? progressPercent;
 
   return (
-    <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-accent/40 hover:shadow-elevated transition-all duration-200 group">
+    <div className="p-3.5 sm:p-4.5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-line-hover hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08),0_12px_28px_-6px_rgba(0,0,0,0.35)] transition-all duration-200 group relative overflow-hidden">
       {/* Icon + Metric info */}
       <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 w-full sm:w-auto">
         <div
@@ -181,7 +181,7 @@ export default function StatCard({
           <span className="text-[11px] sm:text-xs font-medium text-text-secondary block truncate">
             {label}
           </span>
-          <div className="text-xl sm:text-2xl xl:text-[28px] font-mono font-bold tracking-tight text-text leading-tight my-0.5">
+          <div className="text-xl sm:text-2xl xl:text-[28px] font-mono font-bold tracking-tight text-text leading-tight my-0.5 tabular-nums">
             {value !== undefined && value !== null ? value : '—'}
           </div>
           {displaySubtext && (
