@@ -197,7 +197,7 @@ export default function AppLayout() {
           {/* Mobile View: Logo on Left, Theme Toggle on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
-              <LogoMark size={28} />
+              <LogoMark size={30} />
               <span className="font-bold text-base tracking-tight text-text">
                 DSA Tracker
               </span>

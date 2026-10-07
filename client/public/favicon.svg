@@ -1,33 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <defs>
-    <linearGradient id="primaryGrad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FF7A00"/>
-      <stop offset="50%" stop-color="#F97316"/>
-      <stop offset="100%" stop-color="#EA580C"/>
+    <linearGradient id="rimGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="55%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#9a3412"/>
     </linearGradient>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#141822"/>
-      <stop offset="100%" stop-color="#0A0D14"/>
-    </linearGradient>
-    <radialGradient id="neonGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FF9E00" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#F97316" stop-opacity="0"/>
+    <radialGradient id="haloGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#ea580c" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <!-- Container Squircle -->
-  <rect width="32" height="32" rx="8.5" fill="url(#bgGrad)"/>
-  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.75" stroke="url(#primaryGrad)" stroke-width="1.5" stroke-opacity="0.6"/>
+  <!-- Squircle Base with Metallic Amber Rim -->
+  <rect x="0.8" y="0.8" width="30.4" height="30.4" rx="8" fill="#121316" stroke="url(#rimGrad)" stroke-width="1.6"/>
 
   <!-- Core Ambient Glow -->
-  <circle cx="16" cy="16" r="9" fill="url(#neonGlow)"/>
+  <circle cx="16" cy="16" r="8" fill="url(#haloGlow)"/>
 
-  <!-- Code Bracket Left < -->
-  <path d="M10.5 10.5L5.5 16L10.5 21.5" stroke="url(#primaryGrad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Left Bracket < -->
+  <path d="M 10.5 10.5 L 5.5 16 L 10.5 21.5" stroke="#f97316" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Code Bracket Right > -->
-  <path d="M21.5 10.5L26.5 16L21.5 21.5" stroke="url(#primaryGrad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Right Bracket > -->
+  <path d="M 21.5 10.5 L 26.5 16 L 21.5 21.5" stroke="#f97316" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Dynamic Center Slash / Lightning Bolt -->
-  <path d="M18 9L13.5 15.5H17.5L14 23" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Center Lightning Bolt ⚡ -->
+  <path d="M 18.2 8.8 L 13.4 15.4 H 18.2 L 13.8 23.2" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

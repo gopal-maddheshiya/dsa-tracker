@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192" fill="none">
+  <defs>
+    <linearGradient id="rimGrad192" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="55%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#9a3412"/>
+    </linearGradient>
+    <radialGradient id="haloGlow192" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#ea580c" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Squircle Base with Metallic Amber Rim -->
+  <rect x="4.8" y="4.8" width="182.4" height="182.4" rx="48" fill="#121316" stroke="url(#rimGrad192)" stroke-width="9.6"/>
+
+  <!-- Core Ambient Glow -->
+  <circle cx="96" cy="96" r="48" fill="url(#haloGlow192)"/>
+
+  <!-- Left Bracket < -->
+  <path d="M 63 63 L 33 96 L 63 129" stroke="#f97316" stroke-width="14.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right Bracket > -->
+  <path d="M 129 63 L 159 96 L 129 129" stroke="#f97316" stroke-width="14.1" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Center Lightning Bolt ⚡ -->
+  <path d="M 109.2 52.8 L 80.4 92.4 H 109.2 L 82.8 139.2" stroke="#FFFFFF" stroke-width="12.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

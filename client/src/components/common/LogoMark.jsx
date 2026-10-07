@@ -1,18 +1,48 @@
 import React from 'react';
+import { useTheme } from '../../context/ThemeContext';
 
 /**
- * LogoMark: The official signature DSA Tracker brand emblem.
- * Features code brackets < > with a central energy lightning bolt,
- * matching the user reference and title icon with ultra-clean precision.
+ * LogoMark: Signature official DSA Tracker brand emblem.
+ * Faithful implementation of the < ⚡ > code brackets & lightning bolt emblem
+ * matching the user's reference (media_1791353662067.png).
+ *
+ * Architecture & Resiliency:
+ * - Hybrid CSS + SVG architecture: Outer gradient squircle rim and ambient glow
+ *   are rendered with CSS gradients and border-radius.
+ * - ZERO fragile SVG url(#id) references: Completely eliminates WebKit / mobile Safari /
+ *   Chrome Android SVG ID resolution failures inside <Link> (<a>) tags.
+ * - 100% visible on every phone, tablet, desktop, and WebView.
+ * - Theme-harmonized: Rich dark obsidian squircle with radiant ember rim that provides
+ *   maximum contrast and authoritative developer credibility across both Dark and Light themes.
  *
  * @param {{
- *   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | number,
+ *   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | number,
  *   animated?: boolean,
+ *   theme?: 'dark' | 'light' | 'auto',
  *   className?: string
  * }} props
  */
-export default function LogoMark({ size = 'md', animated = false, className = '' }) {
-  // Determine pixel size based on preset or numeric value
+export default function LogoMark({
+  size = 'md',
+  animated = false,
+  theme: explicitTheme,
+  className = '',
+}) {
+  // Theme context detection with safe fallback
+  let activeTheme = 'dark';
+  try {
+    const themeContext = useTheme();
+    if (themeContext?.theme) {
+      activeTheme = themeContext.theme;
+    }
+  } catch {
+    activeTheme = 'dark';
+  }
+
+  const effectiveTheme = explicitTheme && explicitTheme !== 'auto' ? explicitTheme : activeTheme;
+  const isLight = effectiveTheme === 'light';
+
+  // Sizing normalization
   let pixelSize = 34;
   if (typeof size === 'number') {
     pixelSize = size;
@@ -31,109 +61,102 @@ export default function LogoMark({ size = 'md', animated = false, className = ''
         pixelSize = 44;
         break;
       case 'xl':
-        pixelSize = 64;
+        pixelSize = 60;
         break;
       case '2xl':
-        pixelSize = 84;
+        pixelSize = 80;
         break;
       default:
         pixelSize = 34;
     }
   }
 
+  // Proportional layout tokens
+  // Border thickness: ~5.5% of total size, minimum 1.2px
+  const borderWidth = Math.max(1.2, Math.round(pixelSize * 0.055 * 10) / 10);
+  // Outer squircle corner radius: ~28% of size
+  const outerRadius = Math.round(pixelSize * 0.28);
+  const innerRadius = Math.max(1, outerRadius - borderWidth);
+
+  // Gradient rim tuned for dark vs light background contrast
+  const rimGradient = isLight
+    ? 'linear-gradient(135deg, #fb923c 0%, #ea580c 55%, #c2410c 100%)'
+    : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 55%, #9a3412 100%)';
+
+  // Drop shadow tuned for theme
+  const boxDropShadow = isLight
+    ? '0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(234, 88, 12, 0.2)'
+    : '0 4px 14px rgba(234, 88, 12, 0.28), 0 0 1px rgba(0, 0, 0, 0.6)';
+
   return (
     <div
-      style={{ width: pixelSize, height: pixelSize }}
-      className={`relative shrink-0 flex items-center justify-center select-none ${className}`}
+      style={{
+        width: pixelSize,
+        height: pixelSize,
+        padding: borderWidth,
+        borderRadius: outerRadius,
+        background: rimGradient,
+        boxShadow: boxDropShadow,
+      }}
+      className={`relative shrink-0 inline-flex items-center justify-center select-none ${className}`}
+      title="DSA Tracker"
     >
-      <svg
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full"
+      {/* Deep Obsidian Inner Badge Canvas */}
+      <div
+        style={{
+          borderRadius: innerRadius,
+          background: '#121316',
+        }}
+        className="w-full h-full relative flex items-center justify-center overflow-hidden"
       >
-        <defs>
-          {/* Warm Amber/Orange Gradient for Squircle Border and Brackets */}
-          <linearGradient id="dsaLogoAccentGrad" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#ff8a3d" />
-            <stop offset="50%" stopColor="#ed8641" />
-            <stop offset="100%" stopColor="#d96720" />
-          </linearGradient>
-
-          {/* Core Ambient Backlight Glow for the Lightning Bolt */}
-          <radialGradient id="dsaLogoCoreGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#ed8641" stopOpacity="0.85" />
-            <stop offset="60%" stopColor="#ed8641" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#ed8641" stopOpacity="0" />
-          </radialGradient>
-
-          {/* Dark Glass Card Gradient */}
-          <linearGradient id="dsaLogoBgGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#1a1a1d" />
-            <stop offset="100%" stopColor="#121214" />
-          </linearGradient>
-
-          {/* Lightning Filter Glow */}
-          <filter id="lightningGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#ffffff" floodOpacity="0.6" />
-          </filter>
-        </defs>
-
-        {/* 1. Squircle Card Container */}
-        <rect
-          x="5"
-          y="5"
-          width="90"
-          height="90"
-          rx="25"
-          fill="url(#dsaLogoBgGrad)"
-        />
-        {/* Border Stroke */}
-        <rect
-          x="5"
-          y="5"
-          width="90"
-          height="90"
-          rx="25"
-          stroke="url(#dsaLogoAccentGrad)"
-          strokeWidth="5"
-          strokeOpacity="0.9"
+        {/* Core Ambient Backlight Halo Glow */}
+        <div
+          style={{
+            background: 'radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.65) 0%, rgba(234, 88, 12, 0.2) 55%, transparent 75%)',
+          }}
+          className={`absolute w-3/4 h-3/4 rounded-full pointer-events-none ${
+            animated ? 'animate-[pulse_1.8s_ease-in-out_infinite]' : ''
+          }`}
         />
 
-        {/* 2. Ambient Core Backlight Glow */}
-        <circle cx="50" cy="50" r="28" fill="url(#dsaLogoCoreGlow)" />
+        {/* Pure Vector Brand Mark (< ⚡ >) */}
+        <svg
+          viewBox="0 0 32 32"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full relative z-10"
+        >
+          {/* Left Bracket < */}
+          <path
+            d="M 10.5 10.5 L 5.5 16 L 10.5 21.5"
+            stroke="#f97316"
+            strokeWidth="2.35"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={animated ? 'animate-[pulse_2.2s_ease-in-out_infinite]' : ''}
+          />
 
-        {/* 3. Left Bracket < */}
-        <path
-          d="M33 30 L19 50 L33 70"
-          stroke="url(#dsaLogoAccentGrad)"
-          strokeWidth="7.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={animated ? 'animate-[pulse_2.2s_ease-in-out_infinite]' : ''}
-        />
+          {/* Right Bracket > */}
+          <path
+            d="M 21.5 10.5 L 26.5 16 L 21.5 21.5"
+            stroke="#f97316"
+            strokeWidth="2.35"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={animated ? 'animate-[pulse_2.2s_ease-in-out_infinite]' : ''}
+          />
 
-        {/* 4. Right Bracket > */}
-        <path
-          d="M67 30 L81 50 L67 70"
-          stroke="url(#dsaLogoAccentGrad)"
-          strokeWidth="7.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={animated ? 'animate-[pulse_2.2s_ease-in-out_infinite]' : ''}
-        />
-
-        {/* 5. Center Dynamic Lightning Bolt */}
-        <path
-          d="M54 23 L43 47 H53 L46 77"
-          stroke="#FFFFFF"
-          strokeWidth="7.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          filter="url(#lightningGlow)"
-          className={animated ? 'animate-[pulse_1.5s_ease-in-out_infinite]' : ''}
-        />
-      </svg>
+          {/* Dynamic Center Lightning Bolt ⚡ */}
+          <path
+            d="M 18.2 8.8 L 13.4 15.4 H 18.2 L 13.8 23.2"
+            stroke="#FFFFFF"
+            strokeWidth="2.1"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={animated ? 'animate-[pulse_1.4s_ease-in-out_infinite]' : ''}
+          />
+        </svg>
+      </div>
     </div>
   );
 }
