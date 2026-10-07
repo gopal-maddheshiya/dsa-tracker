@@ -19,6 +19,8 @@ import {
   PanelLeftOpen,
 } from 'lucide-react';
 import LogoMark from '../components/common/LogoMark';
+import { useNotifications } from '../context/NotificationContext';
+import NotificationPopover from '../components/common/NotificationPopover';
 
 /**
  * AppLayout: Desktop collapsible sidebar and mobile sticky navigation layout.
@@ -28,6 +30,7 @@ export default function AppLayout() {
   const searchInputRef = useRef(null);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount, toggleOpen, isOpen } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -194,7 +197,7 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
         <header className="h-16 border-b border-line bg-surface/80 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20 shadow-xs">
-          {/* Mobile View: Logo on Left, Theme Toggle on Right */}
+          {/* Mobile View: Logo on Left, Notifications & Theme Toggle on Right */}
           <div className="flex items-center justify-between w-full lg:hidden">
             <Link to="/dashboard" className="flex items-center gap-2.5">
               <LogoMark size={30} />
@@ -203,19 +206,47 @@ export default function AppLayout() {
               </span>
             </Link>
 
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs"
-              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-500" />
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Mobile Notification Trigger */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={toggleOpen}
+                  aria-expanded={isOpen}
+                  aria-haspopup="dialog"
+                  className={`p-2 rounded-xl bg-surface border transition-all active:scale-95 shadow-xs relative ${
+                    isOpen
+                      ? 'border-accent/40 bg-surface-2 text-accent'
+                      : 'border-line text-text-secondary hover:text-text'
+                  }`}
+                  title={`Notifications (${unreadCount} unread)`}
+                  aria-label={`Notifications (${unreadCount} unread)`}
+                >
+                  <Bell className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-12 text-accent' : ''}`} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 px-1 min-w-4 h-4 rounded-full bg-accent text-[9px] font-mono font-bold text-white flex items-center justify-center ring-2 ring-surface shadow-xs">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationPopover align="right" />
+              </div>
+
+              {/* Mobile Theme Toggle */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-indigo-500" />
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Desktop Search Input Bar */}
@@ -259,16 +290,31 @@ export default function AppLayout() {
               )}
             </button>
 
-            {/* Notification Bell */}
-            <button
-              type="button"
-              className="p-2 rounded-xl text-text-secondary hover:text-text hover:bg-surface relative transition-colors"
-              title="Notifications"
-              aria-label="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-bg" />
-            </button>
+            {/* Desktop Notification Bell with interactive popover */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={toggleOpen}
+                aria-expanded={isOpen}
+                aria-haspopup="dialog"
+                className={`p-2 rounded-xl transition-all active:scale-95 relative group ${
+                  isOpen
+                    ? 'bg-surface-2 text-text border border-line shadow-xs'
+                    : 'text-text-secondary hover:text-text hover:bg-surface'
+                }`}
+                title={`Notifications (${unreadCount} unread)`}
+                aria-label={`Notifications (${unreadCount} unread)`}
+              >
+                <Bell className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-12 text-accent' : 'group-hover:rotate-6'}`} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 px-1.5 min-w-4.5 h-4.5 rounded-full bg-accent text-[9px] font-mono font-bold text-white flex items-center justify-center ring-2 ring-surface shadow-xs animate-in zoom-in-75">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              <NotificationPopover align="right" />
+            </div>
 
             {/* User Profile Pill linking to /profile */}
             <Link
