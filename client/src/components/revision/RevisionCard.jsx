@@ -37,14 +37,16 @@ export default function RevisionCard({ item, index, onQuickLog }) {
 
   // Determine left accent stripe based on priority hierarchy
   const borderAccentClass = isFirst
-    ? 'border-l-4 border-l-accent ring-1 ring-accent/20 bg-surface/90'
-    : timing.state === 'overdue' || item.priorityScore >= 3.0
-    ? 'border-l-4 border-l-amber-500/70 hover:border-l-amber-500'
-    : 'border-l-4 border-l-line hover:border-l-line-hover';
+    ? 'border-l-4 border-l-accent ring-1 ring-accent/25 bg-surface/95 shadow-xs'
+    : timing.state === 'overdue'
+    ? 'border-l-4 border-l-rose-500/80 hover:border-l-rose-500 bg-surface'
+    : timing.state === 'due'
+    ? 'border-l-4 border-l-amber-500/80 hover:border-l-amber-500 bg-surface'
+    : 'border-l-4 border-l-line hover:border-l-line-hover bg-surface';
 
   return (
     <div
-      className={`rounded-lg p-4 sm:p-5 transition-all duration-200 bg-surface border border-line hover:border-line-hover shadow-xs ${borderAccentClass}`}
+      className={`rounded-xl p-4 sm:p-5 transition-all duration-200 border border-line hover:border-line-hover shadow-xs ${borderAccentClass}`}
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-5">
         {/* Left & Center Zone: Rank + Problem Identity + Timing Context + Rationale */}
@@ -52,17 +54,17 @@ export default function RevisionCard({ item, index, onQuickLog }) {
           {/* Rank Badge */}
           <div className="flex flex-col items-center shrink-0 pt-0.5">
             <span
-              className={`font-mono text-xs font-semibold px-2 py-1 rounded border tracking-wide ${
+              className={`font-mono text-xs font-semibold px-2 py-1 rounded-md border tracking-wide ${
                 isFirst
-                  ? 'bg-accent/15 text-accent border-accent/30'
+                  ? 'bg-accent/15 text-accent border-accent/40 shadow-xs font-bold'
                   : 'bg-surface-2 text-text-secondary border-line'
               }`}
             >
               {formatRank(index)}
             </span>
             {isFirst && (
-              <span className="text-[9px] font-mono text-accent font-medium mt-1 uppercase tracking-tight">
-                Top
+              <span className="text-[9px] font-mono font-bold text-accent mt-1 uppercase tracking-wider bg-accent/10 px-1 rounded">
+                TOP
               </span>
             )}
           </div>

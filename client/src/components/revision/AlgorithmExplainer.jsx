@@ -9,7 +9,7 @@ export default function AlgorithmExplainer() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="rounded-lg bg-surface border border-line shadow-xs overflow-hidden transition-colors">
+    <div className="rounded-xl bg-surface border border-line shadow-xs overflow-hidden transition-colors">
       {/* Header Toggle */}
       <button
         type="button"

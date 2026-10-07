@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCw, BookOpen, CheckCircle2, AlertCircle, ArrowRight, Search, X } from 'lucide-react';
+import { RotateCw, BookOpen, CheckCircle2, AlertCircle, ArrowRight, Search, X, Tag, Sparkles, Filter } from 'lucide-react';
 import { getRevisionQueue, getSummary, getHeatmap } from '../api/analytics.api.js';
 import problemsApi from '../api/problems.api.js';
 import RevisionSummary from '../components/revision/RevisionSummary.jsx';
@@ -82,6 +82,7 @@ export default function RevisionPage() {
   const [attemptingProblem, setAttemptingProblem] = useState(null);
   const [filterTopic, setFilterTopic] = useState('');
   const [filterUrgency, setFilterUrgency] = useState('all'); // 'all' | 'due' | 'overdue' | 'hard'
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Extract unique topics present in the current revision queue
   const availableTopics = useMemo(() => {
@@ -94,9 +95,28 @@ export default function RevisionPage() {
     return Array.from(set).sort();
   }, [queue]);
 
+  // Tab counts for urgency filters
+  const urgencyCounts = useMemo(() => {
+    return {
+      all: queue.length,
+      due: queue.filter((item) => item.daysSinceLastAttempt >= item.intervalDays).length,
+      overdue: queue.filter((item) => item.daysSinceLastAttempt > item.intervalDays).length,
+      hard: queue.filter((item) => item.difficulty === 'hard').length,
+    };
+  }, [queue]);
+
   // Client-side queue filtering
   const filteredQueue = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
     return queue.filter((item) => {
+      if (query) {
+        const matchesTitle = item.title?.toLowerCase().includes(query);
+        const matchesTopic = Array.isArray(item.topics) && item.topics.some((t) => t.toLowerCase().includes(query));
+        const matchesPlatform = item.platform?.toLowerCase().includes(query);
+        if (!matchesTitle && !matchesTopic && !matchesPlatform) {
+          return false;
+        }
+      }
       if (filterTopic && (!item.topics || !item.topics.includes(filterTopic))) {
         return false;
       }
@@ -113,7 +133,15 @@ export default function RevisionPage() {
       }
       return true;
     });
-  }, [queue, filterTopic, filterUrgency]);
+  }, [queue, filterTopic, filterUrgency, searchQuery]);
+
+  const hasActiveFilters = Boolean(filterTopic || filterUrgency !== 'all' || searchQuery.trim());
+
+  const clearAllFilters = () => {
+    setFilterTopic('');
+    setFilterUrgency('all');
+    setSearchQuery('');
+  };
 
   const handleQuickLogSubmit = async (attemptData) => {
     if (!attemptingProblem) return;
@@ -185,87 +213,215 @@ export default function RevisionPage() {
 
       {/* Primary Queue Section */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-line-subtle pb-2 gap-2">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-text">
+        {/* Section Title & Subtitle */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-line pb-3 gap-2">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-base font-semibold tracking-tight text-text">
               Prioritized Queue
             </h2>
             {!loading && queue.length > 0 && (
-              <span className="text-[11px] font-mono text-muted">
-                (Score descending)
+              <span className="text-[11px] font-mono text-muted bg-surface-2 px-2 py-0.5 rounded border border-line">
+                {filteredQueue.length === queue.length
+                  ? `${queue.length} problems`
+                  : `${filteredQueue.length} of ${queue.length} shown`}
               </span>
             )}
           </div>
 
-          {/* Quick Queue Filters */}
-          {!loading && queue.length > 0 && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              <button
-                type="button"
-                onClick={() => {
-                  setFilterUrgency('all');
-                  setFilterTopic('');
-                }}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
-                  filterUrgency === 'all' && !filterTopic
-                    ? 'bg-accent text-white font-medium shadow-xs'
-                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
-                }`}
-              >
-                All
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterUrgency(filterUrgency === 'due' ? 'all' : 'due')}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
-                  filterUrgency === 'due'
-                    ? 'bg-amber-500 text-white font-medium shadow-xs'
-                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
-                }`}
-              >
-                ⚡ Due now
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterUrgency(filterUrgency === 'overdue' ? 'all' : 'overdue')}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
-                  filterUrgency === 'overdue'
-                    ? 'bg-rose-500 text-white font-medium shadow-xs'
-                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
-                }`}
-              >
-                ⚠️ Overdue
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterUrgency(filterUrgency === 'hard' ? 'all' : 'hard')}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
-                  filterUrgency === 'hard'
-                    ? 'bg-accent text-white font-medium shadow-xs'
-                    : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
-                }`}
-              >
-                Hard
-              </button>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-muted flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              Leitner Score Descending
+            </span>
+          </div>
+        </div>
 
-              {/* Topic Pills if present */}
-              {availableTopics.slice(0, 4).map((t) => (
+        {/* Filter & Search Control Panel */}
+        {!loading && queue.length > 0 && (
+          <div className="p-3 sm:p-3.5 rounded-xl bg-surface border border-line shadow-xs space-y-2.5">
+            {/* Row 1: Urgency Status Tabs + Search Input */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+              {/* Urgency Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
                 <button
-                  key={t}
                   type="button"
-                  onClick={() => setFilterTopic(filterTopic === t ? '' : t)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all active:scale-95 ${
-                    filterTopic === t
-                      ? 'bg-accent text-white font-medium shadow-xs'
-                      : 'bg-surface-2 text-text-secondary hover:text-text border border-line'
+                  onClick={() => setFilterUrgency('all')}
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
+                    filterUrgency === 'all'
+                      ? 'bg-accent text-white shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover border border-line'
                   }`}
                 >
-                  {t}
+                  <span>All</span>
+                  <span className={`text-[10px] px-1 rounded ${filterUrgency === 'all' ? 'bg-black/20 text-white font-semibold' : 'text-muted'}`}>
+                    {urgencyCounts.all}
+                  </span>
                 </button>
-              ))}
+
+                <button
+                  type="button"
+                  onClick={() => setFilterUrgency(filterUrgency === 'due' ? 'all' : 'due')}
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
+                    filterUrgency === 'due'
+                      ? 'bg-amber-500 text-white shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-amber-400 hover:bg-surface-hover border border-line'
+                  }`}
+                >
+                  <span>⚡ Due now</span>
+                  <span className={`text-[10px] px-1 rounded ${filterUrgency === 'due' ? 'bg-black/20 text-white font-semibold' : 'text-amber-400/90'}`}>
+                    {urgencyCounts.due}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFilterUrgency(filterUrgency === 'overdue' ? 'all' : 'overdue')}
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
+                    filterUrgency === 'overdue'
+                      ? 'bg-rose-500 text-white shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-rose-400 hover:bg-surface-hover border border-line'
+                  }`}
+                >
+                  <span>⚠️ Overdue</span>
+                  <span className={`text-[10px] px-1 rounded ${filterUrgency === 'overdue' ? 'bg-black/20 text-white font-semibold' : 'text-rose-400/90'}`}>
+                    {urgencyCounts.overdue}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFilterUrgency(filterUrgency === 'hard' ? 'all' : 'hard')}
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
+                    filterUrgency === 'hard'
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-purple-400 hover:bg-surface-hover border border-line'
+                  }`}
+                >
+                  <span>Hard</span>
+                  <span className={`text-[10px] px-1 rounded ${filterUrgency === 'hard' ? 'bg-black/20 text-white font-semibold' : 'text-muted'}`}>
+                    {urgencyCounts.hard}
+                  </span>
+                </button>
+              </div>
+
+              {/* Problem Name & Topic Search Input */}
+              <div className="relative flex-1 sm:min-w-[200px] md:max-w-xs">
+                <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Filter queue by title or tag..."
+                  className="w-full bg-surface-2 border border-line rounded-lg pl-8 pr-7 py-1.5 text-xs text-text placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    title="Clear search"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-muted hover:text-text rounded"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Row 2: Dedicated Topic Filter Chips (Cleanly isolated so heights never clash) */}
+            {availableTopics.length > 0 && (
+              <div className="pt-2 border-t border-line/60 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-[10px] font-mono uppercase text-muted tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                  <Tag className="w-3 h-3 text-muted" /> Topics:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setFilterTopic('')}
+                  className={`whitespace-nowrap shrink-0 h-6 px-2.5 rounded-full text-[11px] font-mono transition-all active:scale-95 inline-flex items-center gap-1 ${
+                    !filterTopic
+                      ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
+                      : 'bg-surface-2/70 text-text-secondary hover:text-text hover:bg-surface-2 border border-line'
+                  }`}
+                >
+                  All Topics
+                </button>
+                {availableTopics.map((t) => {
+                  const topicCount = queue.filter((item) => item.topics?.includes(t)).length;
+                  const isSelected = filterTopic === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setFilterTopic(isSelected ? '' : t)}
+                      className={`whitespace-nowrap shrink-0 h-6 px-2.5 rounded-full text-[11px] font-mono transition-all active:scale-95 inline-flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-accent text-white font-semibold shadow-xs'
+                          : 'bg-surface-2/70 text-text-secondary hover:text-text hover:bg-surface-2 border border-line'
+                      }`}
+                    >
+                      <span>{t}</span>
+                      <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-muted'}`}>
+                        {topicCount}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Row 3: Active Filters Summary & Reset */}
+            {hasActiveFilters && (
+              <div className="pt-2 border-t border-line/60 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-muted text-[11px] font-mono">Active filters:</span>
+                {filterUrgency !== 'all' && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-line text-[11px] font-mono text-text">
+                    <span className="text-muted">Status:</span>
+                    <span className="font-semibold capitalize">{filterUrgency}</span>
+                    <button
+                      type="button"
+                      onClick={() => setFilterUrgency('all')}
+                      className="text-muted hover:text-rose-400 ml-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {filterTopic && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-line text-[11px] font-mono text-text">
+                    <span className="text-muted">Topic:</span>
+                    <span className="font-semibold text-accent">{filterTopic}</span>
+                    <button
+                      type="button"
+                      onClick={() => setFilterTopic('')}
+                      className="text-muted hover:text-rose-400 ml-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-line text-[11px] font-mono text-text">
+                    <span className="text-muted">Search:</span>
+                    <span className="font-semibold">"{searchQuery}"</span>
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="text-muted hover:text-rose-400 ml-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="text-[11px] font-mono text-accent hover:underline ml-1"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Loading Skeletons */}
         {loading && (
@@ -379,17 +535,23 @@ export default function RevisionPage() {
                 />
               ))
             ) : (
-              <div className="p-8 border border-line rounded-lg text-center bg-surface/40 space-y-2">
-                <p className="text-xs text-muted">No problems match the selected revision filters.</p>
+              <div className="p-10 border border-line/80 rounded-xl text-center bg-surface/50 backdrop-blur-xs space-y-3">
+                <div className="w-10 h-10 rounded-full bg-surface-2 border border-line flex items-center justify-center text-muted mx-auto">
+                  <Filter className="w-4 h-4 text-muted" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-text">No matching revision problems</h4>
+                  <p className="text-xs text-muted max-w-sm mx-auto mt-1 leading-relaxed">
+                    No problems match your current criteria {searchQuery ? `for "${searchQuery}"` : ''}. Try adjusting your filters or resetting to view the full queue.
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setFilterTopic('');
-                    setFilterUrgency('all');
-                  }}
-                  className="text-xs text-accent underline hover:no-underline"
+                  onClick={clearAllFilters}
+                  className="h-8 px-3.5 text-xs font-medium text-accent bg-accent/10 hover:bg-accent/20 border border-accent/25 rounded-lg transition-all active:scale-95 inline-flex items-center gap-1.5"
                 >
-                  Reset filters
+                  <span>Clear all filters</span>
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}

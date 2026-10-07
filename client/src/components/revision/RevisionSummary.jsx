@@ -18,7 +18,7 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="p-4 rounded-lg bg-surface border border-line shadow-xs min-h-[104px] flex flex-col justify-between"
+            className="p-4 rounded-xl bg-surface border border-line shadow-xs min-h-[104px] flex flex-col justify-between"
           >
             <div className="flex items-center justify-between">
               <div className="h-3.5 bg-surface-2 rounded w-24" />
@@ -90,7 +90,7 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
       {/* 2. Desktop 3-Card Row (>= sm) */}
       <div className="hidden sm:grid sm:grid-cols-3 gap-4">
         {/* 1. Queue Depth */}
-        <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-accent/70 shadow-xs flex flex-col justify-between">
+        <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-accent/70 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-text-secondary tracking-wide">Queue depth</span>
             <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
@@ -106,7 +106,7 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
         </div>
 
       {/* 2. Due Today (Urgency Focal Point) */}
-      <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between">
+      <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-text-secondary tracking-wide">Due today</span>
           <span
@@ -133,7 +133,7 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
       </div>
 
       {/* 3. 7-Day Velocity / Review Throughput */}
-      <div className="p-4 rounded-lg bg-surface border border-line border-t-2 border-t-indigo-500/70 shadow-xs flex flex-col justify-between">
+      <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-indigo-500/70 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-text-secondary tracking-wide">
             {velocity !== null ? '7-Day velocity' : 'Most urgent'}
