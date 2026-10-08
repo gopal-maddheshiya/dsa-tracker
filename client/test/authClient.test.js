@@ -43,6 +43,13 @@ async function testAuthClient() {
   assert.strictEqual(authStorage.getToken(), null, 'Token should be null after removal');
   console.log('✓ Token removal verified');
 
+  // 4. authApi endpoint contracts
+  const { authApi } = await import('../src/api/auth.api.js');
+  assert.strictEqual(typeof authApi.googleLogin, 'function', 'authApi.googleLogin must be a function');
+  assert.strictEqual(typeof authApi.forgotPassword, 'function', 'authApi.forgotPassword must be a function');
+  assert.strictEqual(typeof authApi.resetPassword, 'function', 'authApi.resetPassword must be a function');
+  console.log('✓ authApi Google and Password Recovery method contracts verified');
+
   console.log('--- Auth Storage Tests Passed Successfully ---');
 }
 

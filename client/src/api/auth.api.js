@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient from './client.js';
 
 /**
  * Authentication API module.
@@ -34,5 +34,29 @@ export const authApi = {
    */
   updateProfile: (updateData) => {
     return apiClient.put('/auth/profile', updateData);
+  },
+
+  /**
+   * Authenticate user with Google ID token credential
+   * @param {{ credential: string }} payload
+   */
+  googleLogin: (payload) => {
+    return apiClient.post('/auth/google', payload);
+  },
+
+  /**
+   * Request password recovery link/token
+   * @param {{ email: string }} payload
+   */
+  forgotPassword: (payload) => {
+    return apiClient.post('/auth/forgot-password', payload);
+  },
+
+  /**
+   * Reset password with valid token
+   * @param {{ token: string, newPassword: string }} payload
+   */
+  resetPassword: (payload) => {
+    return apiClient.post('/auth/reset-password', payload);
   },
 };

@@ -69,6 +69,27 @@ export function AuthProvider({ children }) {
     throw new Error('Unexpected response format during signup');
   }, []);
 
+  const loginWithGoogle = useCallback(async (authData) => {
+    const payload =
+      typeof authData === 'string'
+        ? { credential: authData }
+        : authData?.accessToken
+        ? { accessToken: authData.accessToken }
+        : { credential: authData?.credential || '' };
+    const res = await authApi.googleLogin(payload);
+    if (res?.data?.token && res?.data?.user) {
+      authStorage.setToken(res.data.token);
+      setUser(res.data.user);
+      return res.data.user;
+    }
+    throw new Error('Unexpected response format during Google login');
+  }, []);
+
+  const setAuthSession = useCallback((token, userData) => {
+    if (token) authStorage.setToken(token);
+    if (userData) setUser(userData);
+  }, []);
+
   const logout = useCallback(() => {
     authStorage.removeToken();
     setUser(null);
@@ -88,6 +109,8 @@ export function AuthProvider({ children }) {
     loading,
     isAuthenticated: !!user,
     login,
+    loginWithGoogle,
+    setAuthSession,
     signup,
     logout,
     updateProfile,

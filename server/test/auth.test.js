@@ -242,7 +242,87 @@ async function runAuthTests() {
     assert.strictEqual(meData.data.user.password, undefined);
     console.log('✓ 17. GET /api/auth/me never exposes password or passwordHash');
 
-    console.log('--- All 17 Phase 3 Authentication Tests Passed Successfully ---');
+    // -------------------------------------------------------------------------
+    // PASSWORD RECOVERY & RESET TESTS
+    // -------------------------------------------------------------------------
+
+    // 18. Forgot password with valid email generates token
+    const forgotRes = await fetch(`${baseUrl}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'ada@example.com' }),
+    });
+    assert.strictEqual(forgotRes.status, 200, 'Forgot password should return 200');
+    const forgotData = await forgotRes.json();
+    assert.strictEqual(forgotData.success, true);
+    assert.ok(forgotData.data.resetToken, 'Forgot password returns resetToken');
+    assert.ok(forgotData.data.resetUrl, 'Forgot password returns resetUrl');
+    const resetToken = forgotData.data.resetToken;
+    console.log('✓ 18. POST /api/auth/forgot-password returns reset token and URL');
+
+    // 19. Forgot password with nonexistent email returns 200 without exposing token
+    const fakeForgotRes = await fetch(`${baseUrl}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'nonexistent@example.com' }),
+    });
+    assert.strictEqual(fakeForgotRes.status, 200);
+    const fakeForgotData = await fakeForgotRes.json();
+    assert.strictEqual(fakeForgotData.success, true);
+    assert.strictEqual(fakeForgotData.data, undefined);
+    console.log('✓ 19. POST /api/auth/forgot-password handles nonexistent email securely');
+
+    // 20. Reset password with valid token updates password and returns user + auth token
+    const resetRes = await fetch(`${baseUrl}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: resetToken,
+        password: 'brandNewPassword456',
+      }),
+    });
+    assert.strictEqual(resetRes.status, 200, 'Reset password should return 200');
+    const resetData = await resetRes.json();
+    assert.strictEqual(resetData.success, true);
+    assert.ok(resetData.data.token, 'Reset password returns auth token');
+    assert.strictEqual(resetData.data.user.email, 'ada@example.com');
+    console.log('✓ 20. POST /api/auth/reset-password successfully resets password & logs in');
+
+    // 21. Login with old password fails, login with new password succeeds
+    const oldLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ada@example.com',
+        password: 'superSecretPassword123',
+      }),
+    });
+    assert.strictEqual(oldLoginRes.status, 401, 'Old password must be rejected');
+
+    const newLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ada@example.com',
+        password: 'brandNewPassword456',
+      }),
+    });
+    assert.strictEqual(newLoginRes.status, 200, 'New password must succeed');
+    console.log('✓ 21. New password functions properly and old password is invalidated');
+
+    // 22. Reusing an already-consumed reset token is rejected
+    const reuseResetRes = await fetch(`${baseUrl}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: resetToken,
+        password: 'anotherNewPassword789',
+      }),
+    });
+    assert.strictEqual(reuseResetRes.status, 400, 'Reused reset token must be rejected');
+    console.log('✓ 22. Consumed or invalid reset token is rejected with 400');
+
+    console.log('--- All Phase 3 Authentication & Password Recovery Tests Passed Successfully ---');
   } finally {
     server.close();
     await mongoose.disconnect();

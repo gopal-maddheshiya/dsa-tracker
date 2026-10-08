@@ -18,6 +18,7 @@ const SettingsPage = lazyWithRetry(() => import('../pages/SettingsPage'));
 const AccountPage = lazyWithRetry(() => import('../pages/AccountPage'));
 const LoginPage = lazyWithRetry(() => import('../pages/LoginPage'));
 const SignupPage = lazyWithRetry(() => import('../pages/SignupPage'));
+const ResetPasswordPage = lazyWithRetry(() => import('../pages/ResetPasswordPage'));
 const NotFoundPage = lazyWithRetry(() => import('../pages/NotFoundPage'));
 
 import LogoMark from '../components/common/LogoMark';
@@ -56,6 +57,14 @@ export default function AppRoutes() {
           element={
             <Suspense fallback={<AuthLoader />}>
               <SignupPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <Suspense fallback={<AuthLoader />}>
+              <ResetPasswordPage />
             </Suspense>
           }
         />

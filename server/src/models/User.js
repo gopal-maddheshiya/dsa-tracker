@@ -18,8 +18,28 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: [true, 'Password hash is required'],
+      required: function () {
+        return !this.googleId;
+      },
       select: false, // Prevents passwordHash from being returned by default
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+    avatar: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
     },
     createdAt: {
       type: Date,
@@ -79,6 +99,8 @@ userSchema.set('toJSON', {
     ret.id = ret._id.toString();
     delete ret._id;
     delete ret.passwordHash;
+    delete ret.resetPasswordToken;
+    delete ret.resetPasswordExpires;
     delete ret.__v;
     return ret;
   },
