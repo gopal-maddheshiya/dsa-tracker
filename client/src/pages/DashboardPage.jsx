@@ -160,8 +160,8 @@ export default function DashboardPage() {
     totalAttempted > 0
       ? ((totalSolved / totalAttempted) * 100).toFixed(1)
       : totalProblems > 0
-      ? ((totalSolved / totalProblems) * 100).toFixed(1)
-      : '0.0';
+        ? ((totalSolved / totalProblems) * 100).toFixed(1)
+        : '0.0';
 
   // Time-aware greeting
   const currentHour = new Date().getHours();
@@ -169,8 +169,8 @@ export default function DashboardPage() {
     currentHour < 12
       ? 'Good morning'
       : currentHour < 17
-      ? 'Good afternoon'
-      : 'Good evening';
+        ? 'Good afternoon'
+        : 'Good evening';
   const firstName = user?.name ? user.name.split(' ')[0] : 'Developer';
 
   return (

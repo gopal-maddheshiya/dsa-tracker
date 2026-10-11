@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthShell from '../components/auth/AuthShell';
 import PasswordInput from '../components/auth/PasswordInput';
 import FormAlert from '../components/common/FormAlert';
-import { KeyRound, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();

@@ -60,8 +60,26 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    const status = error.response?.status || 500;
+    const url = error.config?.url || '';
+
+    // If session expired / token invalid on an authenticated endpoint,
+    // clear local token and notify application to reset session
+    if (
+      status === 401 &&
+      !url.includes('/login') &&
+      !url.includes('/signup') &&
+      !url.includes('/forgot-password') &&
+      !url.includes('/reset-password')
+    ) {
+      authStorage.removeToken();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
+    }
+
     const customError = {
-      status: error.response?.status || 500,
+      status,
       message:
         error.response?.data?.message ||
         error.message ||

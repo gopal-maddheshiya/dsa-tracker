@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/auth.api';
 import FormAlert from '../common/FormAlert';
@@ -13,6 +13,24 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
   const [recoveryData, setRecoveryData] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -55,6 +73,11 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       role="dialog"
       aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div className="relative w-full max-w-md bg-surface border border-line rounded-2xl shadow-2xl p-6 sm:p-7 overflow-hidden text-text">
         {/* Close Button */}
@@ -159,11 +182,10 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
                   disabled={submitting}
                   autoComplete="email"
                   autoFocus
-                  className={`w-full h-9 pl-9 pr-3 text-xs bg-bg border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 ${
-                    fieldError
+                  className={`w-full h-9 pl-9 pr-3 text-xs bg-bg border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 ${fieldError
                       ? 'border-danger focus:border-danger focus:ring-danger'
                       : 'border-line focus:border-accent focus:ring-accent'
-                  }`}
+                    }`}
                 />
               </div>
               {fieldError && (

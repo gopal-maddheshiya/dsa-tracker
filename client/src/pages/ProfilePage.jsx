@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  User,
   Mail,
   Calendar,
   Briefcase,
@@ -178,11 +177,10 @@ export default function ProfilePage() {
       {/* Feedback Banner */}
       {feedback.message && (
         <div
-          className={`p-3.5 rounded-xl border flex items-center gap-2.5 text-xs animate-in fade-in ${
-            feedback.type === 'success'
+          className={`p-3.5 rounded-xl border flex items-center gap-2.5 text-xs animate-in fade-in ${feedback.type === 'success'
               ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
               : 'bg-rose-500/10 border-rose-500/25 text-rose-400'
-          }`}
+            }`}
         >
           {feedback.type === 'success' ? (
             <CheckCircle2 className="w-4 h-4 shrink-0" />

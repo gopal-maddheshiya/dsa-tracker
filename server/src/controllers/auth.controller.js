@@ -236,19 +236,21 @@ const updateProfile = async (req, res, next) => {
 
     // 3. Change Password (if supplied)
     if (newPassword) {
-      if (!currentPassword) {
-        return res.status(400).json({
-          success: false,
-          message: 'Current password is required to set a new password',
-        });
-      }
+      if (user.passwordHash) {
+        if (!currentPassword) {
+          return res.status(400).json({
+            success: false,
+            message: 'Current password is required to set a new password',
+          });
+        }
 
-      const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
-      if (!isMatch) {
-        return res.status(401).json({
-          success: false,
-          message: 'Current password is incorrect',
-        });
+        const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+        if (!isMatch) {
+          return res.status(401).json({
+            success: false,
+            message: 'Current password is incorrect',
+          });
+        }
       }
 
       if (typeof newPassword !== 'string' || newPassword.length < 6) {

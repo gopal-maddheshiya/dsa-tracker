@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, FolderPlus, SearchX, RotateCw, AlertCircle } from 'lucide-react';
 import problemsApi from '../api/problems.api';
-import ProblemStatsBar from '../components/problems/ProblemStatsBar';
 import ProblemFilters from '../components/problems/ProblemFilters';
 import ProblemTable from '../components/problems/ProblemTable';
 import ProblemMobileList from '../components/problems/ProblemMobileList';

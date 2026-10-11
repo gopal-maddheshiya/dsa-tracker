@@ -3,9 +3,7 @@ import {
   Settings as SettingsIcon,
   Moon,
   Sun,
-  Laptop,
   Brain,
-  Target,
   Shield,
   KeyRound,
   Download,
@@ -18,9 +16,7 @@ import {
   Save,
   Loader2,
   Sparkles,
-  Sliders,
   Database,
-  Bell,
   Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -259,11 +255,10 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setTheme('dark')}
-            className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all ${
-              theme === 'dark'
+            className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all ${theme === 'dark'
                 ? 'border-accent bg-accent/5 ring-1 ring-accent/30 shadow-[0_0_16px_rgba(237,134,65,0.15)]'
                 : 'border-line bg-surface-2 hover:border-line-hover hover:bg-surface-hover'
-            }`}
+              }`}
           >
             <div className="w-10 h-10 rounded-lg bg-[#161618] border border-white/10 flex items-center justify-center text-amber-400 shrink-0">
               <Moon className="w-5 h-5" />
@@ -287,11 +282,10 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setTheme('light')}
-            className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all ${
-              theme === 'light'
+            className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all ${theme === 'light'
                 ? 'border-accent bg-accent/5 ring-1 ring-accent/30 shadow-[0_0_16px_rgba(237,134,65,0.15)]'
                 : 'border-line bg-surface-2 hover:border-line-hover hover:bg-surface-hover'
-            }`}
+              }`}
           >
             <div className="w-10 h-10 rounded-lg bg-[#ffffff] border border-black/10 flex items-center justify-center text-amber-500 shrink-0">
               <Sun className="w-5 h-5" />
@@ -330,11 +324,10 @@ export default function SettingsPage() {
         <form onSubmit={handleSaveAlgoSettings} className="space-y-6">
           {algoFeedback.message && (
             <div
-              className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs ${
-                algoFeedback.type === 'success'
+              className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs ${algoFeedback.type === 'success'
                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                   : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-              }`}
+                }`}
             >
               {algoFeedback.type === 'success' ? (
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -356,11 +349,10 @@ export default function SettingsPage() {
                   key={count}
                   type="button"
                   onClick={() => setDailyGoal(count)}
-                  className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 ${
-                    dailyGoal === count
+                  className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 ${dailyGoal === count
                       ? 'border-accent bg-accent/10 text-accent ring-1 ring-accent/30 shadow-xs'
                       : 'border-line bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover'
-                  }`}
+                    }`}
                 >
                   <span className="text-base font-mono font-bold text-text">{count}</span>
                   <span className="text-[10px] text-muted">problems / day</span>
@@ -396,17 +388,15 @@ export default function SettingsPage() {
                   key={p.id}
                   type="button"
                   onClick={() => setReviewPreset(p.id)}
-                  className={`p-3.5 rounded-xl border text-left transition-all ${
-                    reviewPreset === p.id
+                  className={`p-3.5 rounded-xl border text-left transition-all ${reviewPreset === p.id
                       ? 'border-accent bg-accent/10 ring-1 ring-accent/30'
                       : 'border-line bg-surface-2 hover:bg-surface-hover'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span
-                      className={`text-xs font-bold ${
-                        reviewPreset === p.id ? 'text-accent' : 'text-text'
-                      }`}
+                      className={`text-xs font-bold ${reviewPreset === p.id ? 'text-accent' : 'text-text'
+                        }`}
                     >
                       {p.title}
                     </span>
@@ -537,11 +527,10 @@ export default function SettingsPage() {
         <form onSubmit={handleChangePassword} className="space-y-4">
           {passwordFeedback.message && (
             <div
-              className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs ${
-                passwordFeedback.type === 'success'
+              className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs ${passwordFeedback.type === 'success'
                   ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                   : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-              }`}
+                }`}
             >
               {passwordFeedback.type === 'success' ? (
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -661,11 +650,10 @@ export default function SettingsPage() {
 
         {exportFeedback.message && (
           <div
-            className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs mb-4 ${
-              exportFeedback.type === 'success'
+            className={`p-3.5 rounded-xl border flex items-center gap-3 text-xs mb-4 ${exportFeedback.type === 'success'
                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                 : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-            }`}
+              }`}
           >
             {exportFeedback.type === 'success' ? (
               <CheckCircle2 className="w-4 h-4 shrink-0" />

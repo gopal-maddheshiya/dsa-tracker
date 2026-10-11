@@ -176,7 +176,7 @@ export default function ProblemFormModal({
       } else if (/hackerrank\.com/i.test(trimmed)) {
         nextPlatform = 'hackerrank';
       }
-    } catch (e) {}
+    } catch (e) { }
 
     setFormData((prev) => ({
       ...prev,
@@ -353,11 +353,10 @@ export default function ProblemFormModal({
                     key={topicName}
                     type="button"
                     onClick={() => toggleTopic(topicName)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all duration-150 active:scale-95 ${
-                      isSelected
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all duration-150 active:scale-95 ${isSelected
                         ? 'bg-accent text-white font-medium shadow-xs'
                         : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover border border-line'
-                    }`}
+                      }`}
                   >
                     {isSelected ? `✓ ${topicName}` : `+ ${topicName}`}
                   </button>

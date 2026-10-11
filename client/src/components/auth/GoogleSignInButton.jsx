@@ -141,22 +141,22 @@ export default function GoogleSignInButton({ onCredentialReceived, disabled = fa
       type="button"
       onClick={handleClick}
       disabled={disabled || isConnecting}
-      className="w-full h-10 px-4 rounded-xl bg-surface-2 hover:bg-surface-hover active:scale-[0.99] border border-line hover:border-line-hover text-text transition-all duration-150 flex items-center justify-center gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_8px_rgba(0,0,0,0.15)] group focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden"
+      className="w-full h-11 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.99] border border-white/[0.1] hover:border-white/[0.18] text-zinc-100 transition-all duration-150 flex items-center justify-center gap-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_8px_rgba(0,0,0,0.25)] group focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden"
     >
       {/* Top subtle highlight reflection */}
-      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
 
       {isConnecting ? (
         <>
-          <Loader2 className="w-4 h-4 animate-spin text-accent" />
-          <span className="text-xs sm:text-sm font-medium tracking-tight">
+          <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+          <span className="text-xs sm:text-sm font-medium tracking-tight text-zinc-200">
             Connecting to Google...
           </span>
         </>
       ) : (
         <>
           <GoogleIcon className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-          <span className="text-xs sm:text-sm font-medium tracking-tight text-text group-hover:text-text">
+          <span className="text-xs sm:text-sm font-medium tracking-tight text-zinc-200 group-hover:text-white">
             Continue with Google
           </span>
         </>

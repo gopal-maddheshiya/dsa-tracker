@@ -88,7 +88,7 @@ export default function ProblemFilters({
   ];
 
   return (
-    <div className="p-3.5 sm:p-4 rounded-xl bg-surface border border-line shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_2px_8px_-2px_rgba(0,0,0,0.25)] space-y-2.5 sm:space-y-3">
+    <div className="p-3.5 sm:p-4 rounded-xl bg-surface border border-line shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_2px_8px_-2px_rgba(0,0,0,0.25)] space-y-2.5 sm:space-y-3 min-w-0 max-w-full overflow-hidden">
       {/* 1. Search Bar & Dropdown Controls */}
       {/* Desktop view: Single comfortable row */}
       <div className="hidden sm:flex items-center gap-2.5">
@@ -124,11 +124,10 @@ export default function ProblemFilters({
             value={difficulty}
             onChange={(e) => onDifficultyChange(e.target.value)}
             aria-label="Filter by difficulty"
-            className={`w-full h-9.5 sm:h-10 pl-3 pr-9 bg-surface-2 text-xs sm:text-sm font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${
-              difficulty
+            className={`w-full h-9.5 sm:h-10 pl-3 pr-9 bg-surface-2 text-xs sm:text-sm font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${difficulty
                 ? 'border-accent/60 text-accent font-semibold'
                 : 'border-line text-text-secondary'
-            }`}
+              }`}
           >
             <option value="">All Difficulties</option>
             <option value="easy">Easy</option>
@@ -144,11 +143,10 @@ export default function ProblemFilters({
             value={topic}
             onChange={(e) => onTopicChange(e.target.value)}
             aria-label="Filter by topic"
-            className={`w-full h-9.5 sm:h-10 pl-3 pr-9 bg-surface-2 text-xs sm:text-sm font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer truncate shadow-xs transition-colors ${
-              topic
+            className={`w-full h-9.5 sm:h-10 pl-3 pr-9 bg-surface-2 text-xs sm:text-sm font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer truncate shadow-xs transition-colors ${topic
                 ? 'border-accent/60 text-accent font-semibold'
                 : 'border-line text-text-secondary'
-            }`}
+              }`}
           >
             <option value="">All Topics</option>
             {availableTopics.map((t) => (
@@ -207,11 +205,10 @@ export default function ProblemFilters({
               value={difficulty}
               onChange={(e) => onDifficultyChange(e.target.value)}
               aria-label="Filter by difficulty"
-              className={`w-full h-9 pl-2.5 pr-8 bg-surface-2 text-xs font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${
-                difficulty
+              className={`w-full h-9 pl-2.5 pr-8 bg-surface-2 text-xs font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer shadow-xs transition-colors ${difficulty
                   ? 'border-accent/60 text-accent font-semibold'
                   : 'border-line text-text-secondary'
-              }`}
+                }`}
             >
               <option value="">Difficulty</option>
               <option value="easy">Easy</option>
@@ -226,11 +223,10 @@ export default function ProblemFilters({
               value={topic}
               onChange={(e) => onTopicChange(e.target.value)}
               aria-label="Filter by topic"
-              className={`w-full h-9 pl-2.5 pr-8 bg-surface-2 text-xs font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer truncate shadow-xs transition-colors ${
-                topic
+              className={`w-full h-9 pl-2.5 pr-8 bg-surface-2 text-xs font-mono rounded-lg border focus:outline-none focus:border-accent appearance-none cursor-pointer truncate shadow-xs transition-colors ${topic
                   ? 'border-accent/60 text-accent font-semibold'
                   : 'border-line text-text-secondary'
-              }`}
+                }`}
             >
               <option value="">Topic</option>
               {availableTopics.map((t) => (
@@ -265,17 +261,15 @@ export default function ProblemFilters({
               key={tab.id}
               type="button"
               onClick={() => onStatusChange(isSelected && tab.value !== '' ? '' : tab.value)}
-              className={`whitespace-nowrap shrink-0 h-8 sm:h-8.5 px-3 rounded-lg text-xs font-mono font-medium transition-all duration-150 active:scale-95 inline-flex items-center gap-1.5 shadow-xs ${
-                isSelected
+              className={`whitespace-nowrap shrink-0 h-8 sm:h-8.5 px-3 rounded-lg text-xs font-mono font-medium transition-all duration-150 active:scale-95 inline-flex items-center gap-1.5 shadow-xs ${isSelected
                   ? tab.activeColor || 'bg-accent text-white font-semibold'
                   : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover border border-line'
-              }`}
+                }`}
             >
               <span>{tab.label}</span>
               <span
-                className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded font-semibold ${
-                  isSelected ? 'bg-black/25 text-white' : 'bg-surface/80 text-muted border border-line/60'
-                }`}
+                className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded font-semibold ${isSelected ? 'bg-black/25 text-white' : 'bg-surface/80 text-muted border border-line/60'
+                  }`}
               >
                 {tab.count}
               </span>

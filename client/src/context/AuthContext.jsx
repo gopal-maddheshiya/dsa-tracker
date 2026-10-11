@@ -49,6 +49,18 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  // Listen for global auth:unauthorized events dispatched from API client
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setUser(null);
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
+  }, []);
+
   const login = useCallback(async (email, password) => {
     const res = await authApi.login({ email, password });
     if (res?.data?.token && res?.data?.user) {

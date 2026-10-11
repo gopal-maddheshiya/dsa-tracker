@@ -10,7 +10,6 @@ import {
   AlertTriangle,
   Flame,
   Sparkles,
-  Calendar,
   ChevronRight,
   Inbox,
   ExternalLink,

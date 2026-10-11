@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AuthShell from '../components/auth/AuthShell';
+import ProductValueShowcase from '../components/auth/ProductValueShowcase';
 import PasswordInput from '../components/auth/PasswordInput';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 import FormAlert from '../components/common/FormAlert';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
 
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 
+/**
+ * LoginPage: Cinematic, Atmospheric Developer Login Experience.
+ * Matches the reference artwork with photorealistic workspace backdrop,
+ * typewriter headline, four feature badges, glowing amber card, and instant demo workspace.
+ */
 export default function LoginPage() {
   const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -105,8 +111,6 @@ export default function LoginPage() {
     if (submitting) return;
     setSubmitting(true);
     setServerError('');
-    setFieldErrors({});
-
     try {
       await login('demo@dsa-tracker.local', 'Demo1234!');
       navigate(destination, { replace: true });
@@ -127,7 +131,8 @@ export default function LoginPage() {
     <>
       <AuthShell
         title="Welcome back"
-        subtitle="Sign in to continue your deliberate preparation."
+        subtitle="Sign in to continue your journey."
+        sideShowcase={<ProductValueShowcase />}
       >
         <div className="space-y-4">
           {serverError && <FormAlert message={serverError} />}
@@ -140,13 +145,15 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Divider */}
+          {/* Hairline Clean Divider */}
           <div className="relative my-3">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-line/70" />
+              <div className="w-full border-t border-white/[0.08]" />
             </div>
-            <div className="relative flex justify-center text-[10px] font-mono text-muted uppercase tracking-wider">
-              <span className="bg-surface px-2.5 rounded-full">or continue with email</span>
+            <div className="relative flex justify-center text-[10px] font-mono tracking-widest uppercase text-zinc-400">
+              <span className="px-3 bg-black/40 backdrop-blur-md border border-white/[0.08] rounded-full">
+                OR
+              </span>
             </div>
           </div>
 
@@ -156,45 +163,47 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-medium text-text-secondary mb-1.5"
+                className="block text-xs font-medium text-zinc-300 mb-1.5"
               >
                 Email address
               </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="developer@example.com"
-                disabled={submitting}
-                autoComplete="email"
-                className={`w-full h-9 px-3 text-xs bg-bg/80 border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  fieldErrors.email
-                    ? 'border-danger focus:border-danger focus:ring-danger'
-                    : 'border-line focus:border-accent focus:ring-accent'
-                }`}
-              />
+              <div className="relative">
+                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400" />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  disabled={submitting}
+                  autoComplete="email"
+                  className={`w-full h-11 pl-10 pr-3.5 text-xs sm:text-sm rounded-xl border bg-black/40 backdrop-blur-md text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${fieldErrors.email
+                      ? 'border-rose-500/80 focus:border-rose-500 focus:ring-rose-500/20'
+                      : 'border-white/[0.12] hover:border-white/[0.2] focus:border-amber-500/70 focus:ring-amber-500/20'
+                    }`}
+                />
+              </div>
               {fieldErrors.email && (
-                <p className="mt-1 text-[11px] text-danger font-medium">
+                <p className="mt-1 text-[11px] text-rose-400 font-medium">
                   {fieldErrors.email}
                 </p>
               )}
             </div>
 
-            {/* Password Field with inline Forgot Password link */}
+            {/* Password Field */}
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label
                   htmlFor="password"
-                  className="block text-xs font-medium text-text-secondary"
+                  className="block text-xs font-medium text-zinc-300"
                 >
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowForgotModal(true)}
-                  className="text-[11px] font-medium text-accent hover:text-accent-hover hover:underline transition-colors focus:outline-none"
+                  className="text-[11px] font-medium text-amber-400/90 hover:text-amber-300 hover:underline transition-colors focus:outline-none cursor-pointer"
                 >
                   Forgot password?
                 </button>
@@ -204,63 +213,66 @@ export default function LoginPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 disabled={submitting}
                 autoComplete="current-password"
-                className={
-                  fieldErrors.password
-                    ? 'border-danger focus:border-danger focus:ring-danger'
-                    : ''
-                }
+                leftIcon={<Lock className="w-4 h-4 text-zinc-400" />}
+                className={`h-11 rounded-xl bg-black/40 backdrop-blur-md text-xs sm:text-sm text-white placeholder:text-zinc-500 ${fieldErrors.password
+                    ? 'border-rose-500/80 focus:border-rose-500 focus:ring-rose-500/20'
+                    : 'border-white/[0.12] hover:border-white/[0.2] focus:border-amber-500/70 focus:ring-amber-500/20'
+                  }`}
               />
               {fieldErrors.password && (
-                <p className="mt-1 text-[11px] text-danger font-medium">
+                <p className="mt-1 text-[11px] text-rose-400 font-medium">
                   {fieldErrors.password}
                 </p>
               )}
             </div>
 
-            {/* Submit Button */}
+            {/* Radiant Amber-Orange Gradient Sign In Button */}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full h-9 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-150 active:scale-[0.99] shadow-xs flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg mt-1"
+              className="w-full h-11 px-4 text-xs sm:text-sm font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 active:scale-[0.99] text-white rounded-xl transition-all duration-200 shadow-[0_4px_20px_rgba(249,115,22,0.35)] hover:shadow-[0_6px_25px_rgba(249,115,22,0.5)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-amber-500/50 mt-1 cursor-pointer group"
             >
               {submitting ? (
                 <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Signing in...</span>
                 </>
               ) : (
-                <span>Sign in</span>
+                <>
+                  <span>Sign in</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </>
               )}
             </button>
           </form>
 
-          {/* Discrete subtle Demo Access Button */}
-          <div className="pt-2 flex items-center justify-center">
+          {/* Switch to Signup */}
+          <div className="pt-0.5 text-center text-xs text-zinc-400">
+            Don't have an account?{' '}
+            <Link
+              to="/signup"
+              state={{ from: location.state?.from }}
+              className="text-amber-400 hover:text-amber-300 hover:underline font-semibold transition-colors"
+            >
+              Create one →
+            </Link>
+          </div>
+
+          {/* Frosted Glass Quick Demo Access Button */}
+          <div className="pt-2.5 border-t border-white/[0.08]">
             <button
               type="button"
               disabled={submitting}
               onClick={handleDemoLogin}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono text-muted hover:text-text bg-surface-2/50 hover:bg-surface-2 border border-line/60 rounded-full transition-all focus:outline-none active:scale-95 group"
-              title="Quick demo access with 35 preloaded problems"
+              className="w-full h-11 px-4 rounded-xl border border-white/[0.12] hover:border-white/[0.22] bg-white/[0.04] hover:bg-white/[0.08] active:scale-[0.99] text-zinc-200 hover:text-white transition-all text-xs sm:text-sm font-medium flex items-center justify-center gap-2 cursor-pointer shadow-xs group backdrop-blur-md"
+              title="Explore full workspace with 35 preloaded problems"
             >
-              <Sparkles className="w-3 h-3 text-accent/80 group-hover:text-accent transition-colors" />
-              <span>⚡ Quick Demo Preview</span>
+              <span>Try Demo Workspace</span>
+              <span className="text-amber-400 group-hover:scale-110 transition-transform">⚡</span>
             </button>
-          </div>
-
-          {/* Switch to Signup */}
-          <div className="pt-3 border-t border-line/70 text-center text-xs text-text-secondary">
-            Don&apos;t have an account?{' '}
-            <Link
-              to="/signup"
-              state={{ from: location.state?.from }}
-              className="text-accent hover:underline font-medium"
-            >
-              Create an account
-            </Link>
           </div>
         </div>
       </AuthShell>
@@ -273,4 +285,3 @@ export default function LoginPage() {
     </>
   );
 }
-

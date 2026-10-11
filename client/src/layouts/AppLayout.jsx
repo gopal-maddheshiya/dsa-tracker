@@ -64,7 +64,7 @@ export default function AppLayout() {
       const next = !prev;
       try {
         localStorage.setItem('dsa_sidebar_collapsed', String(next));
-      } catch {}
+      } catch { }
       return next;
     });
   };
@@ -113,22 +113,19 @@ export default function AppLayout() {
           LEFT SIDEBAR (Desktop >= lg, Collapsible)
           ============================================================== */}
       <aside
-        className={`hidden lg:flex flex-col justify-between shrink-0 sticky top-0 h-screen select-none z-30 bg-bg border-r border-line transition-all duration-300 ease-in-out ${
-          isCollapsed ? 'w-20 p-3' : 'w-60 xl:w-64 p-5'
-        }`}
+        className={`hidden lg:flex flex-col justify-between shrink-0 sticky top-0 h-screen select-none z-30 bg-bg border-r border-line transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20 p-3' : 'w-60 xl:w-64 p-5'
+          }`}
       >
         <div>
           {/* Logo, Brand & Collapse Toggle */}
           <div
-            className={`flex items-center mb-8 ${
-              isCollapsed ? 'flex-col gap-3 justify-center' : 'justify-between'
-            }`}
+            className={`flex items-center mb-8 ${isCollapsed ? 'flex-col gap-3 justify-center' : 'justify-between'
+              }`}
           >
             <Link
               to="/dashboard"
-              className={`flex items-center gap-3 py-1 group focus:outline-none overflow-hidden ${
-                isCollapsed ? 'justify-center w-full' : 'px-1'
-              }`}
+              className={`flex items-center gap-3 py-1 group focus:outline-none overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'px-1'
+                }`}
               title="DSA Tracker"
             >
               <LogoMark size={32} />
@@ -143,9 +140,8 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={toggleSidebar}
-              className={`p-1.5 rounded-xl border border-transparent text-muted hover:text-text hover:bg-surface hover:border-line transition-all active:scale-95 ${
-                isCollapsed ? 'w-full flex items-center justify-center py-2' : ''
-              }`}
+              className={`p-1.5 rounded-xl border border-transparent text-muted hover:text-text hover:bg-surface hover:border-line transition-all active:scale-95 ${isCollapsed ? 'w-full flex items-center justify-center py-2' : ''
+                }`}
               title={isCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}
               aria-label={isCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}
             >
@@ -171,18 +167,15 @@ export default function AppLayout() {
                   key={item.name}
                   to={item.path}
                   title={item.name}
-                  className={`flex items-center gap-3.5 rounded-xl text-xs font-medium transition-all ${
-                    isCollapsed ? 'justify-center px-0 py-3' : 'px-3.5 py-2.5'
-                  } ${
-                    isItemActive
+                  className={`flex items-center gap-3.5 rounded-xl text-xs font-medium transition-all ${isCollapsed ? 'justify-center px-0 py-3' : 'px-3.5 py-2.5'
+                    } ${isItemActive
                       ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_16px_rgba(237,134,65,0.35)]'
                       : 'text-text-secondary hover:text-text hover:bg-surface/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]'
-                  }`}
+                    }`}
                 >
                   <Icon
-                    className={`w-4 h-4 shrink-0 ${
-                      isItemActive ? 'text-white' : 'text-muted'
-                    }`}
+                    className={`w-4 h-4 shrink-0 ${isItemActive ? 'text-white' : 'text-muted'
+                      }`}
                   />
                   {!isCollapsed && <span className="truncate">{item.name}</span>}
                 </NavLink>
@@ -197,9 +190,8 @@ export default function AppLayout() {
             type="button"
             onClick={handleLogout}
             title="Sign Out"
-            className={`w-full flex items-center gap-3 text-xs font-medium text-text-secondary hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors ${
-              isCollapsed ? 'justify-center p-3' : 'px-3 py-2'
-            }`}
+            className={`w-full flex items-center gap-3 text-xs font-medium text-text-secondary hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors ${isCollapsed ? 'justify-center p-3' : 'px-3 py-2'
+              }`}
           >
             <LogOut className="w-4 h-4 shrink-0" />
             {!isCollapsed && <span>Sign Out</span>}
@@ -231,11 +223,10 @@ export default function AppLayout() {
                   data-notification-trigger="true"
                   aria-expanded={isOpen}
                   aria-haspopup="dialog"
-                  className={`p-2 rounded-xl bg-surface border transition-all active:scale-95 shadow-xs relative ${
-                    isOpen
+                  className={`p-2 rounded-xl bg-surface border transition-all active:scale-95 shadow-xs relative ${isOpen
                       ? 'border-accent/40 bg-surface-2 text-accent'
                       : 'border-line text-text-secondary hover:text-text'
-                  }`}
+                    }`}
                   title={`Notifications (${unreadCount} unread)`}
                   aria-label={`Notifications (${unreadCount} unread)`}
                 >
@@ -315,11 +306,10 @@ export default function AppLayout() {
                 data-notification-trigger="true"
                 aria-expanded={isOpen}
                 aria-haspopup="dialog"
-                className={`p-2 rounded-xl transition-all active:scale-95 relative group ${
-                  isOpen
+                className={`p-2 rounded-xl transition-all active:scale-95 relative group ${isOpen
                     ? 'bg-surface-2 text-text border border-line shadow-xs'
                     : 'text-text-secondary hover:text-text hover:bg-surface'
-                }`}
+                  }`}
                 title={`Notifications (${unreadCount} unread)`}
                 aria-label={`Notifications (${unreadCount} unread)`}
               >
@@ -352,7 +342,7 @@ export default function AppLayout() {
         </header>
 
         {/* Main Viewport Container */}
-        <main ref={mainRef} className="p-3 sm:p-5 lg:p-8 pb-24 lg:pb-8 flex-1 w-full max-w-[1560px]">
+        <main ref={mainRef} className="p-3 sm:p-5 lg:p-8 pb-24 lg:pb-8 flex-1 w-full max-w-[1560px] min-w-0 max-w-full overflow-x-hidden">
           <Outlet />
         </main>
       </div>
@@ -371,20 +361,18 @@ export default function AppLayout() {
             className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
-                location.pathname === '/dashboard' || location.pathname === '/'
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname === '/dashboard' || location.pathname === '/'
                   ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
-              }`}
+                }`}
             >
               <LayoutDashboard className="w-5 h-5 transition-transform" />
             </div>
             <span
-              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
-                location.pathname === '/dashboard' || location.pathname === '/'
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${location.pathname === '/dashboard' || location.pathname === '/'
                   ? 'text-accent font-semibold'
                   : 'text-text-secondary font-medium'
-              }`}
+                }`}
             >
               Dashboard
             </span>
@@ -396,20 +384,18 @@ export default function AppLayout() {
             className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
-                location.pathname.startsWith('/problems')
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname.startsWith('/problems')
                   ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
-              }`}
+                }`}
             >
               <FolderCode className="w-5 h-5 transition-transform" />
             </div>
             <span
-              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
-                location.pathname.startsWith('/problems')
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${location.pathname.startsWith('/problems')
                   ? 'text-accent font-semibold'
                   : 'text-text-secondary font-medium'
-              }`}
+                }`}
             >
               Problems
             </span>
@@ -421,20 +407,18 @@ export default function AppLayout() {
             className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
-                location.pathname.startsWith('/revision')
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname.startsWith('/revision')
                   ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
-              }`}
+                }`}
             >
               <RotateCw className="w-5 h-5 transition-transform" />
             </div>
             <span
-              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
-                location.pathname.startsWith('/revision')
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${location.pathname.startsWith('/revision')
                   ? 'text-accent font-semibold'
                   : 'text-text-secondary font-medium'
-              }`}
+                }`}
             >
               Revision
             </span>
@@ -446,20 +430,18 @@ export default function AppLayout() {
             className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
-                location.pathname.startsWith('/analytics')
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname.startsWith('/analytics')
                   ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
-              }`}
+                }`}
             >
               <BarChart2 className="w-5 h-5 transition-transform" />
             </div>
             <span
-              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
-                location.pathname.startsWith('/analytics')
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${location.pathname.startsWith('/analytics')
                   ? 'text-accent font-semibold'
                   : 'text-text-secondary font-medium'
-              }`}
+                }`}
             >
               Analytics
             </span>
@@ -471,24 +453,22 @@ export default function AppLayout() {
             className="group flex flex-col items-center justify-center py-1 transition-all active:scale-95 touch-manipulation"
           >
             <div
-              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${
-                location.pathname === '/profile' ||
-                location.pathname === '/settings' ||
-                location.pathname === '/account'
+              className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname === '/profile' ||
+                  location.pathname === '/settings' ||
+                  location.pathname === '/account'
                   ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
-              }`}
+                }`}
             >
               <UserIcon className="w-5 h-5 transition-transform" />
             </div>
             <span
-              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${
-                location.pathname === '/profile' ||
-                location.pathname === '/settings' ||
-                location.pathname === '/account'
+              className={`text-[11px] mt-1 tracking-tight truncate transition-colors ${location.pathname === '/profile' ||
+                  location.pathname === '/settings' ||
+                  location.pathname === '/account'
                   ? 'text-accent font-semibold'
                   : 'text-text-secondary font-medium'
-              }`}
+                }`}
             >
               Profile
             </span>

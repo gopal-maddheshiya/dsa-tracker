@@ -3,21 +3,14 @@ import {
   BarChart2,
   Clock,
   Zap,
-  Target,
-  Trophy,
   Calendar,
   Flame,
-  Award,
-  CheckCircle2,
   AlertTriangle,
   RotateCw,
   Search,
-  Filter,
   Layers,
-  ArrowUpRight,
   TrendingUp,
   Cpu,
-  ChevronRight,
   Loader2,
 } from 'lucide-react';
 import { getAdvanced } from '../api/analytics.api.js';
@@ -104,11 +97,10 @@ export default function AnalyticsPage() {
               key={tab.id}
               type="button"
               onClick={() => setScope(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                scope === tab.id
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${scope === tab.id
                   ? 'bg-accent text-white font-semibold shadow-xs'
                   : 'text-text-secondary hover:text-text'
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -390,9 +382,8 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="h-2 rounded-full bg-surface-2 overflow-hidden border border-line/40">
                         <div
-                          className={`h-full bg-gradient-to-r ${
-                            platformColors[item.platform] || platformColors.Other
-                          } rounded-full transition-all duration-500`}
+                          className={`h-full bg-gradient-to-r ${platformColors[item.platform] || platformColors.Other
+                            } rounded-full transition-all duration-500`}
                           style={{ width: `${Math.max(4, item.percentage)}%` }}
                         />
                       </div>
@@ -432,18 +423,16 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="w-full max-w-[32px] bg-surface-2 rounded-t-lg overflow-hidden flex flex-col justify-end h-28 border-t border-x border-line">
                         <div
-                          className={`w-full rounded-t-lg transition-all duration-500 ${
-                            isPeak
+                          className={`w-full rounded-t-lg transition-all duration-500 ${isPeak
                               ? 'bg-accent shadow-[0_0_12px_rgba(237,134,65,0.4)]'
                               : 'bg-surface-hover group-hover:bg-accent/40'
-                          }`}
+                            }`}
                           style={{ height: `${heightPct}%` }}
                         />
                       </div>
                       <span
-                        className={`text-[10px] font-semibold ${
-                          isPeak ? 'text-accent' : 'text-text-secondary'
-                        }`}
+                        className={`text-[10px] font-semibold ${isPeak ? 'text-accent' : 'text-text-secondary'
+                          }`}
                       >
                         {dayItem.day}
                       </span>
@@ -463,7 +452,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* SECTION 4: COMPREHENSIVE TOPIC MASTERY MATRIX */}
-          <div className="bg-surface border border-line rounded-2xl p-5 sm:p-6 shadow-xs space-y-6">
+          <div className="bg-surface border border-line rounded-2xl p-5 sm:p-6 shadow-xs space-y-6 overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
@@ -503,11 +492,10 @@ export default function AnalyticsPage() {
                       key={tab.id}
                       type="button"
                       onClick={() => setMasteryFilter(tab.id)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
-                        masteryFilter === tab.id
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${masteryFilter === tab.id
                           ? 'bg-accent text-white font-semibold'
                           : 'text-text-secondary hover:text-text'
-                      }`}
+                        }`}
                     >
                       {tab.label}
                     </button>
@@ -540,8 +528,8 @@ export default function AnalyticsPage() {
                         topicItem.masteryTier === 'Mastered'
                           ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25'
                           : topicItem.masteryTier === 'Proficient'
-                          ? 'bg-amber-500/15 text-amber-400 border-amber-500/25'
-                          : 'bg-rose-500/15 text-rose-400 border-rose-500/25';
+                            ? 'bg-amber-500/15 text-amber-400 border-amber-500/25'
+                            : 'bg-rose-500/15 text-rose-400 border-rose-500/25';
 
                       return (
                         <tr

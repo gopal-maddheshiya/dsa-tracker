@@ -201,11 +201,10 @@ export default function AttemptFormModal({
                     key={opt.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, status: opt.value })}
-                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-all duration-150 active:scale-[0.98] ${
-                      isSelected
+                    className={`flex flex-col items-start p-3 rounded-lg border text-left transition-all duration-150 active:scale-[0.98] ${isSelected
                         ? opt.activeColor
                         : 'border-line bg-surface-2 hover:bg-surface-hover text-text-secondary'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-1.5 font-medium text-xs">
                       <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -257,11 +256,10 @@ export default function AttemptFormModal({
                         onClick={() =>
                           setFormData({ ...formData, timeTakenMinutes: mins.toString() })
                         }
-                        className={`px-1.5 py-0.5 text-[9px] font-mono rounded border transition-all active:scale-95 ${
-                          isSelected
+                        className={`px-1.5 py-0.5 text-[9px] font-mono rounded border transition-all active:scale-95 ${isSelected
                             ? 'bg-accent/15 text-accent border-accent/40 font-semibold shadow-xs'
                             : 'bg-surface-2 text-muted hover:text-text hover:bg-surface-hover border-line'
-                        }`}
+                          }`}
                       >
                         {mins}m
                       </button>

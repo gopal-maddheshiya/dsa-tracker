@@ -114,9 +114,8 @@ export default function LogoMark({
           style={{
             background: 'radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.65) 0%, rgba(234, 88, 12, 0.2) 55%, transparent 75%)',
           }}
-          className={`absolute w-3/4 h-3/4 rounded-full pointer-events-none ${
-            animated ? 'animate-[pulse_1.8s_ease-in-out_infinite]' : ''
-          }`}
+          className={`absolute w-3/4 h-3/4 rounded-full pointer-events-none ${animated ? 'animate-[pulse_1.8s_ease-in-out_infinite]' : ''
+            }`}
         />
 
         {/* Pure Vector Brand Mark (< ⚡ >) */}

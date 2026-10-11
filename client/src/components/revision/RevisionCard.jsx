@@ -39,10 +39,10 @@ export default function RevisionCard({ item, index, onQuickLog }) {
   const borderAccentClass = isFirst
     ? 'border-l-4 border-l-accent ring-1 ring-accent/25 bg-surface/95 shadow-xs'
     : timing.state === 'overdue'
-    ? 'border-l-4 border-l-rose-500/80 hover:border-l-rose-500 bg-surface'
-    : timing.state === 'due'
-    ? 'border-l-4 border-l-amber-500/80 hover:border-l-amber-500 bg-surface'
-    : 'border-l-4 border-l-line hover:border-l-line-hover bg-surface';
+      ? 'border-l-4 border-l-rose-500/80 hover:border-l-rose-500 bg-surface'
+      : timing.state === 'due'
+        ? 'border-l-4 border-l-amber-500/80 hover:border-l-amber-500 bg-surface'
+        : 'border-l-4 border-l-line hover:border-l-line-hover bg-surface';
 
   return (
     <div
@@ -54,11 +54,10 @@ export default function RevisionCard({ item, index, onQuickLog }) {
           {/* Rank Badge */}
           <div className="flex flex-col items-center shrink-0 pt-0.5">
             <span
-              className={`font-mono text-xs font-semibold px-2 py-1 rounded-md border tracking-wide ${
-                isFirst
+              className={`font-mono text-xs font-semibold px-2 py-1 rounded-md border tracking-wide ${isFirst
                   ? 'bg-accent/15 text-accent border-accent/40 shadow-xs font-bold'
                   : 'bg-surface-2 text-text-secondary border-line'
-              }`}
+                }`}
             >
               {formatRank(index)}
             </span>

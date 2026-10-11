@@ -11,7 +11,6 @@ import {
   History,
   AlertCircle,
   RotateCcw,
-  Sparkles,
 } from 'lucide-react';
 import problemsApi from '../api/problems.api';
 import {
@@ -413,8 +412,8 @@ export default function ProblemDetailPage() {
               const nodeClass = isSolved
                 ? 'bg-emerald-400 ring-4 ring-emerald-500/15'
                 : isStruggled
-                ? 'bg-rose-400 ring-4 ring-rose-500/15'
-                : 'bg-amber-400 ring-4 ring-amber-500/15';
+                  ? 'bg-rose-400 ring-4 ring-rose-500/15'
+                  : 'bg-amber-400 ring-4 ring-amber-500/15';
 
               return (
                 <div key={attempt.id || index} className="relative group">

@@ -145,11 +145,10 @@ export default function SignupPage() {
               placeholder="Ada Lovelace"
               disabled={submitting}
               autoComplete="name"
-              className={`w-full h-9 px-3 text-xs bg-bg/80 border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                fieldErrors.name
+              className={`w-full h-9 px-3 text-xs bg-bg/80 border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${fieldErrors.name
                   ? 'border-danger focus:border-danger focus:ring-danger'
                   : 'border-line focus:border-accent focus:ring-accent'
-              }`}
+                }`}
             />
             {fieldErrors.name && (
               <p className="mt-1 text-[11px] text-danger font-medium">
@@ -175,11 +174,10 @@ export default function SignupPage() {
               placeholder="developer@example.com"
               disabled={submitting}
               autoComplete="email"
-              className={`w-full h-9 px-3 text-xs bg-bg/80 border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                fieldErrors.email
+              className={`w-full h-9 px-3 text-xs bg-bg/80 border rounded-lg text-text placeholder:text-muted focus:outline-none focus:ring-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${fieldErrors.email
                   ? 'border-danger focus:border-danger focus:ring-danger'
                   : 'border-line focus:border-accent focus:ring-accent'
-              }`}
+                }`}
             />
             {fieldErrors.email && (
               <p className="mt-1 text-[11px] text-danger font-medium">

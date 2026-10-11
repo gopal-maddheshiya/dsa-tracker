@@ -1,155 +1,200 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { ShieldCheck } from 'lucide-react';
 import LogoMark from '../common/LogoMark';
 
 /**
- * AuthShell: Responsive split layout for authentication pages.
- * Desktop: Identity/values panel on the left, centered form card on the right.
- * Mobile: Collapses to a single-column, centered form with brand header.
+ * Curated developer mindsets & DSA practice slogans.
+ * Rotates dynamically on refresh and on gentle timed intervals.
  */
-export default function AuthShell({ children, title, subtitle }) {
-  const { theme, toggleTheme } = useTheme();
+const AUTH_SLOGANS = [
+  'Better problems. Better thinking. A better you.',
+  'Discipline today. Better opportunities tomorrow.',
+  'Same problem. Stronger you.',
+  'Patterns over memorization. Progress over perfection.',
+  'Consistency is the code that solves everything.',
+  'Small deliberate practice, exponential mastery.',
+  'Turn every failed attempt into intuition.',
+  'Master the fundamentals. The rest is implementation.',
+  'One clean solution at a time.',
+  'Don’t just solve problems. Build problem-solving instincts.',
+];
 
-  const pillars = [
-    {
-      label: 'Topic Weakness Detection',
-      desc: 'Pinpoint conceptual friction across Dynamic Programming, Graphs, and Trees.',
-    },
-    {
-      label: 'Deterministic Spaced Repetition',
-      desc: 'Scheduled problem revisions calculated by difficulty and past recall confidence.',
-    },
-    {
-      label: 'Engineering Practice Analytics',
-      desc: 'Transparent velocity metrics and consistency tracking without visual noise.',
-    },
-  ];
+function DynamicSlogan() {
+  const [index, setIndex] = useState(() => Math.floor(Math.random() * AUTH_SLOGANS.length));
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    // Gentle slow rotation every 12 seconds with smooth crossfade
+    const interval = setInterval(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % AUTH_SLOGANS.length);
+        setIsFading(false);
+      }, 600);
+    }, 12000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-bg text-text flex flex-col justify-between selection:bg-accent/20 selection:text-accent relative overflow-x-hidden">
-      {/* Ambient background glows */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/3 -right-32 w-96 h-96 bg-indigo-500/5 rounded-full blur-[140px] pointer-events-none" />
+    <div className="hidden sm:flex items-center text-right justify-end max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+      <span
+        className={`text-xs font-serif italic text-zinc-300/90 drop-shadow-sm transition-opacity duration-500 ease-in-out ${isFading ? 'opacity-0' : 'opacity-100'
+          }`}
+      >
+        &ldquo;{AUTH_SLOGANS[index]}&rdquo;
+      </span>
+    </div>
+  );
+}
 
-      {/* Desktop Top-Right Theme Toggle */}
-      <div className="hidden lg:block absolute top-6 right-8 z-20">
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="p-2.5 rounded-xl bg-surface/80 backdrop-blur-md border border-line/80 text-text-secondary hover:text-text hover:bg-surface active:scale-95 transition-all shadow-xs group"
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-300" />
-          ) : (
-            <Moon className="w-4 h-4 text-indigo-500 group-hover:-rotate-12 transition-transform duration-300" />
-          )}
-        </button>
+/**
+ * AuthShell: Cinematic Twilight Developer Workspace Canvas.
+ * Directly integrates the photorealistic ambient developer desk backdrop,
+ * glowing warm amber lighting, and precision obsidian glassmorphic card.
+ * Fits within 100vh on desktop with zero scrolling (bina scroll ke).
+ */
+export default function AuthShell({
+  children,
+  title,
+  subtitle,
+  sideShowcase = null,
+}) {
+  return (
+    <div
+      className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden bg-[#09090d] text-zinc-100 flex flex-col justify-between selection:bg-orange-500/30 selection:text-orange-200 relative font-sans"
+    >
+      {/* --- CINEMATIC PHOTOREALISTIC DESK BACKDROP --- */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        {/* Photorealistic Developer Workspace Backdrop */}
+        <img
+          src="/cinematic-desk.jpg"
+          alt="Cinematic Developer Desk"
+          className="w-full h-full object-cover object-left lg:object-center filter brightness-[0.85] contrast-[1.05] scale-[1.01]"
+        />
+
+        {/* Ambient Dark Gradients & Vignette for Contrast & Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/75" />
+
+        {/* Subtle Ambient Radial Lighting around Auth Card */}
+        <div className="absolute top-1/2 right-[18%] -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-bl from-orange-500/15 via-amber-500/8 to-transparent rounded-full blur-[160px]" />
       </div>
 
-      {/* Top Mobile Brand Bar */}
-      <header className="lg:hidden p-4 sm:p-5 border-b border-line/70 bg-surface/70 backdrop-blur-md flex items-center justify-between sticky top-0 z-30">
-        <Link to="/" className="inline-flex items-center gap-2.5">
-          <LogoMark size={30} />
+      {/* --- TOP GLOBAL NAVIGATION HEADER --- */}
+      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pt-4 pb-2 sm:pt-5 sm:pb-3 flex items-center justify-between relative z-20 shrink-0">
+        {/* Left Signature Brand Identity */}
+        <Link to="/" className="inline-flex items-center gap-3 group shrink-0" title="DSA Tracker Home">
+          <LogoMark size="sm" animated={true} />
           <div className="flex flex-col">
-            <span className="font-semibold text-sm tracking-tight text-text leading-tight">
+            <span className="font-bold text-sm tracking-tight leading-tight text-white group-hover:text-amber-400 transition-colors drop-shadow-sm">
               DSA Tracker
             </span>
-            <span className="text-[10px] font-mono text-muted leading-none">
-              prep workspace
+            <span className="text-[10px] font-mono leading-none mt-0.5 text-zinc-300 drop-shadow-sm">
+              Practice · Analyze · Improve
             </span>
           </div>
         </Link>
 
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text active:scale-95 transition-all shadow-xs"
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-amber-400" />
-          ) : (
-            <Moon className="w-4 h-4 text-indigo-500" />
-          )}
-        </button>
+        {/* Right Dynamic Slogan (Rotates on refresh & slow intervals) */}
+        <DynamicSlogan />
       </header>
 
-      {/* Main Container */}
-      <div className="flex-1 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 items-center p-4 sm:p-6 lg:p-12 gap-8 lg:gap-16 relative z-10">
-        {/* Left Side: Product Identity & Value Pillars (Desktop only) */}
-        <div className="hidden lg:flex lg:col-span-6 flex-col justify-between space-y-10 pr-6">
-          <div>
-            <Link to="/" className="inline-flex items-center gap-2.5 mb-8 group">
-              <LogoMark size={36} />
-              <div className="flex flex-col">
-                <span className="font-semibold text-base tracking-tight text-text leading-tight group-hover:text-accent transition-colors">
-                  DSA Tracker
-                </span>
-                <span className="text-[10px] font-mono text-muted leading-none">
-                  prep workspace
-                </span>
-              </div>
-            </Link>
-
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[11px] font-mono mb-4">
-              <span>✦</span>
-              <span>Deterministic Spaced Repetition</span>
+      {/* --- MAIN WORKSPACE VIEWPORT (Fitted strictly within 100vh on desktop) --- */}
+      <main className="flex-1 min-h-0 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-2 sm:py-4 flex items-center justify-center relative z-10">
+        {sideShowcase ? (
+          /* --- 2-COLUMN SPLIT (Showcase Left + Glowing Card Right) --- */
+          <div className="w-full h-full max-h-[660px] grid grid-cols-1 lg:grid-cols-12 items-center gap-6 lg:gap-8 xl:gap-14">
+            {/* Left Column: Product Value Showcase floating over desk */}
+            <div className="hidden lg:flex lg:col-span-7 xl:col-span-7 h-full flex-col justify-start pr-2 xl:pr-6">
+              {sideShowcase}
             </div>
 
-            <h1 className="text-3xl font-semibold tracking-tight text-text leading-tight">
-              Track algorithm practice with deliberate intent.
-            </h1>
-            <p className="text-sm text-text-secondary mt-3 max-w-md leading-relaxed">
-              Transform problem-solving history into actionable weakness detection, retention curves, and revision schedules.
-            </p>
-          </div>
+            {/* Right Column / Mobile Center: Glowing Frosted Glass Auth Card */}
+            <div className="lg:col-span-5 xl:col-span-5 w-full flex flex-col items-center justify-center">
+              {/* Pure Glassmorphic Auth Card */}
+              <div className="relative w-full max-w-[420px]">
+                {/* Subtle soft ambient depth */}
+                <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-white/[0.04] via-amber-500/6 to-transparent blur-xl opacity-60 pointer-events-none" />
 
-          {/* Pillars List */}
-          <div className="space-y-4 border-t border-line/70 pt-8">
-            {pillars.map((pillar, idx) => (
-              <div key={idx} className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-text">{pillar.label}</div>
-                  <div className="text-[11px] text-muted mt-0.5 leading-normal">
-                    {pillar.desc}
+                {/* Main Glassmorphic Card Surface */}
+                <div className="relative w-full bg-black/40 backdrop-blur-2xl border border-white/[0.13] hover:border-white/[0.2] rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_24px_60px_rgba(0,0,0,0.7)] text-zinc-100 overflow-hidden transition-all">
+                  {/* Specular Edge Highlights */}
+                  <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/20 pointer-events-none rounded-2xl sm:rounded-3xl" />
+
+                  {/* Clean Unified Brand & Action Header */}
+                  {(title || subtitle) && (
+                    <div className="flex items-center gap-3.5 mb-5 relative z-10">
+                      <LogoMark size="md" animated={false} />
+                      <div>
+                        {title && (
+                          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
+                            {title}
+                          </h2>
+                        )}
+                        {subtitle && (
+                          <p className="text-xs text-zinc-400 mt-0.5">
+                            {subtitle}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Form & Actions */}
+                  <div className="relative z-10">
+                    {children}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          <div className="text-xs font-mono text-muted/80">
-            Developer Productivity System · Engineering Practice
-          </div>
-        </div>
-
-        {/* Right Side: Centered Authentication Form Card */}
-        <div className="lg:col-span-6 w-full flex justify-center">
-          <div className="max-w-md w-full bg-surface/90 backdrop-blur-xl border border-line/80 rounded-2xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.06)] relative overflow-hidden">
-            {/* Subtle card top glow line */}
-            <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
-
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-text tracking-tight">{title}</h2>
-              <p className="text-xs text-text-secondary mt-1">{subtitle}</p>
             </div>
-
-            {children}
           </div>
-        </div>
-      </div>
+        ) : (
+          /* --- SINGLE-COLUMN CENTERED (For Signup / Password Reset) --- */
+          <div className="w-full max-w-[420px] flex flex-col items-center">
+            <div className="relative w-full">
+              <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-white/[0.04] via-amber-500/6 to-transparent blur-xl opacity-60 pointer-events-none" />
+              <div className="relative w-full bg-black/40 backdrop-blur-2xl border border-white/[0.13] hover:border-white/[0.2] rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_24px_60px_rgba(0,0,0,0.7)] text-zinc-100 overflow-hidden transition-all">
+                <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/20 pointer-events-none rounded-2xl sm:rounded-3xl" />
 
-      {/* Bottom Footer */}
-      <footer className="p-4 border-t border-line/60 text-center text-xs font-mono text-muted relative z-10">
-        DSA / Interview Prep Tracker · Personal Engineering Practice
+                {(title || subtitle) && (
+                  <div className="flex items-center gap-3.5 mb-5 relative z-10">
+                    <LogoMark size="md" animated={false} />
+                    <div>
+                      {title && (
+                        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-tight">
+                          {title}
+                        </h2>
+                      )}
+                      {subtitle && (
+                        <p className="text-xs text-zinc-400 mt-0.5">
+                          {subtitle}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div className="relative z-10">
+                  {children}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* --- MINIMALIST COMPACT FOOTER --- */}
+      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-2.5 sm:py-3 border-t border-white/[0.06] text-[11px] font-mono text-zinc-400 relative z-10 flex flex-col sm:flex-row items-center justify-between gap-1.5 shrink-0 backdrop-blur-xs">
+        <div className="flex items-center gap-2 text-zinc-300">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <span>256-bit Encrypted Session · Offline PWA Ready</span>
+        </div>
+        <div className="text-zinc-400">
+          DSA Tracker · Deliberate Engineering Practice
+        </div>
       </footer>
     </div>
   );

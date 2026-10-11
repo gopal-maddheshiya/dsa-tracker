@@ -79,11 +79,11 @@ export default function HeatmapGrid({
             {/* Dynamic Month Headers aligned to starting week column */}
             <div className="flex gap-[3px] sm:gap-1 pl-6 sm:pl-7 mb-1 select-none h-3.5 w-full">
               {weeks.map((week, wIdx) => {
-                 const m = monthHeaders.find((item) => item.weekIndex === wIdx);
+                const m = monthHeaders.find((item) => item.weekIndex === wIdx);
                 return (
                   <div key={wIdx} className="flex-1 min-w-[9px] relative">
                     {m && (
-                      <span className="absolute left-0 top-0 text-[10px] font-mono text-text-secondary leading-none whitespace-nowrap">
+                      <span className={`absolute top-0 text-[10px] font-mono text-text-secondary leading-none whitespace-nowrap ${wIdx >= weeks.length - 2 ? 'right-0' : 'left-0'}`}>
                         {m.label}
                       </span>
                     )}
@@ -125,9 +125,8 @@ export default function HeatmapGrid({
                             });
                           }}
                           onMouseLeave={() => setHoveredCell(null)}
-                          className={`aspect-square w-full rounded-[2.5px] sm:rounded-[3px] border cursor-pointer transition-all duration-150 ${colorClass} ${
-                            isHovered ? 'ring-2 ring-accent z-10 scale-125' : ''
-                          }`}
+                          className={`aspect-square w-full rounded-[2.5px] sm:rounded-[3px] border cursor-pointer transition-all duration-150 ${colorClass} ${isHovered ? 'ring-2 ring-accent z-10 scale-125' : ''
+                            }`}
                         />
                       );
                     })}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCw, BookOpen, CheckCircle2, AlertCircle, ArrowRight, Search, X, Tag, Sparkles, Filter } from 'lucide-react';
+import { RotateCw, BookOpen, CheckCircle2, AlertCircle, ArrowRight, Search, X, Tag, Filter } from 'lucide-react';
 import { getRevisionQueue, getSummary, getHeatmap } from '../api/analytics.api.js';
 import problemsApi from '../api/problems.api.js';
 import RevisionSummary from '../components/revision/RevisionSummary.jsx';
@@ -238,7 +238,7 @@ export default function RevisionPage() {
 
         {/* Filter & Search Control Panel */}
         {!loading && queue.length > 0 && (
-          <div className="p-3 sm:p-3.5 rounded-xl bg-surface border border-line shadow-xs space-y-2.5">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-surface border border-line shadow-xs space-y-2.5 min-w-0 max-w-full overflow-hidden">
             {/* Row 1: Urgency Status Tabs + Search Input */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
               {/* Urgency Tabs */}
@@ -246,11 +246,10 @@ export default function RevisionPage() {
                 <button
                   type="button"
                   onClick={() => setFilterUrgency('all')}
-                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
-                    filterUrgency === 'all'
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${filterUrgency === 'all'
                       ? 'bg-accent text-white shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-hover border border-line'
-                  }`}
+                    }`}
                 >
                   <span>All</span>
                   <span className={`text-[10px] px-1 rounded ${filterUrgency === 'all' ? 'bg-black/20 text-white font-semibold' : 'text-muted'}`}>
@@ -261,11 +260,10 @@ export default function RevisionPage() {
                 <button
                   type="button"
                   onClick={() => setFilterUrgency(filterUrgency === 'due' ? 'all' : 'due')}
-                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
-                    filterUrgency === 'due'
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${filterUrgency === 'due'
                       ? 'bg-amber-500 text-white shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-amber-400 hover:bg-surface-hover border border-line'
-                  }`}
+                    }`}
                 >
                   <span>⚡ Due now</span>
                   <span className={`text-[10px] px-1 rounded ${filterUrgency === 'due' ? 'bg-black/20 text-white font-semibold' : 'text-amber-400/90'}`}>
@@ -276,11 +274,10 @@ export default function RevisionPage() {
                 <button
                   type="button"
                   onClick={() => setFilterUrgency(filterUrgency === 'overdue' ? 'all' : 'overdue')}
-                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
-                    filterUrgency === 'overdue'
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${filterUrgency === 'overdue'
                       ? 'bg-rose-500 text-white shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-rose-400 hover:bg-surface-hover border border-line'
-                  }`}
+                    }`}
                 >
                   <span>⚠️ Overdue</span>
                   <span className={`text-[10px] px-1 rounded ${filterUrgency === 'overdue' ? 'bg-black/20 text-white font-semibold' : 'text-rose-400/90'}`}>
@@ -291,11 +288,10 @@ export default function RevisionPage() {
                 <button
                   type="button"
                   onClick={() => setFilterUrgency(filterUrgency === 'hard' ? 'all' : 'hard')}
-                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${
-                    filterUrgency === 'hard'
+                  className={`whitespace-nowrap shrink-0 h-8 px-3 rounded-lg text-xs font-mono font-medium transition-all active:scale-95 inline-flex items-center gap-1.5 ${filterUrgency === 'hard'
                       ? 'bg-purple-600 text-white shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-purple-400 hover:bg-surface-hover border border-line'
-                  }`}
+                    }`}
                 >
                   <span>Hard</span>
                   <span className={`text-[10px] px-1 rounded ${filterUrgency === 'hard' ? 'bg-black/20 text-white font-semibold' : 'text-muted'}`}>
@@ -336,11 +332,10 @@ export default function RevisionPage() {
                 <button
                   type="button"
                   onClick={() => setFilterTopic('')}
-                  className={`whitespace-nowrap shrink-0 h-6 px-2.5 rounded-full text-[11px] font-mono transition-all active:scale-95 inline-flex items-center gap-1 ${
-                    !filterTopic
+                  className={`whitespace-nowrap shrink-0 h-6 px-2.5 rounded-full text-[11px] font-mono transition-all active:scale-95 inline-flex items-center gap-1 ${!filterTopic
                       ? 'bg-accent/15 text-accent border border-accent/30 font-semibold'
                       : 'bg-surface-2/70 text-text-secondary hover:text-text hover:bg-surface-2 border border-line'
-                  }`}
+                    }`}
                 >
                   All Topics
                 </button>
@@ -352,11 +347,10 @@ export default function RevisionPage() {
                       key={t}
                       type="button"
                       onClick={() => setFilterTopic(isSelected ? '' : t)}
-                      className={`whitespace-nowrap shrink-0 h-6 px-2.5 rounded-full text-[11px] font-mono transition-all active:scale-95 inline-flex items-center gap-1.5 ${
-                        isSelected
+                      className={`whitespace-nowrap shrink-0 h-6 px-2.5 rounded-full text-[11px] font-mono transition-all active:scale-95 inline-flex items-center gap-1.5 ${isSelected
                           ? 'bg-accent text-white font-semibold shadow-xs'
                           : 'bg-surface-2/70 text-text-secondary hover:text-text hover:bg-surface-2 border border-line'
-                      }`}
+                        }`}
                     >
                       <span>{t}</span>
                       <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-muted'}`}>

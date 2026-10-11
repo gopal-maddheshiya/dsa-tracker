@@ -5,7 +5,6 @@ import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import AuthLoader from '../components/common/AuthLoader';
 import { lazyWithRetry } from '../lib/lazyRetry';
-import { Code2 } from 'lucide-react';
 
 // Resilient route-level code-splitting with automatic chunk retry
 const DashboardPage = lazyWithRetry(() => import('../pages/DashboardPage'));
@@ -15,7 +14,6 @@ const RevisionPage = lazyWithRetry(() => import('../pages/RevisionPage'));
 const AnalyticsPage = lazyWithRetry(() => import('../pages/AnalyticsPage'));
 const ProfilePage = lazyWithRetry(() => import('../pages/ProfilePage'));
 const SettingsPage = lazyWithRetry(() => import('../pages/SettingsPage'));
-const AccountPage = lazyWithRetry(() => import('../pages/AccountPage'));
 const LoginPage = lazyWithRetry(() => import('../pages/LoginPage'));
 const SignupPage = lazyWithRetry(() => import('../pages/SignupPage'));
 const ResetPasswordPage = lazyWithRetry(() => import('../pages/ResetPasswordPage'));

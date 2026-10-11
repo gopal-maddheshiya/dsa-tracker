@@ -105,69 +105,68 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
           </div>
         </div>
 
-      {/* 2. Due Today (Urgency Focal Point) */}
-      <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-text-secondary tracking-wide">Due today</span>
-          <span
-            className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
-              dueCount > 0
-                ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
-                : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-            }`}
-          >
-            {dueCount > 0 ? 'Action needed' : 'All clear'}
-          </span>
-        </div>
-        <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-2">
-          <span>{dueCount}</span>
-          {dueCount > 0 && (
-            <span className="text-xs font-sans font-normal text-amber-400/90">
-              ready for review
+        {/* 2. Due Today (Urgency Focal Point) */}
+        <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-text-secondary tracking-wide">Due today</span>
+            <span
+              className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${dueCount > 0
+                  ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+                  : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                }`}
+            >
+              {dueCount > 0 ? 'Action needed' : 'All clear'}
             </span>
+          </div>
+          <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-2">
+            <span>{dueCount}</span>
+            {dueCount > 0 && (
+              <span className="text-xs font-sans font-normal text-amber-400/90">
+                ready for review
+              </span>
+            )}
+          </div>
+          <div className="text-[11px] text-muted">
+            At or past target revision interval
+          </div>
+        </div>
+
+        {/* 3. 7-Day Velocity / Review Throughput */}
+        <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-indigo-500/70 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-text-secondary tracking-wide">
+              {velocity !== null ? '7-Day velocity' : 'Most urgent'}
+            </span>
+            <span className="text-[10px] font-mono text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded">
+              {velocity !== null ? 'Throughput' : 'Rank 01'}
+            </span>
+          </div>
+          {velocity !== null ? (
+            <>
+              <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-1.5">
+                <span>{velocity}</span>
+                <span className="text-xs font-sans font-normal text-muted">
+                  {velocity === 1 ? 'review' : 'reviews'}
+                </span>
+              </div>
+              <div className="text-[11px] text-muted">
+                Completed attempts in past 7 days
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="my-2 text-base sm:text-lg font-semibold tracking-tight text-text truncate">
+                {topItem ? topItem.title : '—'}
+              </div>
+              <div className="text-[11px] text-muted truncate">
+                {topItem
+                  ? `Priority ${formatPriorityScore(topItem.priorityScore)} · ${STATUS_LABELS[topItem.latestStatus] || topItem.latestStatus || 'Recorded'}`
+                  : 'No items in queue'}
+              </div>
+            </>
           )}
         </div>
-        <div className="text-[11px] text-muted">
-          At or past target revision interval
-        </div>
-      </div>
-
-      {/* 3. 7-Day Velocity / Review Throughput */}
-      <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-indigo-500/70 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-text-secondary tracking-wide">
-            {velocity !== null ? '7-Day velocity' : 'Most urgent'}
-          </span>
-          <span className="text-[10px] font-mono text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded">
-            {velocity !== null ? 'Throughput' : 'Rank 01'}
-          </span>
-        </div>
-        {velocity !== null ? (
-          <>
-            <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-1.5">
-              <span>{velocity}</span>
-              <span className="text-xs font-sans font-normal text-muted">
-                {velocity === 1 ? 'review' : 'reviews'}
-              </span>
-            </div>
-            <div className="text-[11px] text-muted">
-              Completed attempts in past 7 days
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="my-2 text-base sm:text-lg font-semibold tracking-tight text-text truncate">
-              {topItem ? topItem.title : '—'}
-            </div>
-            <div className="text-[11px] text-muted truncate">
-              {topItem
-                ? `Priority ${formatPriorityScore(topItem.priorityScore)} · ${STATUS_LABELS[topItem.latestStatus] || topItem.latestStatus || 'Recorded'}`
-                : 'No items in queue'}
-            </div>
-          </>
-        )}
       </div>
     </div>
-  </div>
-);
+  );
 }
