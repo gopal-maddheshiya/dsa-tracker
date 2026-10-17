@@ -160,18 +160,32 @@ async function runModelTests() {
       userId: testUserId,
       status: 'SOLVED',
       timeTakenMinutes: 25,
+      approach: 'BRUTE_FORCE',
+      code: 'public class Solution { public int solve() { return 42; } }',
       notes: 'Solved using hash map for O(n) lookup time',
     });
     await validAttempt.validate();
     assert.strictEqual(validAttempt.status, 'solved', 'Attempt status should be lowercased');
+    assert.strictEqual(validAttempt.approach, 'brute_force', 'Attempt approach should be lowercased');
+    assert.strictEqual(validAttempt.code, 'public class Solution { public int solve() { return 42; } }');
     assert.ok(validAttempt.attemptedAt instanceof Date, 'Attempt attemptedAt must default to Date');
+
+    // Default approach and code check
+    const defaultAttempt = new Attempt({
+      problemId: testProblemId,
+      userId: testUserId,
+      status: 'solved',
+    });
+    assert.strictEqual(defaultAttempt.approach, 'optimal', 'Attempt approach should default to optimal');
+    assert.strictEqual(defaultAttempt.code, '', 'Attempt code should default to empty string');
     console.log('✓ Attempt validation passed');
 
-    // Attempt rejection on invalid status / negative time
+    // Attempt rejection on invalid status / negative time / invalid approach
     const invalidAttempt = new Attempt({
       problemId: testProblemId,
       userId: testUserId,
       status: 'partially_solved',
+      approach: 'invalid_approach_category',
       timeTakenMinutes: -10,
     });
     let attemptValidationError = null;
@@ -182,6 +196,7 @@ async function runModelTests() {
     }
     assert.ok(attemptValidationError, 'Invalid attempt should fail validation');
     assert.ok(attemptValidationError.errors.status, 'Invalid status enum should fail');
+    assert.ok(attemptValidationError.errors.approach, 'Invalid approach enum should fail');
     assert.ok(attemptValidationError.errors.timeTakenMinutes, 'Negative time taken should fail');
     console.log('✓ Attempt invalid inputs correctly rejected');
 

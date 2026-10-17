@@ -20,12 +20,15 @@ async function testProblemLayoutAndComponents() {
   const problemsPagePath = path.join(pagesDir, 'ProblemsPage.jsx');
   const problemDetailPagePath = path.join(pagesDir, 'ProblemDetailPage.jsx');
 
+  const paginationPath = path.join(componentsDir, 'ProblemPagination.jsx');
+
   // Verify all files exist
   assert.ok(fs.existsSync(statsBarPath), 'ProblemStatsBar.jsx must exist');
   assert.ok(fs.existsSync(filtersPath), 'ProblemFilters.jsx must exist');
   assert.ok(fs.existsSync(tablePath), 'ProblemTable.jsx must exist');
   assert.ok(fs.existsSync(mobileListPath), 'ProblemMobileList.jsx must exist');
   assert.ok(fs.existsSync(badgesPath), 'ProblemBadges.jsx must exist');
+  assert.ok(fs.existsSync(paginationPath), 'ProblemPagination.jsx must exist');
   assert.ok(fs.existsSync(problemsPagePath), 'ProblemsPage.jsx must exist');
   assert.ok(fs.existsSync(problemDetailPagePath), 'ProblemDetailPage.jsx must exist');
 
@@ -54,7 +57,8 @@ async function testProblemLayoutAndComponents() {
   assert.ok(tableContent.includes('border-l-amber-500'), 'ProblemTable must have amber stripe for revisit problems');
   assert.ok(tableContent.includes('border-l-rose-500'), 'ProblemTable must have rose stripe for struggled problems');
   assert.ok(tableContent.includes('renderSortIndicator'), 'ProblemTable must render column sort indicators');
-  console.log('✓ ProblemTable rounded-2xl container and semantic status stripes verified');
+  assert.ok(!tableContent.includes('min-w-[240px]'), 'ProblemTable must not force bulky min-w-[240px]');
+  console.log('✓ ProblemTable rounded-2xl container, zero-scroll ergonomics, and semantic stripes verified');
 
   // 4. Test ProblemMobileList touch targets and card stripes
   const mobileContent = fs.readFileSync(mobileListPath, 'utf8');
@@ -72,12 +76,23 @@ async function testProblemLayoutAndComponents() {
   assert.ok(badgesContent.includes('brandStyles'), 'Platform badges must support platform brand styles');
   console.log('✓ ProblemBadges glowing indicator dots and platform branding verified');
 
-  // 6. Test ProblemsPage integration
+  // 6. Test ProblemPagination component
+  const paginationContent = fs.readFileSync(paginationPath, 'utf8');
+  assert.ok(paginationContent.includes('pageSize = 10'), 'ProblemPagination must default to chunks of 10');
+  assert.ok(paginationContent.includes('getPageNumbers'), 'ProblemPagination must compute page numbers with ellipsis');
+  assert.ok(paginationContent.includes('onPageChange'), 'ProblemPagination must support page change callback');
+  assert.ok(paginationContent.includes('onPageSizeChange'), 'ProblemPagination must support page size callback');
+  console.log('✓ ProblemPagination 10-chunk defaults, navigation, and page sizing verified');
+
+  // 7. Test ProblemsPage integration
   const pageContent = fs.readFileSync(problemsPagePath, 'utf8');
   assert.ok(pageContent.includes('<ProblemFilters'), 'ProblemsPage must render ProblemFilters');
+  assert.ok(pageContent.includes('<ProblemPagination'), 'ProblemsPage must render ProblemPagination');
+  assert.ok(pageContent.includes('paginatedProblems'), 'ProblemsPage must slice problems for active page chunk');
+  assert.ok(pageContent.includes('pageSize = useState(10)') || pageContent.includes('useState(10)'), 'ProblemsPage must default page size to 10');
   assert.ok(pageContent.includes('RotateCw') && pageContent.includes('isRefreshing'), 'ProblemsPage must support refresh action');
   assert.ok(pageContent.includes('No matching problems'), 'ProblemsPage must have polished empty search state');
-  console.log('✓ ProblemsPage integration with ProblemFilters and refresh controls verified');
+  console.log('✓ ProblemsPage integration with ProblemPagination, ProblemFilters and refresh controls verified');
 
   console.log('--- All Problem Layout & Components Tests Passed Successfully ---');
 }

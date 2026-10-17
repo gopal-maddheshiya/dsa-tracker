@@ -32,6 +32,22 @@ export function SmoothScrollProvider({ children }) {
       wheelMultiplier: 1.1,
       touchMultiplier: 1.6,
       autoRaf: false, // Unified with GSAP RAF ticker
+      prevent: (node) => {
+        // 1. If body scroll is locked by any modal or drawer, don't intercept wheel
+        if (typeof document !== 'undefined' && document.body.style.overflow === 'hidden') {
+          return true;
+        }
+        // 2. If event occurs inside any modal, dialog, or scroll container, don't intercept
+        if (!node) return false;
+        return Boolean(
+          node.hasAttribute?.('data-lenis-prevent') ||
+          node.closest?.('[data-lenis-prevent]') ||
+          node.closest?.('[role="dialog"]') ||
+          node.closest?.('.overflow-y-auto') ||
+          node.closest?.('.overflow-auto') ||
+          node.closest?.('textarea')
+        );
+      },
     });
 
     lenisRef.current = lenis;

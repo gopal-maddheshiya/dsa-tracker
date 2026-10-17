@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Plus, Edit2, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ExternalLink, Plus, Edit2, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Code2 } from 'lucide-react';
 import {
   DifficultyBadge,
   StatusBadge,
@@ -21,6 +21,7 @@ export default function ProblemTable({
   onLogAttempt,
   onEditProblem,
   onDeleteProblem,
+  onViewLogs,
 }) {
   const renderSortIndicator = (columnKey) => {
     if (!onSort) return null;
@@ -57,57 +58,57 @@ export default function ProblemTable({
 
   return (
     <div className="rounded-2xl bg-surface border border-line overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_4px_20px_-4px_rgba(0,0,0,0.3)]">
-      <div className="overflow-x-auto">
+      <div className="w-full">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-line bg-surface-2/70 text-muted font-mono uppercase text-[10.5px] tracking-wider select-none">
-              <th scope="col" className="py-3 px-4 font-semibold w-auto min-w-[240px]">
+            <tr className="border-b border-line bg-surface-2/70 text-muted font-mono uppercase text-[10px] tracking-wider select-none">
+              <th scope="col" className="py-2.5 px-3 font-semibold min-w-0">
                 <button
                   type="button"
                   onClick={() => onSort?.('title')}
-                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10.5px]"
+                  className="group/th inline-flex items-center gap-1 hover:text-text transition-colors font-semibold uppercase text-[10px]"
                 >
                   <span>Problem</span>
                   {renderSortIndicator('title')}
                 </button>
               </th>
-              <th scope="col" className="py-3 px-3.5 font-semibold whitespace-nowrap w-28">
+              <th scope="col" className="py-2.5 px-2.5 font-semibold whitespace-nowrap w-24">
                 Platform
               </th>
-              <th scope="col" className="py-3 px-3.5 font-semibold whitespace-nowrap w-28">
+              <th scope="col" className="py-2.5 px-2.5 font-semibold whitespace-nowrap w-20">
                 <button
                   type="button"
                   onClick={() => onSort?.('difficulty')}
-                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10.5px]"
+                  className="group/th inline-flex items-center gap-1 hover:text-text transition-colors font-semibold uppercase text-[10px]"
                 >
-                  <span>Difficulty</span>
+                  <span>Diff</span>
                   {renderSortIndicator('difficulty')}
                 </button>
               </th>
-              <th scope="col" className="py-3 px-3.5 font-semibold w-64 min-w-[200px]">
+              <th scope="col" className="py-2.5 px-2.5 font-semibold whitespace-nowrap w-36 lg:w-44">
                 Topics
               </th>
-              <th scope="col" className="py-3 px-3.5 font-semibold whitespace-nowrap w-32">
+              <th scope="col" className="py-2.5 px-2.5 font-semibold whitespace-nowrap w-28">
                 <button
                   type="button"
                   onClick={() => onSort?.('status')}
-                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10.5px]"
+                  className="group/th inline-flex items-center gap-1 hover:text-text transition-colors font-semibold uppercase text-[10px]"
                 >
                   <span>Status</span>
                   {renderSortIndicator('status')}
                 </button>
               </th>
-              <th scope="col" className="py-3 px-3.5 font-semibold whitespace-nowrap w-32">
+              <th scope="col" className="py-2.5 px-2.5 font-semibold whitespace-nowrap w-24">
                 <button
                   type="button"
                   onClick={() => onSort?.('lastAttempt')}
-                  className="group/th inline-flex items-center gap-1.5 hover:text-text transition-colors font-semibold uppercase text-[10.5px]"
+                  className="group/th inline-flex items-center gap-1 hover:text-text transition-colors font-semibold uppercase text-[10px]"
                 >
                   <span>Last Attempt</span>
                   {renderSortIndicator('lastAttempt')}
                 </button>
               </th>
-              <th scope="col" className="py-3 px-4 font-semibold text-right whitespace-nowrap w-40">
+              <th scope="col" className="py-2.5 px-3 font-semibold text-right whitespace-nowrap w-36">
                 Actions
               </th>
             </tr>
@@ -122,12 +123,12 @@ export default function ProblemTable({
                   key={problem.id}
                   className="hover:bg-surface-hover/60 transition-colors duration-150 group"
                 >
-                  {/* Problem Title & External Link (with reliable left status stripe) */}
-                  <td className={`py-3 px-4 font-medium text-text ${stripeClass}`}>
-                    <div className="flex items-center gap-2">
+                  {/* Problem Title & External Link (flexible, truncates cleanly without overflowing table) */}
+                  <td className={`py-2.5 px-3 font-medium text-text min-w-0 ${stripeClass}`}>
+                    <div className="flex items-center gap-1.5 min-w-0">
                       <Link
                         to={`/problems/${problem.id}`}
-                        className="hover:text-accent font-semibold text-xs sm:text-sm text-text transition-colors truncate"
+                        className="hover:text-accent font-semibold text-xs sm:text-[13px] text-text transition-colors truncate min-w-0"
                         title={problem.title}
                       >
                         {problem.title}
@@ -148,36 +149,33 @@ export default function ProblemTable({
                   </td>
 
                   {/* Platform */}
-                  <td className="py-3 px-3.5 whitespace-nowrap">
+                  <td className="py-2.5 px-2.5 whitespace-nowrap w-24">
                     <PlatformBadge platform={problem.platform} />
                   </td>
 
                   {/* Difficulty */}
-                  <td className="py-3 px-3.5 whitespace-nowrap">
+                  <td className="py-2.5 px-2.5 whitespace-nowrap w-20">
                     <DifficultyBadge difficulty={problem.difficulty} />
                   </td>
 
-                  {/* Topics (Single-line strict with clean truncation and title tooltip) */}
-                  <td className="py-3 px-3.5">
+                  {/* Topics (Space-conscious single-line with compact chips + tooltip) */}
+                  <td className="py-2.5 px-2.5 w-36 lg:w-44">
                     <div
-                      className="flex items-center gap-1.5 flex-nowrap overflow-hidden max-w-[280px]"
+                      className="flex items-center gap-1 flex-nowrap overflow-hidden"
                       title={problem.topics && problem.topics.length > 0 ? problem.topics.join(', ') : ''}
                     >
                       {problem.topics && problem.topics.length > 0 ? (
                         <>
-                          {problem.topics.slice(0, 2).map((t) => (
+                          <span
+                            className="px-1.5 py-0.5 rounded text-[10.5px] font-mono bg-surface-2 text-text-secondary border border-line truncate max-w-[90px] lg:max-w-[110px] shrink-0"
+                          >
+                            {problem.topics[0]}
+                          </span>
+                          {problem.topics.length > 1 && (
                             <span
-                              key={t}
-                              className="px-2 py-0.5 rounded-md text-[11px] font-mono bg-surface-2 text-text-secondary border border-line truncate max-w-[125px] shrink-0"
+                              className="px-1 py-0.5 rounded text-[10.5px] font-mono bg-surface-2 text-muted border border-line shrink-0 cursor-help"
                             >
-                              {t}
-                            </span>
-                          ))}
-                          {problem.topics.length > 2 && (
-                            <span
-                              className="px-1.5 py-0.5 rounded-md text-[11px] font-mono bg-surface-2 text-muted border border-line shrink-0 cursor-help"
-                            >
-                              +{problem.topics.length - 2}
+                              +{problem.topics.length - 1}
                             </span>
                           )}
                         </>
@@ -187,47 +185,92 @@ export default function ProblemTable({
                     </div>
                   </td>
 
-                  {/* Status */}
-                  <td className="py-3 px-3.5 whitespace-nowrap">
-                    <StatusBadge status={latest?.status || null} />
+                  {/* Status & Approach */}
+                  <td className="py-2.5 px-2.5 whitespace-nowrap w-28">
+                    <div className="flex flex-col gap-0.5 items-start">
+                      <StatusBadge status={latest?.status || null} />
+                      {latest?.approach && (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.2 rounded border font-medium ${
+                            latest.approach === 'brute_force'
+                              ? 'bg-amber-500/10 text-amber-400 border-amber-500/25'
+                              : latest.approach === 'better'
+                              ? 'bg-sky-500/10 text-sky-400 border-sky-500/25'
+                              : latest.approach === 'other'
+                              ? 'bg-purple-500/10 text-purple-400 border-purple-500/25'
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                          }`}
+                        >
+                          <span
+                            className={`w-1 h-1 rounded-full ${
+                              latest.approach === 'brute_force'
+                                ? 'bg-amber-400'
+                                : latest.approach === 'better'
+                                ? 'bg-sky-400'
+                                : latest.approach === 'other'
+                                ? 'bg-purple-400'
+                                : 'bg-emerald-400'
+                            }`}
+                          />
+                          <span className="capitalize">{latest.approach.replace('_', ' ')}</span>
+                        </span>
+                      )}
+                    </div>
                   </td>
 
                   {/* Last Attempt */}
-                  <td className="py-3 px-3.5 whitespace-nowrap font-mono text-muted text-xs">
+                  <td className="py-2.5 px-2.5 whitespace-nowrap font-mono text-muted text-xs w-24">
                     {formatRelativeDate(latest?.attemptedAt)}
                   </td>
 
-                  {/* Actions */}
-                  <td className="py-3 px-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
+                  {/* Actions (Streamlined compact ergonomics) */}
+                  <td className="py-2.5 px-3 text-right whitespace-nowrap w-36">
+                    <div className="flex items-center justify-end gap-1">
+                      {/* Code / Logs View Button */}
+                      <button
+                        type="button"
+                        onClick={() => onViewLogs?.(problem)}
+                        className={`h-7 inline-flex items-center gap-1 px-2 rounded-md text-[11px] font-mono font-medium transition-all duration-150 active:scale-95 border ${
+                          latest?.code
+                            ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30 shadow-xs'
+                            : latest
+                            ? 'bg-surface-2 hover:bg-surface-hover text-text-secondary border-line'
+                            : 'bg-surface-2/50 text-muted/60 border-line/60 hover:text-text'
+                        }`}
+                        title={latest?.code ? 'View Java solution code & logs' : 'View practice logs'}
+                      >
+                        <Code2 className="w-3 h-3" />
+                        <span>{latest?.code ? 'Code' : 'Logs'}</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => onLogAttempt(problem)}
-                        className="h-7.5 inline-flex items-center gap-1.5 px-2.5 rounded-md text-xs font-mono font-medium bg-surface-2 hover:bg-accent hover:text-white text-text-secondary hover:border-accent border border-line shadow-xs transition-all duration-150 active:scale-95"
+                        className="h-7 inline-flex items-center gap-1 px-2 rounded-md text-[11px] font-mono font-medium bg-surface-2 hover:bg-accent hover:text-white text-text-secondary hover:border-accent border border-line shadow-xs transition-all duration-150 active:scale-95"
                         title="Log practice attempt"
                       >
-                        <Plus className="w-3.5 h-3.5 text-accent group-hover:text-inherit" />
+                        <Plus className="w-3 h-3 text-accent group-hover:text-inherit" />
                         <span>Log</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onEditProblem(problem)}
-                        className="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md text-muted hover:text-text hover:bg-surface-hover transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-muted hover:text-text hover:bg-surface-hover transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-accent"
                         title="Edit problem"
                         aria-label="Edit problem"
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
+                        <Edit2 className="w-3 h-3" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onDeleteProblem(problem)}
-                        className="h-7.5 w-7.5 inline-flex items-center justify-center rounded-md text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-muted hover:text-danger hover:bg-danger/10 transition-all duration-150 active:scale-95 focus-visible:ring-1 focus-visible:ring-danger"
                         title="Delete problem"
                         aria-label="Delete problem"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </td>

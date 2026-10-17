@@ -7,6 +7,7 @@ import RevisionSummary from '../components/revision/RevisionSummary.jsx';
 import RevisionCard from '../components/revision/RevisionCard.jsx';
 import AlgorithmExplainer from '../components/revision/AlgorithmExplainer.jsx';
 import AttemptFormModal from '../components/problems/AttemptFormModal.jsx';
+import ViewLogModal from '../components/problems/ViewLogModal.jsx';
 
 /**
  * RevisionPage: Explainable spaced-repetition revision workspace.
@@ -80,6 +81,8 @@ export default function RevisionPage() {
   }, [loadRevisionData]);
 
   const [attemptingProblem, setAttemptingProblem] = useState(null);
+  const [editingAttemptData, setEditingAttemptData] = useState(null);
+  const [viewingLogProblem, setViewingLogProblem] = useState(null);
   const [filterTopic, setFilterTopic] = useState('');
   const [filterUrgency, setFilterUrgency] = useState('all'); // 'all' | 'due' | 'overdue' | 'hard'
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,9 +148,15 @@ export default function RevisionPage() {
 
   const handleQuickLogSubmit = async (attemptData) => {
     if (!attemptingProblem) return;
-    await problemsApi.createAttempt(attemptingProblem.id, attemptData);
+    if (editingAttemptData) {
+      const attemptId = editingAttemptData.id || editingAttemptData._id;
+      await problemsApi.updateAttempt(attemptingProblem.id, attemptId, attemptData);
+    } else {
+      await problemsApi.createAttempt(attemptingProblem.id, attemptData);
+    }
     await loadRevisionData(true);
     setAttemptingProblem(null);
+    setEditingAttemptData(null);
   };
 
   const isBrandNewUser =
@@ -238,7 +247,7 @@ export default function RevisionPage() {
 
         {/* Filter & Search Control Panel */}
         {!loading && queue.length > 0 && (
-          <div className="p-3 sm:p-3.5 rounded-xl bg-surface border border-line shadow-xs space-y-2.5 min-w-0 max-w-full overflow-hidden">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-surface border border-line shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_2px_8px_-2px_rgba(0,0,0,0.2)] space-y-2.5 min-w-0 max-w-full overflow-hidden">
             {/* Row 1: Urgency Status Tabs + Search Input */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
               {/* Urgency Tabs */}
@@ -525,7 +534,11 @@ export default function RevisionPage() {
                   key={item.id || index}
                   item={item}
                   index={index}
-                  onQuickLog={(p) => setAttemptingProblem(p)}
+                  onQuickLog={(p) => {
+                    setEditingAttemptData(null);
+                    setAttemptingProblem(p);
+                  }}
+                  onViewLogs={(p) => setViewingLogProblem(p)}
                 />
               ))
             ) : (
@@ -557,9 +570,32 @@ export default function RevisionPage() {
       {attemptingProblem && (
         <AttemptFormModal
           isOpen={Boolean(attemptingProblem)}
-          onClose={() => setAttemptingProblem(null)}
+          onClose={() => {
+            setAttemptingProblem(null);
+            setEditingAttemptData(null);
+          }}
           onSubmit={handleQuickLogSubmit}
           problemTitle={attemptingProblem.title}
+          initialData={editingAttemptData}
+        />
+      )}
+
+      {/* View Solution Code & Logs Modal */}
+      {viewingLogProblem && (
+        <ViewLogModal
+          isOpen={Boolean(viewingLogProblem)}
+          onClose={() => setViewingLogProblem(null)}
+          problem={viewingLogProblem}
+          onEditAttempt={(att) => {
+            setViewingLogProblem(null);
+            setEditingAttemptData(att);
+            setAttemptingProblem(viewingLogProblem);
+          }}
+          onLogNewAttempt={(prob) => {
+            setViewingLogProblem(null);
+            setEditingAttemptData(null);
+            setAttemptingProblem(prob);
+          }}
         />
       )}
     </div>

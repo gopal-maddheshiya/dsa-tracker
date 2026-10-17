@@ -11,6 +11,7 @@ import {
   History,
   AlertCircle,
   RotateCcw,
+  Code2,
 } from 'lucide-react';
 import problemsApi from '../api/problems.api';
 import {
@@ -20,9 +21,64 @@ import {
   PLATFORM_NAMES,
   formatRelativeDate,
 } from '../components/problems/ProblemBadges';
+import JavaCodeEditor from '../components/common/JavaCodeEditor';
 import ProblemFormModal from '../components/problems/ProblemFormModal';
 import AttemptFormModal from '../components/problems/AttemptFormModal';
 import DeleteConfirmModal from '../components/problems/DeleteConfirmModal';
+import ViewLogModal from '../components/problems/ViewLogModal';
+
+/**
+ * AttemptCodeViewer
+ * Collapsible syntax-highlighted Java code viewer with line numbers and copy controls
+ */
+function AttemptCodeViewer({ code, approach, index, onEdit }) {
+  const [isOpen, setIsOpen] = useState(index === 0);
+  const lineCount = useMemo(() => (code || '').split('\n').length, [code]);
+
+  if (!code || !code.trim()) return null;
+
+  return (
+    <div className="space-y-2 pt-1">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-accent hover:text-accent-hover transition-colors font-medium active:scale-95"
+        >
+          <Code2 className="w-3.5 h-3.5" />
+          <span>{isOpen ? 'Hide Java Solution' : 'View Java Solution'}</span>
+          <span className="text-[10px] text-muted font-normal">
+            ({lineCount} {lineCount === 1 ? 'line' : 'lines'})
+          </span>
+        </button>
+
+        {onEdit && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-[11px] font-mono text-muted hover:text-accent transition-colors inline-flex items-center gap-1 active:scale-95"
+          >
+            <Edit2 className="w-3 h-3" />
+            <span>Edit Code</span>
+          </button>
+        )}
+      </div>
+
+      {isOpen && (
+        <div className="animate-in fade-in duration-150">
+          <JavaCodeEditor
+            value={code}
+            approach={approach || 'optimal'}
+            readOnly={true}
+            allowApproachSelection={false}
+            minHeight="140px"
+            maxHeight="340px"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * ProblemDetailPage
@@ -41,7 +97,9 @@ export default function ProblemDetailPage() {
   // Modals state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAttemptOpen, setIsAttemptOpen] = useState(false);
+  const [editingAttempt, setEditingAttempt] = useState(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isViewLogModalOpen, setIsViewLogModalOpen] = useState(false);
 
   // Load problem details & attempts
   const loadProblemData = useCallback(async () => {
@@ -120,8 +178,30 @@ export default function ProblemDetailPage() {
   };
 
   const handleAttemptSubmit = async (attemptData) => {
-    await problemsApi.createAttempt(id, attemptData);
+    if (editingAttempt) {
+      const attemptId = editingAttempt.id || editingAttempt._id;
+      await problemsApi.updateAttempt(id, attemptId, attemptData);
+    } else {
+      await problemsApi.createAttempt(id, attemptData);
+    }
     await loadProblemData();
+    setEditingAttempt(null);
+  };
+
+  const handleEditAttempt = (attempt) => {
+    setEditingAttempt(attempt);
+    setIsAttemptOpen(true);
+  };
+
+  const handleDeleteAttempt = async (attemptId) => {
+    if (window.confirm('Are you sure you want to delete this practice log?')) {
+      try {
+        await problemsApi.deleteAttempt(id, attemptId);
+        await loadProblemData();
+      } catch (err) {
+        alert(err.message || 'Failed to delete attempt');
+      }
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -265,10 +345,24 @@ export default function ProblemDetailPage() {
           </div>
 
           {/* Quick Action Group */}
-          <div className="flex items-center gap-2 shrink-0 self-start pt-1">
+          <div className="flex flex-wrap items-center gap-2 shrink-0 self-start pt-1">
+            {attempts.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsViewLogModalOpen(true)}
+                className="h-9 px-3.5 inline-flex items-center gap-1.5 text-xs font-mono font-medium text-accent bg-accent/10 hover:bg-accent/20 border border-accent/25 rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
+                title="View all solution codes and logs in a dedicated viewer"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+                <span>View Solutions ({attempts.length})</span>
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => setIsAttemptOpen(true)}
+              onClick={() => {
+                setEditingAttempt(null);
+                setIsAttemptOpen(true);
+              }}
               className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -424,8 +518,37 @@ export default function ProblemDetailPage() {
 
                   <div className="p-4 sm:p-5 rounded-xl bg-surface border border-line shadow-xs space-y-3 hover:border-line-hover transition-colors">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={attempt.status} />
+
+                        {attempt.approach && (
+                          <span
+                            className={`inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 rounded-md border font-medium ${
+                              attempt.approach === 'brute_force'
+                                ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                                : attempt.approach === 'better'
+                                ? 'bg-sky-500/15 text-sky-400 border-sky-500/30'
+                                : attempt.approach === 'other'
+                                ? 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                                : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                attempt.approach === 'brute_force'
+                                  ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.5)]'
+                                  : attempt.approach === 'better'
+                                  ? 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.5)]'
+                                  : attempt.approach === 'other'
+                                  ? 'bg-purple-400 shadow-[0_0_6px_rgba(192,132,252,0.5)]'
+                                  : 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
+                              }`}
+                            />
+                            <span className="capitalize">
+                              {attempt.approach.replace('_', ' ')}
+                            </span>
+                          </span>
+                        )}
 
                         {index === 0 && (
                           <span className="text-[9px] font-mono uppercase font-semibold text-accent bg-accent/10 border border-accent/25 px-1.5 py-0.5 rounded">
@@ -442,12 +565,34 @@ export default function ProblemDetailPage() {
                           )}
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted">
-                        <Calendar className="w-3 h-3 text-muted shrink-0" />
-                        <span>{formattedDate} at {formattedTime}</span>
-                        <span className="text-muted/60 hidden sm:inline">
-                          ({formatRelativeDate(attempt.attemptedAt)})
-                        </span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted">
+                          <Calendar className="w-3 h-3 text-muted shrink-0" />
+                          <span>{formattedDate} at {formattedTime}</span>
+                          <span className="text-muted/60 hidden sm:inline">
+                            ({formatRelativeDate(attempt.attemptedAt)})
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 ml-1">
+                          <button
+                            type="button"
+                            onClick={() => handleEditAttempt(attempt)}
+                            className="h-7 px-2.5 inline-flex items-center gap-1 text-[11px] font-mono text-text bg-surface-2 hover:bg-surface-hover border border-line rounded transition-all active:scale-95 shadow-xs"
+                            title="Edit this practice log & code"
+                          >
+                            <Edit2 className="w-3 h-3 text-muted" />
+                            <span>Edit Log</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAttempt(attempt.id || attempt._id)}
+                            className="h-7 w-7 inline-flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 border border-line hover:border-danger/30 rounded transition-all active:scale-95"
+                            title="Delete this practice log"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -459,6 +604,27 @@ export default function ProblemDetailPage() {
                     ) : (
                       <div className="text-[11px] text-muted italic font-mono">
                         No notes recorded for this attempt.
+                      </div>
+                    )}
+
+                    {/* Java Solution Code Viewer */}
+                    {attempt.code ? (
+                      <AttemptCodeViewer
+                        code={attempt.code}
+                        approach={attempt.approach}
+                        index={index}
+                        onEdit={() => handleEditAttempt(attempt)}
+                      />
+                    ) : (
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handleEditAttempt(attempt)}
+                          className="inline-flex items-center gap-1.5 text-xs font-mono text-accent hover:text-accent-hover transition-colors font-medium active:scale-95"
+                        >
+                          <Code2 className="w-3.5 h-3.5" />
+                          <span>+ Add Java solution code to this log</span>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -479,7 +645,10 @@ export default function ProblemDetailPage() {
             </div>
             <button
               type="button"
-              onClick={() => setIsAttemptOpen(true)}
+              onClick={() => {
+                setEditingAttempt(null);
+                setIsAttemptOpen(true);
+              }}
               className="mt-2 h-9 inline-flex items-center gap-1.5 px-4 text-xs font-medium bg-accent hover:bg-accent-hover text-white rounded-lg transition-all duration-150 active:scale-95 shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -500,9 +669,28 @@ export default function ProblemDetailPage() {
 
       <AttemptFormModal
         isOpen={isAttemptOpen}
-        onClose={() => setIsAttemptOpen(false)}
+        onClose={() => {
+          setIsAttemptOpen(false);
+          setEditingAttempt(null);
+        }}
         onSubmit={handleAttemptSubmit}
         problemTitle={problem.title}
+        initialData={editingAttempt}
+      />
+
+      <ViewLogModal
+        isOpen={isViewLogModalOpen}
+        onClose={() => setIsViewLogModalOpen(false)}
+        problem={problem}
+        onEditAttempt={(att) => {
+          setIsViewLogModalOpen(false);
+          handleEditAttempt(att);
+        }}
+        onLogNewAttempt={() => {
+          setIsViewLogModalOpen(false);
+          setEditingAttempt(null);
+          setIsAttemptOpen(true);
+        }}
       />
 
       <DeleteConfirmModal

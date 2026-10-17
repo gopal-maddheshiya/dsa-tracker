@@ -75,6 +75,25 @@ export const problemsApi = {
   getAttempts: (problemId) => {
     return apiClient.get(`/problems/${problemId}/attempts`);
   },
+
+  /**
+   * Update an existing practice attempt (e.g. edit code, approach, notes, status)
+   * @param {string} problemId - Problem ObjectId
+   * @param {string} attemptId - Attempt ObjectId
+   * @param {Object} data - Fields to update
+   */
+  updateAttempt: (problemId, attemptId, data) => {
+    return apiClient.put(`/problems/${problemId}/attempts/${attemptId}`, data);
+  },
+
+  /**
+   * Delete an attempt
+   * @param {string} problemId - Problem ObjectId
+   * @param {string} attemptId - Attempt ObjectId
+   */
+  deleteAttempt: (problemId, attemptId) => {
+    return apiClient.delete(`/problems/${problemId}/attempts/${attemptId}`);
+  },
 };
 
 export default problemsApi;

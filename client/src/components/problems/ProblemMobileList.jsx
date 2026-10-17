@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Plus, Edit2, Trash2, ArrowRight } from 'lucide-react';
+import { ExternalLink, Plus, Edit2, Trash2, ArrowRight, Code2 } from 'lucide-react';
 import {
   DifficultyBadge,
   StatusBadge,
@@ -19,6 +19,7 @@ export default function ProblemMobileList({
   onLogAttempt,
   onEditProblem,
   onDeleteProblem,
+  onViewLogs,
 }) {
   const getCardStripeClass = (status) => {
     if (!status) return 'border-l-4 border-l-line';
@@ -90,7 +91,35 @@ export default function ProblemMobileList({
 
             {/* Status & Last attempt bar */}
             <div className="flex items-center justify-between pt-3 border-t border-line/60 text-xs">
-              <StatusBadge status={latest?.status || null} />
+              <div className="flex items-center gap-1.5">
+                <StatusBadge status={latest?.status || null} />
+                {latest?.approach && (
+                  <span
+                    className={`inline-flex items-center gap-1 text-[9.5px] font-mono px-1.5 py-0.2 rounded border font-medium ${
+                      latest.approach === 'brute_force'
+                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/25'
+                        : latest.approach === 'better'
+                        ? 'bg-sky-500/10 text-sky-400 border-sky-500/25'
+                        : latest.approach === 'other'
+                        ? 'bg-purple-500/10 text-purple-400 border-purple-500/25'
+                        : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                    }`}
+                  >
+                    <span
+                      className={`w-1 h-1 rounded-full ${
+                        latest.approach === 'brute_force'
+                          ? 'bg-amber-400'
+                          : latest.approach === 'better'
+                          ? 'bg-sky-400'
+                          : latest.approach === 'other'
+                          ? 'bg-purple-400'
+                          : 'bg-emerald-400'
+                      }`}
+                    />
+                    <span className="capitalize">{latest.approach.replace('_', ' ')}</span>
+                  </span>
+                )}
+              </div>
               <div className="text-xs font-mono text-muted">
                 {latest ? `Attempted ${formatRelativeDate(latest.attemptedAt)}` : 'Not attempted'}
               </div>
@@ -99,6 +128,22 @@ export default function ProblemMobileList({
             {/* Actions footer with touch-comfortable targets */}
             <div className="pt-2.5 border-t border-line/60 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onViewLogs?.(problem)}
+                  className={`h-8.5 inline-flex items-center gap-1.5 px-3 rounded-lg text-xs font-mono font-medium transition-all duration-150 active:scale-95 border ${
+                    latest?.code
+                      ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30 shadow-xs'
+                      : latest
+                      ? 'bg-surface-2 hover:bg-surface-hover text-text-secondary border-line'
+                      : 'bg-surface-2/50 text-muted/60 border-line/60 hover:text-text'
+                  }`}
+                  title={latest?.code ? 'View Java solution code & logs' : 'View practice logs'}
+                >
+                  <Code2 className="w-3.5 h-3.5" />
+                  <span>{latest?.code ? 'Code' : 'Logs'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => onLogAttempt(problem)}

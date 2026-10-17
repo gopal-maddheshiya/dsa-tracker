@@ -22,12 +22,14 @@ import {
 import LogoMark from '../components/common/LogoMark';
 import { useNotifications } from '../context/NotificationContext';
 import NotificationPopover from '../components/common/NotificationPopover';
+import CommandPalette from '../components/common/CommandPalette';
 
 /**
  * AppLayout: Desktop collapsible sidebar and mobile sticky navigation layout.
  */
 export default function AppLayout() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const searchInputRef = useRef(null);
   const mainRef = useRef(null);
   const { user, logout } = useAuth();
@@ -69,12 +71,12 @@ export default function AppLayout() {
     });
   };
 
-  // Global Ctrl+K / Cmd+K listener to focus search input
+  // Global Ctrl+K / Cmd+K listener to toggle Command Palette
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        setIsPaletteOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -240,6 +242,17 @@ export default function AppLayout() {
                 <NotificationPopover align="right" />
               </div>
 
+              {/* Mobile Search Button */}
+              <button
+                type="button"
+                onClick={() => setIsPaletteOpen(true)}
+                className="p-2 rounded-xl bg-surface border border-line text-text-secondary hover:text-text hover:bg-surface-hover active:scale-95 transition-all shadow-xs"
+                title="Search commands or problems"
+                aria-label="Search commands or problems"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+
               {/* Mobile Theme Toggle */}
               <button
                 type="button"
@@ -257,20 +270,17 @@ export default function AppLayout() {
             </div>
           </div>
 
-          {/* Desktop Search Input Bar */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="hidden lg:flex items-center relative flex-1 max-w-md xl:max-w-lg"
+          {/* Desktop Search Trigger Button (Opens Command Palette) */}
+          <button
+            type="button"
+            onClick={() => setIsPaletteOpen(true)}
+            className="hidden lg:flex items-center relative flex-1 max-w-md xl:max-w-lg bg-surface border border-line rounded-xl pl-9 pr-14 py-2 text-xs text-muted hover:border-accent/40 hover:bg-surface-hover hover:text-text transition-all duration-200 group text-left shadow-xs"
+            aria-label="Open Command Palette (Ctrl+K)"
           >
-            <Search className="w-4 h-4 text-muted absolute left-3.5 pointer-events-none" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search problems, topics, or platforms..."
-              className="w-full bg-surface border border-line rounded-xl pl-9 pr-14 py-2 text-xs text-text placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent focus:shadow-[0_0_16px_rgba(237,134,65,0.18)] transition-all duration-200"
-            />
+            <Search className="w-4 h-4 text-muted group-hover:text-accent absolute left-3.5 transition-colors pointer-events-none" />
+            <span className="truncate text-muted group-hover:text-text transition-colors">
+              Type a command, route, or search problems...
+            </span>
             <div className="absolute right-2.5 flex items-center gap-1 pointer-events-none">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-muted bg-surface-2 border border-line rounded">
                 Ctrl
@@ -279,7 +289,7 @@ export default function AppLayout() {
                 K
               </kbd>
             </div>
-          </form>
+          </button>
 
           {/* Desktop Right Controls: Sun/Moon, Bell, User Profile Pill */}
           <div className="hidden lg:flex items-center gap-3">
@@ -475,6 +485,9 @@ export default function AppLayout() {
           </Link>
         </div>
       </nav>
+
+      {/* Raycast / Linear style Universal Command Palette */}
+      <CommandPalette isOpen={isPaletteOpen} onClose={() => setIsPaletteOpen(false)} />
     </div>
   );
 }

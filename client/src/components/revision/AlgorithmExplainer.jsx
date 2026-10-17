@@ -58,8 +58,8 @@ export default function AlgorithmExplainer() {
             </div>
           </div>
 
-          {/* Schedule Table */}
-          <div className="overflow-x-auto">
+          {/* Schedule Table (Desktop) */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-left font-mono text-xs border-collapse min-w-[480px]">
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase text-muted tracking-wider">
@@ -102,6 +102,39 @@ export default function AlgorithmExplainer() {
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Schedule Cards (Mobile: zero horizontal scroll) */}
+          <div className="block sm:hidden space-y-2">
+            <div className="p-2.5 rounded-lg bg-surface-2 border border-line flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-rose-400 bg-rose-500/10 border border-rose-500/20">
+                  Struggled
+                </span>
+                <span className="text-text font-medium">2d interval</span>
+              </div>
+              <span className="text-muted text-[11px]">+2.0 weight</span>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-surface-2 border border-line flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20">
+                  Revisit
+                </span>
+                <span className="text-text font-medium">5d interval</span>
+              </div>
+              <span className="text-muted text-[11px]">+1.0 weight</span>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-surface-2 border border-line flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+                  Solved
+                </span>
+                <span className="text-text font-medium">14d interval</span>
+              </div>
+              <span className="text-muted text-[11px]">+0.0 weight</span>
+            </div>
           </div>
 
           <div className="flex items-start gap-2 pt-1 text-[11px] text-muted leading-relaxed">

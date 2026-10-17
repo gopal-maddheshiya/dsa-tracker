@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import SpotlightCard from '../common/SpotlightCard.jsx';
 import {
   generateHeatmapGrid,
   formatHeatmapTooltipDate,
@@ -47,7 +48,11 @@ export default function HeatmapGrid({
   }, [hoveredCell]);
 
   return (
-    <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col justify-between w-full">
+    <SpotlightCard
+      spotlightColor="rgba(16, 185, 129, 0.08)"
+      borderColor="rgba(16, 185, 129, 0.28)"
+      className="p-4 sm:p-5 rounded-2xl specular-card flex flex-col justify-between w-full"
+    >
       {/* Header with Title and Last 84 days filter pill (Screen 2) */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
@@ -152,7 +157,7 @@ export default function HeatmapGrid({
       {/* Bottom 3-Metric Strip (Screen 2 Reference: Active Days, Consistency, 7-day Solves) */}
       <div className="grid grid-cols-3 gap-2 pt-3 mt-3 border-t border-line/60">
         <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-2/40 border border-line-subtle text-center">
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono text-text">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono tabular-nums text-text">
             <span>🔥</span>
             <span>{activeDaysCount}</span>
           </div>
@@ -160,7 +165,7 @@ export default function HeatmapGrid({
         </div>
 
         <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-2/40 border border-line-subtle text-center">
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono text-text">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono tabular-nums text-text">
             <span>🎯</span>
             <span>{consistencyPct}%</span>
           </div>
@@ -168,7 +173,7 @@ export default function HeatmapGrid({
         </div>
 
         <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-2/40 border border-line-subtle text-center">
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono text-text">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold font-mono tabular-nums text-text">
             <span>⚡</span>
             <span>{recent7Solves}</span>
           </div>
@@ -190,6 +195,6 @@ export default function HeatmapGrid({
           </span>
         </div>
       )}
-    </div>
+    </SpotlightCard>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { getRevisionTimingState, formatPriorityScore } from '../../lib/revisionUtils.js';
+import SpotlightCard from '../common/SpotlightCard.jsx';
 
 const STATUS_LABELS = {
   solved: 'Solved',
@@ -44,43 +45,44 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
   return (
     <div>
       {/* 1. Mobile Compact 3-Column Strip (< sm): Saves 380px vertical height */}
-      <div className="block sm:hidden p-3 rounded-xl bg-surface border border-line shadow-xs">
+      <div className="block sm:hidden p-3.5 rounded-2xl specular-card">
         <div className="grid grid-cols-3 divide-x divide-line/60 text-center">
           {/* Queue Depth */}
-          <div className="px-1.5">
+          <div className="px-1">
             <span className="text-[10px] font-mono uppercase text-muted tracking-wider block">
               Queue
             </span>
-            <span className="text-xl font-bold font-mono text-text block my-0.5">
+            <span className="text-xl font-bold font-mono tabular-nums text-text block my-0.5">
               {queueLength}
             </span>
-            <span className="text-[10px] text-muted block truncate">
+            <span className="text-[9.5px] text-muted block truncate">
               Top 20 max
             </span>
           </div>
 
           {/* Due Today */}
-          <div className="px-1.5">
-            <span className="text-[10px] font-mono uppercase text-amber-400 tracking-wider block">
+          <div className="px-1">
+            <span className="text-[10px] font-mono uppercase text-amber-400 tracking-wider block flex items-center justify-center gap-1">
+              {dueCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_6px_rgba(251,191,36,0.6)]" />}
               Due Now
             </span>
-            <span className="text-xl font-bold font-mono text-amber-400 block my-0.5">
+            <span className="text-xl font-bold font-mono tabular-nums text-amber-400 block my-0.5">
               {dueCount}
             </span>
-            <span className="text-[10px] text-muted block truncate">
-              {dueCount > 0 ? 'Action needed' : 'All clear'}
+            <span className="text-[9.5px] text-muted block truncate">
+              {dueCount > 0 ? 'Needs review' : 'All clear'}
             </span>
           </div>
 
           {/* 7-Day Velocity */}
-          <div className="px-1.5">
+          <div className="px-1">
             <span className="text-[10px] font-mono uppercase text-accent tracking-wider block">
               7D Velocity
             </span>
-            <span className="text-xl font-bold font-mono text-text block my-0.5">
+            <span className="text-xl font-bold font-mono tabular-nums text-text block my-0.5">
               {velocity !== null ? velocity : '—'}
             </span>
-            <span className="text-[10px] text-muted block truncate">
+            <span className="text-[9.5px] text-muted block truncate">
               Reviews
             </span>
           </div>
@@ -90,27 +92,35 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
       {/* 2. Desktop 3-Card Row (>= sm) */}
       <div className="hidden sm:grid sm:grid-cols-3 gap-4">
         {/* 1. Queue Depth */}
-        <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-accent/70 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
+        <SpotlightCard
+          spotlightColor="rgba(237, 134, 65, 0.12)"
+          borderColor="rgba(237, 134, 65, 0.38)"
+          className="p-4 rounded-xl specular-card specular-card-hover border-t-2 border-t-accent/70 flex flex-col justify-between"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-text-secondary tracking-wide">Queue depth</span>
-            <span className="text-[10px] font-mono text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
+            <span className="text-[10px] font-mono tabular-nums text-muted bg-surface-2 px-1.5 py-0.5 rounded border border-line">
               Top 20 max
             </span>
           </div>
-          <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text">
+          <div className="my-2 text-2xl sm:text-3xl font-mono tabular-nums font-semibold tracking-tight text-text">
             {queueLength}
           </div>
           <div className="text-[11px] text-muted">
             {queueLength === 1 ? '1 problem requiring attention' : `${queueLength} problems requiring attention`}
           </div>
-        </div>
+        </SpotlightCard>
 
         {/* 2. Due Today (Urgency Focal Point) */}
-        <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-amber-500/80 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
+        <SpotlightCard
+          spotlightColor="rgba(245, 158, 11, 0.14)"
+          borderColor="rgba(245, 158, 11, 0.4)"
+          className="p-4 rounded-xl specular-card specular-card-hover border-t-2 border-t-amber-500/80 flex flex-col justify-between"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-text-secondary tracking-wide">Due today</span>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${dueCount > 0
+              className={`text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded border ${dueCount > 0
                   ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
                   : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
                 }`}
@@ -118,7 +128,7 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
               {dueCount > 0 ? 'Action needed' : 'All clear'}
             </span>
           </div>
-          <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-2">
+          <div className="my-2 text-2xl sm:text-3xl font-mono tabular-nums font-semibold tracking-tight text-text flex items-baseline gap-2">
             <span>{dueCount}</span>
             {dueCount > 0 && (
               <span className="text-xs font-sans font-normal text-amber-400/90">
@@ -129,21 +139,25 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
           <div className="text-[11px] text-muted">
             At or past target revision interval
           </div>
-        </div>
+        </SpotlightCard>
 
         {/* 3. 7-Day Velocity / Review Throughput */}
-        <div className="p-4 rounded-xl bg-surface border border-line border-t-2 border-t-indigo-500/70 shadow-xs flex flex-col justify-between hover:border-line-hover transition-colors">
+        <SpotlightCard
+          spotlightColor="rgba(99, 102, 241, 0.12)"
+          borderColor="rgba(99, 102, 241, 0.38)"
+          className="p-4 rounded-xl specular-card specular-card-hover border-t-2 border-t-indigo-500/70 flex flex-col justify-between"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-text-secondary tracking-wide">
               {velocity !== null ? '7-Day velocity' : 'Most urgent'}
             </span>
-            <span className="text-[10px] font-mono text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono tabular-nums text-accent bg-accent/10 border border-accent/20 px-1.5 py-0.5 rounded">
               {velocity !== null ? 'Throughput' : 'Rank 01'}
             </span>
           </div>
           {velocity !== null ? (
             <>
-              <div className="my-2 text-2xl sm:text-3xl font-mono font-semibold tracking-tight text-text flex items-baseline gap-1.5">
+              <div className="my-2 text-2xl sm:text-3xl font-mono tabular-nums font-semibold tracking-tight text-text flex items-baseline gap-1.5">
                 <span>{velocity}</span>
                 <span className="text-xs font-sans font-normal text-muted">
                   {velocity === 1 ? 'review' : 'reviews'}
@@ -165,7 +179,7 @@ export default function RevisionSummary({ queue = [], loading = false, velocity 
               </div>
             </>
           )}
-        </div>
+        </SpotlightCard>
       </div>
     </div>
   );

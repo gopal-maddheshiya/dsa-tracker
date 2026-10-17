@@ -25,6 +25,7 @@ export default function ProblemFormModal({
     topics: '',
   });
 
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const triggerRef = useRef(null);
@@ -61,6 +62,7 @@ export default function ProblemFormModal({
       });
     }
     setError(null);
+    setFieldErrors({});
   }, [initialData, isOpen]);
 
   // Lock body scroll when modal is open and restore on close/unmount
@@ -90,18 +92,17 @@ export default function ProblemFormModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    const newFieldErrors = {};
 
     // Validation
     const cleanTitle = formData.title.trim();
     if (!cleanTitle) {
-      setError('Problem title is required');
-      return;
+      newFieldErrors.title = 'Problem title is required';
     }
 
     const cleanLink = formData.link.trim();
     if (!cleanLink || !/^https?:\/\/.+/i.test(cleanLink)) {
-      setError('Please provide a valid problem URL starting with http:// or https://');
-      return;
+      newFieldErrors.link = 'Please provide a valid problem URL starting with http:// or https://';
     }
 
     const parsedTopics = formData.topics
@@ -110,10 +111,16 @@ export default function ProblemFormModal({
       .filter((t) => t.length > 0);
 
     if (parsedTopics.length === 0) {
-      setError('Please specify at least one topic (e.g. Array, Dynamic Programming)');
+      newFieldErrors.topics = 'Please specify at least one topic (e.g. Array, Dynamic Programming)';
+    }
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
+      setError('Please resolve the highlighted fields below.');
       return;
     }
 
+    setFieldErrors({});
     setLoading(true);
     try {
       await onSubmit({
@@ -154,6 +161,9 @@ export default function ProblemFormModal({
 
   // Smart URL parsing helper
   const handleUrlChange = (url) => {
+    if (fieldErrors.link) {
+      setFieldErrors((prev) => ({ ...prev, link: undefined }));
+    }
     let nextPlatform = formData.platform;
     let nextTitle = formData.title;
 
@@ -188,6 +198,9 @@ export default function ProblemFormModal({
 
   // Toggle suggested topic in comma-separated list
   const toggleTopic = (topicName) => {
+    if (fieldErrors.topics) {
+      setFieldErrors((prev) => ({ ...prev, topics: undefined }));
+    }
     const current = formData.topics
       .split(',')
       .map((t) => t.trim())
@@ -205,6 +218,7 @@ export default function ProblemFormModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px] animate-in fade-in duration-150"
+      data-lenis-prevent="true"
       onClick={(e) => {
         if (e.target === e.currentTarget && !loading) onClose();
       }}
@@ -214,6 +228,7 @@ export default function ProblemFormModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="problem-modal-title"
+        data-lenis-prevent="true"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-line bg-surface shrink-0">
@@ -239,7 +254,7 @@ export default function ProblemFormModal({
         </div>
 
         {/* Form Body with Scroll */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
+        <form onSubmit={handleSubmit} noValidate data-lenis-prevent="true" className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
           <FormAlert message={error} />
 
           {/* Reference Link (First for smart auto-fill when adding) */}
@@ -259,14 +274,22 @@ export default function ProblemFormModal({
                 id="problem-url-input"
                 name="url"
                 type="url"
-                required
                 value={formData.link}
                 onChange={(e) => handleUrlChange(e.target.value)}
                 placeholder="https://leetcode.com/problems/merge-intervals/"
-                className="w-full h-9 pl-8 pr-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono placeholder:text-muted/60"
+                className={`w-full h-9 pl-8 pr-3 bg-surface-2 text-text text-xs rounded-md border transition-all duration-150 font-mono placeholder:text-muted/60 ${
+                  fieldErrors.link
+                    ? 'border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.35)] animate-shake'
+                    : 'border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
+                }`}
               />
               <LinkIcon className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5 pointer-events-none" />
             </div>
+            {fieldErrors.link && (
+              <p className="text-[11px] font-mono text-rose-400 mt-1 flex items-center gap-1">
+                <span>⚠</span> {fieldErrors.link}
+              </p>
+            )}
           </div>
 
           {/* Problem Identity */}
@@ -279,12 +302,25 @@ export default function ProblemFormModal({
                 id="problem-title-input"
                 name="title"
                 type="text"
-                required
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => {
+                  if (fieldErrors.title) {
+                    setFieldErrors((prev) => ({ ...prev, title: undefined }));
+                  }
+                  setFormData({ ...formData, title: e.target.value });
+                }}
                 placeholder="e.g. Merge Intervals"
-                className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-muted/60"
+                className={`w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border transition-all duration-150 placeholder:text-muted/60 ${
+                  fieldErrors.title
+                    ? 'border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.35)] animate-shake'
+                    : 'border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
+                }`}
               />
+              {fieldErrors.title && (
+                <p className="text-[11px] font-mono text-rose-400 mt-1 flex items-center gap-1">
+                  <span>⚠</span> {fieldErrors.title}
+                </p>
+              )}
             </div>
 
             {/* Platform & Difficulty Row */}
@@ -335,12 +371,25 @@ export default function ProblemFormModal({
             </div>
             <input
               type="text"
-              required
               value={formData.topics}
-              onChange={(e) => setFormData({ ...formData, topics: e.target.value })}
+              onChange={(e) => {
+                if (fieldErrors.topics) {
+                  setFieldErrors((prev) => ({ ...prev, topics: undefined }));
+                }
+                setFormData({ ...formData, topics: e.target.value });
+              }}
               placeholder="Array, Sorting, Two Pointers"
-              className="w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-muted/60"
+              className={`w-full h-9 px-3 bg-surface-2 text-text text-xs rounded-md border transition-all duration-150 placeholder:text-muted/60 ${
+                fieldErrors.topics
+                  ? 'border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.35)] animate-shake'
+                  : 'border-line focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent'
+              }`}
             />
+            {fieldErrors.topics && (
+              <p className="text-[11px] font-mono text-rose-400 mt-1 flex items-center gap-1">
+                <span>⚠</span> {fieldErrors.topics}
+              </p>
+            )}
 
             {/* Quick Suggested Topics Pills */}
             <div className="flex flex-wrap gap-1.5 mt-2.5">

@@ -29,6 +29,20 @@ const attemptSchema = new mongoose.Schema(
       min: [0, 'Time taken cannot be negative'],
       default: null,
     },
+    approach: {
+      type: String,
+      enum: {
+        values: ['brute_force', 'better', 'optimal', 'other'],
+        message: '{VALUE} is not a valid attempt approach',
+      },
+      default: 'optimal',
+      lowercase: true,
+      trim: true,
+    },
+    code: {
+      type: String,
+      default: '',
+    },
     notes: {
       type: String,
       trim: true,

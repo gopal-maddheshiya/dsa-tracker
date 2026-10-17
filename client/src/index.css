@@ -140,8 +140,13 @@ body {
   padding: 0;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 90% 55% at 50% -25%, rgba(237, 134, 65, 0.08), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 95% 15%, rgba(94, 189, 188, 0.035), transparent 60%);
+    /* Top Ambient Horizon Glow */
+    radial-gradient(circle 850px at 50% -140px, rgba(237, 134, 65, 0.10), transparent 75%),
+    radial-gradient(circle 650px at 95% 15%, rgba(94, 189, 188, 0.045), transparent 65%),
+    /* Classic Precision Engineering Grid */
+    linear-gradient(to right, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
   background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
@@ -150,8 +155,11 @@ body {
 html.light body {
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 90% 55% at 50% -25%, rgba(234, 88, 12, 0.045), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 95% 15%, rgba(8, 145, 178, 0.02), transparent 60%);
+    radial-gradient(circle 850px at 50% -140px, rgba(234, 88, 12, 0.05), transparent 75%),
+    radial-gradient(circle 650px at 95% 15%, rgba(8, 145, 178, 0.025), transparent 65%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.024) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.024) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
   background-attachment: fixed;
 }
 
@@ -169,8 +177,43 @@ html.light .shadow-elevated {
 }
 
 /* ==============================================================
-   LUXURY FINISHES & GLASSMORPHIC DESIGN UTILITIES
+   LUXURY FINISHES & HARDWARE-GRADE SPECULAR DESIGN UTILITIES
    ============================================================== */
+.specular-card {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 4px 20px -2px rgba(0, 0, 0, 0.35);
+}
+
+html.light .specular-card {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    0 2px 8px -2px rgba(0, 0, 0, 0.05);
+}
+
+.specular-card-hover {
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.specular-card-hover:hover {
+  border-color: rgba(var(--text-rgb), 0.22);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+    0 12px 32px -8px rgba(0, 0, 0, 0.55);
+}
+
+html.light .specular-card-hover:hover {
+  border-color: rgba(var(--text-rgb), 0.2);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 10px 25px -4px rgba(0, 0, 0, 0.08);
+}
+
 .glass-panel {
   background: linear-gradient(180deg, var(--surface) 0%, rgba(var(--surface-rgb), 0.88) 100%);
   border: 1px solid var(--line);
@@ -229,8 +272,18 @@ html.light ::selection {
   color: #18181b;
 }
 
-code, kbd, samp, pre {
+/* Tabular Numerics across all stat numbers, counters, badges, and mono blocks */
+.tabular-nums,
+.font-mono,
+code,
+kbd,
+samp,
+pre,
+.stat-number,
+.badge-count {
   font-family: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
 /* Micro-interaction & Motion Tokens */
@@ -240,10 +293,93 @@ code, kbd, samp, pre {
   transition-duration: 200ms;
 }
 
-/* Interactive button active feedback */
+/* Tactile Spring Physics */
+button,
+a[role="button"],
+.btn-spring {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
 button:active:not(:disabled),
-a[role="button"]:active {
-  transform: scale(0.985);
+a[role="button"]:active,
+.btn-spring:active:not(:disabled) {
+  transform: scale(0.965);
+}
+
+/* Staggered Viewport Entrance Cascade */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-stagger-1 {
+  animation: fadeSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both;
+}
+
+.animate-stagger-2 {
+  animation: fadeSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.09s both;
+}
+
+.animate-stagger-3 {
+  animation: fadeSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+}
+
+.animate-stagger-4 {
+  animation: fadeSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.19s both;
+}
+
+/* Form Field Shake Vibration */
+@keyframes fieldShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: fieldShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Waveform Gradient Shimmer */
+@keyframes shimmerWave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.12) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmerWave 1.8s infinite;
+  content: '';
+}
+
+html.light .animate-shimmer::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0.03) 20%,
+    rgba(0, 0, 0, 0.07) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 /* Form controls standard focus transition */
@@ -360,6 +496,58 @@ select option {
   animation: shimmerWave 2.5s ease-in-out infinite;
 }
 
+@keyframes fieldShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-4px);
+  }
+  40%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-shake {
+  animation: fieldShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes pulseShimmer {
+  0%, 100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-shimmer {
+  animation: pulseShimmer 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ==============================================================
+   RECHARTS SVG FOCUS & MOBILE TAP HIGHLIGHT ELIMINATION
+   ============================================================== */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-responsive-container,
+.recharts-wrapper:focus,
+.recharts-surface:focus,
+.recharts-wrapper:focus-visible,
+.recharts-surface:focus-visible,
+.recharts-wrapper *:focus,
+.recharts-surface *:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.recharts-surface {
+  touch-action: pan-y;
+}
+
 /* ==============================================================
    LENIS SMOOTH SCROLLING & HARDWARE MOMENTUM
    ============================================================== */
@@ -382,6 +570,12 @@ html.lenis body {
 
 .lenis.lenis-smooth iframe {
   pointer-events: none;
+}
+
+/* Ensure nested scrollable containers preserve native wheel and touch behaviors under Lenis */
+[data-lenis-prevent],
+[role="dialog"] {
+  overscroll-behavior: contain;
 }
 
 /* Touch momentum for mobile devices */

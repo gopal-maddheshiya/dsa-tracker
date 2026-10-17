@@ -258,6 +258,13 @@ async function runProblemsTests() {
     }, tokenA);
     assert.strictEqual(badStatusRes.status, 400, '29. Invalid status enum should return 400');
 
+    // Invalid approach enum -> 400
+    const badApproachRes = await authFetch(`${baseUrl}/api/problems/${problemA.id}/attempts`, {
+      method: 'POST',
+      body: JSON.stringify({ status: 'solved', approach: 'invalid_mode' }),
+    }, tokenA);
+    assert.strictEqual(badApproachRes.status, 400, 'Invalid approach enum should return 400');
+
     // 30. Negative timeTakenMinutes -> 400
     const negTimeRes = await authFetch(`${baseUrl}/api/problems/${problemA.id}/attempts`, {
       method: 'POST',
@@ -265,44 +272,89 @@ async function runProblemsTests() {
     }, tokenA);
     assert.strictEqual(negTimeRes.status, 400, '30. Negative timeTakenMinutes must return 400');
 
-    // 31. Valid historical attemptedAt is preserved
+    // 31. Valid historical attemptedAt is preserved, default approach is optimal
     assert.strictEqual(
       new Date(att1Data.data.attempt.attemptedAt).getTime(),
       attempt1Date.getTime(),
       '31. Historical attemptedAt must be preserved exactly'
     );
+    assert.strictEqual(att1Data.data.attempt.approach, 'optimal', 'Default approach should be optimal');
+    assert.strictEqual(att1Data.data.attempt.code, '', 'Default code should be empty');
 
-    // Add Attempt 2 (Day 2 - revisit_needed)
+    // Add Attempt 2 (Day 2 - revisit_needed, brute_force approach with Java code)
     const attempt2Date = new Date('2026-09-15T12:00:00.000Z');
+    const javaCodeSnippet = 'public class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Brute force O(N^2)\n        for (int i = 0; i < nums.length; i++) {\n            for (int j = i + 1; j < nums.length; j++) {\n                if (nums[i] + nums[j] == target) return new int[]{i, j};\n            }\n        }\n        return new int[]{};\n    }\n}';
     await authFetch(`${baseUrl}/api/problems/${problemA.id}/attempts`, {
       method: 'POST',
       body: JSON.stringify({
         status: 'revisit_needed',
         timeTakenMinutes: 30,
+        approach: 'brute_force',
+        code: javaCodeSnippet,
         notes: 'Tried again, still needs review',
         attemptedAt: attempt2Date.toISOString(),
       }),
     }, tokenA);
 
-    // Add Attempt 3 (Day 3 - solved - LATEST)
+    // Add Attempt 3 (Day 3 - solved - LATEST, optimal approach with optimal Java code)
     const attempt3Date = new Date('2026-10-01T15:00:00.000Z');
+    const optimalJavaCode = 'class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        Map<Integer, Integer> map = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int comp = target - nums[i];\n            if (map.containsKey(comp)) return new int[]{map.get(comp), i};\n            map.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}';
     await authFetch(`${baseUrl}/api/problems/${problemA.id}/attempts`, {
       method: 'POST',
       body: JSON.stringify({
         status: 'solved',
         timeTakenMinutes: 15,
+        approach: 'optimal',
+        code: optimalJavaCode,
         notes: 'Clean O(n) solution using single-pass hash table',
         attemptedAt: attempt3Date.toISOString(),
       }),
     }, tokenA);
 
-    // 32. Attempt list sorted newest first
+    // 32. Attempt list sorted newest first and includes approach & code
     const getAttList = await authFetch(`${baseUrl}/api/problems/${problemA.id}/attempts`, {}, tokenA);
     const getAttData = await getAttList.json();
     assert.strictEqual(getAttData.data.attempts.length, 3);
     assert.strictEqual(getAttData.data.attempts[0].status, 'solved', '32. Newest attempt should be first');
+    assert.strictEqual(getAttData.data.attempts[0].approach, 'optimal');
+    assert.ok(getAttData.data.attempts[0].code.includes('Map<Integer, Integer>'));
+    assert.strictEqual(getAttData.data.attempts[1].approach, 'brute_force');
+    assert.ok(getAttData.data.attempts[1].code.includes('Brute force'));
     assert.strictEqual(getAttData.data.attempts[2].status, 'struggled', '32. Oldest attempt should be last');
-    console.log('✓ 28–32. Attempt creation, validation, historical dates and ordering verified');
+
+    // Attempt update tests
+    const attemptToUpdate = getAttData.data.attempts[1]; // Attempt 2
+    const updateAttemptRes = await authFetch(
+      `${baseUrl}/api/problems/${problemA.id}/attempts/${attemptToUpdate.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          status: 'revisit_needed',
+          approach: 'better',
+          code: '// Updated Java Code with two-pointer approach\nclass Solution {}',
+          notes: 'Updated notes',
+          timeTakenMinutes: 25,
+        }),
+      },
+      tokenA
+    );
+    assert.strictEqual(updateAttemptRes.status, 200, 'Attempt update should return 200');
+    const updatedAttemptData = await updateAttemptRes.json();
+    assert.strictEqual(updatedAttemptData.data.attempt.approach, 'better');
+    assert.strictEqual(updatedAttemptData.data.attempt.timeTakenMinutes, 25);
+    assert.ok(updatedAttemptData.data.attempt.code.includes('two-pointer'));
+
+    // Attempt update by non-owner User B should return 404 (ownership isolation)
+    const forbiddenUpdateRes = await authFetch(
+      `${baseUrl}/api/problems/${problemA.id}/attempts/${attemptToUpdate.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'solved' }),
+      },
+      tokenB
+    );
+    assert.strictEqual(forbiddenUpdateRes.status, 404, 'Non-owner attempt update should return 404');
+    console.log('✓ 28–32. Attempt creation, update, authorization, historical dates, approach & code verified');
 
     // =========================================================================
     // 21–27: FILTERING, SEARCH & LATEST STATUS DERIVATION

@@ -191,43 +191,40 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Action Controls: Mobile Stack (Screen 1) & Desktop Flex */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
-          {/* Primary Action: Add Problem (Full-width on mobile) */}
+        {/* Action Controls: Single Row on All Screen Sizes */}
+        <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
+          {/* Primary Action: Add Problem */}
           <Link
             to="/problems?action=add"
-            className="w-full sm:w-auto h-11 sm:h-9 inline-flex items-center justify-center gap-2 px-4 text-sm sm:text-xs font-semibold text-white bg-gradient-to-b from-accent to-accent-hover hover:brightness-105 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_18px_rgba(237,134,65,0.38)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_6px_24px_rgba(237,134,65,0.48)] whitespace-nowrap order-1 sm:order-3"
+            className="flex-1 sm:flex-initial h-10 sm:h-9 inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 text-xs font-semibold text-white bg-gradient-to-b from-accent to-accent-hover hover:brightness-105 rounded-xl transition-all duration-200 active:scale-[0.98] btn-spring shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.35)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_6px_22px_rgba(237,134,65,0.45)] whitespace-nowrap"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
             <span>Add Problem</span>
           </Link>
 
-          {/* Secondary Row: Review Due + Refresh (2 columns on mobile) */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-3 order-2">
-            {/* Review Due */}
-            <Link
-              to="/revision"
-              className="h-10 sm:h-9 inline-flex items-center justify-center gap-2 px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface hover:bg-surface-hover border border-line hover:border-line-hover rounded-xl transition-all duration-200 active:scale-[0.98] shadow-subtle hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] whitespace-nowrap"
-            >
-              <span>Review Due</span>
-              <ArrowRight className="w-3.5 h-3.5 text-muted" />
-            </Link>
+          {/* Secondary Action: Review Due */}
+          <Link
+            to="/revision"
+            className="h-10 sm:h-9 inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 text-xs font-medium text-text-secondary hover:text-text bg-surface hover:bg-surface-hover border border-line hover:border-line-hover rounded-xl transition-all duration-200 active:scale-[0.98] btn-spring shadow-subtle hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] whitespace-nowrap shrink-0"
+          >
+            <span>Review Due</span>
+            <ArrowRight className="w-3.5 h-3.5 text-muted shrink-0" />
+          </Link>
 
-            {/* Refresh */}
-            <button
-              type="button"
-              onClick={loadDashboard}
-              disabled={isRefreshing}
-              className="h-10 sm:h-9 p-2.5 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-surface-hover border border-line hover:border-line-hover text-text-secondary hover:text-text transition-all duration-200 active:scale-[0.98] shadow-subtle hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] disabled:opacity-50"
-              title="Refresh analytics data"
-              aria-label="Refresh analytics data"
-            >
-              <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-accent' : ''}`} />
-            </button>
-          </div>
+          {/* Refresh Action */}
+          <button
+            type="button"
+            onClick={loadDashboard}
+            disabled={isRefreshing}
+            className="w-10 h-10 sm:w-9 sm:h-9 p-0 inline-flex items-center justify-center rounded-xl bg-surface hover:bg-surface-hover border border-line hover:border-line-hover text-text-secondary hover:text-text transition-all duration-200 active:scale-[0.98] btn-spring shadow-subtle hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] disabled:opacity-50 shrink-0 cursor-pointer"
+            title="Refresh analytics data"
+            aria-label="Refresh analytics data"
+          >
+            <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-accent' : ''}`} />
+          </button>
 
-          {/* Motivational Quote Box (Desktop only) */}
-          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-2/70 border border-line/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] order-4">
+          {/* Motivational Quote Box (Desktop XL only) */}
+          <div className="hidden xl:flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-2/70 border border-line/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] shrink-0">
             <div className="w-5 h-5 rounded-md bg-accent/15 text-accent flex items-center justify-center font-bold text-xs shrink-0">
               “
             </div>
@@ -241,12 +238,12 @@ export default function DashboardPage() {
       {/* ==============================================================
           2. TOP 4 KPI CARDS: Tracked Problems, Practice Attempts, Solved Problems, Success Rate (Screen 1)
           ============================================================== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-stagger-1">
         {/* Card 1: Tracked Problems */}
         <StatCard
           label="Tracked Problems"
           value={totalProblems}
-          subtext={`${totalProblems} total`}
+          subtext="In collection"
           badgeType="tracked"
           loading={summaryState.loading}
           error={summaryState.error}
@@ -257,7 +254,7 @@ export default function DashboardPage() {
         <StatCard
           label="Practice Attempts"
           value={totalAttempted}
-          subtext={`${totalAttempted} sessions`}
+          subtext="Total sessions"
           badgeType="attempts"
           loading={summaryState.loading}
           error={summaryState.error}
@@ -268,9 +265,8 @@ export default function DashboardPage() {
         <StatCard
           label="Solved Problems"
           value={totalSolved}
-          subtext={`${solvedPct}%`}
+          subtext="Successful solutions"
           badgeType="solved"
-          percentage={solvedPct}
           loading={summaryState.loading}
           error={summaryState.error}
           onRetry={fetchSummaryData}
@@ -280,9 +276,8 @@ export default function DashboardPage() {
         <StatCard
           label="Success Rate"
           value={`${successRate}%`}
-          subtext="accuracy"
+          subtext="Overall accuracy"
           badgeType="success"
-          percentage={Math.round(Number(successRate))}
           loading={summaryState.loading}
           error={summaryState.error}
           onRetry={fetchSummaryData}
@@ -292,7 +287,7 @@ export default function DashboardPage() {
       {/* ==============================================================
           3. MIDDLE ROW: Solving Progress (60%) + Problems by Difficulty (40%)
           ============================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 animate-stagger-2">
         <div className="lg:col-span-7 xl:col-span-7">
           <TrendChart
             data={trendState.data}
@@ -316,7 +311,7 @@ export default function DashboardPage() {
       {/* ==============================================================
           4. BOTTOM ROW: Topic-wise Performance (50%) + Daily Consistency & Revision Queue (50%)
           ============================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch animate-stagger-3">
         {/* Topic-wise Performance */}
         <div className="lg:col-span-6 xl:col-span-6 flex flex-col">
           <TopicWeaknessChart

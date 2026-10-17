@@ -8,6 +8,8 @@ import ProblemMobileList from '../components/problems/ProblemMobileList';
 import ProblemFormModal from '../components/problems/ProblemFormModal';
 import AttemptFormModal from '../components/problems/AttemptFormModal';
 import DeleteConfirmModal from '../components/problems/DeleteConfirmModal';
+import ViewLogModal from '../components/problems/ViewLogModal';
+import ProblemPagination from '../components/problems/ProblemPagination';
 
 /**
  * ProblemsPage
@@ -28,10 +30,16 @@ export default function ProblemsPage() {
   const [topic, setTopic] = useState(() => searchParams.get('topic') || '');
   const [status, setStatus] = useState(() => searchParams.get('status') || '');
 
+  // Pagination state (chunks of 10 problems per page by default)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(() => searchParams.get('action') === 'add');
   const [editingProblem, setEditingProblem] = useState(null);
   const [attemptingProblem, setAttemptingProblem] = useState(null);
+  const [editingAttemptData, setEditingAttemptData] = useState(null);
+  const [viewingLogProblem, setViewingLogProblem] = useState(null);
   const [deletingProblem, setDeletingProblem] = useState(null);
 
   // Sync state if URL search parameters update
@@ -166,6 +174,36 @@ export default function ProblemsPage() {
     return list;
   }, [filteredProblems, sortConfig]);
 
+  // Reset pagination to first page when filtering or sorting changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, difficulty, topic, status, sortConfig]);
+
+  // Total pages and safely clamped active page
+  const totalPages = Math.max(1, Math.ceil(displayedProblems.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  // Paginated problems chunk (10 items by default)
+  const paginatedProblems = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return displayedProblems.slice(startIndex, startIndex + pageSize);
+  }, [displayedProblems, safeCurrentPage, pageSize]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    if (typeof window !== 'undefined') {
+      const target = document.getElementById('problems-list-section');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
   // Sorted topic list for filter selector
   const availableTopics = useMemo(() => {
     return Array.from(allKnownTopics).sort((a, b) => a.localeCompare(b));
@@ -225,7 +263,12 @@ export default function ProblemsPage() {
 
   const handleLogAttemptSubmit = async (attemptData) => {
     if (!attemptingProblem) return;
-    await problemsApi.createAttempt(attemptingProblem.id, attemptData);
+    if (editingAttemptData) {
+      await problemsApi.updateAttempt(attemptingProblem.id, editingAttemptData.id, attemptData);
+      setEditingAttemptData(null);
+    } else {
+      await problemsApi.createAttempt(attemptingProblem.id, attemptData);
+    }
     await loadProblems();
   };
 
@@ -354,29 +397,41 @@ export default function ProblemsPage() {
           </div>
         </>
       ) : displayedProblems.length > 0 ? (
-        <>
+        <div id="problems-list-section" className="space-y-4">
           {/* Desktop Table View */}
           <div className="hidden md:block">
             <ProblemTable
-              problems={displayedProblems}
+              problems={paginatedProblems}
               sortConfig={sortConfig}
               onSort={handleSort}
               onLogAttempt={(p) => setAttemptingProblem(p)}
               onEditProblem={(p) => setEditingProblem(p)}
               onDeleteProblem={(p) => setDeletingProblem(p)}
+              onViewLogs={(p) => setViewingLogProblem(p)}
             />
           </div>
 
           {/* Mobile Card List View */}
           <div className="block md:hidden">
             <ProblemMobileList
-              problems={displayedProblems}
+              problems={paginatedProblems}
               onLogAttempt={(p) => setAttemptingProblem(p)}
               onEditProblem={(p) => setEditingProblem(p)}
               onDeleteProblem={(p) => setDeletingProblem(p)}
+              onViewLogs={(p) => setViewingLogProblem(p)}
             />
           </div>
-        </>
+
+          {/* Pagination Controls */}
+          <ProblemPagination
+            currentPage={safeCurrentPage}
+            totalPages={totalPages}
+            totalItems={displayedProblems.length}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </div>
       ) : hasAnyFilterActive ? (
         /* Empty State: No match for filters */
         <div className="p-12 text-center flex flex-col items-center justify-center space-y-3 bg-surface border border-line rounded-xl shadow-xs">
@@ -439,9 +494,29 @@ export default function ProblemsPage() {
 
       <AttemptFormModal
         isOpen={Boolean(attemptingProblem)}
-        onClose={() => setAttemptingProblem(null)}
+        onClose={() => {
+          setAttemptingProblem(null);
+          setEditingAttemptData(null);
+        }}
         onSubmit={handleLogAttemptSubmit}
         problemTitle={attemptingProblem?.title}
+        initialData={editingAttemptData}
+      />
+
+      <ViewLogModal
+        isOpen={Boolean(viewingLogProblem)}
+        onClose={() => setViewingLogProblem(null)}
+        problem={viewingLogProblem}
+        onEditAttempt={(problem, attempt) => {
+          setViewingLogProblem(null);
+          setAttemptingProblem(problem);
+          setEditingAttemptData(attempt);
+        }}
+        onLogNewAttempt={(problem) => {
+          setViewingLogProblem(null);
+          setAttemptingProblem(problem);
+          setEditingAttemptData(null);
+        }}
       />
 
       <DeleteConfirmModal
