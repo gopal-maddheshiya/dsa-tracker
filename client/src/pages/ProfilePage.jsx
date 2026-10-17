@@ -194,7 +194,7 @@ export default function ProfilePage() {
       {/* 1. Identity & Portfolio Hero Banner */}
       <div className="p-5 sm:p-7 rounded-2xl bg-surface border border-line shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-3xl font-mono shadow-[0_0_24px_rgba(237,134,65,0.35)] shrink-0">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-[#ed8641] to-[#f97316] text-white font-bold flex items-center justify-center text-3xl font-mono ring-1 ring-white/20 shrink-0">
             {displayInitial}
           </div>
 

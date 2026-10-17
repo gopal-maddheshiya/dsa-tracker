@@ -100,7 +100,7 @@ export default function ProblemFilters({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search problems by title, topic..."
-            className="w-full h-9.5 sm:h-10 bg-surface-2 border border-line rounded-lg pl-9 pr-8 text-xs sm:text-sm text-text placeholder-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent focus:shadow-[0_0_16px_rgba(237,134,65,0.18)] transition-all shadow-xs"
+            className="w-full h-9.5 sm:h-10 bg-surface-2 border border-line rounded-lg pl-9 pr-8 text-xs sm:text-sm text-text placeholder-muted/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-xs"
           />
           {searchInput && (
             <button

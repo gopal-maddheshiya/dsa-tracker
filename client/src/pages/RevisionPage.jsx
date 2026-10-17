@@ -470,7 +470,7 @@ export default function RevisionPage() {
             <button
               type="button"
               onClick={() => loadRevisionData()}
-              className="h-9 px-4 text-xs font-mono text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_12px_rgba(237,134,65,0.3)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.4)]"
+              className="h-9 px-4 text-xs font-mono text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"
             >
               Retry
             </button>
@@ -493,7 +493,7 @@ export default function RevisionPage() {
             </div>
             <Link
               to="/problems"
-              className="mt-2 h-9 inline-flex items-center gap-1.5 px-4 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_12px_rgba(237,134,65,0.3)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.4)]"
+              className="mt-2 h-9 inline-flex items-center gap-1.5 px-4 text-xs font-medium text-white bg-accent hover:bg-accent-hover rounded-md transition-all duration-200 active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"
             >
               <span>Go to Problems</span>
               <ArrowRight className="w-3.5 h-3.5" />

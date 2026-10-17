@@ -65,7 +65,7 @@ export default function StatCard({
   // Map card style identity with custom spotlight hues and conceptual DSA icons
   const cardConfig = {
     tracked: {
-      iconBg: 'bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-[0_2px_12px_rgba(249,115,22,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white ring-1 ring-white/20',
       Icon: Code2,
       subtextColor: 'text-[#ed8641]',
       hasTrend: false,
@@ -73,7 +73,7 @@ export default function StatCard({
       borderColor: 'rgba(237, 134, 65, 0.38)',
     },
     attempts: {
-      iconBg: 'bg-gradient-to-br from-[#06b6d4] to-[#0891b2] text-white shadow-[0_2px_12px_rgba(6,182,212,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#06b6d4] to-[#0891b2] text-white ring-1 ring-white/20',
       Icon: Terminal,
       subtextColor: 'text-[#0891b2] dark:text-[#5ebdbc]',
       hasTrend: false,
@@ -81,7 +81,7 @@ export default function StatCard({
       borderColor: 'rgba(94, 189, 188, 0.38)',
     },
     total: {
-      iconBg: 'bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-[0_2px_12px_rgba(249,115,22,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white ring-1 ring-white/20',
       Icon: Code2,
       subtextColor: 'text-[#ed8641]',
       hasTrend: false,
@@ -89,7 +89,7 @@ export default function StatCard({
       borderColor: 'rgba(237, 134, 65, 0.38)',
     },
     solved: {
-      iconBg: 'bg-gradient-to-br from-[#10b981] to-[#059669] text-white shadow-[0_2px_12px_rgba(16,185,129,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#10b981] to-[#059669] text-white ring-1 ring-white/20',
       Icon: CheckCheck,
       subtextColor: 'text-emerald-500 dark:text-emerald-400',
       hasTrend: false,
@@ -97,7 +97,7 @@ export default function StatCard({
       borderColor: 'rgba(16, 185, 129, 0.38)',
     },
     success: {
-      iconBg: 'bg-gradient-to-br from-[#f43f5e] to-[#e11d48] text-white shadow-[0_2px_12px_rgba(244,63,94,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#f43f5e] to-[#e11d48] text-white ring-1 ring-white/20',
       Icon: Target,
       subtextColor: 'text-rose-500 dark:text-rose-400',
       hasTrend: false,
@@ -105,7 +105,7 @@ export default function StatCard({
       borderColor: 'rgba(225, 29, 72, 0.38)',
     },
     inprogress: {
-      iconBg: 'bg-gradient-to-br from-[#f59e0b] to-[#d97706] text-white shadow-[0_2px_12px_rgba(245,158,11,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#f59e0b] to-[#d97706] text-white ring-1 ring-white/20',
       Icon: Clock,
       subtextColor: 'text-amber-500 dark:text-amber-400',
       hasTrend: false,
@@ -113,7 +113,7 @@ export default function StatCard({
       borderColor: 'rgba(245, 158, 11, 0.38)',
     },
     notsolved: {
-      iconBg: 'bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white shadow-[0_2px_12px_rgba(239,68,68,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white ring-1 ring-white/20',
       Icon: X,
       subtextColor: 'text-rose-500 dark:text-rose-400',
       hasTrend: false,
@@ -121,7 +121,7 @@ export default function StatCard({
       borderColor: 'rgba(239, 68, 68, 0.38)',
     },
     default: {
-      iconBg: 'bg-gradient-to-br from-[#10b981] to-[#059669] text-white shadow-[0_2px_12px_rgba(16,185,129,0.3)] ring-1 ring-white/20',
+      iconBg: 'bg-gradient-to-br from-[#10b981] to-[#059669] text-white ring-1 ring-white/20',
       Icon: CheckCheck,
       subtextColor: 'text-emerald-500 dark:text-emerald-400',
       hasTrend: false,

@@ -139,7 +139,7 @@ export default function ProblemPagination({
                 onClick={() => onPageChange(page)}
                 className={`h-8 min-w-8 px-2 rounded-lg text-xs font-mono font-medium transition-all duration-150 active:scale-95 ${
                   isActive
-                    ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-semibold shadow-[0_2px_10px_rgba(237,134,65,0.35)]'
+                    ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]'
                     : 'text-text-secondary hover:text-text hover:bg-surface-2 border border-transparent hover:border-line'
                 }`}
                 aria-label={`Go to page ${page}`}

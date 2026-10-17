@@ -256,7 +256,7 @@ export default function SettingsPage() {
             type="button"
             onClick={() => setTheme('dark')}
             className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all ${theme === 'dark'
-                ? 'border-accent bg-accent/5 ring-1 ring-accent/30 shadow-[0_0_16px_rgba(237,134,65,0.15)]'
+                ? 'border-accent bg-accent/5 ring-1 ring-accent/30'
                 : 'border-line bg-surface-2 hover:border-line-hover hover:bg-surface-hover'
               }`}
           >
@@ -283,7 +283,7 @@ export default function SettingsPage() {
             type="button"
             onClick={() => setTheme('light')}
             className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all ${theme === 'light'
-                ? 'border-accent bg-accent/5 ring-1 ring-accent/30 shadow-[0_0_16px_rgba(237,134,65,0.15)]'
+                ? 'border-accent bg-accent/5 ring-1 ring-accent/30'
                 : 'border-line bg-surface-2 hover:border-line-hover hover:bg-surface-hover'
               }`}
           >
@@ -414,7 +414,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={algoSaving}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold text-xs hover:brightness-110 active:scale-95 transition-all shadow-md disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold text-xs hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
             >
               {algoSaving ? (
                 <>

@@ -424,7 +424,7 @@ export default function AnalyticsPage() {
                       <div className="w-full max-w-[32px] bg-surface-2 rounded-t-lg overflow-hidden flex flex-col justify-end h-28 border-t border-x border-line">
                         <div
                           className={`w-full rounded-t-lg transition-all duration-500 ${isPeak
-                              ? 'bg-accent shadow-[0_0_12px_rgba(237,134,65,0.4)]'
+                              ? 'bg-accent'
                               : 'bg-surface-hover group-hover:bg-accent/40'
                             }`}
                           style={{ height: `${heightPct}%` }}

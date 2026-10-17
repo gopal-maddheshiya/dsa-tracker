@@ -198,7 +198,7 @@ export default function RevisionCard({ item, index, onQuickLog, onViewLogs }) {
             <Link
               to={`/problems/${item.id}`}
               aria-label={`Review problem ${item.title}`}
-              className="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 text-xs font-semibold text-white bg-gradient-to-r from-accent to-accent-hover hover:brightness-105 rounded-lg transition-all duration-150 active:scale-[0.98] shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_12px_rgba(237,134,65,0.32)]"
+              className="h-9 inline-flex items-center justify-center gap-1.5 px-3.5 text-xs font-semibold text-white bg-gradient-to-r from-accent to-accent-hover hover:brightness-105 rounded-lg transition-all duration-150 active:scale-[0.98] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
             >
               <span>Review</span>
               <ArrowRight className="w-3.5 h-3.5 shrink-0" />

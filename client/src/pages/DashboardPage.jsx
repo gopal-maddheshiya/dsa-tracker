@@ -196,7 +196,7 @@ export default function DashboardPage() {
           {/* Primary Action: Add Problem */}
           <Link
             to="/problems?action=add"
-            className="flex-1 sm:flex-initial h-10 sm:h-9 inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 text-xs font-semibold text-white bg-gradient-to-b from-accent to-accent-hover hover:brightness-105 rounded-xl transition-all duration-200 active:scale-[0.98] btn-spring shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_4px_16px_rgba(237,134,65,0.35)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_6px_22px_rgba(237,134,65,0.45)] whitespace-nowrap"
+            className="flex-1 sm:flex-initial h-10 sm:h-9 inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 text-xs font-semibold text-white bg-gradient-to-b from-accent to-accent-hover hover:brightness-105 rounded-xl transition-all duration-200 active:scale-[0.98] btn-spring shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] whitespace-nowrap"
           >
             <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
             <span>Add Problem</span>

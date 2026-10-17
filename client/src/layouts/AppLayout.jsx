@@ -171,7 +171,7 @@ export default function AppLayout() {
                   title={item.name}
                   className={`flex items-center gap-3.5 rounded-xl text-xs font-medium transition-all ${isCollapsed ? 'justify-center px-0 py-3' : 'px-3.5 py-2.5'
                     } ${isItemActive
-                      ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_16px_rgba(237,134,65,0.35)]'
+                      ? 'bg-gradient-to-r from-accent to-accent-hover text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]'
                       : 'text-text-secondary hover:text-text hover:bg-surface/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]'
                     }`}
                 >
@@ -372,7 +372,7 @@ export default function AppLayout() {
           >
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname === '/dashboard' || location.pathname === '/'
-                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
+                  ? 'bg-accent/15 text-accent scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
                 }`}
             >
@@ -395,7 +395,7 @@ export default function AppLayout() {
           >
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname.startsWith('/problems')
-                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
+                  ? 'bg-accent/15 text-accent scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
                 }`}
             >
@@ -418,7 +418,7 @@ export default function AppLayout() {
           >
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname.startsWith('/revision')
-                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
+                  ? 'bg-accent/15 text-accent scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
                 }`}
             >
@@ -441,7 +441,7 @@ export default function AppLayout() {
           >
             <div
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname.startsWith('/analytics')
-                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
+                  ? 'bg-accent/15 text-accent scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
                 }`}
             >
@@ -466,7 +466,7 @@ export default function AppLayout() {
               className={`px-3 py-1 rounded-2xl flex items-center justify-center transition-all duration-200 ${location.pathname === '/profile' ||
                   location.pathname === '/settings' ||
                   location.pathname === '/account'
-                  ? 'bg-accent/15 text-accent shadow-[0_0_12px_rgba(237,134,65,0.22)] scale-105'
+                  ? 'bg-accent/15 text-accent scale-105'
                   : 'text-text-secondary group-hover:text-text group-hover:bg-surface-2/60'
                 }`}
             >

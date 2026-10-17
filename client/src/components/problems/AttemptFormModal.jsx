@@ -365,7 +365,7 @@ export default function AttemptFormModal({
                           }
                           className={`px-2 py-0.5 text-[10px] font-mono rounded-md border transition-all active:scale-95 ${
                             isSelected
-                              ? 'bg-accent text-white border-accent font-semibold shadow-[0_0_10px_rgba(237,134,65,0.4)]'
+                              ? 'bg-accent text-white border-accent font-semibold'
                               : 'bg-surface-2/60 text-muted hover:text-text hover:bg-surface-hover border-line/70'
                           }`}
                         >
@@ -473,7 +473,7 @@ export default function AttemptFormModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="h-9 inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold bg-gradient-to-r from-accent to-accent-hover hover:brightness-110 active:scale-[0.98] text-white rounded-xl transition-all duration-150 shadow-[0_2px_14px_rgba(237,134,65,0.35),inset_0_1px_0_rgba(255,255,255,0.25)] disabled:opacity-60"
+                className="h-9 inline-flex items-center justify-center gap-2 px-5 text-xs font-semibold bg-gradient-to-r from-accent to-accent-hover hover:brightness-110 active:scale-[0.98] text-white rounded-xl transition-all duration-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] disabled:opacity-60"
               >
                 {loading ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
